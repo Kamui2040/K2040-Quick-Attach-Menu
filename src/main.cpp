@@ -17,7 +17,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500B4; // 0.5.180 removes deferred icon support for release
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500B5; // 0.5.181 generated-menu and active-OMOD safety hotfix
 
     void OnPluginLoaded()
     {
