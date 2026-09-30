@@ -913,52 +913,16 @@ namespace k2040
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
 
-        // A reachable AP is necessary but not sufficient compatibility evidence:
-        // providers often expose generic display points that attachments from
-        // unrelated weapons also consume. Seed a proven source family from the
-        // equipped weapon and the OMODs already present in its default/live
-        // configuration. Also seed the weapon family's instantiation-filter
-        // keywords from those proven OMODs. Installed OMODs remain trusted even
-        // if a patch supplied them; uninstalled alternatives must match either
-        // the equipped weapon/live instance directly or that proven filter
-        // family before the reachable-AP graph can admit them.
-        std::vector<std::string> trustedSourcePlugins;
-        AppendUniquePluginName(trustedSourcePlugins, weaponInfo.weapon.sourcePlugin);
-        for (const auto& attachment : weaponInfo.defaultTemplateMods) {
-            AppendUniquePluginName(trustedSourcePlugins, attachment.omod.sourcePlugin);
-        }
-        for (const auto& installed : weaponInfo.installedObjectInstanceMods) {
-            AppendUniquePluginName(trustedSourcePlugins, installed.sourcePlugin);
-        }
-
-        std::vector<FormRef> trustedFilterKeywords;
-        const auto appendTrustedFilters = [&](std::uint32_t omodFormId) {
-            auto* form = RE::TESForm::GetFormByID(omodFormId);
-            auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
-            if (!mod) {
-                return;
-            }
-
-            for (std::uint32_t i = 0; i < mod->filterKeywords.size; ++i) {
-                const auto keywordIndex = mod->filterKeywords.array[i].keywordIndex;
-                const auto* keyword = RE::detail::BGSKeywordGetTypedKeywordByIndex(
-                    RE::KeywordType::kInstantiationFilter,
-                    keywordIndex);
-                auto filter = MakeFormRef(keyword);
-                if (filter.formId != 0 &&
-                    !ContainsFormId(trustedFilterKeywords, filter.formId)) {
-                    trustedFilterKeywords.push_back(std::move(filter));
-                }
-            }
-        };
-
-        for (const auto& attachment : weaponInfo.defaultTemplateMods) {
-            appendTrustedFilters(attachment.omod.formId);
-        }
-        for (const auto& installed : weaponInfo.installedObjectInstanceMods) {
-            appendTrustedFilters(installed.formId);
-        }
-
+        // Match the workbench's authored compatibility model:
+        // - the OMOD must consume an attach point reachable from the weapon graph;
+        // - if the OMOD has Target OMOD / instantiation-filter keywords, at
+        //   least one must exist on the equipped weapon or its live instance;
+        // - if it has no target keyword, the attach-point match is sufficient.
+        //
+        // Source plugin is deliberately not a compatibility boundary. Patches
+        // and add-ons may author valid OMODs for a weapon from another plugin.
+        // Inventory affects Quick Menu visibility only; Builder enumeration is
+        // independent of inventory.
         for (auto* mod : allMods) {
             if (!mod || mod->targetFormType != RE::ENUM_FORM_ID::kWEAP) continue;
 
@@ -983,24 +947,11 @@ namespace k2040
             if (!candidate.installed && !candidate.inventoryAvailable &&
                 !includeInventoryUnavailableOptions) continue;
 
-            const bool trustedSource = ContainsPluginName(
-                trustedSourcePlugins,
-                candidate.omod.sourcePlugin);
-            if (!candidate.installed && !trustedSource) {
-                log::Info(
-                    "Generated carried candidate rejected outside equipped weapon source family: OMOD=" +
-                    ToHexFormId(candidate.omod.formId) +
-                    ", source=" +
-                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
-                    ", looseMod=" + ToHexFormId(candidate.looseMod.formId));
-                continue;
-            }
-
             candidate.consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
             if (candidate.consumes.formId == 0) continue;
             candidate.provides = CollectAttachParentSlots(mod->attachParents);
 
-            bool filterMatches = false;
+            bool targetMatches = mod->filterKeywords.size == 0;
             for (std::uint32_t i = 0; i < mod->filterKeywords.size; ++i) {
                 const auto keywordIndex = mod->filterKeywords.array[i].keywordIndex;
                 const auto* keyword = RE::detail::BGSKeywordGetTypedKeywordByIndex(
@@ -1009,19 +960,18 @@ namespace k2040
                 if (filter.formId == 0) continue;
                 candidate.filters.push_back(filter);
                 if (equippedWeapon->HasKeyword(keyword) ||
-                    ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId) ||
-                    ContainsFormId(trustedFilterKeywords, filter.formId)) {
-                    filterMatches = true;
+                    ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId)) {
+                    targetMatches = true;
                 }
             }
 
-            if (!candidate.installed && !filterMatches) {
+            if (!candidate.installed && !targetMatches) {
                 log::Info(
-                    "Generated candidate rejected without weapon-family target-filter evidence: OMOD=" +
+                    "Generated candidate rejected by workbench target-keyword compatibility: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
                     (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
-                    ", filters=" + JoinFormRefEditorIds(candidate.filters));
+                    ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
                 continue;
             }
 
@@ -1032,9 +982,9 @@ namespace k2040
                     ", label=\"" + SafeFullName(looseMod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
-                    ", rawFilterCount=" + std::to_string(mod->filterKeywords.size) +
-                    ", resolvedFilters=" + JoinFormRefEditorIds(candidate.filters) +
-                    ", filterMatches=true, trustedFilterFamily=" + JoinFormRefEditorIds(trustedFilterKeywords));
+                    ", rawTargetKeywordCount=" + std::to_string(mod->filterKeywords.size) +
+                    ", resolvedTargetKeywords=" + JoinFormRefEditorIds(candidate.filters) +
+                    ", targetMatches=true");
             }
 
             candidates.push_back(std::move(candidate));
