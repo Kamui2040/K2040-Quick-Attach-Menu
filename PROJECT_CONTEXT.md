@@ -11,7 +11,15 @@ Version 0.5.181 is a minimal hotfix based directly on the runtime-verified
 0.5.180 source. It changes generated-menu compatibility filtering, disabled
 object-instance OMOD handling, synchronized version metadata, hotfix
 documentation, and Windows SDK library-name casing needed by the Linux build
-host. Build and focused target-runtime validation are pending.
+host.
+
+The old-gen-compatible candidate now loads and opens both Prisma menus on
+Fallout 4 1.10.163. The first generated-menu filter was too strict in runtime
+testing and reduced both menus to already-installed attachments. The candidate
+now accepts positive instantiation-filter evidence from the equipped weapon,
+live instance, or its proven default/active OMOD family while retaining source
+family and attachment-point checks. This adjustment requires a fresh build and
+focused target-runtime regression before merge.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser
