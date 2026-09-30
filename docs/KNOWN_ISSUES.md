@@ -4,8 +4,10 @@
 
 Version 0.5.180 can admit unrelated OMODs when source-family and generic
 attachment-point checks overlap. The 0.5.181 hotfix candidate additionally
-requires an equipped-weapon instantiation-filter keyword match for uninstalled
-generated-menu candidates.
+requires positive instantiation-filter evidence from the equipped weapon, its
+live instance, or the default/active OMOD family already proven for that
+weapon. This keeps compatible alternatives visible without returning to
+attachment-point-only matching.
 
 ## 0.5.180 false ambiguous replacement state
 
