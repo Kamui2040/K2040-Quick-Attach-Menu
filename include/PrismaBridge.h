@@ -13,6 +13,7 @@ namespace k2040
     {
     public:
         bool Initialize();
+        void EnsureDockRegistration();
         bool IsAvailable() const;
         bool CanOpenFromHotkey() const;
         bool BeginOpenFromHotkey();
