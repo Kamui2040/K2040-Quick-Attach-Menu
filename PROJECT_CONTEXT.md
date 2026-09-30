@@ -8,9 +8,10 @@
 - Release presentation: text-only; icons and weapon preview are not included
 
 Version 0.5.181 is a minimal hotfix based directly on the runtime-verified
-0.5.180 source. It changes only generated-menu compatibility filtering,
-disabled object-instance OMOD handling, synchronized version metadata, and
-hotfix documentation. Build and focused target-runtime validation are pending.
+0.5.180 source. It changes generated-menu compatibility filtering, disabled
+object-instance OMOD handling, synchronized version metadata, hotfix
+documentation, and Windows SDK library-name casing needed by the Linux build
+host. Build and focused target-runtime validation are pending.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser
