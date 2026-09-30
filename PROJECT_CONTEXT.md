@@ -16,6 +16,6 @@ The fix requires positive equipped-weapon target/filter-keyword evidence for
 uninstalled generated-menu candidates and excludes disabled object-instance
 entries from live installed identity.
 
-Source review is complete on the hotfix branch. A clean Linux build and focused
-Fallout 4 runtime regression are still required before this hotfix is accepted
-as runtime-verified.
+Source review and a clean Linux Windows-x64 build have passed on the hotfix
+branch. Focused Fallout 4 runtime regression is still required before this
+hotfix is accepted as runtime-verified.
