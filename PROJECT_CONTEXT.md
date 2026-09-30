@@ -14,15 +14,16 @@ documentation, and Windows SDK library-name casing needed by the Linux build
 host.
 
 The old-gen-compatible candidate now loads and opens both Prisma menus on
-Fallout 4 1.10.163. The first generated-menu filter was too strict in runtime
-testing and reduced both menus to already-installed attachments. The candidate
-now accepts positive instantiation-filter evidence from the equipped weapon,
-live instance, or its proven default/active OMOD family while retaining source
-family and attachment-point checks. This adjustment requires a fresh build and
-focused target-runtime regression before merge. The same candidate now also
-prepares a hidden Quick Menu view after load/new-game transitions so Prisma
-Dock can discover the mod through the framework's live-view enumeration;
-runtime verification of that Dock entry is pending.
+Fallout 4 1.10.163, and Prisma Dock registration is confirmed in runtime QA.
+The earlier generated-menu filters were too strict and reduced both menus to
+already-installed attachments. The candidate now follows workbench
+compatibility instead: reachable attachment point plus Target OMOD /
+instantiation-filter keyword matching when target keywords are declared, with
+no source-plugin restriction. Builder is intended to show every compatible
+attachment regardless of inventory; Quick Menu is intended to show installed
+attachments plus compatible loose mods currently carried by the player. This
+catalog correction requires a fresh build and focused target-runtime regression
+before merge.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser
