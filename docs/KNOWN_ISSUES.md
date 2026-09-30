@@ -2,12 +2,12 @@
 
 ## 0.5.180 generated-menu compatibility
 
-Version 0.5.180 can admit unrelated OMODs when source-family and generic
-attachment-point checks overlap. The 0.5.181 hotfix candidate additionally
-requires positive instantiation-filter evidence from the equipped weapon, its
-live instance, or the default/active OMOD family already proven for that
-weapon. This keeps compatible alternatives visible without returning to
-attachment-point-only matching.
+Version 0.5.180 can admit unrelated OMODs when generic attachment points overlap
+between weapon families. The 0.5.181 hotfix candidate now follows the
+workbench's authored compatibility model: reachable attachment point plus
+Target OMOD / instantiation-filter keyword matching when those target keywords
+are present. OMODs with no target keyword remain generic by design, matching
+the workbench behavior.
 
 ## 0.5.180 false ambiguous replacement state
 
