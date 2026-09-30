@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.181
+
+Hotfix for attachment compatibility and live installed-state detection.
+
+- Runtime-generated menus now require an equipped-weapon target/filter-keyword
+  match before an uninstalled OMOD can be offered.
+- Disabled object-instance OMOD entries no longer count as currently installed.
+- Prevents unrelated weapon attachments from appearing through shared generic
+  attachment points and prevents false ambiguous-state replacement blocks.
+
 ## 0.5.180
 
 First public release of **K2040's Quick Attach Menu**.
