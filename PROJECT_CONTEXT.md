@@ -19,7 +19,10 @@ testing and reduced both menus to already-installed attachments. The candidate
 now accepts positive instantiation-filter evidence from the equipped weapon,
 live instance, or its proven default/active OMOD family while retaining source
 family and attachment-point checks. This adjustment requires a fresh build and
-focused target-runtime regression before merge.
+focused target-runtime regression before merge. The same candidate now also
+prepares a hidden Quick Menu view after load/new-game transitions so Prisma
+Dock can discover the mod through the framework's live-view enumeration;
+runtime verification of that Dock entry is pending.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser
