@@ -917,11 +917,11 @@ namespace k2040
                     player->inventoryList->GetItemCount(looseMod) > 0;
             }
 
-            // The quick menu exposes only installed OMODs and options backed by
-            // loose-mod items the player actually carries. The builder can ask
-            // for the complete source-family/AP catalog so entries may be
-            // configured before their loose mods are acquired. This does not
-            // make those entries selectable or weaken mutation validation.
+            // The quick menu exposes only installed OMODs and compatible
+            // options backed by loose-mod items the player actually carries.
+            // The builder asks for the complete workbench-compatible catalog
+            // so entries can be configured before their loose mods are acquired.
+            // This does not weaken mutation validation.
             if (!candidate.installed && !candidate.inventoryAvailable &&
                 !includeInventoryUnavailableOptions) continue;
 
@@ -1074,7 +1074,6 @@ namespace k2040
         log::Info(
             "Generic menu finished: valid=" + std::string(menu.valid ? "true" : "false") +
             ", candidates=" + std::to_string(candidates.size()) +
-            ", trustedSources=" + std::to_string(trustedSourcePlugins.size()) +
             ", categories=" + std::to_string(menu.categories.size()) +
             ", status=" + menu.status);
         return menu;
