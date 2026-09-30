@@ -600,7 +600,7 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
                 }
             }
 
-            status = "BGSObjectInstanceExtra probe succeeded on the equipped inventory stack. Raw ObjectIndexData entries were resolved through the runtime form table; resolved OMOD refs are stored in installedObjectInstanceMods.";
+            status = "BGSObjectInstanceExtra probe succeeded on the equipped inventory stack. Raw ObjectIndexData entries were resolved through the runtime form table; only active resolved OMOD refs are stored in installedObjectInstanceMods.";
             return false;
         });
 
