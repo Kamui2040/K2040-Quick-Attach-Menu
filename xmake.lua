@@ -17,9 +17,8 @@ set_languages("c++23")
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
 
 local commonlibf4 = os.getenv("K2040_COMMONLIBF4_ROOT")
-if not commonlibf4 or commonlibf4 == "" then
-    raise("K2040_COMMONLIBF4_ROOT must point to an xmake-compatible CommonLibF4 checkout")
-end
+assert(commonlibf4 and commonlibf4 ~= "",
+    "K2040_COMMONLIBF4_ROOT must point to an xmake-compatible CommonLibF4 checkout")
 
 commonlibf4 = path.absolute(commonlibf4)
 if not os.isdir(commonlibf4) then
@@ -51,9 +50,8 @@ if is_host("linux") and is_plat("windows") then
             end
         end
     end
-    if #windows_sdk_include_dirs ~= 3 then
-        raise("The configured Windows SDK does not expose shared, um, and ucrt include directories")
-    end
+    assert(#windows_sdk_include_dirs == 3,
+        "The configured Windows SDK does not expose shared, um, and ucrt include directories")
 end
 
 if not os.isfile(prisma_api_header) then
