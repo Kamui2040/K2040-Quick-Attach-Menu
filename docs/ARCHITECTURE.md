@@ -51,7 +51,7 @@ Installed state does not by itself imply that an option is visible, selectable, 
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
-For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed OMODs are trusted directly. An uninstalled alternative must belong to the source-plugin family proven by the equipped weapon and its default/live OMODs and must carry an instantiation-filter keyword present on the equipped weapon or its live instance; candidates without that positive target evidence fail closed.
+For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed OMODs are trusted directly. An uninstalled alternative must belong to the source-plugin family proven by the equipped weapon and its default/live OMODs and must share positive instantiation-filter evidence with the equipped weapon, its live instance, or the default/live OMOD family already proven for that weapon; candidates without that target-family evidence fail closed.
 
 The builder may enumerate the complete source-family/AP-compatible generated
 catalog so presentation preferences can be configured before loose mods are
