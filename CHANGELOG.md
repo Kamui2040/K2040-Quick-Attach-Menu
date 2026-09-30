@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.181
+
+Hotfix candidate for generated-menu compatibility and installed-state detection.
+
+- Uninstalled generated-menu OMODs now require an equipped-weapon
+  instantiation-filter keyword match in addition to source-family and
+  attachment-point checks.
+- Disabled object-instance OMOD entries no longer count as installed.
+
 ## 0.5.180
 
 First public release of **K2040's Quick Attach Menu**.
