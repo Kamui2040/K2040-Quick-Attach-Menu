@@ -105,9 +105,14 @@ menu. There is no separate registered close binding.
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
-the equipped-weapon builder state, and the balanced menu-state guard. Prisma
-Dock metadata is informational only under PrismaUI `2.1.1`; the Dock contract
-does not provide a custom action for opening another page.
+the equipped-weapon builder state, and the balanced menu-state guard.
+
+After a game/new-game transition, the plugin prepares one hidden Quick Menu
+view so Prisma Dock can discover the mod through the framework's live-view
+enumeration. That hidden registration view does not authorize attachment
+changes or bypass the normal hotkey/open safety path. The existing Dock
+metadata remains informational under PrismaUI `2.1.1`; the Dock contract does
+not provide a custom native action for opening the Builder or Quick Menu.
 
 ## Attachment transaction safety
 
