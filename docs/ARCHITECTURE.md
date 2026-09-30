@@ -51,13 +51,20 @@ Installed state does not by itself imply that an option is visible, selectable, 
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
-For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed OMODs are trusted directly. An uninstalled alternative must belong to the source-plugin family proven by the equipped weapon and its default/live OMODs and must share positive instantiation-filter evidence with the equipped weapon, its live instance, or the default/live OMOD family already proven for that weapon; candidates without that target-family evidence fail closed.
+Generated menus follow the workbench compatibility model rather than plugin
+provenance. An OMOD must consume an attachment point reachable from the weapon
+graph. If it declares Target OMOD / instantiation-filter keywords, at least one
+must exist on the equipped WEAP or its live instance. If it declares no target
+keyword, attachment-point compatibility is sufficient. Source plugin is never a
+compatibility gate because patches and add-ons can validly extend another
+plugin's weapon.
 
-The builder may enumerate the complete source-family/AP-compatible generated
-catalog so presentation preferences can be configured before loose mods are
-acquired. The gameplay quick menu still suppresses uninstalled entries whose
-loose mods are absent, and catalog enumeration does not change selection or
-mutation eligibility.
+The Builder enumerates all generated OMODs that are compatible with the
+equipped weapon under those rules, whether or not their loose-mod items are in
+inventory. The gameplay Quick Menu uses the same compatibility catalog but
+suppresses uninstalled entries whose loose-mod items are not currently carried.
+Catalog enumeration does not authorize mutation; live transaction checks remain
+authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
