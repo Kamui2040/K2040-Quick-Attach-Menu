@@ -12,8 +12,9 @@ Only durable product decisions belong here. Current release state belongs in
   persisted keys.
 - Providers are installed before children and removed after children. Hidden,
   internal, and script-only OMODs stay out of player-facing menus.
-- Generated-menu alternatives require both source-family evidence and a
-  reachable attachment graph. A generic reachable point alone is insufficient.
+- Generated-menu alternatives require source-family evidence, positive
+  equipped-weapon instantiation-filter evidence, and a reachable attachment
+  graph. A generic reachable point alone is insufficient.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
