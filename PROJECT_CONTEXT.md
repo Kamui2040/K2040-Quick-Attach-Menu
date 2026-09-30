@@ -17,5 +17,7 @@ uninstalled generated-menu candidates and excludes disabled object-instance
 entries from live installed identity.
 
 Source review and a clean Linux Windows-x64 build have passed on the hotfix
-branch. Focused Fallout 4 runtime regression is still required before this
-hotfix is accepted as runtime-verified.
+branch. The first focused Fallout 4 runtime regression failed because neither
+the quick menu nor Builder opened after deployment. Runtime startup/load
+diagnosis is now required; this hotfix is not runtime-verified and must not be
+merged or released yet.
