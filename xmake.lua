@@ -21,12 +21,10 @@ assert(commonlibf4 and commonlibf4 ~= "",
     "K2040_COMMONLIBF4_ROOT must point to an xmake-compatible CommonLibF4 checkout")
 
 commonlibf4 = path.absolute(commonlibf4)
-if not os.isdir(commonlibf4) then
-    raise("CommonLibF4 directory not found: " .. commonlibf4)
-end
-if not os.isfile(path.join(commonlibf4, "xmake.lua")) then
-    raise("CommonLibF4 xmake.lua not found: " .. path.join(commonlibf4, "xmake.lua"))
-end
+assert(os.isdir(commonlibf4),
+    "CommonLibF4 directory not found: " .. commonlibf4)
+assert(os.isfile(path.join(commonlibf4, "xmake.lua")),
+    "CommonLibF4 xmake.lua not found: " .. path.join(commonlibf4, "xmake.lua"))
 
 local prisma_api_dir = path.join(os.scriptdir(), "external", "prismaui_f4")
 local prisma_api_header = path.join(prisma_api_dir, "PrismaUI_F4_API.h")
@@ -54,9 +52,8 @@ if is_host("linux") and is_plat("windows") then
         "The configured Windows SDK does not expose shared, um, and ucrt include directories")
 end
 
-if not os.isfile(prisma_api_header) then
-    raise("PrismaUI API header not found: " .. prisma_api_header)
-end
+assert(os.isfile(prisma_api_header),
+    "PrismaUI API header not found: " .. prisma_api_header)
 
 includes(commonlibf4)
 
