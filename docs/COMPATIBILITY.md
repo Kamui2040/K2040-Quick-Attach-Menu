@@ -59,10 +59,10 @@ The 0.5.181 source hotfix tightens the runtime-generated menu to require an
 equipped-weapon target/filter-keyword match for uninstalled OMOD candidates and
 ignores disabled object-instance OMOD entries when determining installed state.
 
-A clean Linux Windows-x64 build has passed for 0.5.181. The first focused
-in-game regression failed during plugin startup. The Linux CommonLibF4
-candidate used for that build calls an F4SE interface introduced in 0.7.1 and
-is not directly compatible with the supported F4SE 0.6.23 target. A compatible
-CommonLibF4 baseline or narrowly scoped old-runtime compatibility fix, followed
-by a successful repeat regression, is required before 0.5.181 can be treated
-as target-runtime verified.
+A clean Linux Windows-x64 build has passed for 0.5.181, but focused startup
+testing proved the current libxse CommonLibF4 build baseline is not compatible
+with the supported Fallout 4 1.10.163 / F4SE 0.6.23 target. Guarding its newer
+F4SE API call exposed a second incompatibility: current-generation Address
+Library IDs are absent from the 1.10.163 database. The project therefore needs
+a CommonLibF4 baseline that explicitly supports old-gen 1.10.163 before the
+runtime regression can be repeated.
