@@ -59,6 +59,7 @@ The 0.5.181 source hotfix tightens the runtime-generated menu to require an
 equipped-weapon target/filter-keyword match for uninstalled OMOD candidates and
 ignores disabled object-instance OMOD entries when determining installed state.
 
-A clean Linux Windows-x64 build has passed for 0.5.181. Focused in-game
-regression is still required before it can be treated as target-runtime
-verified.
+A clean Linux Windows-x64 build has passed for 0.5.181. The first focused
+in-game regression failed because the quick menu and Builder did not open after
+deployment. Startup/load diagnosis and a successful repeat regression are
+required before 0.5.181 can be treated as target-runtime verified.
