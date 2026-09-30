@@ -71,9 +71,10 @@ namespace
             break;
 
         case F4SE::MessagingInterface::kPostLoadGame:
-            k2040::log::Info("F4SE kPostLoadGame received; ensuring the next menu open creates a fresh Prisma view.");
+            k2040::log::Info("F4SE kPostLoadGame received; refreshing the hidden Prisma Dock registration view.");
             k2040::GetPrismaBridge().ResetForGameTransition("kPostLoadGame");
             k2040::ValidateUserPreferencesAgainstLoadedForms();
+            k2040::GetPrismaBridge().EnsureDockRegistration();
             break;
 
         case F4SE::MessagingInterface::kInputLoaded:
@@ -82,9 +83,10 @@ namespace
             break;
 
         case F4SE::MessagingInterface::kNewGame:
-            k2040::log::Info("F4SE kNewGame received; ensuring the first menu open creates a fresh Prisma view.");
+            k2040::log::Info("F4SE kNewGame received; refreshing the hidden Prisma Dock registration view.");
             k2040::GetPrismaBridge().ResetForGameTransition("kNewGame");
             k2040::ValidateUserPreferencesAgainstLoadedForms();
+            k2040::GetPrismaBridge().EnsureDockRegistration();
             break;
 
         case F4SE::MessagingInterface::kGameDataReady:
