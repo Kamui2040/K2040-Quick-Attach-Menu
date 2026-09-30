@@ -7,7 +7,7 @@
 | Fallout 4 | `1.10.163` |
 | F4SE | matching `1.10.163` release |
 | PrismaUI_F4 | `2.1.1` |
-| Plugin | `0.5.180` |
+| Plugin | `0.5.181` hotfix candidate |
 | Architecture | Windows x64 |
 
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
@@ -51,3 +51,13 @@ The repository includes only the unchanged PrismaUI API header and its upstream
 license. The exact public source revision and SHA-256 are recorded in
 `external/prismaui_f4/README.md`. No PrismaUI binaries, Ultralight files, game
 files, or dependency archives are distributed in the source repository.
+
+
+## 0.5.181 hotfix validation
+
+The 0.5.181 source hotfix tightens the runtime-generated menu to require an
+equipped-weapon target/filter-keyword match for uninstalled OMOD candidates and
+ignores disabled object-instance OMOD entries when determining installed state.
+
+A clean Linux build and focused in-game regression are required before 0.5.181
+can be treated as target-runtime verified.
