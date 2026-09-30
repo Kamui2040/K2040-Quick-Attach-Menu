@@ -85,7 +85,7 @@ target("K2040_Quick_Attach_Menu")
     if is_plat("windows") then
         add_cxflags("/permissive-", "/wd4200", "/wd4201", "/wd4324")
         add_cxflags("/bigobj", "/FS")
-        add_syslinks("Version", "Ole32", "OleAut32", "User32", "bcrypt", "crypt32")
+        add_syslinks("version", "ole32", "oleaut32", "user32", "bcrypt", "crypt32")
     end
 
     after_build(function(target)
