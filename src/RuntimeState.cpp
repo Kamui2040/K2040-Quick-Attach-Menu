@@ -917,10 +917,11 @@ namespace k2040
         // providers often expose generic display points that attachments from
         // unrelated weapons also consume. Seed a proven source family from the
         // equipped weapon and the OMODs already present in its default/live
-        // configuration. Installed OMODs remain trusted even if a patch supplied
-        // them; uninstalled alternatives must also carry a target/filter keyword
-        // present on the equipped weapon before the reachable-AP graph can admit
-        // them.
+        // configuration. Also seed the weapon family's instantiation-filter
+        // keywords from those proven OMODs. Installed OMODs remain trusted even
+        // if a patch supplied them; uninstalled alternatives must match either
+        // the equipped weapon/live instance directly or that proven filter
+        // family before the reachable-AP graph can admit them.
         std::vector<std::string> trustedSourcePlugins;
         AppendUniquePluginName(trustedSourcePlugins, weaponInfo.weapon.sourcePlugin);
         for (const auto& attachment : weaponInfo.defaultTemplateMods) {
@@ -928,6 +929,34 @@ namespace k2040
         }
         for (const auto& installed : weaponInfo.installedObjectInstanceMods) {
             AppendUniquePluginName(trustedSourcePlugins, installed.sourcePlugin);
+        }
+
+        std::vector<FormRef> trustedFilterKeywords;
+        const auto appendTrustedFilters = [&](std::uint32_t omodFormId) {
+            auto* form = RE::TESForm::GetFormByID(omodFormId);
+            auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+            if (!mod) {
+                return;
+            }
+
+            for (std::uint32_t i = 0; i < mod->filterKeywords.size; ++i) {
+                const auto keywordIndex = mod->filterKeywords.array[i].keywordIndex;
+                const auto* keyword = RE::detail::BGSKeywordGetTypedKeywordByIndex(
+                    RE::KeywordType::kInstantiationFilter,
+                    keywordIndex);
+                auto filter = MakeFormRef(keyword);
+                if (filter.formId != 0 &&
+                    !ContainsFormId(trustedFilterKeywords, filter.formId)) {
+                    trustedFilterKeywords.push_back(std::move(filter));
+                }
+            }
+        };
+
+        for (const auto& attachment : weaponInfo.defaultTemplateMods) {
+            appendTrustedFilters(attachment.omod.formId);
+        }
+        for (const auto& installed : weaponInfo.installedObjectInstanceMods) {
+            appendTrustedFilters(installed.formId);
         }
 
         for (auto* mod : allMods) {
@@ -980,14 +1009,15 @@ namespace k2040
                 if (filter.formId == 0) continue;
                 candidate.filters.push_back(filter);
                 if (equippedWeapon->HasKeyword(keyword) ||
-                    ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId)) {
+                    ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId) ||
+                    ContainsFormId(trustedFilterKeywords, filter.formId)) {
                     filterMatches = true;
                 }
             }
 
             if (!candidate.installed && !filterMatches) {
                 log::Info(
-                    "Generated candidate rejected without an equipped-weapon target keyword match: OMOD=" +
+                    "Generated candidate rejected without weapon-family target-filter evidence: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
                     (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
@@ -1004,7 +1034,7 @@ namespace k2040
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", rawFilterCount=" + std::to_string(mod->filterKeywords.size) +
                     ", resolvedFilters=" + JoinFormRefEditorIds(candidate.filters) +
-                    ", filterMatches=true");
+                    ", filterMatches=true, trustedFilterFamily=" + JoinFormRefEditorIds(trustedFilterKeywords));
             }
 
             candidates.push_back(std::move(candidate));
