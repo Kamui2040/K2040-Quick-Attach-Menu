@@ -17,10 +17,11 @@ uninstalled generated-menu candidates and excludes disabled object-instance
 entries from live installed identity.
 
 Source review and a clean Linux Windows-x64 build have passed on the hotfix
-branch. The first focused Fallout 4 runtime regression failed during plugin
-startup. Diagnosis found that the Linux CommonLibF4 candidate at
-`16cff6870d92d0018e25c971a7bbd42d91f97871` calls the F4SE
-`GetSaveFolderName` interface introduced in F4SE 0.7.1, while this project
-targets F4SE 0.6.23. The dependency build needs an old-runtime compatibility
-fix or a proven compatible CommonLibF4 baseline before runtime retest. The
-hotfix is not runtime-verified and must not be merged or released yet.
+branch. Runtime startup testing proved the current libxse CommonLibF4 baseline
+`16cff6870d92d0018e25c971a7bbd42d91f97871` is not suitable for the
+supported Fallout 4 1.10.163 / F4SE 0.6.23 target: after guarding its newer
+F4SE `GetSaveFolderName` call, startup still fails on a current-generation
+Address Library ID that does not exist in the 1.10.163 database. Stop patching
+that dependency incrementally. Migrate the build to a CommonLibF4 baseline that
+explicitly supports old-gen 1.10.163, then repeat clean build and runtime QA.
+The hotfix is not runtime-verified and must not be merged or released yet.
