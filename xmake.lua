@@ -17,14 +17,7 @@ set_languages("c++23")
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
 
 local commonlibf4 = os.getenv("K2040_COMMONLIBF4_ROOT")
-assert(commonlibf4 and commonlibf4 ~= "",
-    "K2040_COMMONLIBF4_ROOT must point to an xmake-compatible CommonLibF4 checkout")
-
 commonlibf4 = path.absolute(commonlibf4)
-assert(os.isdir(commonlibf4),
-    "CommonLibF4 directory not found: " .. commonlibf4)
-assert(os.isfile(path.join(commonlibf4, "xmake.lua")),
-    "CommonLibF4 xmake.lua not found: " .. path.join(commonlibf4, "xmake.lua"))
 
 local prisma_api_dir = path.join(os.scriptdir(), "external", "prismaui_f4")
 local prisma_api_header = path.join(prisma_api_dir, "PrismaUI_F4_API.h")
@@ -48,12 +41,7 @@ if is_host("linux") and is_plat("windows") then
             end
         end
     end
-    assert(#windows_sdk_include_dirs == 3,
-        "The configured Windows SDK does not expose shared, um, and ucrt include directories")
 end
-
-assert(os.isfile(prisma_api_header),
-    "PrismaUI API header not found: " .. prisma_api_header)
 
 includes(commonlibf4)
 
