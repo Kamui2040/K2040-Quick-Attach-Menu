@@ -34,7 +34,7 @@ equipped weapon
 - Persisted identity uses source plugin plus local FormID/FormKey.
 - Display names, EditorIDs, and load-order-dependent full FormIDs are not sufficient persistent keys.
 
-For an authored option with OMOD `O`, installed state is true only when the resolved object-instance OMOD collection contains `O`'s loaded form identity.
+For an authored option with OMOD `O`, installed state is true only when the active resolved object-instance OMOD collection contains `O`'s loaded form identity. ObjectIndexData entries marked disabled are diagnostic history/state and do not count as installed.
 
 Installed state does not by itself imply that an option is visible, selectable, inventory-available, or structurally valid.
 
@@ -51,7 +51,7 @@ Installed state does not by itself imply that an option is visible, selectable, 
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
-For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed OMODs are trusted directly. A carried alternative must also belong to the source-plugin family proven by the equipped weapon and its default/live OMODs; an unproven patch family fails closed.
+For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed active OMODs are trusted directly. An uninstalled alternative must belong to the source-plugin family proven by the equipped weapon and its default/live OMODs and must have at least one resolved target/filter keyword present on the equipped weapon or its live instance. Missing target evidence or an unproven patch family fails closed.
 
 The builder may enumerate the complete source-family/AP-compatible generated
 catalog so presentation preferences can be configured before loose mods are
