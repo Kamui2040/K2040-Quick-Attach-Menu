@@ -22,7 +22,7 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - Live attachment validation, provider/child ordering, inventory verification,
   and rollback for supported changes.
 
-Version 0.5.180 is intentionally text-only. Attachment icons and weapon-preview
+Version 0.5.181 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
 
 ## Requirements
@@ -94,11 +94,14 @@ inventory and mutation checks. See
 ## Compatibility and safety
 
 The plugin fails closed when an attachment operation cannot be fully resolved
-or verified. Supported changes include validated leaf installation,
-one-for-one replacement, and provider replacement with installed descendants
-removed in dependency order. Ambiguous inventory stacks, unresolved graphs,
-dependency cycles, stale selections, and unvalidated provider installation into
-an empty point remain blocked.
+or verified. Runtime-generated menus require positive equipped-weapon target
+keyword evidence for uninstalled OMODs in addition to source-family and
+attachment-point checks. Disabled object-instance OMOD entries are ignored when
+determining the live installed state. Supported changes include validated leaf
+installation, one-for-one replacement, and provider replacement with installed
+descendants removed in dependency order. Ambiguous inventory stacks, unresolved
+graphs, dependency cycles, stale selections, and unvalidated provider
+installation into an empty point remain blocked.
 
 See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) and
 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) for the release boundary.
