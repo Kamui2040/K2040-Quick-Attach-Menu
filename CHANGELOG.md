@@ -9,6 +9,8 @@ Hotfix candidate for generated-menu compatibility and installed-state detection.
   attachment-point checks. The family can be proven by the equipped weapon,
   its live instance, or its default/active OMODs.
 - Disabled object-instance OMOD entries no longer count as installed.
+- A hidden Quick Menu view is prepared after load/new-game transitions so the
+  mod is discoverable in Prisma Dock without bypassing normal menu-open safety.
 
 ## 0.5.180
 
