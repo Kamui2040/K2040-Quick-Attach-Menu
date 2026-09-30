@@ -12,9 +12,13 @@ Only durable product decisions belong here. Current release state belongs in
   persisted keys.
 - Providers are installed before children and removed after children. Hidden,
   internal, and script-only OMODs stay out of player-facing menus.
-- Generated-menu alternatives require source-family evidence, positive
-  equipped-weapon instantiation-filter evidence, and a reachable attachment
-  graph. A generic reachable point alone is insufficient.
+- Generated-menu compatibility follows workbench semantics: reachable
+  attachment point plus Target OMOD / instantiation-filter keyword matching
+  when the OMOD declares target keywords. OMODs without target keywords may
+  match by attachment point alone. Source plugin is not a compatibility gate.
+- The Builder shows every compatible generated attachment regardless of
+  inventory. The Quick Menu shows installed attachments plus compatible
+  alternatives whose loose-mod items are currently in inventory.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
