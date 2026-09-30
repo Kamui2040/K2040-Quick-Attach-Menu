@@ -17,7 +17,10 @@ uninstalled generated-menu candidates and excludes disabled object-instance
 entries from live installed identity.
 
 Source review and a clean Linux Windows-x64 build have passed on the hotfix
-branch. The first focused Fallout 4 runtime regression failed because neither
-the quick menu nor Builder opened after deployment. Runtime startup/load
-diagnosis is now required; this hotfix is not runtime-verified and must not be
-merged or released yet.
+branch. The first focused Fallout 4 runtime regression failed during plugin
+startup. Diagnosis found that the Linux CommonLibF4 candidate at
+`16cff6870d92d0018e25c971a7bbd42d91f97871` calls the F4SE
+`GetSaveFolderName` interface introduced in F4SE 0.7.1, while this project
+targets F4SE 0.6.23. The dependency build needs an old-runtime compatibility
+fix or a proven compatible CommonLibF4 baseline before runtime retest. The
+hotfix is not runtime-verified and must not be merged or released yet.
