@@ -578,7 +578,8 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
                 if (resolvedForm) {
                     const auto resolvedRef = MakeFormRef(resolvedForm);
 
-                    if (std::string(resolvedForm->GetFormTypeString()) == "OMOD") {
+                    if (std::string(resolvedForm->GetFormTypeString()) == "OMOD" &&
+                        entry.disabled == 0) {
                         info.installedObjectInstanceMods.push_back(resolvedRef);
                     }
 
@@ -901,6 +902,13 @@ namespace k2040
             bool inventoryAvailable = false;
         };
 
+        auto* equippedForm = RE::TESForm::GetFormByID(weaponInfo.weapon.formId);
+        auto* equippedWeapon = equippedForm ? equippedForm->As<RE::TESObjectWEAP>() : nullptr;
+        if (!equippedWeapon) {
+            menu.status = "Equipped weapon could not be reacquired for generated-menu compatibility checks.";
+            return menu;
+        }
+
         std::vector<Candidate> candidates;
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
@@ -910,8 +918,9 @@ namespace k2040
         // unrelated weapons also consume. Seed a proven source family from the
         // equipped weapon and the OMODs already present in its default/live
         // configuration. Installed OMODs remain trusted even if a patch supplied
-        // them; carried alternatives must come from that proven family as well as
-        // pass the reachable-AP graph below.
+        // them; uninstalled alternatives must also carry a target/filter keyword
+        // present on the equipped weapon before the reachable-AP graph can admit
+        // them.
         std::vector<std::string> trustedSourcePlugins;
         AppendUniquePluginName(trustedSourcePlugins, weaponInfo.weapon.sourcePlugin);
         for (const auto& attachment : weaponInfo.defaultTemplateMods) {
@@ -970,28 +979,33 @@ namespace k2040
                 auto filter = MakeFormRef(keyword);
                 if (filter.formId == 0) continue;
                 candidate.filters.push_back(filter);
-                if (ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId)) {
+                if (equippedWeapon->HasKeyword(keyword) ||
+                    ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId)) {
                     filterMatches = true;
                 }
             }
 
+            if (!candidate.installed && !filterMatches) {
+                log::Info(
+                    "Generated candidate rejected without an equipped-weapon target keyword match: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", source=" +
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
+                    ", filters=" + JoinFormRefEditorIds(candidate.filters));
+                continue;
+            }
+
             if (!candidate.installed && candidate.inventoryAvailable) {
                 log::Info(
-                    "Generated carried candidate: OMOD=" + ToHexFormId(candidate.omod.formId) +
+                    "Generated carried candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
                     ", looseMod=" + ToHexFormId(candidate.looseMod.formId) +
                     ", label=\"" + SafeFullName(looseMod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", rawFilterCount=" + std::to_string(mod->filterKeywords.size) +
                     ", resolvedFilters=" + JoinFormRefEditorIds(candidate.filters) +
-                    ", filterMatches=" + (filterMatches ? "true" : "false"));
+                    ", filterMatches=true");
             }
-
-            // Instantiation-filter keywords such as if_ScopeAny describe object
-            // template generation and are not expected to appear in the live
-            // weapon keyword set. They remain diagnostic metadata here. The
-            // bounded installed/carried pool is validated by the equipped
-            // weapon's reachable attachment-point graph below.
 
             candidates.push_back(std::move(candidate));
         }
