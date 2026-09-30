@@ -1,5 +1,18 @@
 # Known Issues and Limits
 
+## 0.5.180 generated-menu compatibility
+
+Version 0.5.180 can admit unrelated OMODs when source-family and generic
+attachment-point checks overlap. The 0.5.181 hotfix candidate additionally
+requires an equipped-weapon instantiation-filter keyword match for uninstalled
+generated-menu candidates.
+
+## 0.5.180 false ambiguous replacement state
+
+Version 0.5.180 can count disabled object-instance OMOD entries as installed,
+which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
+candidate ignores disabled entries for installed identity.
+
 ## Unsupported attachment operations fail closed
 
 Provider installation into an empty point, ambiguous inventory stacks,
