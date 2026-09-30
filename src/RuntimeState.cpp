@@ -170,28 +170,6 @@ namespace
         return false;
     }
 
-    bool SamePluginName(const std::string& left, const std::string& right)
-    {
-        return left.size() == right.size() &&
-            std::equal(left.begin(), left.end(), right.begin(), [](unsigned char a, unsigned char b) {
-                return std::tolower(a) == std::tolower(b);
-            });
-    }
-
-    bool ContainsPluginName(const std::vector<std::string>& values, const std::string& pluginName)
-    {
-        return std::any_of(values.begin(), values.end(), [&](const std::string& value) {
-            return SamePluginName(value, pluginName);
-        });
-    }
-
-    void AppendUniquePluginName(std::vector<std::string>& values, const std::string& pluginName)
-    {
-        if (!pluginName.empty() && !ContainsPluginName(values, pluginName)) {
-            values.push_back(pluginName);
-        }
-    }
-
     void AppendUniqueFormRefs(std::vector<k2040::FormRef>& target, const std::vector<k2040::FormRef>& source)
     {
         for (const auto& value : source) {
