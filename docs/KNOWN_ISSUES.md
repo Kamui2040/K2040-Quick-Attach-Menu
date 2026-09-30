@@ -1,5 +1,18 @@
 # Known Issues and Limits
 
+## 0.5.180 generated-menu compatibility bug
+
+The 0.5.180 runtime-generated fallback can expose OMODs from another weapon when
+the records share a source plugin and generic attachment points. The 0.5.181
+hotfix candidate adds an equipped-weapon target/filter-keyword requirement.
+
+## 0.5.180 false ambiguous replacement state
+
+The 0.5.180 live object-instance probe can count disabled OMOD entries as
+installed. This can make ordinary attachment replacements report that the
+current state is not safe to replace automatically. The 0.5.181 hotfix candidate
+ignores disabled entries for installed identity.
+
 ## Unsupported attachment operations fail closed
 
 Provider installation into an empty point, ambiguous inventory stacks,
