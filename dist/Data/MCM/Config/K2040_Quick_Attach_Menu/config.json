@@ -1,0 +1,47 @@
+{
+  "modName": "K2040_Quick_Attach_Menu",
+  "displayName": "K2040's Quick Attach Menu",
+  "minMcmVersion": 1,
+  "pluginRequirements": [],
+  "content": [
+    {
+      "type": "text",
+      "text": "<font size='30'><p align='center'>K2040's Quick Attach Menu</p></font>",
+      "html": true
+    },
+    {
+      "type": "text",
+      "text": "Configure the shortcuts used by the quick menu and per-weapon menu builder. Registered shortcuts also appear in MCM's Hotkey Manager. Changes apply after leaving MCM."
+    },
+    {
+      "type": "section",
+      "text": "Keybindings"
+    },
+    {
+      "id": "openQuickMenu",
+      "type": "hotkey",
+      "text": "Open / close quick menu",
+      "help": "Opens or closes the inventory-limited attachment menu. If the builder is open, this switches to the quick menu. If unassigned, the plugin INI default is used.",
+      "valueOptions": {
+        "allowModifierKeys": 1
+      }
+    },
+    {
+      "id": "openMenuBuilder",
+      "type": "hotkey",
+      "text": "Open / close menu builder",
+      "help": "Opens or closes the per-weapon builder. If the quick menu is open, this switches to the builder. If unassigned, the plugin INI default is used. Escape closes either menu.",
+      "valueOptions": {
+        "allowModifierKeys": 1
+      }
+    },
+    {
+      "type": "section",
+      "text": "Settings"
+    },
+    {
+      "type": "text",
+      "text": "Open the menu builder and choose Settings for appearance, layouts, behavior, label controls, and a mirror of these shared keybindings. Per-weapon visibility, menu-source overrides, order, and labels remain in the builder."
+    }
+  ]
+}

@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>K2040's Quick Attach Menu Builder</title>
+  <style>
+    :root {
+      --accent: #47c8ff;
+      --panel: rgba(7, 16, 22, 0.94);
+      --row: rgba(12, 25, 33, 0.94);
+      --line: rgba(117, 183, 211, 0.26);
+      --text: #edf8fc;
+      --muted: #9aabb3;
+      --hidden: #e29b74;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; color: var(--text); }
+    body { font-family: "Segoe UI", Arial, sans-serif; }
+    #heartbeat { position: fixed; left: 0; top: 0; width: 2px; height: 2px; opacity: .015; pointer-events: none; }
+    #builder {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(920px, 90vw); height: min(680px, 84vh); display: flex; flex-direction: column;
+      visibility: hidden; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 18px 70px rgba(0,0,0,.55);
+    }
+    #builder.ready { visibility: visible; }
+    #builder.resizing { user-select: none; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    header .copy { min-width: 0; flex: 1; }
+    h1 { margin: 0; font-size: 23px; font-weight: 500; color: var(--accent); }
+    #weaponName { margin-top: 4px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    button { font: inherit; color: var(--text); }
+    .action { padding: 9px 14px; background: var(--row); border: 1px solid var(--line); cursor: pointer; }
+    .action:hover, .action:focus { border-color: var(--accent); outline: none; }
+    .weapon-settings {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 10px 20px;
+      color: var(--muted); background: rgba(0,0,0,.16); border-bottom: 1px solid var(--line); font-size: 13px;
+    }
+    .weapon-setting { display: flex; align-items: center; gap: 8px; }
+    .weapon-setting input { accent-color: var(--accent); }
+    .choice-control { position: relative; min-width: 190px; color: var(--text); }
+    .choice-trigger {
+      width: 100%; min-height: 31px; padding: 6px 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      color: var(--text); background: var(--row); border: 1px solid var(--line); cursor: pointer; white-space: nowrap;
+    }
+    .choice-trigger:hover, .choice-trigger:focus, .choice-trigger[aria-expanded="true"] { border-color: var(--accent); outline: none; }
+    .choice-arrow { color: var(--accent); }
+    .choice-options {
+      position: absolute; z-index: 30; top: calc(100% + 4px); right: 0; min-width: 100%; width: max-content; padding: 4px;
+      background: #0c1921; border: 1px solid var(--line); box-shadow: 0 12px 28px rgba(0,0,0,.55);
+    }
+    .choice-options[hidden] { display: none; }
+    .choice-option {
+      width: 100%; padding: 7px 10px; display: block; color: var(--text); background: transparent; border: 1px solid transparent;
+      text-align: left; cursor: pointer; white-space: nowrap;
+    }
+    .choice-option:hover, .choice-option:focus { color: var(--accent); background: var(--row); border-color: var(--line); outline: none; }
+    .choice-option[aria-selected="true"] { color: var(--accent); background: rgba(71,200,255,.1); }
+    main { min-height: 0; flex: 1; display: grid; grid-template-columns: 34% 66%; }
+    .pane { min-height: 0; overflow-y: auto; padding: 14px; }
+    .pane + .pane { border-left: 1px solid var(--line); }
+    .label { margin: 0 0 10px 2px; color: var(--muted); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .row {
+      width: 100%; min-height: 52px; margin-bottom: 7px; padding: 9px 12px; display: flex; align-items: center; gap: 12px;
+      text-align: left; background: var(--row); border: 1px solid transparent; cursor: pointer;
+    }
+    .row:hover, .row:focus, .row.selected { border-color: var(--accent); outline: none; }
+    .toggle {
+      width: 22px; height: 22px; flex: 0 0 22px; display: grid; place-items: center;
+      border: 1px solid var(--line); color: var(--accent); background: rgba(0,0,0,.2);
+    }
+    .row.hidden .toggle { color: var(--hidden); border-color: var(--hidden); }
+    .row.hidden .name { color: var(--muted); }
+    .name { min-width: 0; flex: 1; overflow: hidden; max-height: 2.4em; line-height: 1.2; overflow-wrap: anywhere; white-space: normal; }
+    .state { color: var(--muted); font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+    .hidden .state { color: var(--hidden); }
+    .drag-handle {
+      width: 22px; height: 30px; flex: 0 0 22px; cursor: grab; opacity: .65;
+      background-image: radial-gradient(circle, var(--muted) 1.5px, transparent 1.8px);
+      background-size: 7px 7px; background-position: center;
+    }
+    .drag-handle:hover { opacity: 1; }
+    .row.dragging { opacity: .55; border-color: var(--accent); }
+    .edit-name { width: 24px; height: 28px; flex: 0 0 24px; display: grid; place-items: center; color: var(--muted); }
+    .edit-name:hover, .edit-name.customized { color: var(--accent); }
+    .rename-input {
+      min-width: 0; flex: 1; padding: 5px 7px; color: var(--text); background: rgba(0,0,0,.35);
+      border: 1px solid var(--accent); outline: none; font: inherit;
+    }
+    footer { padding: 11px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; }
+    #profileStatus { color: var(--accent); }
+    #empty { padding: 20px; color: var(--muted); }
+    .profile-dialog {
+      position: absolute; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px;
+      background: rgba(0,0,0,.68);
+    }
+    .profile-dialog[hidden] { display: none; }
+    .profile-card {
+      width: min(620px, 92%); max-height: min(560px, 86%); display: flex; flex-direction: column;
+      background: #0b161d; border: 1px solid var(--accent); box-shadow: 0 18px 55px rgba(0,0,0,.72);
+    }
+    .profile-card h2 { margin: 0; padding: 17px 18px 5px; color: var(--accent); font-size: 20px; font-weight: 500; }
+    .profile-explanation { margin: 0; padding: 3px 18px 14px; color: var(--muted); line-height: 1.4; }
+    #profileList { min-height: 80px; overflow-y: auto; padding: 0 14px 12px; }
+    .profile-row {
+      width: 100%; margin: 0 0 8px; padding: 11px 12px; display: flex; align-items: center; gap: 14px;
+      color: var(--text); background: var(--row); border: 1px solid var(--line); text-align: left; cursor: pointer;
+    }
+    .profile-row:hover,.profile-row:focus { border-color: var(--accent); outline: none; }
+    .profile-row-copy { min-width: 0; flex: 1; }
+    .profile-row-name { display: block; color: var(--text); overflow-wrap: anywhere; }
+    .profile-row-file { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+    .profile-row-action { color: var(--accent); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-empty { padding: 22px 8px; color: var(--muted); text-align: center; line-height: 1.45; }
+    .profile-card-actions { display: flex; justify-content: flex-end; padding: 12px 14px; border-top: 1px solid var(--line); }
+    .resize-handle {
+      position: absolute; right: 0; bottom: 0; z-index: 50; width: 24px; height: 24px;
+      border: 0; background: linear-gradient(135deg, transparent 45%, var(--muted) 46%, var(--muted) 52%, transparent 53%, transparent 64%, var(--accent) 65%, var(--accent) 71%, transparent 72%);
+      cursor: nwse-resize; opacity: .78; outline: none;
+    }
+    .resize-handle:hover,.resize-handle:focus { opacity: 1; }
+  </style>
+</head>
+<body tabindex="-1">
+  <div id="heartbeat"></div>
+  <section id="builder" aria-label="Quick menu builder">
+    <header>
+      <div class="copy">
+        <h1>Quick Attach Menu Builder</h1>
+        <div id="weaponName">Loading equipped weapon…</div>
+      </div>
+      <button id="reset" class="action" type="button">Show all</button>
+      <button id="resetOrder" class="action" type="button">Reset order</button>
+      <button id="resetNames" class="action" type="button">Reset names</button>
+      <button id="exportProfile" class="action" type="button">Export menu</button>
+      <button id="importProfile" class="action" type="button">Import menu</button>
+      <button id="settings" class="action" type="button">Settings</button>
+      <button id="close" class="action" type="button">Close</button>
+    </header>
+    <div class="weapon-settings" aria-label="Equipped weapon options">
+      <div class="weapon-setting">
+        <span id="menuSourceLabel">ECO menu source</span>
+        <div id="menuSourceControl" class="choice-control">
+          <button id="menuSourceTrigger" class="choice-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="menuSourceLabel menuSourceValue">
+            <span id="menuSourceValue">Use global setting</span>
+            <span class="choice-arrow" aria-hidden="true">▼</span>
+          </button>
+          <div id="menuSourceOptions" class="choice-options" role="listbox" aria-labelledby="menuSourceLabel" hidden>
+            <button class="choice-option menu-source-option" type="button" role="option" data-value="inherit">Use global setting</button>
+            <button class="choice-option menu-source-option" type="button" role="option" data-value="authored">Force ECO patch</button>
+            <button class="choice-option menu-source-option" type="button" role="option" data-value="generated">Force generated menu</button>
+          </div>
+        </div>
+      </div>
+      <div class="weapon-setting">
+        <span id="bracketedTextLabel">Bracketed text</span>
+        <div id="bracketedTextControl" class="choice-control">
+          <button id="bracketedTextTrigger" class="choice-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="bracketedTextLabel bracketedTextValue">
+            <span id="bracketedTextValue">Use global setting</span>
+            <span class="choice-arrow" aria-hidden="true">▼</span>
+          </button>
+          <div id="bracketedTextOptions" class="choice-options" role="listbox" aria-labelledby="bracketedTextLabel" hidden>
+            <button class="choice-option" type="button" role="option" data-value="inherit">Use global setting</button>
+            <button class="choice-option" type="button" role="option" data-value="hide">Hide for this weapon</button>
+            <button class="choice-option" type="button" role="option" data-value="show">Show for this weapon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <main>
+      <section class="pane">
+        <div class="label">Categories</div>
+        <div id="categories"></div>
+      </section>
+      <section class="pane">
+        <div class="label">Entries</div>
+        <div id="options"></div>
+      </section>
+    </main>
+    <footer>
+      <span>Use the pencil to rename and the dotted grip to reorder. Clear a name to restore its original.</span>
+      <span id="profileStatus" role="status" aria-live="polite"></span>
+    </footer>
+    <div id="profileDialog" class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileDialogTitle" hidden>
+      <section class="profile-card">
+        <h2 id="profileDialogTitle">Import weapon menu</h2>
+        <p class="profile-explanation">Only profiles made for this exact weapon are listed. Importing replaces this weapon's visibility, order, custom names, and per-weapon overrides.</p>
+        <div id="profileList"></div>
+        <div class="profile-card-actions">
+          <button id="closeProfileDialog" class="action" type="button">Cancel</button>
+        </div>
+      </section>
+    </div>
+    <div id="builderResize" class="resize-handle" role="separator" tabindex="0" aria-label="Resize menu builder"></div>
+  </section>
+  <script>
+    var payload = null;
+    var selectedCategoryIndex = null;
+    var heartbeatTimer = null;
+    var heartbeatOn = false;
+    var dragState = null;
+    var panelResize = null;
+
+    function startFocusHeartbeat() {
+      if (heartbeatTimer !== null) return;
+      var node = document.getElementById("heartbeat");
+      heartbeatTimer = window.setInterval(function() {
+        heartbeatOn = !heartbeatOn;
+        node.style.backgroundColor = heartbeatOn ? "rgba(71,200,255,.06)" : "rgba(71,200,255,.01)";
+      }, 500);
+    }
+    function stopFocusHeartbeat() {
+      if (heartbeatTimer !== null) window.clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+    window.k2040StartFocusHeartbeat = startFocusHeartbeat;
+    window.k2040StopFocusHeartbeat = stopFocusHeartbeat;
+
+    function send(command) {
+      if (typeof window.k2040BuilderChangeRequested === "function") {
+        window.k2040BuilderChangeRequested(command);
+      }
+    }
+    function setBuilderPanelPixels(width, height) {
+      var panel = document.getElementById("builder");
+      var maxWidth = Math.max(320, window.innerWidth - 32);
+      var maxHeight = Math.max(280, window.innerHeight - 32);
+      var minWidth = Math.min(700, maxWidth);
+      var minHeight = Math.min(480, maxHeight);
+      var boundedWidth = Math.max(minWidth, Math.min(maxWidth, width));
+      var boundedHeight = Math.max(minHeight, Math.min(maxHeight, height));
+      panel.style.width = Math.round(boundedWidth) + "px";
+      panel.style.height = Math.round(boundedHeight) + "px";
+      return { width: boundedWidth, height: boundedHeight };
+    }
+    function applyBuilderPanelSize() {
+      var panelSettings = payload && payload.settings ? payload.settings : {};
+      var widthFraction = Number(panelSettings.builderPanelWidth) || 0;
+      var heightFraction = Number(panelSettings.builderPanelHeight) || 0;
+      var width = widthFraction > 0 ? window.innerWidth * widthFraction : Math.min(920, window.innerWidth * .90);
+      var height = heightFraction > 0 ? window.innerHeight * heightFraction : Math.min(680, window.innerHeight * .84);
+      return setBuilderPanelPixels(width, height);
+    }
+    function saveBuilderPanelSize(size) {
+      var panelSettings = payload && payload.settings ? payload.settings : null;
+      var width = size.width / Math.max(1, window.innerWidth);
+      var height = size.height / Math.max(1, window.innerHeight);
+      if (panelSettings) {
+        panelSettings.builderPanelWidth = width;
+        panelSettings.builderPanelHeight = height;
+      }
+      send("set:builder-panel-size:" + width.toFixed(4) + ":" + height.toFixed(4));
+    }
+    function finishPanelResize() {
+      if (!panelResize) return;
+      var size = panelResize.size;
+      panelResize = null;
+      document.getElementById("builder").classList.remove("resizing");
+      saveBuilderPanelSize(size);
+    }
+    function bracketedTextVisibility() {
+      var parser = payload && payload.parser ? payload.parser : {};
+      var settings = payload && payload.settings ? payload.settings : {};
+      if (parser.bracketedTextOverride === "hide") return { prefix: true, infix: true, suffix: true };
+      if (parser.bracketedTextOverride === "show") return { prefix: false, infix: false, suffix: false };
+      var fallback = !!settings.hideBracketedText;
+      return {
+        prefix: settings.hideBracketedPrefixes === undefined ? fallback : !!settings.hideBracketedPrefixes,
+        infix: settings.hideBracketedInfixes === undefined ? fallback : !!settings.hideBracketedInfixes,
+        suffix: settings.hideBracketedSuffixes === undefined ? fallback : !!settings.hideBracketedSuffixes
+      };
+    }
+    function displayName(value) {
+      var original = String(value || "");
+      var visibility = bracketedTextVisibility();
+      var changed = false;
+      var result = original.replace(/\[[^\]]*\]/g, function(match, offset) {
+        var beforeHasText = original.slice(0, offset).replace(/\[[^\]]*\]/g, "").trim().length > 0;
+        var afterHasText = original.slice(offset + match.length).replace(/\[[^\]]*\]/g, "").trim().length > 0;
+        var hidden = !beforeHasText ? visibility.prefix : (!afterHasText ? visibility.suffix : visibility.infix);
+        if (hidden) changed = true;
+        return hidden ? " " : match;
+      });
+      return changed ? result.replace(/\s+/g, " ").trim() : original;
+    }
+    function bracketedTextLabel(value) {
+      if (value === "hide") return "Hide for this weapon";
+      if (value === "show") return "Show for this weapon";
+      return "Use global setting";
+    }
+    function menuSourceLabel(value) {
+      if (value === "authored") return "Force ECO patch";
+      if (value === "generated") return "Force generated menu";
+      return "Use global setting";
+    }
+    function menuSourceValue() {
+      var parser = payload && payload.parser ? payload.parser : {};
+      return parser.authoredMenuOverride === "authored" || parser.authoredMenuOverride === "generated"
+        ? parser.authoredMenuOverride
+        : "inherit";
+    }
+    function updateMenuSourceControl() {
+      var value = menuSourceValue();
+      document.getElementById("menuSourceValue").textContent = menuSourceLabel(value);
+      var options = document.querySelectorAll(".menu-source-option");
+      for (var i = 0; i < options.length; i += 1) {
+        options[i].setAttribute("aria-selected", options[i].dataset.value === value ? "true" : "false");
+      }
+    }
+    function setChoiceOpen(triggerId, optionsId, open, focusSelected) {
+      var trigger = document.getElementById(triggerId);
+      var options = document.getElementById(optionsId);
+      options.hidden = !open;
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && focusSelected) {
+        var selected = options.querySelector('[aria-selected="true"]') || options.querySelector(".choice-option");
+        if (selected) selected.focus();
+      }
+    }
+    function chooseMenuSource(value) {
+      if (value !== "authored" && value !== "generated") value = "inherit";
+      if (!payload) payload = {};
+      if (!payload.parser) payload.parser = {};
+      payload.parser.authoredMenuOverride = value;
+      setChoiceOpen("menuSourceTrigger", "menuSourceOptions", false, false);
+      render();
+      document.getElementById("menuSourceTrigger").focus();
+      send("menu-source:" + value);
+    }
+    function bracketedTextValue() {
+      var parser = payload && payload.parser ? payload.parser : {};
+      return parser.bracketedTextOverride === "hide" || parser.bracketedTextOverride === "show"
+        ? parser.bracketedTextOverride
+        : "inherit";
+    }
+    function updateBracketedTextControl() {
+      var value = bracketedTextValue();
+      document.getElementById("bracketedTextValue").textContent = bracketedTextLabel(value);
+      var options = document.querySelectorAll(".choice-option");
+      for (var i = 0; i < options.length; i += 1) {
+        options[i].setAttribute("aria-selected", options[i].dataset.value === value ? "true" : "false");
+      }
+    }
+    function setBracketedTextOpen(open, focusSelected) {
+      var trigger = document.getElementById("bracketedTextTrigger");
+      var options = document.getElementById("bracketedTextOptions");
+      options.hidden = !open;
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && focusSelected) {
+        var selected = options.querySelector('[aria-selected="true"]') || options.querySelector(".choice-option");
+        if (selected) selected.focus();
+      }
+    }
+    function chooseBracketedText(value) {
+      if (value !== "hide" && value !== "show") value = "inherit";
+      if (!payload) payload = {};
+      if (!payload.parser) payload.parser = {};
+      payload.parser.bracketedTextOverride = value;
+      setBracketedTextOpen(false, false);
+      render();
+      document.getElementById("bracketedTextTrigger").focus();
+      send("bracketed-text:" + value);
+    }
+    function moveBracketedTextFocus(current, delta) {
+      var options = Array.prototype.slice.call(document.querySelectorAll("#bracketedTextOptions .choice-option"));
+      if (!options.length) return;
+      var index = options.indexOf(current);
+      if (index < 0) index = 0;
+      options[(index + delta + options.length) % options.length].focus();
+    }
+    function closeBuilder() {
+      if (typeof window.k2040CloseRequested === "function") window.k2040CloseRequested("builder");
+    }
+    function profileData() {
+      return payload && payload.menuProfiles ? payload.menuProfiles : {};
+    }
+    function closeProfileDialog() {
+      document.getElementById("profileDialog").hidden = true;
+      document.getElementById("importProfile").focus();
+    }
+    function importProfile(index) {
+      document.getElementById("profileDialog").hidden = true;
+      document.getElementById("profileStatus").textContent = "Importing weapon menu…";
+      send("import-profile:" + index);
+    }
+    function renderProfileDialog() {
+      var host = document.getElementById("profileList");
+      var profiles = profileData().profiles || [];
+      host.innerHTML = "";
+      if (!profiles.length) {
+        var empty = document.createElement("div");
+        empty.className = "profile-empty";
+        empty.textContent = "No installed menu profiles match this weapon.";
+        host.appendChild(empty);
+        return;
+      }
+      for (var i = 0; i < profiles.length; i += 1) {
+        (function(profile) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "profile-row";
+          var copy = document.createElement("span");
+          copy.className = "profile-row-copy";
+          var name = document.createElement("span");
+          name.className = "profile-row-name";
+          name.textContent = profile.profileName || "Weapon menu profile";
+          var file = document.createElement("span");
+          file.className = "profile-row-file";
+          file.textContent = profile.fileName || "";
+          var action = document.createElement("span");
+          action.className = "profile-row-action";
+          action.textContent = "Import";
+          copy.appendChild(name);
+          copy.appendChild(file);
+          button.appendChild(copy);
+          button.appendChild(action);
+          button.addEventListener("click", function() { importProfile(profile.index); });
+          host.appendChild(button);
+        })(profiles[i]);
+      }
+    }
+    function openProfileDialog() {
+      renderProfileDialog();
+      var dialog = document.getElementById("profileDialog");
+      dialog.hidden = false;
+      var first = dialog.querySelector(".profile-row") || document.getElementById("closeProfileDialog");
+      if (first) first.focus();
+    }
+    function updateProfileStatus() {
+      var data = profileData();
+      var status = document.getElementById("profileStatus");
+      if (data.message) {
+        status.textContent = data.message;
+      } else if (Number(data.invalidFileCount) > 0) {
+        status.textContent = String(data.invalidFileCount) + " invalid profile file(s) ignored.";
+      } else {
+        status.textContent = "";
+      }
+      var count = data.profiles && data.profiles.length ? data.profiles.length : 0;
+      document.getElementById("importProfile").title = count ?
+        String(count) + " matching profile(s) available" : "No matching profiles installed";
+    }
+    function categories() {
+      return payload && payload.parser && payload.parser.categories ? payload.parser.categories : [];
+    }
+    function selectedCategory() {
+      var list = categories();
+      for (var i = 0; i < list.length; i += 1) {
+        if (list[i].categoryIndex === selectedCategoryIndex) return list[i];
+      }
+      return list.length ? list[0] : null;
+    }
+    function beginDrag(event, info) {
+      event.preventDefault();
+      event.stopPropagation();
+      dragState = info;
+      render();
+    }
+    function swapWith(list, movingIndex, targetIndex) {
+      if (movingIndex === targetIndex) return false;
+      var movingPosition = -1;
+      var targetPosition = -1;
+      for (var i = 0; i < list.length; i += 1) {
+        var identity = list[i].categoryIndex !== undefined ? list[i].categoryIndex : list[i].optionIndex;
+        if (identity === movingIndex) movingPosition = i;
+        if (identity === targetIndex) targetPosition = i;
+      }
+      if (movingPosition < 0 || targetPosition < 0) return false;
+      var item = list[movingPosition];
+      list[movingPosition] = list[targetPosition];
+      list[targetPosition] = item;
+      return true;
+    }
+    function finishDrag() {
+      if (!dragState) return;
+      if (dragState.type === "category") {
+        send("category-order:" + categories().map(function(category) { return category.categoryIndex; }).join(","));
+      } else {
+        var category = selectedCategory();
+        if (category) {
+          send("option-order:" + category.categoryIndex + ":" + (category.options || []).map(function(option) { return option.optionIndex; }).join(","));
+        }
+      }
+      dragState = null;
+      render();
+    }
+    function beginRename(event, row, copy, value, onCommit) {
+      event.preventDefault();
+      event.stopPropagation();
+      var input = document.createElement("input");
+      input.type = "text";
+      input.className = "rename-input";
+      input.maxLength = 80;
+      input.value = value || "";
+      row.replaceChild(input, copy);
+      input.focus();
+      input.select();
+      var finished = false;
+      function finish(commit) {
+        if (finished) return;
+        finished = true;
+        if (commit) onCommit(input.value);
+        else render();
+      }
+      input.addEventListener("click", function(innerEvent) { innerEvent.stopPropagation(); });
+      input.addEventListener("keydown", function(innerEvent) {
+        innerEvent.stopPropagation();
+        if (innerEvent.key === "Enter") {
+          innerEvent.preventDefault();
+          finish(true);
+        } else if (innerEvent.key === "Escape") {
+          innerEvent.preventDefault();
+          finish(false);
+        }
+      });
+      input.addEventListener("blur", function() { finish(true); });
+    }
+    function makeRow(name, hidden, state, onActivate, dragInfo, onRename, customized) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "row" + (hidden ? " hidden" : "");
+      var toggle = document.createElement("span");
+      toggle.className = "toggle";
+      toggle.textContent = hidden ? "×" : "✓";
+      var copy = document.createElement("span");
+      copy.className = "name";
+      copy.textContent = displayName(name) || "Unnamed entry";
+      copy.title = copy.textContent;
+      var status = document.createElement("span");
+      status.className = "state";
+      status.textContent = state;
+      button.appendChild(toggle);
+      button.appendChild(copy);
+      button.appendChild(status);
+      var edit = document.createElement("span");
+      edit.className = "edit-name" + (customized ? " customized" : "");
+      edit.title = customized ? "Edit custom name" : "Rename";
+      edit.textContent = "✎";
+      edit.addEventListener("click", function(event) { beginRename(event, button, copy, name, onRename); });
+      button.appendChild(edit);
+      var grip = document.createElement("span");
+      grip.className = "drag-handle";
+      grip.title = "Drag to reorder";
+      grip.addEventListener("mousedown", function(event) { beginDrag(event, dragInfo); });
+      grip.addEventListener("click", function(event) { event.preventDefault(); event.stopPropagation(); });
+      button.appendChild(grip);
+      if (dragState && dragState.type === dragInfo.type && dragState.index === dragInfo.index) {
+        button.className += " dragging";
+      }
+      button.addEventListener("click", onActivate);
+      return button;
+    }
+    function renderOptions() {
+      var host = document.getElementById("options");
+      host.innerHTML = "";
+      var category = selectedCategory();
+      if (!category) {
+        host.innerHTML = '<div id="empty">No editable entries were found for this weapon.</div>';
+        return;
+      }
+      var options = category.options || [];
+      for (var i = 0; i < options.length; i += 1) {
+        (function(option) {
+          var hidden = !!option.preferenceHidden;
+          var inherited = !!category.preferenceHidden;
+          var row = makeRow(option.label, hidden || inherited, inherited ? "Category hidden" : (hidden ? "Hidden" : "Shown"), function() {
+            send("option:" + category.categoryIndex + ":" + option.optionIndex + ":" + (hidden ? "0" : "1"));
+          }, {
+            type: "option",
+            categoryIndex: category.categoryIndex,
+            index: option.optionIndex
+          }, function(label) {
+            send("option-label:" + category.categoryIndex + ":" + option.optionIndex + ":" + label);
+          }, !!option.labelCustomized);
+          row.addEventListener("mouseenter", function() {
+            if (!dragState || dragState.type !== "option" || dragState.categoryIndex !== category.categoryIndex) return;
+            if (swapWith(options, dragState.index, option.optionIndex)) renderOptions();
+          });
+          host.appendChild(row);
+        })(options[i]);
+      }
+    }
+    function render() {
+      var weapon = payload && payload.weapon ? payload.weapon : {};
+      var parser = payload && payload.parser ? payload.parser : {};
+      document.getElementById("weaponName").textContent = displayName(weapon.name) || "No equipped weapon menu found";
+      updateProfileStatus();
+      updateMenuSourceControl();
+      updateBracketedTextControl();
+      var host = document.getElementById("categories");
+      host.innerHTML = "";
+      var list = categories();
+      if (list.length && selectedCategoryIndex === null) selectedCategoryIndex = list[0].categoryIndex;
+      var selectedStillExists = false;
+      for (var i = 0; i < list.length; i += 1) {
+        if (list[i].categoryIndex === selectedCategoryIndex) selectedStillExists = true;
+      }
+      if (!selectedStillExists) selectedCategoryIndex = list.length ? list[0].categoryIndex : null;
+      for (var j = 0; j < list.length; j += 1) {
+        (function(category) {
+          var hidden = !!category.preferenceHidden;
+          var row = makeRow(category.label, hidden, hidden ? "Hidden" : "Shown", function(event) {
+            if (event.target.className === "toggle" || event.target.className === "state") {
+              send("category:" + category.categoryIndex + ":" + (hidden ? "0" : "1"));
+              return;
+            }
+            selectedCategoryIndex = category.categoryIndex;
+            render();
+          }, {
+            type: "category",
+            index: category.categoryIndex
+          }, function(label) {
+            send("category-label:" + category.categoryIndex + ":" + label);
+          }, !!category.labelCustomized);
+          row.addEventListener("mouseenter", function() {
+            if (!dragState || dragState.type !== "category") return;
+            if (swapWith(list, dragState.index, category.categoryIndex)) render();
+          });
+          if (category.categoryIndex === selectedCategoryIndex) row.className += " selected";
+          row.addEventListener("dblclick", function() {
+            send("category:" + category.categoryIndex + ":" + (hidden ? "0" : "1"));
+          });
+          host.appendChild(row);
+        })(list[j]);
+      }
+      renderOptions();
+    }
+    window.k2040SetPayload = function(text) {
+      try { payload = JSON.parse(text); } catch (error) { payload = null; }
+      applyBuilderPanelSize();
+      render();
+      document.getElementById("builder").classList.add("ready");
+    };
+    window.k2040FocusMenuInitial = function() {
+      var first = document.querySelector(".row");
+      if (first) first.focus(); else document.body.focus();
+    };
+    document.getElementById("reset").addEventListener("click", function() { send("reset"); });
+    document.getElementById("resetOrder").addEventListener("click", function() { send("reset-order"); });
+    document.getElementById("resetNames").addEventListener("click", function() { send("reset-labels"); });
+    document.getElementById("exportProfile").addEventListener("click", function() {
+      document.getElementById("profileStatus").textContent = "Exporting weapon menu…";
+      send("export-profile");
+    });
+    document.getElementById("importProfile").addEventListener("click", openProfileDialog);
+    document.getElementById("closeProfileDialog").addEventListener("click", closeProfileDialog);
+    document.getElementById("profileDialog").addEventListener("mousedown", function(event) {
+      if (event.target === document.getElementById("profileDialog")) closeProfileDialog();
+    });
+    document.getElementById("settings").addEventListener("click", function() { send("open-settings"); });
+    document.getElementById("menuSourceTrigger").addEventListener("click", function() {
+      var open = document.getElementById("menuSourceTrigger").getAttribute("aria-expanded") !== "true";
+      setChoiceOpen("menuSourceTrigger", "menuSourceOptions", open, false);
+    });
+    document.getElementById("menuSourceTrigger").addEventListener("keydown", function(event) {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setChoiceOpen("menuSourceTrigger", "menuSourceOptions", true, true);
+      }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".menu-source-option"), function(option) {
+      option.addEventListener("click", function() { chooseMenuSource(option.dataset.value); });
+      option.addEventListener("keydown", function(event) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          var options = Array.prototype.slice.call(document.querySelectorAll(".menu-source-option"));
+          var index = options.indexOf(option);
+          options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length].focus();
+        }
+      });
+    });
+    document.getElementById("bracketedTextTrigger").addEventListener("click", function() {
+      var open = document.getElementById("bracketedTextTrigger").getAttribute("aria-expanded") !== "true";
+      setBracketedTextOpen(open, false);
+    });
+    document.getElementById("bracketedTextTrigger").addEventListener("keydown", function(event) {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setBracketedTextOpen(true, true);
+      }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("#bracketedTextOptions .choice-option"), function(option) {
+      option.addEventListener("click", function() { chooseBracketedText(option.dataset.value); });
+      option.addEventListener("keydown", function(event) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          moveBracketedTextFocus(option, event.key === "ArrowDown" ? 1 : -1);
+        } else if (event.key === "Home" || event.key === "End") {
+          event.preventDefault();
+          var options = document.querySelectorAll(".choice-option");
+          if (options.length) options[event.key === "Home" ? 0 : options.length - 1].focus();
+        }
+      });
+    });
+    document.addEventListener("mousedown", function(event) {
+      var control = document.getElementById("bracketedTextControl");
+      if (!control.contains(event.target)) setBracketedTextOpen(false, false);
+    });
+    document.getElementById("close").addEventListener("click", closeBuilder);
+    document.getElementById("builderResize").addEventListener("mousedown", function(event) {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      var bounds = document.getElementById("builder").getBoundingClientRect();
+      panelResize = { startX: event.clientX, startY: event.clientY, width: bounds.width, height: bounds.height, size: { width: bounds.width, height: bounds.height } };
+      document.getElementById("builder").classList.add("resizing");
+    });
+    document.getElementById("builderResize").addEventListener("keydown", function(event) {
+      var bounds = document.getElementById("builder").getBoundingClientRect();
+      var step = event.shiftKey ? 64 : 32;
+      var width = bounds.width;
+      var height = bounds.height;
+      if (event.key === "ArrowLeft") width -= step;
+      else if (event.key === "ArrowRight") width += step;
+      else if (event.key === "ArrowUp") height -= step;
+      else if (event.key === "ArrowDown") height += step;
+      else return;
+      event.preventDefault();
+      saveBuilderPanelSize(setBuilderPanelPixels(width, height));
+    });
+    document.addEventListener("mousemove", function(event) {
+      if (!panelResize) return;
+      event.preventDefault();
+      panelResize.size = setBuilderPanelPixels(
+        panelResize.width + (event.clientX - panelResize.startX) * 2,
+        panelResize.height + (event.clientY - panelResize.startY) * 2
+      );
+    }, true);
+    document.addEventListener("mouseup", finishPanelResize, true);
+    document.addEventListener("mouseup", finishDrag, true);
+    window.addEventListener("resize", applyBuilderPanelSize);
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        if (!document.getElementById("profileDialog").hidden) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeProfileDialog();
+          return;
+        }
+        if (document.getElementById("bracketedTextTrigger").getAttribute("aria-expanded") === "true") {
+          event.preventDefault();
+          event.stopPropagation();
+          setBracketedTextOpen(false, false);
+          document.getElementById("bracketedTextTrigger").focus();
+          return;
+        }
+        if (event.target && event.target.className === "rename-input") return;
+        event.preventDefault();
+        event.stopPropagation();
+        closeBuilder();
+      }
+    }, true);
+  </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>K2040's Quick Attach Menu</title>
+  <link rel="stylesheet" href="quick-menu.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
+    body { position: relative; }
+    #focusHeartbeat { position: fixed; right: 0; bottom: 0; width: 2px; height: 2px; pointer-events: none; background: rgba(102,196,255,.01); }
+  </style>
+</head>
+<body tabindex="-1">
+  <div id="focusHeartbeat" aria-hidden="true"></div>
+  <main id="quickMenu" aria-label="Weapon attachment menu"></main>
+  <script src="quick-menu-renderer.js"></script>
+  <script>
+    (function() {
+      "use strict";
+
+      var currentPayload = null;
+      var heartbeatTimer = 0;
+      var heartbeatPhase = false;
+      var keyboardActive = false;
+      var lastNavigationTime = 0;
+      var renderer = window.K2040QuickMenuRenderer.create(document.getElementById("quickMenu"), {
+        onOptionActivated: function(category, option) {
+          var selectionKey = String(category.categoryIndex) + ":" + String(option.optionIndex);
+          renderer.setStatus("Checking “" + (renderer.displayName(option.label) || "Unnamed attachment") + "”…", "warning");
+          if (typeof window.k2040OptionPreviewRequested === "function") {
+            window.k2040OptionPreviewRequested(selectionKey);
+          } else {
+            renderer.setStatus("The game-side selection handler is unavailable.", "error");
+          }
+        }
+      });
+
+      function startFocusHeartbeat() {
+        if (heartbeatTimer) return;
+        var pixel = document.getElementById("focusHeartbeat");
+        heartbeatTimer = window.setInterval(function() {
+          heartbeatPhase = !heartbeatPhase;
+          pixel.style.backgroundColor = heartbeatPhase ? "rgba(102,196,255,.02)" : "rgba(102,196,255,.01)";
+        }, 500);
+      }
+
+      function stopFocusHeartbeat() {
+        if (heartbeatTimer) window.clearInterval(heartbeatTimer);
+        heartbeatTimer = 0;
+      }
+
+      window.k2040StartFocusHeartbeat = startFocusHeartbeat;
+      window.k2040StopFocusHeartbeat = stopFocusHeartbeat;
+
+      window.k2040FocusMenuInitial = function() {
+        renderer.activePane = "categories";
+        renderer.render();
+      };
+
+      window.k2040SetPayload = function(payloadText) {
+        try {
+          currentPayload = JSON.parse(payloadText);
+        } catch (error) {
+          currentPayload = null;
+          renderer.setPayload({ settings: {}, parser: { categories: [] }, weapon: {} });
+          renderer.setStatus("The weapon menu data could not be read.", "error");
+          return;
+        }
+
+        renderer.setPayload(currentPayload);
+        var weapon = currentPayload.weapon || {};
+        var parser = currentPayload.parser || {};
+        var categories = renderer.visibleCategories();
+        if (!weapon.hasWeapon) {
+          renderer.setStatus("Equip a supported weapon and reopen the menu.", "error");
+        } else if (!parser.valid || !categories.length) {
+          renderer.setStatus(parser.status || "No usable menu is available for this weapon.", "error");
+        } else {
+          renderer.setStatus("", "");
+        }
+        startFocusHeartbeat();
+      };
+
+      window.k2040SetSelectionResult = function(resultText) {
+        var result;
+        try {
+          result = JSON.parse(resultText);
+        } catch (error) {
+          renderer.setStatus("The selection result could not be read.", "error");
+          return;
+        }
+        if (result.accepted) renderer.setStatus(result.message || "Selection is valid.", "success");
+        else if (result.installed) renderer.setStatus(result.message || "This attachment is already installed.", "warning");
+        else renderer.setStatus(result.message || "This attachment is unavailable.", "error");
+      };
+
+      window.addEventListener("focus", startFocusHeartbeat);
+
+      function consumeKey(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      }
+
+      function enterKeyboardMode() {
+        if (keyboardActive) return;
+        keyboardActive = true;
+        renderer.options.keyboardActive = true;
+      }
+
+      document.addEventListener("keydown", function(event) {
+        var key = event.key && event.key.length === 1 ? event.key.toLowerCase() : event.key;
+        if (key === "Escape" || key === " " || key === "Spacebar") {
+          consumeKey(event);
+          return;
+        }
+        if (key === "Enter") {
+          consumeKey(event);
+          enterKeyboardMode();
+          if (!event.repeat) renderer.activateFocusedOption();
+          return;
+        }
+        var navigation = key === "ArrowLeft" || key === "a" || key === "ArrowRight" || key === "d" ||
+          key === "ArrowUp" || key === "w" || key === "ArrowDown" || key === "s";
+        if (!navigation) return;
+        consumeKey(event);
+        enterKeyboardMode();
+        var now = Date.now();
+        if (event.repeat && now - lastNavigationTime < 90) return;
+        lastNavigationTime = now;
+        if (key === "ArrowLeft" || key === "a") renderer.switchPane(-1);
+        else if (key === "ArrowRight" || key === "d") renderer.switchPane(1);
+        else if (key === "ArrowUp" || key === "w") renderer.activePane === "categories" ? renderer.moveCategory(-1) : renderer.moveOption(-1);
+        else renderer.activePane === "categories" ? renderer.moveCategory(1) : renderer.moveOption(1);
+      });
+
+      document.addEventListener("mousemove", function() {
+        if (!keyboardActive) return;
+        keyboardActive = false;
+        renderer.options.keyboardActive = false;
+        renderer.render();
+      });
+    })();
+  </script>
+</body>
+</html>

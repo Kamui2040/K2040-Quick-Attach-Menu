@@ -1,0 +1,520 @@
+/* K2040's Quick Attach Menu shared presentation styles. */
+:root {
+  --qm-panel: rgba(11, 18, 24, .92);
+  --qm-panel-strong: rgba(7, 13, 18, .97);
+  --qm-row: rgba(11, 18, 24, .92);
+  --qm-active: rgba(28, 62, 82, .96);
+  --qm-line: rgba(205, 230, 245, .20);
+  --qm-line-soft: rgba(205, 230, 245, .10);
+  --qm-text: #f4faff;
+  --qm-muted: rgba(213, 227, 236, .68);
+  --qm-accent: #66c4ff;
+  --qm-installed: #74e398;
+  --qm-warning: #f2c66d;
+  --qm-blocked: #dc9797;
+  --qm-dark-text: #061014;
+}
+
+.k2040-quick-renderer,
+.k2040-quick-renderer * {
+  box-sizing: border-box;
+}
+
+.k2040-quick-renderer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max-content;
+  max-width: 96%;
+  color: var(--qm-text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center;
+  user-select: none;
+}
+
+.k2040-quick-renderer button {
+  color: inherit;
+  font: inherit;
+}
+
+.qm-layout {
+  position: relative;
+  width: max-content;
+  max-width: 96vw;
+}
+
+.qm-pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.qm-category-list,
+.qm-option-list {
+  scrollbar-color: var(--qm-accent) transparent;
+  scrollbar-width: thin;
+}
+
+.qm-option-list {
+  padding: 2px;
+}
+
+.qm-category-button,
+.qm-option-button {
+  position: relative;
+  display: grid;
+  align-items: center;
+  width: 100%;
+  color: var(--qm-text);
+  text-align: left;
+  background: var(--qm-row);
+  border: 1px solid transparent;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .34);
+  cursor: pointer;
+  outline: none;
+}
+
+.qm-category-button {
+  min-height: 44px;
+  margin: 0 0 5px;
+  padding: 7px 9px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.qm-option-button {
+  min-height: 50px;
+  margin: 0 0 5px;
+  padding: 7px 11px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 9px;
+  border-color: var(--qm-line-soft);
+}
+
+.qm-category-button:hover,
+.qm-category-button.active,
+.qm-category-button.pane-focus,
+.qm-option-button:hover,
+.qm-option-button.focused-option {
+  border-color: var(--qm-accent);
+  background: var(--qm-active);
+  box-shadow: inset 3px 0 0 var(--qm-accent), 0 5px 16px rgba(0, 0, 0, .34);
+}
+
+.qm-option-button.installed {
+  border-color: var(--qm-installed);
+  box-shadow: inset 0 0 0 1px var(--qm-installed), 0 5px 16px rgba(0, 0, 0, .34);
+}
+
+.qm-option-button.installed:hover,
+.qm-option-button.installed.focused-option {
+  border-color: var(--qm-installed);
+  box-shadow: inset 0 0 0 2px var(--qm-installed), 0 5px 16px rgba(0, 0, 0, .34);
+}
+
+.qm-option-button.blocked {
+  opacity: .58;
+}
+
+.qm-category-name,
+.qm-option-name {
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.qm-category-name {
+  max-height: 2.3em;
+}
+
+.qm-option-name {
+  max-height: 2.4em;
+}
+
+.qm-category-arrow {
+  color: var(--qm-muted);
+  font-size: 18px;
+}
+
+.qm-category-button.active .qm-category-arrow {
+  color: var(--qm-accent);
+}
+
+.qm-empty {
+  min-width: 230px;
+  padding: 20px 16px;
+  color: var(--qm-muted);
+  text-align: center;
+  background: var(--qm-panel);
+  border: 1px dashed var(--qm-line);
+}
+
+.qm-option-heading {
+  margin: 0 0 6px;
+  padding: 6px 9px;
+  overflow: hidden;
+  color: var(--qm-accent);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.qm-status-portal,
+.qm-status-portal * {
+  box-sizing: border-box;
+}
+
+.qm-status-portal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.qm-status-portal[hidden] { display: none; }
+
+.qm-status {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: max-content;
+  min-width: 190px;
+  max-width: min(520px, 86vw);
+  min-height: 24px;
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--qm-muted);
+  font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+  font-size: 13px;
+  font-stretch: condensed;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000;
+  background: var(--qm-panel);
+  border: 1px solid var(--qm-line-soft);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  pointer-events: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.qm-status:not(:empty) { opacity: 1; visibility: visible; }
+.k2040-quick-renderer > .qm-status { top: calc(100% + 24px); left: 50%; }
+.k2040-quick-renderer.status-above > .qm-status { top: auto; bottom: calc(100% + 8px); }
+.qm-status.success { color: var(--qm-installed); }
+.qm-status.warning { color: var(--qm-warning); }
+.qm-status.error { color: var(--qm-blocked); }
+
+.qm-hints {
+  display: none;
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  color: var(--qm-muted);
+  font-size: 9px;
+  text-align: center;
+  text-shadow: 0 1px 4px #000;
+  pointer-events: none;
+}
+
+.hints-always .qm-hints,
+.hints-contextual.keyboard-active .qm-hints {
+  display: block;
+}
+
+.qm-version {
+  position: absolute;
+  right: 2px;
+  bottom: -17px;
+  color: var(--qm-accent);
+  font-size: 9px;
+  letter-spacing: .06em;
+  text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+}
+
+/* Cascade: the accepted two-list layout remains unchanged. */
+.presentation-cascade .qm-cascade-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.presentation-cascade .qm-cascade-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.presentation-cascade .qm-category-list {
+  width: 180px;
+  max-height: 82vh;
+  overflow-y: auto;
+}
+
+.presentation-cascade .qm-option-list {
+  width: 290px;
+  max-height: 82vh;
+  overflow-y: auto;
+}
+
+/* Horizontal: complete category strip, model viewport, then complete option
+   strip. Nothing is interleaved. */
+.presentation-horizontal .qm-horizontal-layout {
+  width: min(960px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.presentation-horizontal .qm-category-list,
+.presentation-horizontal .qm-option-list {
+  display: flex;
+  width: 100%;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+
+.presentation-horizontal .qm-category-button {
+  width: 150px;
+  min-width: 150px;
+  margin: 0;
+}
+
+.presentation-horizontal .qm-option-button {
+  width: 215px;
+  min-width: 215px;
+  margin: 0;
+}
+
+/* Shared SVG wheel styling. */
+.qm-wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.qm-wheel-segment {
+  cursor: pointer;
+  outline: none;
+}
+
+.qm-wheel-path {
+  fill: var(--qm-row);
+  stroke: var(--qm-line);
+  stroke-width: 1.5;
+}
+
+.qm-wheel-segment:hover .qm-wheel-path,
+.qm-wheel-segment.active .qm-wheel-path,
+.qm-wheel-segment.pane-focus .qm-wheel-path {
+  fill: var(--qm-active);
+  stroke: var(--qm-accent);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 5px var(--qm-hud-glow, rgba(102, 196, 255, .42)));
+}
+
+.qm-wheel-option.installed .qm-wheel-path {
+  stroke: var(--qm-installed);
+  stroke-width: 2.5;
+}
+
+.qm-wheel-option.blocked { opacity: .58; }
+
+.qm-wheel-screen-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.qm-wheel-screen-labels[hidden] { display: none; }
+
+.qm-wheel-html-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: var(--qm-text);
+  font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+  font-stretch: condensed;
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000;
+  transform-origin: center;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+}
+
+.qm-wheel-html-label span {
+  display: block;
+  max-width: 100%;
+}
+
+.qm-wheel-html-label.blocked { opacity: .58; }
+
+.qm-wheel-center {
+  fill: var(--qm-panel);
+  stroke: var(--qm-line);
+  stroke-width: 2;
+}
+
+/* Radial: an open inner circle, one automatically divided category ring, and
+   a second option arc centered on the active category. */
+.presentation-radial .qm-radial-layout {
+  position: relative;
+  width: 600px;
+  height: 600px;
+}
+
+/* Hybrid: the categories occupy only the left semicircle; entries remain a
+   conventional list to the right. */
+.presentation-hybrid .qm-hybrid-layout {
+  display: grid;
+  grid-template-columns: 430px 300px;
+  align-items: center;
+  gap: 18px;
+}
+
+.presentation-hybrid .qm-hybrid-wheel {
+  position: relative;
+  width: 430px;
+  height: 430px;
+}
+
+.presentation-hybrid .qm-hybrid-options {
+  align-self: center;
+}
+
+.presentation-hybrid .qm-option-list {
+  width: 300px;
+  max-height: 405px;
+  overflow-y: auto;
+}
+
+/* Classic Pip-Boy is a structural skin, not a green recolor. */
+.theme-pipboy {
+  --qm-text: var(--qm-hud-color);
+  --qm-muted: var(--qm-hud-muted);
+  --qm-accent: var(--qm-hud-color);
+  --qm-installed: var(--qm-hud-color);
+  --qm-line: var(--qm-hud-line);
+  --qm-line-soft: var(--qm-hud-line-soft);
+  --qm-row: transparent;
+  --qm-active: var(--qm-hud-color);
+  --qm-dark-text: var(--qm-hud-dark);
+  font-family: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  text-shadow: 0 0 6px var(--qm-hud-glow);
+}
+
+.theme-pipboy .qm-category-list,
+.theme-pipboy .qm-option-list,
+.theme-pipboy .qm-status {
+  background: var(--qm-panel);
+  border: 1px solid var(--qm-line);
+  box-shadow: 0 0 13px var(--qm-hud-shadow);
+}
+
+.theme-pipboy .qm-category-list,
+.theme-pipboy .qm-option-list {
+  padding: 8px;
+}
+
+.theme-pipboy .qm-category-button,
+.theme-pipboy .qm-option-button {
+  color: var(--qm-hud-color);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  text-shadow: inherit;
+}
+
+.theme-pipboy .qm-category-button:hover,
+.theme-pipboy .qm-category-button.active,
+.theme-pipboy .qm-category-button.pane-focus,
+.theme-pipboy .qm-option-button:hover,
+.theme-pipboy .qm-option-button.focused-option {
+  color: var(--qm-dark-text);
+  background: var(--qm-hud-color);
+  border-color: var(--qm-hud-color);
+  box-shadow: 0 0 9px var(--qm-hud-glow);
+  text-shadow: none;
+}
+
+.theme-pipboy .qm-category-button.active .qm-category-arrow {
+  color: var(--qm-dark-text);
+}
+
+.theme-pipboy .qm-option-button.installed:not(.focused-option) {
+  border-color: var(--qm-hud-color);
+  box-shadow: inset 0 0 0 1px var(--qm-hud-color);
+}
+
+.theme-pipboy .qm-wheel-path,
+.theme-pipboy .qm-wheel-center {
+  fill: var(--qm-panel);
+  stroke: var(--qm-hud-color);
+}
+
+.theme-pipboy .qm-wheel-segment:hover .qm-wheel-path,
+.theme-pipboy .qm-wheel-segment.active .qm-wheel-path,
+.theme-pipboy .qm-wheel-segment.pane-focus .qm-wheel-path {
+  fill: var(--qm-hud-color);
+  stroke: var(--qm-hud-color);
+}
+
+.theme-pipboy .qm-wheel-html-label.hovered,
+.theme-pipboy .qm-wheel-html-label.active,
+.theme-pipboy .qm-wheel-html-label.pane-focus {
+  color: var(--qm-dark-text);
+  text-shadow: none;
+}
+
+.theme-pipboy .qm-wheel-html-label {
+  color: var(--qm-hud-color);
+}
+
+.theme-pipboy .qm-option-heading,
+.theme-pipboy .qm-weapon-name,
+.theme-pipboy .qm-hints,
+.theme-pipboy .qm-status {
+  color: var(--qm-hud-color);
+}
+
+.theme-high-contrast .qm-category-button,
+.theme-high-contrast .qm-option-button,
+.theme-high-contrast .qm-status {
+  border-width: 2px;
+}
+
+.preview-mode {
+  pointer-events: none;
+}
+
+.preview-mode .qm-version,
+.preview-mode .qm-hints,
+.preview-mode .qm-status {
+  display: none !important;
+}

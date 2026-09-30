@@ -1,0 +1,53 @@
+﻿# Build outputs
+build/
+.xmake/
+.vs/
+out/
+bin/
+obj/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+
+# Visual Studio / editor files
+*.user
+*.suo
+*.VC.db
+*.VC.VC.opendb
+.vscode/.browse.VC.db
+.vscode/ipch/
+
+# Compiled plugin artifacts
+*.dll
+*.pdb
+*.lib
+*.exp
+*.ilk
+*.obj
+
+# Runtime logs
+*.log
+
+# Local/generated packages
+*.zip
+*.7z
+*.rar
+
+# Game/runtime generated output
+dist/Data/F4SE/Plugins/*.dll
+dist/Data/F4SE/Plugins/*.pdb
+dist/Data/F4SE/Plugins/*.log
+
+# Keep default config template
+!dist/Data/F4SE/Plugins/K2040_Quick_Attach_Menu.ini
+
+# Do not blindly commit external binaries/archives
+external/prismaui_f4/*.dll
+external/prismaui_f4/*.lib
+external/prismaui_f4/*.pdb
+external/prismaui_f4/*.zip
+external/prismaui_f4/*.7z
+
+# Local API probes / investigation zips
+*_api_probe*/
+*_api_probe*.zip
