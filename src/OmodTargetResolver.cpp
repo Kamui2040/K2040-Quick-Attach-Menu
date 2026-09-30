@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -267,7 +268,7 @@ namespace
         if (path.empty()) {
             k2040::log::Warn(
                 std::string("OMOD target resolver could not locate plugin file: ") +
-                file->GetFilename().data());
+                std::string(file->GetFilename()));
             return false;
         }
 
@@ -310,7 +311,7 @@ namespace
 
         k2040::log::Info(
             std::string("OMOD target resolver scanned ") +
-            file->GetFilename().data() +
+            std::string(file->GetFilename()) +
             ": " +
             std::to_string(g_targetCache.size() - omodCountBefore) +
             " OMOD record(s) cached.");
