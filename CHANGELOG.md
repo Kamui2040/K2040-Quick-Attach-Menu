@@ -4,9 +4,10 @@
 
 Hotfix candidate for generated-menu compatibility and installed-state detection.
 
-- Uninstalled generated-menu OMODs now require an equipped-weapon
-  instantiation-filter keyword match in addition to source-family and
-  attachment-point checks.
+- Uninstalled generated-menu OMODs now require positive weapon-family
+  instantiation-filter evidence in addition to source-family and
+  attachment-point checks. The family can be proven by the equipped weapon,
+  its live instance, or its default/active OMODs.
 - Disabled object-instance OMOD entries no longer count as installed.
 
 ## 0.5.180
