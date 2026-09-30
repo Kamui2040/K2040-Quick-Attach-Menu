@@ -60,6 +60,9 @@ equipped-weapon target/filter-keyword match for uninstalled OMOD candidates and
 ignores disabled object-instance OMOD entries when determining installed state.
 
 A clean Linux Windows-x64 build has passed for 0.5.181. The first focused
-in-game regression failed because the quick menu and Builder did not open after
-deployment. Startup/load diagnosis and a successful repeat regression are
-required before 0.5.181 can be treated as target-runtime verified.
+in-game regression failed during plugin startup. The Linux CommonLibF4
+candidate used for that build calls an F4SE interface introduced in 0.7.1 and
+is not directly compatible with the supported F4SE 0.6.23 target. A compatible
+CommonLibF4 baseline or narrowly scoped old-runtime compatibility fix, followed
+by a successful repeat regression, is required before 0.5.181 can be treated
+as target-runtime verified.
