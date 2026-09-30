@@ -8,7 +8,8 @@
 #include "UserSettings.h"
 
 // Current runtime note:
-// - Uses legacy F4SEPlugin_Query / F4SEPlugin_Load exports through CommonLibF4 macros.
+// - Exports legacy F4SEPlugin_Query explicitly for Fallout 4 1.10.163 / F4SE 0.6.23.
+// - Uses CommonLibF4's F4SE_PLUGIN_LOAD macro for the load entry point.
 // - Registers F4SE messaging.
 // - Initializes PrismaUI at kGameDataReady.
 // - Uses native polling for the two toggle/switch openers and physical Escape close.
@@ -113,7 +114,7 @@ namespace
     }
 }
 
-F4SE_PLUGIN_QUERY(const F4SE::QueryInterface* f4se, F4SE::PluginInfo* pluginInfo)
+F4SE_EXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* f4se, F4SE::PluginInfo* pluginInfo)
 {
     k2040::log::Init();
     k2040::log::Info("F4SEPlugin_Query called.");
