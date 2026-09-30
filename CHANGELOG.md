@@ -4,10 +4,13 @@
 
 Hotfix candidate for generated-menu compatibility and installed-state detection.
 
-- Uninstalled generated-menu OMODs now require positive weapon-family
-  instantiation-filter evidence in addition to source-family and
-  attachment-point checks. The family can be proven by the equipped weapon,
-  its live instance, or its default/active OMODs.
+- Generated-menu compatibility now follows workbench semantics: reachable
+  attachment point plus Target OMOD / instantiation-filter keyword matching
+  when the OMOD declares target keywords. Source plugin is not used as a
+  compatibility boundary.
+- Builder lists every compatible generated attachment regardless of inventory;
+  Quick Menu lists installed attachments plus compatible loose mods currently
+  carried by the player.
 - Disabled object-instance OMOD entries no longer count as installed.
 - A hidden Quick Menu view is prepared after load/new-game transitions so the
   mod is discoverable in Prisma Dock without bypassing normal menu-open safety.
