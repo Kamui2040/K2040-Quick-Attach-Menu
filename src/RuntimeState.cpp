@@ -1084,6 +1084,22 @@ namespace k2040
         for (const auto& candidate : candidates) {
             if (!ContainsFormId(graphAttachPoints, candidate.consumes.formId)) continue;
 
+            // Installed OMODs without a linked loose-mod item are retained in
+            // the runtime graph because they can represent helper/base state,
+            // but generated menus must not treat them as player-facing
+            // attachments. Some weapons legitimately stack one of these helper
+            // OMODs with a real attachment on the same attach point.
+            if (candidate.installed && candidate.looseMod.formId == 0) {
+                log::Info(
+                    "Generated installed internal OMOD retained in graph but hidden from player menu: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", consumes=" +
+                    (candidate.consumes.editorId.empty()
+                        ? ToHexFormId(candidate.consumes.formId)
+                        : candidate.consumes.editorId));
+                continue;
+            }
+
             auto categoryIt = std::find_if(
                 menu.categories.begin(), menu.categories.end(),
                 [&](const EcoMenuCategory& category) {
@@ -1887,9 +1903,34 @@ namespace k2040
         }
         std::vector<const OmodAttachmentInfo*> liveInstalledAtPoint;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
-            if (installed.consumesAttachPoint.formId == request.consumedAttachPointFormId) {
-                liveInstalledAtPoint.push_back(std::addressof(installed));
+            if (installed.consumesAttachPoint.formId != request.consumedAttachPointFormId) {
+                continue;
             }
+
+            if (menu.runtimeGenerated) {
+                // The live object-instance vector can contain internal/helper
+                // OMODs stacked on the same AP as the actual player-facing
+                // attachment. Compare only live entries represented by the
+                // generated category; helpers remain installed and continue to
+                // participate in the attachment graph.
+                const bool representedByPlayerFacingOption = std::any_of(
+                    categoryIt->options.begin(),
+                    categoryIt->options.end(),
+                    [&](const EcoMenuOption& option) {
+                        return option.isInstalled &&
+                            option.omod.formId == installed.omod.formId &&
+                            option.consumesAttachPoint.formId == request.consumedAttachPointFormId;
+                    });
+                if (!representedByPlayerFacingOption) {
+                    log::Info(
+                        "Ignoring installed internal/helper OMOD for generated replacement identity: OMOD=" +
+                        ToHexFormId(installed.omod.formId) +
+                        ", AP=" + ToHexFormId(installed.consumesAttachPoint.formId));
+                    continue;
+                }
+            }
+
+            liveInstalledAtPoint.push_back(std::addressof(installed));
         }
         const bool menuInstalledCountAmbiguous = installedOptions.size() > 1;
         const bool liveInstalledCountAmbiguous = liveInstalledAtPoint.size() > 1;
