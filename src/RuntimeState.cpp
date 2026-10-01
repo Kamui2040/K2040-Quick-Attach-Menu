@@ -235,6 +235,24 @@ namespace
         return false;
     }
 
+    bool IsAttachmentCollectionOmod(const RE::BGSMod::Attachment::Mod* mod)
+    {
+        if (!mod) {
+            return false;
+        }
+
+        RE::BGSMod::Attachment::Mod::Data data{};
+        mod->GetData(data);
+        return data.attachments && data.attachmentCount > 0;
+    }
+
+    bool IsAttachmentCollectionOmod(std::uint32_t formId)
+    {
+        auto* form = formId != 0 ? RE::TESForm::GetFormByID(formId) : nullptr;
+        auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+        return IsAttachmentCollectionOmod(mod);
+    }
+
     void AppendUniqueFormRefs(std::vector<k2040::FormRef>& target, const std::vector<k2040::FormRef>& source)
     {
         for (const auto& value : source) {
@@ -1036,6 +1054,17 @@ namespace k2040
             candidate.mod = mod;
             candidate.omod = MakeFormRef(mod);
             candidate.installed = ContainsFormId(weaponInfo.installedObjectInstanceMods, candidate.omod.formId);
+
+            if (IsAttachmentCollectionOmod(mod)) {
+                if (candidate.installed) {
+                    log::Info(
+                        "Generated menu ignored installed attachment collection container: OMOD=" +
+                        ToHexFormId(candidate.omod.formId) +
+                        ", source=" +
+                        (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
+                }
+                continue;
+            }
 
             auto* looseMod = mod->GetLooseMod();
             candidate.looseMod = MakeFormRef(looseMod);
@@ -1945,9 +1974,19 @@ namespace k2040
         }
         std::vector<const OmodAttachmentInfo*> liveInstalledAtPoint;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
-            if (installed.consumesAttachPoint.formId == request.consumedAttachPointFormId) {
-                liveInstalledAtPoint.push_back(std::addressof(installed));
+            if (installed.consumesAttachPoint.formId != request.consumedAttachPointFormId) {
+                continue;
             }
+
+            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+                log::Info(
+                    "Ignoring installed attachment collection container for replacement identity: OMOD=" +
+                    ToHexFormId(installed.omod.formId) +
+                    ", AP=" + ToHexFormId(installed.consumesAttachPoint.formId));
+                continue;
+            }
+
+            liveInstalledAtPoint.push_back(std::addressof(installed));
         }
         const bool menuInstalledCountAmbiguous = installedOptions.size() > 1;
         const bool liveInstalledCountAmbiguous = liveInstalledAtPoint.size() > 1;
@@ -2085,6 +2124,9 @@ namespace k2040
         std::vector<OmodAttachmentInfo> removals;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
             if (previousOption && installed.omod.formId == previousOption->omod.formId) continue;
+            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+                continue;
+            }
             const bool reachableNow = ContainsFormId(
                 menu.liveReachableAttachPoints,
                 installed.consumesAttachPoint.formId);
