@@ -252,41 +252,6 @@ namespace
         return result;
     }
 
-    std::vector<k2040::FormRef> CollectAllTemplateOmods(
-        const RE::BGSMod::Template::Items& objectTemplate)
-    {
-        std::vector<k2040::FormRef> result;
-
-        for (std::uint32_t itemIndex = 0; itemIndex < objectTemplate.items.size(); ++itemIndex) {
-            const auto* item = objectTemplate.items[itemIndex];
-            if (!item) {
-                continue;
-            }
-
-            RE::BGSMod::Container::Data data{};
-            const auto* dataPtr = item->GetData(std::addressof(data));
-            if (!dataPtr || !dataPtr->attachments || dataPtr->attachmentCount == 0) {
-                continue;
-            }
-
-            for (std::uint32_t attachmentIndex = 0;
-                 attachmentIndex < dataPtr->attachmentCount;
-                 ++attachmentIndex) {
-                const auto* mod = dataPtr->attachments[attachmentIndex].mod;
-                if (!mod) {
-                    continue;
-                }
-
-                auto ref = MakeFormRef(mod);
-                if (ref.formId != 0 && !ContainsFormId(result, ref.formId)) {
-                    result.push_back(std::move(ref));
-                }
-            }
-        }
-
-        return result;
-    }
-
     std::string JoinOmodSummary(const std::vector<k2040::OmodAttachmentInfo>& mods)
     {
         if (mods.empty()) {
@@ -923,22 +888,21 @@ namespace k2040
             return menu;
         }
 
-        const auto templateCompatibleOmods =
-            CollectAllTemplateOmods(equippedWeapon->objectTemplate);
-
         std::vector<Candidate> candidates;
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
 
         // CommonLibF4 exposes FNAM/filter keywords but not the OMOD record's
-        // raw MNAM Target OMOD Keywords used for mod-association compatibility.
+        // raw MNAM Target OMOD Keywords used by weapon mod-association checks.
         // Read MNAM from the winning plugin record instead of approximating
-        // compatibility from source plugin or generic attachment points.
+        // compatibility from source plugin or the wrong runtime keyword array.
         //
-        // A candidate is compatible when it is already installed, appears in
-        // this WEAP's authored object template, or its parsed MNAM target
-        // keyword matches the equipped WEAP/live instance. AP reachability is
-        // still required below for the generated attachment graph.
+        // Workbench-compatible candidate rule:
+        // - consumed AP must belong to the weapon/provider graph;
+        // - OMODs with no MNAM target are generic for that AP;
+        // - OMODs with MNAM targets require at least one matching keyword on
+        //   the equipped base WEAP;
+        // - installed OMODs remain visible even if metadata cannot be resolved.
         //
         // Inventory affects Quick Menu visibility only; Builder enumeration is
         // independent of inventory.
@@ -970,11 +934,10 @@ namespace k2040
             if (candidate.consumes.formId == 0) continue;
             candidate.provides = CollectAttachParentSlots(mod->attachParents);
 
-            const bool templateCompatible =
-                ContainsFormId(templateCompatibleOmods, candidate.omod.formId);
-            bool targetMatches = candidate.installed || templateCompatible;
-
             const auto targetMetadata = ResolveOmodTargetMetadata(mod);
+            bool targetMatches = candidate.installed ||
+                targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
+
             if (targetMetadata.status == OmodTargetMetadataStatus::Resolved) {
                 for (auto* keyword : targetMetadata.targetKeywords) {
                     auto target = MakeFormRef(keyword);
@@ -983,8 +946,7 @@ namespace k2040
                     }
 
                     candidate.filters.push_back(target);
-                    if (equippedWeapon->HasKeyword(keyword) ||
-                        ContainsFormId(weaponInfo.equippedInstanceKeywords, target.formId)) {
+                    if (equippedWeapon->HasKeyword(keyword)) {
                         targetMatches = true;
                     }
                 }
@@ -999,11 +961,10 @@ namespace k2040
                             : "mnam-unavailable");
 
                 log::Info(
-                    "Generated candidate rejected by authored target compatibility: OMOD=" +
+                    "Generated candidate rejected by OMOD MNAM compatibility: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
                     (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
-                    ", templateCompatible=" + (templateCompatible ? std::string("true") : std::string("false")) +
                     ", targetMetadata=" + metadataStatus +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
                 continue;
@@ -1016,7 +977,6 @@ namespace k2040
                     ", label=\"" + SafeFullName(looseMod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
-                    ", templateCompatible=" + (templateCompatible ? std::string("true") : std::string("false")) +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
             }
 
