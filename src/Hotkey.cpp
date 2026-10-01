@@ -1,5 +1,6 @@
 #include "Hotkey.h"
 
+#include <F4SE/F4SE.h>
 #include <Windows.h>
 
 #include <algorithm>
@@ -27,10 +28,9 @@ namespace
     k2040::HotkeyState g_openMenuHotkey;
     k2040::HotkeyState g_openMenuBuilderHotkey;
 
-    bool g_wasOpenPressedLastPoll = false;
-    bool g_wasBuilderPressedLastPoll = false;
-    bool g_wasEscapePressedLastPoll = false;
-    bool g_escapeKeyArmed = true;
+    std::atomic_bool g_wasOpenPressedLastPoll = false;
+    std::atomic_bool g_wasBuilderPressedLastPoll = false;
+    std::atomic_bool g_wasEscapePressedLastPoll = false;
     std::atomic_bool g_hotkeyCaptureActive = false;
     std::atomic_bool g_hotkeyCaptureReleasePending = false;
 
@@ -494,10 +494,9 @@ namespace
 
     void ResetHotkeyEdgeState()
     {
-        g_wasOpenPressedLastPoll = false;
-        g_wasBuilderPressedLastPoll = false;
-        g_wasEscapePressedLastPoll = false;
-        g_escapeKeyArmed = true;
+        g_wasOpenPressedLastPoll.store(false);
+        g_wasBuilderPressedLastPoll.store(false);
+        g_wasEscapePressedLastPoll.store(false);
     }
 
     void ApplyConfiguredHotkeys(const McmHotkeyOverrides* overrides)
@@ -602,15 +601,12 @@ namespace
         return (GetAsyncKeyState(static_cast<int>(virtualKey)) & 0x8000) != 0;
     }
 
-    void WaitForOpeningHotkeysRelease()
+    enum class HotkeyAction
     {
-        while (k2040::IsHotkeyPressedNow(g_openMenuHotkey) ||
-               k2040::IsHotkeyPressedNow(g_openMenuBuilderHotkey)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(120));
-    }
+        ToggleQuickMenu,
+        ToggleBuilderMenu,
+        CloseFocusedMenu
+    };
 
     bool OpenRequestedMenu(k2040::PrismaBridge& prisma, bool openBuilder)
     {
@@ -641,6 +637,58 @@ namespace
         }
 
         return true;
+    }
+
+    void HandleHotkeyActionOnGameThread(HotkeyAction action)
+    {
+        auto& prisma = k2040::GetPrismaBridge();
+
+        if (action == HotkeyAction::CloseFocusedMenu) {
+            if (prisma.IsMenuFocused()) {
+                k2040::log::Info("Escape released while the quick menu is focused; closing on the game thread.");
+                prisma.CloseMenu();
+            }
+            return;
+        }
+
+        const bool targetMenuIsBuilder = action == HotkeyAction::ToggleBuilderMenu;
+
+        if (!prisma.IsMenuFocused()) {
+            OpenRequestedMenu(prisma, targetMenuIsBuilder);
+            return;
+        }
+
+        const bool currentMenuIsBuilder = prisma.IsMenuBuilderOpen();
+        if (targetMenuIsBuilder != currentMenuIsBuilder) {
+            k2040::log::Info(targetMenuIsBuilder
+                ? "Builder hotkey requested while the quick menu is open; switching on the game thread."
+                : "Quick-menu hotkey requested while the builder is open; switching on the game thread.");
+
+            prisma.CloseMenuForSwitch();
+            if (!OpenRequestedMenu(prisma, targetMenuIsBuilder)) {
+                k2040::log::Warn("Menu switch could not open the requested menu; completing a normal close.");
+                prisma.CloseMenu();
+            }
+            return;
+        }
+
+        k2040::log::Info(currentMenuIsBuilder
+            ? "Builder hotkey requested while the builder is open; closing on the game thread."
+            : "Quick-menu hotkey requested while the quick menu is open; closing on the game thread.");
+        prisma.CloseMenu();
+    }
+
+    void QueueHotkeyAction(HotkeyAction action)
+    {
+        const auto* taskInterface = F4SE::GetTaskInterface();
+        if (!taskInterface) {
+            k2040::log::Warn("Hotkey action ignored because the F4SE game-thread task interface is unavailable.");
+            return;
+        }
+
+        taskInterface->AddTask([action]() {
+            HandleHotkeyActionOnGameThread(action);
+        });
     }
 }
 
@@ -769,106 +817,29 @@ namespace k2040
             return;
         }
 
-        auto& prisma = GetPrismaBridge();
-
-        if (prisma.IsMenuFocused()) {
-            const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
-            const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
-            const bool escapePhysicalKeyDown = IsPhysicalKeyDown(VK_ESCAPE);
-
-            // PrismaUI owns and swallows Escape while the menu is focused, but
-            // its browser route does not reliably deliver Escape key events on
-            // the target runtime. Poll the physical key and close only after
-            // release so the press cannot leak into the underlying game UI.
-            if (!g_escapeKeyArmed) {
-                if (!escapePhysicalKeyDown) {
-                    g_escapeKeyArmed = true;
-                    g_wasEscapePressedLastPoll = false;
-                    log::Info("Escape close armed after the physical key was released.");
-                }
-            } else if (escapePhysicalKeyDown && !g_wasEscapePressedLastPoll) {
-                g_wasEscapePressedLastPoll = true;
-                log::Info("Escape pressed while the quick menu is focused; waiting for physical release.");
-            } else if (!escapePhysicalKeyDown && g_wasEscapePressedLastPoll) {
-                log::Info("Escape released; closing weapon menu through the native hotkey path.");
-                prisma.CloseMenu();
-
-                g_wasOpenPressedLastPoll = false;
-                g_wasBuilderPressedLastPoll = false;
-                g_wasEscapePressedLastPoll = false;
-                g_escapeKeyArmed = true;
-                return;
-            }
-
-            const bool quickMenuPressed = openPressedNow && !g_wasOpenPressedLastPoll;
-            const bool builderMenuPressed = builderPressedNow && !g_wasBuilderPressedLastPoll;
-
-            if (quickMenuPressed || builderMenuPressed) {
-                const bool currentMenuIsBuilder = prisma.IsMenuBuilderOpen();
-                const bool bothOpenersPressed = quickMenuPressed && builderMenuPressed;
-                const bool targetMenuIsBuilder = bothOpenersPressed
-                    ? currentMenuIsBuilder
-                    : builderMenuPressed;
-                const bool switchMenus = targetMenuIsBuilder != currentMenuIsBuilder;
-
-                if (switchMenus) {
-                    log::Info(targetMenuIsBuilder
-                        ? "Builder hotkey pressed while the quick menu is open; waiting for release before switching."
-                        : "Quick-menu hotkey pressed while the builder is open; waiting for release before switching.");
-                } else {
-                    log::Info(currentMenuIsBuilder
-                        ? "Builder hotkey pressed while the builder is open; waiting for release before closing."
-                        : "Quick-menu hotkey pressed while the quick menu is open; waiting for release before closing.");
-                }
-
-                WaitForOpeningHotkeysRelease();
-
-                if (switchMenus) {
-                    prisma.CloseMenuForSwitch();
-                    if (!OpenRequestedMenu(prisma, targetMenuIsBuilder)) {
-                        log::Warn("Menu switch could not open the requested menu; completing a normal close.");
-                        prisma.CloseMenu();
-                    }
-                } else {
-                    prisma.CloseMenu();
-                }
-
-                g_wasOpenPressedLastPoll = false;
-                g_wasBuilderPressedLastPoll = false;
-                g_wasEscapePressedLastPoll = false;
-                g_escapeKeyArmed = !IsPhysicalKeyDown(VK_ESCAPE);
-                return;
-            }
-
-            g_wasOpenPressedLastPoll = openPressedNow;
-            g_wasBuilderPressedLastPoll = builderPressedNow;
-            if (g_escapeKeyArmed) {
-                g_wasEscapePressedLastPoll = escapePhysicalKeyDown;
-            }
-            return;
-        }
-
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
         const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
+        const bool escapePressedNow = IsPhysicalKeyDown(VK_ESCAPE);
 
-        const bool openQuickMenu = openPressedNow && !g_wasOpenPressedLastPoll;
-        const bool openBuilder = builderPressedNow && !g_wasBuilderPressedLastPoll;
+        const bool openPressedEdge =
+            openPressedNow && !g_wasOpenPressedLastPoll.exchange(openPressedNow);
+        const bool builderPressedEdge =
+            builderPressedNow && !g_wasBuilderPressedLastPoll.exchange(builderPressedNow);
+        const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
+        const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
 
-        if (openQuickMenu || openBuilder) {
-            if (!OpenRequestedMenu(prisma, openBuilder)) {
-                g_wasOpenPressedLastPoll = openPressedNow;
-                g_wasBuilderPressedLastPoll = builderPressedNow;
-                return;
-            }
-
-            // Edge tracking keeps the opening press from toggling the newly
-            // focused menu closed before the opener has been released.
-            g_wasEscapePressedLastPoll = false;
-            g_escapeKeyArmed = !IsPhysicalKeyDown(VK_ESCAPE);
+        // The polling thread is deliberately limited to physical-key state.
+        // All game/Prisma/menu/input-layer work is queued onto the F4SE game
+        // thread because BSInputEnableManager notifications can synchronously
+        // drive PlayerControls and the Havok animation graph.
+        if (builderPressedEdge) {
+            QueueHotkeyAction(HotkeyAction::ToggleBuilderMenu);
+        } else if (openPressedEdge) {
+            QueueHotkeyAction(HotkeyAction::ToggleQuickMenu);
         }
 
-        g_wasOpenPressedLastPoll = openPressedNow;
-        g_wasBuilderPressedLastPoll = builderPressedNow;
-        g_wasEscapePressedLastPoll = false;
+        if (escapeReleasedEdge) {
+            QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
+        }
     }
 }
