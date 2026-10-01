@@ -25,6 +25,7 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Do not add an xEdit JSON runtime dependency.
 - Keep authored presentation separate from live structural validity.
 - Use resolved object-instance OMODs for installed identity.
+- Do not call `BGSMod::Attachment::Mod::GetData` on NG/AE; CommonLib marks it inlined there. Use the inherited `BGSMod::Container::GetData` when only attachment/property container data is needed.
 - Install providers before children and remove children before providers.
 - Persist form identity by source plugin and local FormID/FormKey.
 - Treat every browser selection and imported profile as untrusted input.

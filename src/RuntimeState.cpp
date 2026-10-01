@@ -235,15 +235,27 @@ namespace
         return false;
     }
 
-    bool IsAttachmentCollectionOmod(const RE::BGSMod::Attachment::Mod* mod)
+    bool TryGetAttachmentContainerData(
+        const RE::BGSMod::Attachment::Mod* mod,
+        RE::BGSMod::Container::Data& data)
     {
         if (!mod) {
             return false;
         }
 
-        RE::BGSMod::Attachment::Mod::Data data{};
-        mod->GetData(data);
-        return data.attachments && data.attachmentCount > 0;
+        // Attachment::Mod::GetData is inlined on NG/AE and has no callable
+        // relocation there. The inherited Container::GetData exposes the
+        // attachment/property container fields we need on both OG and NG/AE.
+        const auto* container = static_cast<const RE::BGSMod::Container*>(mod);
+        return container->GetData(std::addressof(data)) != nullptr;
+    }
+
+    bool IsAttachmentCollectionOmod(const RE::BGSMod::Attachment::Mod* mod)
+    {
+        RE::BGSMod::Container::Data data{};
+        return TryGetAttachmentContainerData(mod, data) &&
+            data.attachments &&
+            data.attachmentCount > 0;
     }
 
     bool IsAttachmentCollectionOmod(std::uint32_t formId)
@@ -704,8 +716,13 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
             continue;
         }
 
-        RE::BGSMod::Attachment::Mod::Data modData{};
-        mod->GetData(modData);
+        RE::BGSMod::Container::Data modData{};
+        if (!TryGetAttachmentContainerData(mod, modData)) {
+            k2040::log::Warn(
+                "Installed OMOD container diagnostic skipped because container data was unavailable: form=" +
+                k2040::ToHexFormId(omodRef.formId));
+            continue;
+        }
 
         auto* looseMod = mod->GetLooseMod();
         const auto consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);

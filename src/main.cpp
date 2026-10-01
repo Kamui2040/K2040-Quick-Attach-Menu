@@ -18,7 +18,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500BB; // 0.5.187 dialogue-open guard test build
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500BC; // 0.5.188 NG-safe OMOD container read test build
 
     void OnPluginLoaded()
     {
