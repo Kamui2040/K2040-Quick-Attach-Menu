@@ -4,10 +4,11 @@
 
 Hotfix candidate for generated-menu compatibility and installed-state detection.
 
-- Generated-menu compatibility now follows workbench semantics: reachable
-  attachment point plus Target OMOD / instantiation-filter keyword matching
-  when the OMOD declares target keywords. Source plugin is not used as a
-  compatibility boundary.
+- Generated-menu compatibility now reads the winning OMOD record's raw MNAM
+  Target OMOD / Mod Association keywords instead of treating CommonLibF4
+  FNAM/filter keywords as target compatibility. Candidates require a reachable
+  attachment point and a matching MNAM target when one is authored; unresolved
+  MNAM metadata fails closed for uninstalled candidates.
 - Builder lists every compatible generated attachment regardless of inventory;
   Quick Menu lists installed attachments plus compatible loose mods currently
   carried by the player.
