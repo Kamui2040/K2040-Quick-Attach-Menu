@@ -3,11 +3,15 @@
 ## 0.5.180 generated-menu compatibility
 
 Version 0.5.180 can admit unrelated OMODs when generic attachment points overlap
-between weapon families. The 0.5.181 hotfix candidate now follows the
-workbench's authored compatibility model: reachable attachment point plus
-Target OMOD / instantiation-filter keyword matching when those target keywords
-are present. OMODs with no target keyword remain generic by design, matching
-the workbench behavior.
+between weapon families. Earlier 0.5.181 candidates incorrectly tried to infer
+the weapon-family gate from CommonLibF4 `filterKeywords`, which exposes OMOD
+`FNAM` rather than the authored Target OMOD Keywords in `MNAM`.
+
+The current hotfix reads raw MNAM from the winning OMOD plugin record. A
+generated OMOD requires a reachable attachment point and, when MNAM targets are
+present, a matching keyword on the equipped base WEAP. OMODs with no MNAM
+targets remain generic for their attachment point. Unresolved MNAM metadata
+fails closed for uninstalled candidates.
 
 ## 0.5.180 false ambiguous replacement state
 
