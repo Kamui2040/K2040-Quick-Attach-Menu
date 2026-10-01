@@ -16,8 +16,8 @@ plugin INI.
 
 ECO is optional. When a compatible authored ECO menu is available, Auto mode
 can use it. Otherwise the plugin builds a bounded generated menu from the
-equipped weapon, installed OMODs, available loose mods, source-family evidence,
-and reachable attachment points.
+equipped weapon, installed OMODs, available loose mods, reachable attachment
+points, and the winning OMOD records' MNAM Target OMOD keywords.
 
 ## Not supported by this release
 
