@@ -22,7 +22,7 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - Live attachment validation, provider/child ordering, inventory verification,
   and rollback for supported changes.
 
-Version 0.5.180 is intentionally text-only. Attachment icons and weapon-preview
+Version 0.5.181 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
 
 ## Requirements
