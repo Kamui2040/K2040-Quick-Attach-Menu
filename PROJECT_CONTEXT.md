@@ -1,6 +1,6 @@
 # Current Project State
 
-- Current hotfix candidate: `0.5.181`
+- Current release-ready version: `0.5.181`
 - Last public release: `0.5.180`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
@@ -29,10 +29,11 @@ no-loose-mod Legendary/helper OMODs were being listed as generated choices.
 Uninstalled generated OMODs without a linked loose-mod item are now excluded,
 while already-installed no-loose-mod OMODs remain visible as live state.
 
-Builder is intended to show every compatible player-facing attachment regardless
-of inventory; Quick Menu is intended to show installed attachments plus
-compatible loose mods currently carried by the player. This correction requires
-a fresh clean build and focused target-runtime regression before merge.
+Builder shows every compatible player-facing attachment regardless of inventory;
+Quick Menu shows installed attachments plus compatible loose mods currently
+carried by the player. Focused target-runtime regression passed for generated
+compatibility, Prisma Dock discovery, internal Legendary/helper filtering, and
+the previously failing sight replacement.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser

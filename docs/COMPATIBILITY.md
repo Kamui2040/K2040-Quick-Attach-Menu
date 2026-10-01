@@ -7,7 +7,7 @@
 | Fallout 4 | `1.10.163` |
 | F4SE | matching `1.10.163` release |
 | PrismaUI_F4 | `2.1.1` |
-| Plugin | `0.5.181` hotfix candidate |
+| Plugin | `0.5.181` |
 | Architecture | Windows x64 |
 
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
@@ -41,10 +41,12 @@ Version 0.5.180 passed target-runtime checks for:
 - menu close/reopen and opener-key switching;
 - Alt-Tab, save/load, and normal exit.
 
-This evidence applies to the exact target versions above. The 0.5.181 hotfix
-keeps the 0.5.180 runtime/dependency baseline and requires a clean build plus
-focused target-runtime regression before release. A runtime, F4SE, PrismaUI
-API/header, or CommonLibF4 change requires separate compatibility review.
+This evidence applies to the exact target versions above. Version 0.5.181 keeps
+the 0.5.180 runtime/dependency baseline and passed focused regression for
+generated compatibility, disabled installed-state entries, Prisma Dock discovery,
+internal no-loose-mod filtering, and the previously failing sight replacement.
+A runtime, F4SE, PrismaUI API/header, or CommonLibF4 change requires separate
+compatibility review.
 
 ## PrismaUI SDK provenance
 

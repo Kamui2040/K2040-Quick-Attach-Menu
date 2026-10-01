@@ -2,7 +2,7 @@
 
 ## 0.5.181
 
-Hotfix candidate for generated-menu compatibility and installed-state detection.
+Hotfix for generated-menu compatibility and installed-state detection.
 
 - Generated-menu compatibility now reads the winning OMOD record's raw MNAM
   Target OMOD / Mod Association keywords instead of treating CommonLibF4
