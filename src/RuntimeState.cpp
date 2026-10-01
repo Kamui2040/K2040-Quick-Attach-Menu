@@ -674,6 +674,64 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
     k2040::log::Info("Live object-instance extra summary: " + summary);
     k2040::log::Info("Live object-instance resolved mods: " + (resolvedIndexData.empty() ? std::string("(none)") : resolvedIndexData));
     k2040::log::Info("Live object-instance installed OMOD refs: " + JoinFormRefEditorIds(info.installedObjectInstanceMods));
+
+    // Diagnostic-only MODCOL/container probe. Some weapon mods use OMOD
+    // collections that can cause multiple OMOD records from one attachment
+    // point to appear in the live object-instance vector. Record the OMOD's
+    // embedded attachment container without changing installed-state logic.
+    for (const auto& omodRef : info.installedObjectInstanceMods) {
+        auto* form = RE::TESForm::GetFormByID(omodRef.formId);
+        auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+        if (!mod) {
+            continue;
+        }
+
+        RE::BGSMod::Attachment::Mod::Data modData{};
+        mod->GetData(modData);
+
+        auto* looseMod = mod->GetLooseMod();
+        const auto consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
+
+        std::string nested;
+        if (modData.attachments && modData.attachmentCount > 0) {
+            for (std::uint32_t i = 0; i < modData.attachmentCount; ++i) {
+                const auto& attachment = modData.attachments[i];
+                if (!attachment.mod) {
+                    continue;
+                }
+                if (!nested.empty()) {
+                    nested += " | ";
+                }
+
+                const auto childRef = MakeFormRef(attachment.mod);
+                const auto childConsumes = ResolveAttachPointKeyword(attachment.mod->attachPoint.keywordIndex);
+                nested += "form=" + k2040::ToHexFormId(childRef.formId);
+                if (!childRef.editorId.empty()) {
+                    nested += "/editor=" + childRef.editorId;
+                }
+                nested += "/index=" + std::to_string(static_cast<std::uint32_t>(attachment.index));
+                nested += "/optional=" + std::string(attachment.optional ? "true" : "false");
+                nested += "/childrenExclusive=" + std::string(attachment.childrenExclusive ? "true" : "false");
+                nested += "/consumes=" +
+                    (childConsumes.editorId.empty()
+                        ? k2040::ToHexFormId(childConsumes.formId)
+                        : childConsumes.editorId);
+                nested += "/hasLooseMod=" +
+                    std::string(attachment.mod->GetLooseMod() ? "true" : "false");
+            }
+        }
+
+        k2040::log::Info(
+            "Installed OMOD container diagnostic: form=" + k2040::ToHexFormId(omodRef.formId) +
+            ", editor=" + (omodRef.editorId.empty() ? std::string("(none)") : omodRef.editorId) +
+            ", source=" + (omodRef.sourcePlugin.empty() ? std::string("(unknown)") : omodRef.sourcePlugin) +
+            ", consumes=" + (consumes.editorId.empty() ? k2040::ToHexFormId(consumes.formId) : consumes.editorId) +
+            ", hasLooseMod=" + std::string(looseMod ? "true" : "false") +
+            ", containerAttachmentCount=" + std::to_string(modData.attachmentCount) +
+            ", propertyModCount=" + std::to_string(modData.propertyModCount) +
+            ", collectionLike=" + std::string(modData.attachmentCount > 0 ? "true" : "false") +
+            ", nested={" + (nested.empty() ? std::string("(none)") : nested) + "}");
+    }
 }
     void CaptureInstanceProbe(const RE::BGSObjectInstance& equipped, k2040::EquippedWeaponInfo& info)
     {
