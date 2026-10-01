@@ -1891,10 +1891,79 @@ namespace k2040
                 liveInstalledAtPoint.push_back(std::addressof(installed));
             }
         }
-        if (installedOptions.size() > 1 || liveInstalledAtPoint.size() > 1 ||
-            installedOptions.size() != liveInstalledAtPoint.size() ||
-            (!installedOptions.empty() &&
-                installedOptions.front()->omod.formId != liveInstalledAtPoint.front()->omod.formId)) {
+        const bool menuInstalledCountAmbiguous = installedOptions.size() > 1;
+        const bool liveInstalledCountAmbiguous = liveInstalledAtPoint.size() > 1;
+        const bool installedCountMismatch = installedOptions.size() != liveInstalledAtPoint.size();
+        const bool installedIdentityMismatch =
+            !installedCountMismatch &&
+            !installedOptions.empty() &&
+            installedOptions.front()->omod.formId != liveInstalledAtPoint.front()->omod.formId;
+
+        if (menuInstalledCountAmbiguous || liveInstalledCountAmbiguous ||
+            installedCountMismatch || installedIdentityMismatch) {
+            const auto describeRef = [](const FormRef& ref) {
+                std::string value = "form=" + ToHexFormId(ref.formId);
+                if (!ref.editorId.empty()) {
+                    value += "/editor=" + ref.editorId;
+                }
+                if (!ref.sourcePlugin.empty()) {
+                    value += "/source=" + ref.sourcePlugin;
+                }
+                if (ref.localFormId != 0) {
+                    value += "/local=" + ToHexFormId(ref.localFormId);
+                }
+                return value;
+            };
+
+            std::string reasons;
+            const auto appendReason = [&](const char* reason) {
+                if (!reasons.empty()) {
+                    reasons += ",";
+                }
+                reasons += reason;
+            };
+            if (menuInstalledCountAmbiguous) appendReason("menu-installed-count>1");
+            if (liveInstalledCountAmbiguous) appendReason("live-installed-count>1");
+            if (installedCountMismatch) appendReason("menu/live-count-mismatch");
+            if (installedIdentityMismatch) appendReason("menu/live-identity-mismatch");
+
+            log::Warn(
+                "Attachment ambiguity diagnostic: weapon={" + describeRef(weaponInfo.weapon) +
+                "}, category=\"" + categoryIt->label +
+                "\", target={" + describeRef(targetIt->omod) +
+                "}, selectedAP={" + describeRef(targetIt->consumesAttachPoint) +
+                "}, requestAP=" + ToHexFormId(request.consumedAttachPointFormId) +
+                ", menuInstalledCount=" + std::to_string(installedOptions.size()) +
+                ", liveInstalledCount=" + std::to_string(liveInstalledAtPoint.size()) +
+                ", reasons=" + reasons);
+
+            if (installedOptions.empty()) {
+                log::Warn("Attachment ambiguity menu-installed candidates: (none)");
+            } else {
+                for (std::size_t i = 0; i < installedOptions.size(); ++i) {
+                    const auto* option = installedOptions[i];
+                    log::Warn(
+                        "Attachment ambiguity menu-installed[" + std::to_string(i) +
+                        "]: omod={" + describeRef(option->omod) +
+                        "}, consumesAP={" + describeRef(option->consumesAttachPoint) +
+                        "}, label=\"" + option->label +
+                        "\", status=" + option->status);
+                }
+            }
+
+            if (liveInstalledAtPoint.empty()) {
+                log::Warn("Attachment ambiguity live-installed candidates: (none)");
+            } else {
+                for (std::size_t i = 0; i < liveInstalledAtPoint.size(); ++i) {
+                    const auto* installed = liveInstalledAtPoint[i];
+                    log::Warn(
+                        "Attachment ambiguity live-installed[" + std::to_string(i) +
+                        "]: omod={" + describeRef(installed->omod) +
+                        "}, consumesAP={" + describeRef(installed->consumesAttachPoint) +
+                        "}, providesAPCount=" + std::to_string(installed->providesAttachParentSlots.size()));
+                }
+            }
+
             return fail("installed-state-ambiguous", "The current attachment state is not safe to replace automatically.");
         }
 
