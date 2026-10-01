@@ -15,15 +15,19 @@ host.
 
 The old-gen-compatible candidate now loads and opens both Prisma menus on
 Fallout 4 1.10.163, and Prisma Dock registration is confirmed in runtime QA.
-The earlier generated-menu filters were too strict and reduced both menus to
-already-installed attachments. The candidate now follows workbench
-compatibility instead: reachable attachment point plus Target OMOD /
-instantiation-filter keyword matching when target keywords are declared, with
-no source-plugin restriction. Builder is intended to show every compatible
-attachment regardless of inventory; Quick Menu is intended to show installed
-attachments plus compatible loose mods currently carried by the player. This
-catalog correction requires a fresh build and focused target-runtime regression
-before merge.
+Runtime testing also proved that both prior generated-menu heuristics were
+wrong: source/plugin-family filtering hid valid choices, while using CommonLibF4
+`filterKeywords` as the target gate admitted unrelated weapon attachments.
+The latter field is OMOD FNAM, not the authored MNAM Target OMOD association.
+
+The current candidate parses raw MNAM from each winning OMOD plugin record and
+uses it with the reachable attachment graph. MNAM-targeted OMODs must match a
+keyword on the equipped base WEAP; OMODs with no MNAM are generic for their
+reachable attachment point; unresolved MNAM metadata fails closed for
+uninstalled candidates. Builder is intended to show every compatible attachment
+regardless of inventory; Quick Menu is intended to show installed attachments
+plus compatible loose mods currently carried by the player. This correction
+requires a fresh clean build and focused target-runtime regression before merge.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser
