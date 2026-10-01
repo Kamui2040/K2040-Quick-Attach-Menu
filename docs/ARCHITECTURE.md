@@ -51,19 +51,27 @@ Installed state does not by itself imply that an option is visible, selectable, 
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
-Generated menus follow the workbench compatibility model rather than plugin
-provenance. An OMOD must consume an attachment point reachable from the weapon
-graph. If it declares Target OMOD / instantiation-filter keywords, at least one
-must exist on the equipped WEAP or its live instance. If it declares no target
-keyword, attachment-point compatibility is sufficient. Source plugin is never a
-compatibility gate because patches and add-ons can validly extend another
-plugin's weapon.
+Generated menus use the OMOD record's authored Target OMOD Keywords (`MNAM`)
+for weapon-family compatibility. CommonLibF4's exposed `filterKeywords`
+correspond to a different OMOD field (`FNAM`) and are not used as a substitute
+for MNAM. Because CommonLibF4 does not expose MNAM structurally, the runtime
+reads MNAM from the winning loaded plugin record and resolves those keywords to
+the live form table.
 
-The Builder enumerates all generated OMODs that are compatible with the
-equipped weapon under those rules, whether or not their loose-mod items are in
-inventory. The gameplay Quick Menu uses the same compatibility catalog but
-suppresses uninstalled entries whose loose-mod items are not currently carried.
-Catalog enumeration does not authorize mutation; live transaction checks remain
+An uninstalled generated OMOD must consume an attachment point reachable from
+the weapon graph. If its winning OMOD record has MNAM targets, at least one must
+be a keyword on the equipped base WEAP. If the record has no MNAM targets, the
+OMOD is generic for that reachable attachment point. If MNAM metadata cannot be
+resolved safely, the uninstalled candidate fails closed. Installed OMODs remain
+visible from live object-instance identity. Source plugin is not a compatibility
+gate because patches and add-ons may validly extend a weapon from another
+plugin.
+
+The Builder enumerates all generated OMODs compatible with the equipped weapon
+under those rules, whether or not their loose-mod items are in inventory. The
+gameplay Quick Menu uses the same compatibility catalog but suppresses
+uninstalled entries whose loose-mod items are not currently carried. Catalog
+enumeration does not authorize mutation; live transaction checks remain
 authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
