@@ -18,7 +18,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500B8; // 0.5.184 attachment collection container handling test build
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500B9; // 0.5.185 generated no-loose OMOD support test build
 
     void OnPluginLoaded()
     {

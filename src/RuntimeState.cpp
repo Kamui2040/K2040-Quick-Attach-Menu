@@ -1068,30 +1068,28 @@ namespace k2040
 
             auto* looseMod = mod->GetLooseMod();
             candidate.looseMod = MakeFormRef(looseMod);
+            const bool noLooseOptionAllowed =
+                !looseMod && GetSettings().allowNoLooseModOptions;
+
             if (looseMod) {
                 auto* player = RE::PlayerCharacter::GetSingleton();
                 candidate.inventoryAvailable = player && player->inventoryList &&
                     player->inventoryList->GetItemCount(looseMod) > 0;
-            } else if (!candidate.installed) {
-                // Generated menus model player-facing workbench choices. OMODs
-                // without a linked loose-mod item are commonly internal,
-                // scripted, legendary-effect, or helper records and are not
-                // exposed as uninstalled choices. An already-installed OMOD is
-                // still retained so the live weapon state can be represented.
+            } else if (!candidate.installed && !noLooseOptionAllowed) {
                 log::Info(
-                    "Generated candidate rejected without player-facing loose mod: OMOD=" +
+                    "Generated candidate rejected because no loose mod is linked and no-loose options are disabled: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
                     (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
                 continue;
             }
 
-            // The quick menu exposes only installed OMODs and compatible
-            // options backed by loose-mod items the player actually carries.
-            // The builder asks for the complete workbench-compatible catalog
-            // so entries can be configured before their loose mods are acquired.
-            // This does not weaken mutation validation.
-            if (!candidate.installed && !candidate.inventoryAvailable &&
+            // Builder enumeration is inventory-independent. Gameplay Quick Menu
+            // additionally allows explicitly enabled no-loose OMOD actions,
+            // because those options do not require a carried MISC item.
+            if (!candidate.installed &&
+                !candidate.inventoryAvailable &&
+                !noLooseOptionAllowed &&
                 !includeInventoryUnavailableOptions) continue;
 
             candidate.consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
@@ -1104,6 +1102,7 @@ namespace k2040
             bool targetMatches = candidate.installed ||
                 targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
 
+            bool explicitTargetMatched = false;
             if (targetMetadata.status == OmodTargetMetadataStatus::Resolved) {
                 for (auto* keyword : targetMetadata.targetKeywords) {
                     auto target = MakeFormRef(keyword);
@@ -1114,8 +1113,23 @@ namespace k2040
                     candidate.filters.push_back(target);
                     if (equippedWeapon->HasKeyword(keyword)) {
                         targetMatches = true;
+                        explicitTargetMatched = true;
                     }
                 }
+            }
+
+            // Generated no-loose choices need an explicit weapon-family match.
+            // This supports player-facing damage tiers and similar actions while
+            // keeping generic/internal no-loose helpers out of the catalog.
+            if (!candidate.installed && !looseMod &&
+                GetSettings().allowNoLooseModOptions &&
+                !explicitTargetMatched) {
+                log::Info(
+                    "Generated no-loose candidate rejected without explicit matching MNAM target: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", source=" +
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
+                continue;
             }
 
             if (!candidate.installed && !targetMatches) {
@@ -1140,7 +1154,14 @@ namespace k2040
                 log::Info(
                     "Generated carried candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
                     ", looseMod=" + ToHexFormId(candidate.looseMod.formId) +
-                    ", label=\"" + SafeFullName(looseMod) + "\"" +
+                    ", label="" + SafeFullName(looseMod) + """ +
+                    ", consumes=" +
+                        (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
+                    ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
+            } else if (!candidate.installed && !looseMod && explicitTargetMatched) {
+                log::Info(
+                    "Generated no-loose candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
+                    ", label="" + SafeFullName(candidate.mod) + """ +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
@@ -1206,7 +1227,9 @@ namespace k2040
             option.isStructurallyValid = ContainsFormId(live.liveReachableAttachPoints, candidate.consumes.formId);
             option.isVisible = true;
             option.isSelectable = option.isStructurallyValid &&
-                (option.isInstalled || (option.hasLooseMod && option.isAvailableInInventory));
+                (option.isInstalled ||
+                    (option.hasLooseMod && option.isAvailableInInventory) ||
+                    (!option.hasLooseMod && GetSettings().allowNoLooseModOptions));
 
             option.label = SafeFullName(candidate.mod->GetLooseMod());
             if (option.label.empty()) option.label = SafeFullName(candidate.mod);
@@ -1219,7 +1242,7 @@ namespace k2040
             if (option.isInstalled) option.status = "installed";
             else if (!option.isStructurallyValid) option.status = "provider-not-installed";
             else if (option.hasLooseMod && !option.isAvailableInInventory) option.status = "inventory-unavailable";
-            else if (!option.hasLooseMod) option.status = "no-loose-mod-disallowed";
+            else if (!option.hasLooseMod && !GetSettings().allowNoLooseModOptions) option.status = "no-loose-mod-disallowed";
             else option.status = "ready";
 
             categoryIt->hasVisibleOptions = categoryIt->hasVisibleOptions ||
