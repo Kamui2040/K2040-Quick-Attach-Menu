@@ -12,6 +12,8 @@ Hotfix candidate for generated-menu compatibility and installed-state detection.
 - Builder lists every compatible generated attachment regardless of inventory;
   Quick Menu lists installed attachments plus compatible loose mods currently
   carried by the player.
+- Generated attachments without a loose-mod or FULL display name now fall back
+  to a humanized EDID from the winning OMOD record instead of "Unnamed attachment".
 - Disabled object-instance OMOD entries no longer count as installed.
 - A hidden Quick Menu view is prepared after load/new-game transitions so the
   mod is discoverable in Prisma Dock without bypassing normal menu-open safety.

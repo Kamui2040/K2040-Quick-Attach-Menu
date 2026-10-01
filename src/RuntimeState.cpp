@@ -56,6 +56,70 @@ namespace
         return name ? name : "";
     }
 
+    std::string HumanizeOmodEditorId(std::string value)
+    {
+        if (value.empty()) {
+            return {};
+        }
+
+        std::string spaced;
+        spaced.reserve(value.size() + 8);
+
+        for (std::size_t i = 0; i < value.size(); ++i) {
+            const unsigned char current = static_cast<unsigned char>(value[i]);
+            if (value[i] == '_' || value[i] == '-') {
+                if (!spaced.empty() && spaced.back() != ' ') {
+                    spaced.push_back(' ');
+                }
+                continue;
+            }
+
+            if (!spaced.empty() &&
+                std::isupper(current) &&
+                (std::islower(static_cast<unsigned char>(value[i - 1])) ||
+                 std::isdigit(static_cast<unsigned char>(value[i - 1])))) {
+                spaced.push_back(' ');
+            }
+
+            spaced.push_back(value[i]);
+        }
+
+        std::istringstream input(spaced);
+        std::vector<std::string> words;
+        std::string word;
+        while (input >> word) {
+            words.push_back(word);
+        }
+
+        const auto isGenericPrefix = [](const std::string& token) {
+            std::string lower = token;
+            std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
+                return static_cast<char>(std::tolower(c));
+            });
+
+            return lower == "mod" ||
+                lower == "omod" ||
+                lower == "legendary" ||
+                lower == "weapon" ||
+                lower == "weap";
+        };
+
+        while (!words.empty() && isGenericPrefix(words.front())) {
+            words.erase(words.begin());
+        }
+
+        std::ostringstream output;
+        for (std::size_t i = 0; i < words.size(); ++i) {
+            if (i != 0) {
+                output << ' ';
+            }
+            output << words[i];
+        }
+
+        auto result = output.str();
+        return result.empty() ? value : result;
+    }
+
     std::string HumanizeAttachPoint(const k2040::FormRef& attachPoint)
     {
         std::string value = attachPoint.editorId;
@@ -877,6 +941,7 @@ namespace k2040
             FormRef consumes;
             std::vector<FormRef> provides;
             std::vector<FormRef> filters;
+            std::string fallbackLabel;
             bool installed = false;
             bool inventoryAvailable = false;
         };
@@ -935,6 +1000,8 @@ namespace k2040
             candidate.provides = CollectAttachParentSlots(mod->attachParents);
 
             const auto targetMetadata = ResolveOmodTargetMetadata(mod);
+            candidate.fallbackLabel =
+                HumanizeOmodEditorId(targetMetadata.recordEditorId);
             bool targetMatches = candidate.installed ||
                 targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
 
@@ -1044,7 +1111,10 @@ namespace k2040
 
             option.label = SafeFullName(candidate.mod->GetLooseMod());
             if (option.label.empty()) option.label = SafeFullName(candidate.mod);
-            if (option.label.empty()) option.label = candidate.omod.editorId;
+            if (option.label.empty()) option.label = candidate.fallbackLabel;
+            if (option.label.empty()) {
+                option.label = HumanizeOmodEditorId(candidate.omod.editorId);
+            }
             if (option.label.empty()) option.label = "Unnamed attachment";
 
             if (option.isInstalled) option.status = "installed";

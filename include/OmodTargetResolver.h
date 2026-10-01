@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 namespace RE
@@ -24,6 +25,7 @@ namespace k2040
     struct OmodTargetMetadata
     {
         OmodTargetMetadataStatus status = OmodTargetMetadataStatus::Unavailable;
+        std::string recordEditorId;
         std::vector<RE::BGSKeyword*> targetKeywords;
     };
 
