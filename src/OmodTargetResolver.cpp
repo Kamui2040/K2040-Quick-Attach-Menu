@@ -6,6 +6,7 @@
 #include <RE/T/TESFile.h>
 
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -66,6 +67,17 @@ namespace
     {
         stream.read(reinterpret_cast<char*>(std::addressof(header)), sizeof(header));
         return static_cast<std::size_t>(stream.gcount()) == sizeof(header);
+    }
+
+    template <class T>
+    bool ReadUnaligned(const std::vector<char>& buffer, std::size_t offset, T& value)
+    {
+        if (offset > buffer.size() || sizeof(T) > buffer.size() - offset) {
+            return false;
+        }
+
+        std::memcpy(std::addressof(value), buffer.data() + offset, sizeof(T));
+        return true;
     }
 
     RE::TESFormID ApplyRuntimeIndex(RE::TESFile* file, RE::TESFormID localFormID)
@@ -145,6 +157,12 @@ namespace
         return form->GetFile(0);
     }
 
+    bool IsWinningOmodRecord(RE::TESFile* file, RE::TESFormID runtimeOmodID)
+    {
+        auto* form = RE::TESForm::GetFormByID(runtimeOmodID);
+        return form && WinningFile(form) == file;
+    }
+
     std::vector<RE::TESFormID> ExtractTargetKeywords(
         RE::TESFile* file,
         const std::vector<char>& payload)
@@ -154,10 +172,12 @@ namespace
         std::uint32_t extendedSize = 0;
 
         while (position + 6 <= payload.size()) {
-            const auto subtype =
-                *reinterpret_cast<const std::uint32_t*>(payload.data() + position);
-            const auto subSize =
-                *reinterpret_cast<const std::uint16_t*>(payload.data() + position + 4);
+            std::uint32_t subtype = 0;
+            std::uint16_t subSize = 0;
+            if (!ReadUnaligned(payload, position, subtype) ||
+                !ReadUnaligned(payload, position + 4, subSize)) {
+                break;
+            }
             position += 6;
 
             const std::size_t realSize = extendedSize ? extendedSize : subSize;
@@ -168,9 +188,10 @@ namespace
             }
 
             if (subtype == kTagXXXX) {
-                if (realSize == sizeof(std::uint32_t)) {
-                    extendedSize =
-                        *reinterpret_cast<const std::uint32_t*>(payload.data() + position);
+                std::uint32_t nextSize = 0;
+                if (realSize == sizeof(nextSize) &&
+                    ReadUnaligned(payload, position, nextSize)) {
+                    extendedSize = nextSize;
                 }
                 position += realSize;
                 continue;
@@ -181,9 +202,14 @@ namespace
                 result.reserve(result.size() + count);
 
                 for (std::size_t index = 0; index < count; ++index) {
-                    const auto fileKeywordID =
-                        *reinterpret_cast<const RE::TESFormID*>(
-                            payload.data() + position + index * sizeof(RE::TESFormID));
+                    RE::TESFormID fileKeywordID = 0;
+                    if (!ReadUnaligned(
+                            payload,
+                            position + index * sizeof(RE::TESFormID),
+                            fileKeywordID)) {
+                        break;
+                    }
+
                     const auto runtimeKeywordID =
                         ResolveFileFormID(file, fileKeywordID);
                     if (runtimeKeywordID != 0) {
@@ -235,6 +261,12 @@ namespace
             }
 
             const auto runtimeOmodID = ResolveFileFormID(file, header.formID);
+            if (runtimeOmodID == 0 || !IsWinningOmodRecord(file, runtimeOmodID)) {
+                stream.seekg(header.dataSize, std::ios::cur);
+                consumed += header.dataSize;
+                continue;
+            }
+
             CachedTargetMetadata metadata;
             metadata.parsed = true;
 
