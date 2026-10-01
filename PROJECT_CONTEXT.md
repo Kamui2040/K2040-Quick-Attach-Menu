@@ -24,10 +24,15 @@ The current candidate parses raw MNAM from each winning OMOD plugin record and
 uses it with the reachable attachment graph. MNAM-targeted OMODs must match a
 keyword on the equipped base WEAP; OMODs with no MNAM are generic for their
 reachable attachment point; unresolved MNAM metadata fails closed for
-uninstalled candidates. Builder is intended to show every compatible attachment
-regardless of inventory; Quick Menu is intended to show installed attachments
-plus compatible loose mods currently carried by the player. This correction
-requires a fresh clean build and focused target-runtime regression before merge.
+uninstalled candidates. Runtime QA then exposed a second presentation issue:
+no-loose-mod Legendary/helper OMODs were being listed as generated choices.
+Uninstalled generated OMODs without a linked loose-mod item are now excluded,
+while already-installed no-loose-mod OMODs remain visible as live state.
+
+Builder is intended to show every compatible player-facing attachment regardless
+of inventory; Quick Menu is intended to show installed attachments plus
+compatible loose mods currently carried by the player. This correction requires
+a fresh clean build and focused target-runtime regression before merge.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
 supported attachment changes including Mount/Sight and Lower Rail/Laser

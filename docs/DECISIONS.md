@@ -18,9 +18,13 @@ Only durable product decisions belong here. Current release state belongs in
   OMODs without MNAM targets may match by attachment point alone; unresolved
   MNAM metadata fails closed for uninstalled candidates. Source plugin is not
   a compatibility gate.
-- The Builder shows every compatible generated attachment regardless of
-  inventory. The Quick Menu shows installed attachments plus compatible
-  alternatives whose loose-mod items are currently in inventory.
+- Generated menus do not expose uninstalled OMODs that lack a linked
+  loose-mod item. Those records are treated as non-player-facing/internal for
+  generated workbench-style discovery; already-installed no-loose-mod OMODs
+  remain visible as live state.
+- The Builder shows every compatible player-facing generated attachment
+  regardless of inventory. The Quick Menu shows installed attachments plus
+  compatible alternatives whose loose-mod items are currently in inventory.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.

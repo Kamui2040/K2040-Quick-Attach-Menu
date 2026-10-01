@@ -985,6 +985,18 @@ namespace k2040
                 auto* player = RE::PlayerCharacter::GetSingleton();
                 candidate.inventoryAvailable = player && player->inventoryList &&
                     player->inventoryList->GetItemCount(looseMod) > 0;
+            } else if (!candidate.installed) {
+                // Generated menus model player-facing workbench choices. OMODs
+                // without a linked loose-mod item are commonly internal,
+                // scripted, legendary-effect, or helper records and are not
+                // exposed as uninstalled choices. An already-installed OMOD is
+                // still retained so the live weapon state can be represented.
+                log::Info(
+                    "Generated candidate rejected without player-facing loose mod: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", source=" +
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
+                continue;
             }
 
             // The quick menu exposes only installed OMODs and compatible

@@ -13,6 +13,12 @@ present, a matching keyword on the equipped base WEAP. OMODs with no MNAM
 targets remain generic for their attachment point. Unresolved MNAM metadata
 fails closed for uninstalled candidates.
 
+Generated discovery also rejects uninstalled OMODs that have no linked
+loose-mod item. Runtime QA showed that otherwise the Legendary slot exposes
+large sets of internal DLC/helper OMODs that are not player-facing workbench
+choices. Already-installed no-loose-mod OMODs remain visible so live weapon
+state is not lost.
+
 ## 0.5.180 false ambiguous replacement state
 
 Version 0.5.180 can count disabled object-instance OMOD entries as installed,

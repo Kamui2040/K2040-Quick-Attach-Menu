@@ -67,12 +67,17 @@ visible from live object-instance identity. Source plugin is not a compatibility
 gate because patches and add-ons may validly extend a weapon from another
 plugin.
 
-The Builder enumerates all generated OMODs compatible with the equipped weapon
-under those rules, whether or not their loose-mod items are in inventory. The
-gameplay Quick Menu uses the same compatibility catalog but suppresses
-uninstalled entries whose loose-mod items are not currently carried. Catalog
-enumeration does not authorize mutation; live transaction checks remain
-authoritative.
+Generated menus expose player-facing workbench choices, not every reachable
+OMOD record. An uninstalled generated OMOD must therefore also have a linked
+loose-mod item. No-loose-mod OMODs are commonly internal, scripted, legendary
+effect, or helper records and stay out of the generated catalog unless they are
+already installed and must be represented as live state.
+
+The Builder enumerates all compatible player-facing generated attachments under
+those rules whether or not their loose-mod items are in inventory. The gameplay
+Quick Menu uses the same compatibility catalog but suppresses uninstalled
+entries whose loose-mod items are not currently carried. Catalog enumeration
+does not authorize mutation; live transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
