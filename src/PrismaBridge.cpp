@@ -581,8 +581,15 @@ namespace k2040
 
     bool PrismaBridge::CanOpenFromHotkey() const
     {
-        if (const auto* ui = RE::UI::GetSingleton(); ui && ui->menuMode != 0) {
-            return false;
+        if (const auto* ui = RE::UI::GetSingleton()) {
+            if (ui->GetMenuOpen(RE::BSFixedString(RE::DialogueMenu::MENU_NAME.data()))) {
+                log::Info("Open-menu hotkey ignored because DialogueMenu is active.");
+                return false;
+            }
+
+            if (ui->menuMode != 0) {
+                return false;
+            }
         }
 
         if (!api_) {
