@@ -51,13 +51,33 @@ Installed state does not by itself imply that an option is visible, selectable, 
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
-For generated menus, AP reachability alone does not establish weapon membership because an installed provider can expose generic display points used by unrelated weapons. Installed OMODs are trusted directly. A carried alternative must also belong to the source-plugin family proven by the equipped weapon and its default/live OMODs; an unproven patch family fails closed.
+Generated menus use the OMOD record's authored Target OMOD Keywords (`MNAM`)
+for weapon-family compatibility. CommonLibF4's exposed `filterKeywords`
+correspond to a different OMOD field (`FNAM`) and are not used as a substitute
+for MNAM. Because CommonLibF4 does not expose MNAM structurally, the runtime
+reads MNAM from the winning loaded plugin record and resolves those keywords to
+the live form table.
 
-The builder may enumerate the complete source-family/AP-compatible generated
-catalog so presentation preferences can be configured before loose mods are
-acquired. The gameplay quick menu still suppresses uninstalled entries whose
-loose mods are absent, and catalog enumeration does not change selection or
-mutation eligibility.
+An uninstalled generated OMOD must consume an attachment point reachable from
+the weapon graph. If its winning OMOD record has MNAM targets, at least one must
+be a keyword on the equipped base WEAP. If the record has no MNAM targets, the
+OMOD is generic for that reachable attachment point. If MNAM metadata cannot be
+resolved safely, the uninstalled candidate fails closed. Installed OMODs remain
+visible from live object-instance identity. Source plugin is not a compatibility
+gate because patches and add-ons may validly extend a weapon from another
+plugin.
+
+Generated menus expose player-facing workbench choices, not every reachable
+OMOD record. An uninstalled generated OMOD must therefore also have a linked
+loose-mod item. No-loose-mod OMODs are commonly internal, scripted, legendary
+effect, or helper records and stay out of the generated catalog unless they are
+already installed and must be represented as live state.
+
+The Builder enumerates all compatible player-facing generated attachments under
+those rules whether or not their loose-mod items are in inventory. The gameplay
+Quick Menu uses the same compatibility catalog but suppresses uninstalled
+entries whose loose-mod items are not currently carried. Catalog enumeration
+does not authorize mutation; live transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
@@ -105,9 +125,14 @@ menu. There is no separate registered close binding.
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
-the equipped-weapon builder state, and the balanced menu-state guard. Prisma
-Dock metadata is informational only under PrismaUI `2.1.1`; the Dock contract
-does not provide a custom action for opening another page.
+the equipped-weapon builder state, and the balanced menu-state guard.
+
+After a game/new-game transition, the plugin prepares one hidden Quick Menu
+view so Prisma Dock can discover the mod through the framework's live-view
+enumeration. That hidden registration view does not authorize attachment
+changes or bypass the normal hotkey/open safety path. The existing Dock
+metadata remains informational under PrismaUI `2.1.1`; the Dock contract does
+not provide a custom native action for opening the Builder or Quick Menu.
 
 ## Attachment transaction safety
 

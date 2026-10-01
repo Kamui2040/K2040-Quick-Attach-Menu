@@ -11,7 +11,7 @@
 
 set_xmakever("3.0.0")
 set_project("K2040_Quick_Attach_Menu")
-set_version("0.5.180")
+set_version("0.5.181")
 set_languages("c++23")
 
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
@@ -82,7 +82,7 @@ target("K2040_Quick_Attach_Menu")
     add_rules("commonlibf4.plugin", {
         name    = "K2040_Quick_Attach_Menu",
         author  = "K2040",
-        version = "0.5.180"
+        version = "0.5.181"
     })
 
     add_includedirs("include")
@@ -96,13 +96,13 @@ target("K2040_Quick_Attach_Menu")
         "WIN32_LEAN_AND_MEAN",
         "NOMINMAX",
         "COMMONLIB_RUNTIMECOUNT=3",
-        "K2040_QUICK_ATTACH_MENU_VERSION=\"0.5.180\""
+        "K2040_QUICK_ATTACH_MENU_VERSION=\"0.5.181\""
     )
 
     if is_plat("windows") then
         add_cxflags("/permissive-", "/wd4200", "/wd4201", "/wd4324")
         add_cxflags("/bigobj", "/FS")
-        add_syslinks("Version", "Ole32", "OleAut32", "User32", "bcrypt", "crypt32")
+        add_syslinks("version", "ole32", "oleaut32", "user32", "bcrypt", "crypt32")
     end
 
     after_build(function(target)

@@ -12,8 +12,19 @@ Only durable product decisions belong here. Current release state belongs in
   persisted keys.
 - Providers are installed before children and removed after children. Hidden,
   internal, and script-only OMODs stay out of player-facing menus.
-- Generated-menu alternatives require both source-family evidence and a
-  reachable attachment graph. A generic reachable point alone is insufficient.
+- Generated-menu target compatibility uses the winning OMOD record's raw
+  `MNAM` Target OMOD / Mod Association keywords, not CommonLibF4
+  `filterKeywords`/`FNAM`. A reachable attachment point is also required.
+  OMODs without MNAM targets may match by attachment point alone; unresolved
+  MNAM metadata fails closed for uninstalled candidates. Source plugin is not
+  a compatibility gate.
+- Generated menus do not expose uninstalled OMODs that lack a linked
+  loose-mod item. Those records are treated as non-player-facing/internal for
+  generated workbench-style discovery; already-installed no-loose-mod OMODs
+  remain visible as live state.
+- The Builder shows every compatible player-facing generated attachment
+  regardless of inventory. The Quick Menu shows installed attachments plus
+  compatible alternatives whose loose-mod items are currently in inventory.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.

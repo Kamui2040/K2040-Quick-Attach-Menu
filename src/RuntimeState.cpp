@@ -1,5 +1,6 @@
 #include "RuntimeState.h"
 #include "LiveAPResolver.h"
+#include "OmodTargetResolver.h"
 
 #include "Logger.h"
 #include "Settings.h"
@@ -53,6 +54,70 @@ namespace
         if (!form) return {};
         const char* name = form->GetFullName();
         return name ? name : "";
+    }
+
+    std::string HumanizeOmodEditorId(std::string value)
+    {
+        if (value.empty()) {
+            return {};
+        }
+
+        std::string spaced;
+        spaced.reserve(value.size() + 8);
+
+        for (std::size_t i = 0; i < value.size(); ++i) {
+            const unsigned char current = static_cast<unsigned char>(value[i]);
+            if (value[i] == '_' || value[i] == '-') {
+                if (!spaced.empty() && spaced.back() != ' ') {
+                    spaced.push_back(' ');
+                }
+                continue;
+            }
+
+            if (!spaced.empty() &&
+                std::isupper(current) &&
+                (std::islower(static_cast<unsigned char>(value[i - 1])) ||
+                 std::isdigit(static_cast<unsigned char>(value[i - 1])))) {
+                spaced.push_back(' ');
+            }
+
+            spaced.push_back(value[i]);
+        }
+
+        std::istringstream input(spaced);
+        std::vector<std::string> words;
+        std::string word;
+        while (input >> word) {
+            words.push_back(word);
+        }
+
+        const auto isGenericPrefix = [](const std::string& token) {
+            std::string lower = token;
+            std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
+                return static_cast<char>(std::tolower(c));
+            });
+
+            return lower == "mod" ||
+                lower == "omod" ||
+                lower == "legendary" ||
+                lower == "weapon" ||
+                lower == "weap";
+        };
+
+        while (!words.empty() && isGenericPrefix(words.front())) {
+            words.erase(words.begin());
+        }
+
+        std::ostringstream output;
+        for (std::size_t i = 0; i < words.size(); ++i) {
+            if (i != 0) {
+                output << ' ';
+            }
+            output << words[i];
+        }
+
+        auto result = output.str();
+        return result.empty() ? value : result;
     }
 
     std::string HumanizeAttachPoint(const k2040::FormRef& attachPoint)
@@ -168,28 +233,6 @@ namespace
         }
 
         return false;
-    }
-
-    bool SamePluginName(const std::string& left, const std::string& right)
-    {
-        return left.size() == right.size() &&
-            std::equal(left.begin(), left.end(), right.begin(), [](unsigned char a, unsigned char b) {
-                return std::tolower(a) == std::tolower(b);
-            });
-    }
-
-    bool ContainsPluginName(const std::vector<std::string>& values, const std::string& pluginName)
-    {
-        return std::any_of(values.begin(), values.end(), [&](const std::string& value) {
-            return SamePluginName(value, pluginName);
-        });
-    }
-
-    void AppendUniquePluginName(std::vector<std::string>& values, const std::string& pluginName)
-    {
-        if (!pluginName.empty() && !ContainsPluginName(values, pluginName)) {
-            values.push_back(pluginName);
-        }
     }
 
     void AppendUniqueFormRefs(std::vector<k2040::FormRef>& target, const std::vector<k2040::FormRef>& source)
@@ -578,7 +621,8 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
                 if (resolvedForm) {
                     const auto resolvedRef = MakeFormRef(resolvedForm);
 
-                    if (std::string(resolvedForm->GetFormTypeString()) == "OMOD") {
+                    if (std::string(resolvedForm->GetFormTypeString()) == "OMOD" &&
+                        entry.disabled == 0) {
                         info.installedObjectInstanceMods.push_back(resolvedRef);
                     }
 
@@ -599,7 +643,7 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
                 }
             }
 
-            status = "BGSObjectInstanceExtra probe succeeded on the equipped inventory stack. Raw ObjectIndexData entries were resolved through the runtime form table; resolved OMOD refs are stored in installedObjectInstanceMods.";
+            status = "BGSObjectInstanceExtra probe succeeded on the equipped inventory stack. Raw ObjectIndexData entries were resolved through the runtime form table; only active resolved OMOD refs are stored in installedObjectInstanceMods.";
             return false;
         });
 
@@ -897,30 +941,36 @@ namespace k2040
             FormRef consumes;
             std::vector<FormRef> provides;
             std::vector<FormRef> filters;
+            std::string fallbackLabel;
             bool installed = false;
             bool inventoryAvailable = false;
         };
+
+        auto* equippedForm = RE::TESForm::GetFormByID(weaponInfo.weapon.formId);
+        auto* equippedWeapon = equippedForm ? equippedForm->As<RE::TESObjectWEAP>() : nullptr;
+        if (!equippedWeapon) {
+            menu.status = "Equipped weapon could not be reacquired for generated-menu compatibility checks.";
+            return menu;
+        }
 
         std::vector<Candidate> candidates;
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
 
-        // A reachable AP is necessary but not sufficient compatibility evidence:
-        // providers often expose generic display points that attachments from
-        // unrelated weapons also consume. Seed a proven source family from the
-        // equipped weapon and the OMODs already present in its default/live
-        // configuration. Installed OMODs remain trusted even if a patch supplied
-        // them; carried alternatives must come from that proven family as well as
-        // pass the reachable-AP graph below.
-        std::vector<std::string> trustedSourcePlugins;
-        AppendUniquePluginName(trustedSourcePlugins, weaponInfo.weapon.sourcePlugin);
-        for (const auto& attachment : weaponInfo.defaultTemplateMods) {
-            AppendUniquePluginName(trustedSourcePlugins, attachment.omod.sourcePlugin);
-        }
-        for (const auto& installed : weaponInfo.installedObjectInstanceMods) {
-            AppendUniquePluginName(trustedSourcePlugins, installed.sourcePlugin);
-        }
-
+        // CommonLibF4 exposes FNAM/filter keywords but not the OMOD record's
+        // raw MNAM Target OMOD Keywords used by weapon mod-association checks.
+        // Read MNAM from the winning plugin record instead of approximating
+        // compatibility from source plugin or the wrong runtime keyword array.
+        //
+        // Workbench-compatible candidate rule:
+        // - consumed AP must belong to the weapon/provider graph;
+        // - OMODs with no MNAM target are generic for that AP;
+        // - OMODs with MNAM targets require at least one matching keyword on
+        //   the equipped base WEAP;
+        // - installed OMODs remain visible even if metadata cannot be resolved.
+        //
+        // Inventory affects Quick Menu visibility only; Builder enumeration is
+        // independent of inventory.
         for (auto* mod : allMods) {
             if (!mod || mod->targetFormType != RE::ENUM_FORM_ID::kWEAP) continue;
 
@@ -935,63 +985,79 @@ namespace k2040
                 auto* player = RE::PlayerCharacter::GetSingleton();
                 candidate.inventoryAvailable = player && player->inventoryList &&
                     player->inventoryList->GetItemCount(looseMod) > 0;
-            }
-
-            // The quick menu exposes only installed OMODs and options backed by
-            // loose-mod items the player actually carries. The builder can ask
-            // for the complete source-family/AP catalog so entries may be
-            // configured before their loose mods are acquired. This does not
-            // make those entries selectable or weaken mutation validation.
-            if (!candidate.installed && !candidate.inventoryAvailable &&
-                !includeInventoryUnavailableOptions) continue;
-
-            const bool trustedSource = ContainsPluginName(
-                trustedSourcePlugins,
-                candidate.omod.sourcePlugin);
-            if (!candidate.installed && !trustedSource) {
+            } else if (!candidate.installed) {
+                // Generated menus model player-facing workbench choices. OMODs
+                // without a linked loose-mod item are commonly internal,
+                // scripted, legendary-effect, or helper records and are not
+                // exposed as uninstalled choices. An already-installed OMOD is
+                // still retained so the live weapon state can be represented.
                 log::Info(
-                    "Generated carried candidate rejected outside equipped weapon source family: OMOD=" +
+                    "Generated candidate rejected without player-facing loose mod: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
-                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
-                    ", looseMod=" + ToHexFormId(candidate.looseMod.formId));
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
                 continue;
             }
+
+            // The quick menu exposes only installed OMODs and compatible
+            // options backed by loose-mod items the player actually carries.
+            // The builder asks for the complete workbench-compatible catalog
+            // so entries can be configured before their loose mods are acquired.
+            // This does not weaken mutation validation.
+            if (!candidate.installed && !candidate.inventoryAvailable &&
+                !includeInventoryUnavailableOptions) continue;
 
             candidate.consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
             if (candidate.consumes.formId == 0) continue;
             candidate.provides = CollectAttachParentSlots(mod->attachParents);
 
-            bool filterMatches = false;
-            for (std::uint32_t i = 0; i < mod->filterKeywords.size; ++i) {
-                const auto keywordIndex = mod->filterKeywords.array[i].keywordIndex;
-                const auto* keyword = RE::detail::BGSKeywordGetTypedKeywordByIndex(
-                    RE::KeywordType::kInstantiationFilter, keywordIndex);
-                auto filter = MakeFormRef(keyword);
-                if (filter.formId == 0) continue;
-                candidate.filters.push_back(filter);
-                if (ContainsFormId(weaponInfo.equippedInstanceKeywords, filter.formId)) {
-                    filterMatches = true;
+            const auto targetMetadata = ResolveOmodTargetMetadata(mod);
+            candidate.fallbackLabel =
+                HumanizeOmodEditorId(targetMetadata.recordEditorId);
+            bool targetMatches = candidate.installed ||
+                targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
+
+            if (targetMetadata.status == OmodTargetMetadataStatus::Resolved) {
+                for (auto* keyword : targetMetadata.targetKeywords) {
+                    auto target = MakeFormRef(keyword);
+                    if (target.formId == 0) {
+                        continue;
+                    }
+
+                    candidate.filters.push_back(target);
+                    if (equippedWeapon->HasKeyword(keyword)) {
+                        targetMatches = true;
+                    }
                 }
+            }
+
+            if (!candidate.installed && !targetMatches) {
+                const char* metadataStatus =
+                    targetMetadata.status == OmodTargetMetadataStatus::Resolved
+                        ? "resolved-no-match"
+                        : (targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords
+                            ? "no-mnam"
+                            : "mnam-unavailable");
+
+                log::Info(
+                    "Generated candidate rejected by OMOD MNAM compatibility: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", source=" +
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin) +
+                    ", targetMetadata=" + metadataStatus +
+                    ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
+                continue;
             }
 
             if (!candidate.installed && candidate.inventoryAvailable) {
                 log::Info(
-                    "Generated carried candidate: OMOD=" + ToHexFormId(candidate.omod.formId) +
+                    "Generated carried candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
                     ", looseMod=" + ToHexFormId(candidate.looseMod.formId) +
                     ", label=\"" + SafeFullName(looseMod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
-                    ", rawFilterCount=" + std::to_string(mod->filterKeywords.size) +
-                    ", resolvedFilters=" + JoinFormRefEditorIds(candidate.filters) +
-                    ", filterMatches=" + (filterMatches ? "true" : "false"));
+                    ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
             }
-
-            // Instantiation-filter keywords such as if_ScopeAny describe object
-            // template generation and are not expected to appear in the live
-            // weapon keyword set. They remain diagnostic metadata here. The
-            // bounded installed/carried pool is validated by the equipped
-            // weapon's reachable attachment-point graph below.
 
             candidates.push_back(std::move(candidate));
         }
@@ -1057,7 +1123,10 @@ namespace k2040
 
             option.label = SafeFullName(candidate.mod->GetLooseMod());
             if (option.label.empty()) option.label = SafeFullName(candidate.mod);
-            if (option.label.empty()) option.label = candidate.omod.editorId;
+            if (option.label.empty()) option.label = candidate.fallbackLabel;
+            if (option.label.empty()) {
+                option.label = HumanizeOmodEditorId(candidate.omod.editorId);
+            }
             if (option.label.empty()) option.label = "Unnamed attachment";
 
             if (option.isInstalled) option.status = "installed";
@@ -1102,7 +1171,6 @@ namespace k2040
         log::Info(
             "Generic menu finished: valid=" + std::string(menu.valid ? "true" : "false") +
             ", candidates=" + std::to_string(candidates.size()) +
-            ", trustedSources=" + std::to_string(trustedSourcePlugins.size()) +
             ", categories=" + std::to_string(menu.categories.size()) +
             ", status=" + menu.status);
         return menu;

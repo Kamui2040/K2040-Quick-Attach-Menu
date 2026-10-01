@@ -8,7 +8,8 @@
 #include "UserSettings.h"
 
 // Current runtime note:
-// - Uses legacy F4SEPlugin_Query / F4SEPlugin_Load exports through CommonLibF4 macros.
+// - Exports legacy F4SEPlugin_Query explicitly for Fallout 4 1.10.163 / F4SE 0.6.23.
+// - Uses CommonLibF4's F4SE_PLUGIN_LOAD macro for the load entry point.
 // - Registers F4SE messaging.
 // - Initializes PrismaUI at kGameDataReady.
 // - Uses native polling for the two toggle/switch openers and physical Escape close.
@@ -17,7 +18,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500B4; // 0.5.180 removes deferred icon support for release
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500B5; // 0.5.181 generated-menu and active-OMOD safety hotfix
 
     void OnPluginLoaded()
     {
@@ -70,9 +71,10 @@ namespace
             break;
 
         case F4SE::MessagingInterface::kPostLoadGame:
-            k2040::log::Info("F4SE kPostLoadGame received; ensuring the next menu open creates a fresh Prisma view.");
+            k2040::log::Info("F4SE kPostLoadGame received; refreshing the hidden Prisma Dock registration view.");
             k2040::GetPrismaBridge().ResetForGameTransition("kPostLoadGame");
             k2040::ValidateUserPreferencesAgainstLoadedForms();
+            k2040::GetPrismaBridge().EnsureDockRegistration();
             break;
 
         case F4SE::MessagingInterface::kInputLoaded:
@@ -81,9 +83,10 @@ namespace
             break;
 
         case F4SE::MessagingInterface::kNewGame:
-            k2040::log::Info("F4SE kNewGame received; ensuring the first menu open creates a fresh Prisma view.");
+            k2040::log::Info("F4SE kNewGame received; refreshing the hidden Prisma Dock registration view.");
             k2040::GetPrismaBridge().ResetForGameTransition("kNewGame");
             k2040::ValidateUserPreferencesAgainstLoadedForms();
+            k2040::GetPrismaBridge().EnsureDockRegistration();
             break;
 
         case F4SE::MessagingInterface::kGameDataReady:
@@ -113,7 +116,7 @@ namespace
     }
 }
 
-F4SE_PLUGIN_QUERY(const F4SE::QueryInterface* f4se, F4SE::PluginInfo* pluginInfo)
+F4SE_EXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* f4se, F4SE::PluginInfo* pluginInfo)
 {
     k2040::log::Init();
     k2040::log::Info("F4SEPlugin_Query called.");

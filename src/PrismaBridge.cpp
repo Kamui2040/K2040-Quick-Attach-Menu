@@ -538,6 +538,29 @@ namespace k2040
         return true;
     }
 
+    void PrismaBridge::EnsureDockRegistration()
+    {
+        if (menuOpen_) {
+            return;
+        }
+
+        if (!api_ && !Initialize()) {
+            log::Warn("Prisma Dock registration deferred because the PrismaUI API is unavailable.");
+            return;
+        }
+
+        viewMode_ = ViewMode::QuickMenu;
+        CreateMenuViewIfNeeded();
+
+        if (menuView_ == 0 || !api_->IsValid(menuView_)) {
+            log::Warn("Prisma Dock registration could not prepare a hidden Quick Attach Menu view.");
+            return;
+        }
+
+        api_->Hide(menuView_);
+        log::Info("Hidden Quick Attach Menu view prepared for Prisma Dock discovery.");
+    }
+
     bool PrismaBridge::IsAvailable() const
     {
         return api_ != nullptr;

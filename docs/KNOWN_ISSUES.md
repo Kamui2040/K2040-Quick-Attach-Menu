@@ -1,5 +1,30 @@
 # Known Issues and Limits
 
+## 0.5.180 generated-menu compatibility
+
+Version 0.5.180 can admit unrelated OMODs when generic attachment points overlap
+between weapon families. Earlier 0.5.181 candidates incorrectly tried to infer
+the weapon-family gate from CommonLibF4 `filterKeywords`, which exposes OMOD
+`FNAM` rather than the authored Target OMOD Keywords in `MNAM`.
+
+The current hotfix reads raw MNAM from the winning OMOD plugin record. A
+generated OMOD requires a reachable attachment point and, when MNAM targets are
+present, a matching keyword on the equipped base WEAP. OMODs with no MNAM
+targets remain generic for their attachment point. Unresolved MNAM metadata
+fails closed for uninstalled candidates.
+
+Generated discovery also rejects uninstalled OMODs that have no linked
+loose-mod item. Runtime QA showed that otherwise the Legendary slot exposes
+large sets of internal DLC/helper OMODs that are not player-facing workbench
+choices. Already-installed no-loose-mod OMODs remain visible so live weapon
+state is not lost.
+
+## 0.5.180 false ambiguous replacement state
+
+Version 0.5.180 can count disabled object-instance OMOD entries as installed,
+which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
+candidate ignores disabled entries for installed identity.
+
 ## Unsupported attachment operations fail closed
 
 Provider installation into an empty point, ambiguous inventory stacks,
