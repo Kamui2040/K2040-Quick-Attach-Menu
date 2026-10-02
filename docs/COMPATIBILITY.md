@@ -1,17 +1,14 @@
 # Compatibility
 
-## Validated release candidate
+## Supported release
 
 | Component | Version |
 |---|---|
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.192` release candidate |
+| Plugin | `0.5.192` |
 | Architecture | Windows x64 |
-
-The current public release remains `0.5.181` until `0.5.192` is explicitly
-published.
 
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
 Hotkey Manager visibility; missing MCM bindings fall back independently to the
@@ -22,7 +19,7 @@ can use it. Otherwise the plugin builds a bounded generated menu from the
 equipped weapon, installed OMODs, available loose mods, reachable attachment
 points, and the winning OMOD records' MNAM Target OMOD keywords.
 
-## Not validated by this candidate
+## Not validated by this release
 
 - Fallout 4 `1.10.980` through `1.10.984`
 - Fallout 4 VR
@@ -44,7 +41,7 @@ Version 0.5.180 passed target-runtime checks for:
 - menu close/reopen and opener-key switching;
 - Alt-Tab, save/load, and normal exit.
 
-The 0.5.192 candidate adds focused regression on both validated runtime
+Version 0.5.192 adds focused regression on both validated runtime
 families for MODCOL container handling, legitimate no-MISC/no-loose options,
 game-thread hotkey/menu actions, Mouse 4/5 same-key close, Quick Menu ↔ Builder
 switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the

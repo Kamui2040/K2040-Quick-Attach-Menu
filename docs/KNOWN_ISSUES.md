@@ -55,7 +55,7 @@ been implemented and runtime-validated.
 
 ## Runtime validation
 
-The 0.5.192 release candidate has focused runtime coverage on Fallout 4
+Version 0.5.192 has focused runtime coverage on Fallout 4
 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4. Other
 runtime/framework combinations have not passed the same regression and remain
 unverified.
