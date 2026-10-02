@@ -33,6 +33,8 @@ namespace
     std::atomic_bool g_wasEscapePressedLastPoll = false;
     std::atomic_bool g_hotkeyCaptureActive = false;
     std::atomic_bool g_hotkeyCaptureReleasePending = false;
+    std::atomic_bool g_menuHotkeysOwnedByUi = false;
+    std::atomic_bool g_menuHotkeyReleasePending = false;
 
     constexpr auto kMcmRefreshInterval = std::chrono::milliseconds(750);
     constexpr std::string_view kMcmModName = "K2040_Quick_Attach_Menu";
@@ -790,6 +792,30 @@ namespace k2040
         return g_hotkeyCaptureActive.load();
     }
 
+    void SetMenuHotkeysOwnedByUi(bool active)
+    {
+        const bool wasActive = g_menuHotkeysOwnedByUi.exchange(active);
+        if (active == wasActive) {
+            return;
+        }
+
+        if (active) {
+            g_menuHotkeyReleasePending = false;
+        } else {
+            g_menuHotkeyReleasePending = true;
+        }
+    }
+
+    void QueueMenuHotkeyActionFromUi(bool openBuilder)
+    {
+        log::Info(openBuilder
+            ? "Focused Prisma view forwarded the menu-builder hotkey."
+            : "Focused Prisma view forwarded the quick-menu hotkey.");
+        QueueHotkeyAction(openBuilder
+            ? HotkeyAction::ToggleBuilderMenu
+            : HotkeyAction::ToggleQuickMenu);
+    }
+
     void InitializeHotkey()
     {
         ApplyConfiguredHotkeys(nullptr);
@@ -804,29 +830,59 @@ namespace k2040
     {
         RefreshMcmHotkeys(false);
 
+        const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
+        const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
+        const bool escapePressedNow = IsPhysicalKeyDown(VK_ESCAPE);
+        const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
+        const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
+
         if (g_hotkeyCaptureActive.load()) {
-            ResetHotkeyEdgeState();
+            g_wasOpenPressedLastPoll.store(openPressedNow);
+            g_wasBuilderPressedLastPoll.store(builderPressedNow);
             return;
         }
         if (g_hotkeyCaptureReleasePending.load()) {
-            if (!IsHotkeyPressedNow(g_openMenuHotkey) && !IsHotkeyPressedNow(g_openMenuBuilderHotkey)) {
+            if (!openPressedNow && !builderPressedNow) {
                 g_hotkeyCaptureReleasePending = false;
-                ResetHotkeyEdgeState();
+                g_wasOpenPressedLastPoll.store(false);
+                g_wasBuilderPressedLastPoll.store(false);
                 log::Info("Hotkey capture completed after the assigned key was released.");
             }
             return;
         }
 
-        const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
-        const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
-        const bool escapePressedNow = IsPhysicalKeyDown(VK_ESCAPE);
+        // Once a Prisma browser view owns focus it also owns the configurable
+        // opener hotkeys. CEF/Proton can consume XBUTTON1/XBUTTON2 so the
+        // polling thread cannot reliably observe those buttons while focused.
+        if (g_menuHotkeysOwnedByUi.load()) {
+            g_wasOpenPressedLastPoll.store(openPressedNow);
+            g_wasBuilderPressedLastPoll.store(builderPressedNow);
+            if (escapeReleasedEdge) {
+                QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
+            }
+            return;
+        }
+
+        // A browser-forwarded opener may close the menu while its key/button is
+        // still physically held. Do not let the native poller immediately turn
+        // that same press into a reopen after focus returns to the game.
+        if (g_menuHotkeyReleasePending.load()) {
+            if (!openPressedNow && !builderPressedNow) {
+                g_menuHotkeyReleasePending = false;
+                g_wasOpenPressedLastPoll.store(false);
+                g_wasBuilderPressedLastPoll.store(false);
+                log::Info("Focused-view hotkey ownership released after opener keys were released.");
+            }
+            if (escapeReleasedEdge) {
+                QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
+            }
+            return;
+        }
 
         const bool openPressedEdge =
             openPressedNow && !g_wasOpenPressedLastPoll.exchange(openPressedNow);
         const bool builderPressedEdge =
             builderPressedNow && !g_wasBuilderPressedLastPoll.exchange(builderPressedNow);
-        const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
-        const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
 
         // The polling thread is deliberately limited to physical-key state.
         // All game/Prisma/menu/input-layer work is queued onto the F4SE game

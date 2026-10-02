@@ -28,6 +28,8 @@ namespace k2040
     bool ResetSharedHotkeyBindings();
     void SetHotkeyCaptureActive(bool active);
     bool IsHotkeyCaptureActive();
+    void SetMenuHotkeysOwnedByUi(bool active);
+    void QueueMenuHotkeyActionFromUi(bool openBuilder);
 
     void InitializeHotkey();
     void PollHotkey();

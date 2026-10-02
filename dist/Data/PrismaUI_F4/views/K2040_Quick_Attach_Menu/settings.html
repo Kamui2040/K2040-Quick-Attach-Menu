@@ -213,6 +213,27 @@
         if (typeof window.k2040SettingsChangeRequested === "function") window.k2040SettingsChangeRequested(command);
       }
 
+      function consumeHotkeyEvent(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      }
+
+      function forwardConfiguredHotkey(keycode, shift, ctrl, alt) {
+        var modifiers = (shift ? 1 : 0) | (ctrl ? 2 : 0) | (alt ? 4 : 0);
+        var action = "";
+        if (Number(settings.openMenuHotkeyKeycode) === keycode &&
+            Number(settings.openMenuHotkeyModifiers || 0) === modifiers) {
+          action = "quick";
+        } else if (Number(settings.openMenuBuilderHotkeyKeycode) === keycode &&
+                   Number(settings.openMenuBuilderHotkeyModifiers || 0) === modifiers) {
+          action = "builder";
+        }
+        if (!action || typeof window.k2040HotkeyActionRequested !== "function") return false;
+        window.k2040HotkeyActionRequested(action);
+        return true;
+      }
+
       function setSettingsPanelPixels(width, height) {
         var shell = document.getElementById("shell");
         var maxWidth = Math.max(480, window.innerWidth - 32);
@@ -540,12 +561,22 @@
           commitKey(event.keyCode || event.which, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);
           return;
         }
+        var keycode = Number(event.keyCode || event.which || 0);
+        if (!event.repeat && forwardConfiguredHotkey(keycode, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+          consumeHotkeyEvent(event);
+          return;
+        }
         if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeSettings(); }
       }, true);
       document.addEventListener("mousedown", function(event) {
-        if (!capturing) return;
         var code = event.button === 1 ? 258 : event.button === 3 ? 259 : event.button === 4 ? 260 : 0;
-        if (code) { event.preventDefault(); event.stopPropagation(); commitKey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey); }
+        if (capturing) {
+          if (code) { event.preventDefault(); event.stopPropagation(); commitKey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey); }
+          return;
+        }
+        if (code && forwardConfiguredHotkey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+          consumeHotkeyEvent(event);
+        }
       }, true);
 
       function saveLayout() {

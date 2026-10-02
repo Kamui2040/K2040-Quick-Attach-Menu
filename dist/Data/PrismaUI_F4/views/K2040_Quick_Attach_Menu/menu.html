@@ -110,7 +110,35 @@
         renderer.options.keyboardActive = true;
       }
 
+      function forwardConfiguredHotkey(keycode, shift, ctrl, alt) {
+        var settings = currentPayload && currentPayload.settings ? currentPayload.settings : {};
+        var modifiers = (shift ? 1 : 0) | (ctrl ? 2 : 0) | (alt ? 4 : 0);
+        var action = "";
+        if (Number(settings.openMenuHotkeyKeycode) === keycode &&
+            Number(settings.openMenuHotkeyModifiers || 0) === modifiers) {
+          action = "quick";
+        } else if (Number(settings.openMenuBuilderHotkeyKeycode) === keycode &&
+                   Number(settings.openMenuBuilderHotkeyModifiers || 0) === modifiers) {
+          action = "builder";
+        }
+        if (!action || typeof window.k2040HotkeyActionRequested !== "function") return false;
+        window.k2040HotkeyActionRequested(action);
+        return true;
+      }
+
+      document.addEventListener("mousedown", function(event) {
+        var keycode = event.button === 1 ? 258 : event.button === 3 ? 259 : event.button === 4 ? 260 : 0;
+        if (keycode && forwardConfiguredHotkey(keycode, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+          consumeKey(event);
+        }
+      }, true);
+
       document.addEventListener("keydown", function(event) {
+        var keycode = Number(event.keyCode || event.which || 0);
+        if (!event.repeat && forwardConfiguredHotkey(keycode, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+          consumeKey(event);
+          return;
+        }
         var key = event.key && event.key.length === 1 ? event.key.toLowerCase() : event.key;
         if (key === "Escape" || key === " " || key === "Spacebar") {
           consumeKey(event);
