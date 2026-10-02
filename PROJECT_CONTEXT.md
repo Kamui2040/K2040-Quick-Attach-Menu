@@ -1,14 +1,13 @@
 # Current Project State
 
-- Current public release: `0.5.181`
-- Current release candidate: `0.5.192`
-- Previous public release: `0.5.180`
+- Current public release: `0.5.192`
+- Previous public release: `0.5.181`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
 - Runtime validation: Fallout 4 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4
 - Release presentation: text-only; icons and weapon preview are not included
 
-Version 0.5.192 is the current release candidate. It keeps the 0.5.181
+Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,
 generated no-loose attachment support behind the existing safety setting,
 game-thread hotkey/menu actions, cross-runtime OMOD container reads, dialogue
@@ -28,7 +27,7 @@ keyword on the equipped base WEAP; OMODs with no MNAM are generic for their
 reachable attachment point; unresolved MNAM metadata fails closed for
 uninstalled candidates. Runtime QA then exposed a second presentation issue:
 no-loose-mod Legendary/helper OMODs were being listed as generated choices.
-The current candidate keeps generic no-MNAM no-loose records out of generated
+Version 0.5.192 keeps generic no-MNAM no-loose records out of generated
 discovery, but allows legitimate uninstalled no-loose choices when
 `AllowNoLooseModOptions` is enabled and the OMOD has an explicit MNAM target
 matching the equipped weapon. Already-installed no-loose OMODs remain visible as
@@ -40,7 +39,7 @@ by the player, and validated no-loose choices that pass the explicit-target
 safety rule. Focused regression passed for generated compatibility, Prisma Dock
 discovery, MODCOL weapons, legitimate no-MISC/no-loose attachment changes,
 same-hotkey open/close, Quick Menu ↔ Builder switching, dialogue blocking, and
-the prior hotkey-thread crash path. The current candidate has been exercised on
+the prior hotkey-thread crash path. Version 0.5.192 has been exercised on
 both 1.10.163 and 1.11.240 runtime families.
 
 Version 0.5.180 passed target-runtime testing for all four presentations,
