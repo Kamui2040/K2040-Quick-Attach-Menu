@@ -18,22 +18,27 @@ Only durable product decisions belong here. Current release state belongs in
   OMODs without MNAM targets may match by attachment point alone; unresolved
   MNAM metadata fails closed for uninstalled candidates. Source plugin is not
   a compatibility gate.
-- Generated menus do not expose uninstalled OMODs that lack a linked
-  loose-mod item. Those records are treated as non-player-facing/internal for
-  generated workbench-style discovery; already-installed no-loose-mod OMODs
-  remain visible as live state.
+- Linked loose-mod items remain the normal generated path. With
+  `AllowNoLooseModOptions` enabled, an uninstalled no-loose OMOD may also be
+  exposed when it has an explicit resolved MNAM target matching the equipped
+  weapon. Generic no-MNAM no-loose records remain excluded; already-installed
+  no-loose OMODs remain visible as live state.
 - The Builder shows every compatible player-facing generated attachment
-  regardless of inventory. The Quick Menu shows installed attachments plus
-  compatible alternatives whose loose-mod items are currently in inventory.
+  regardless of inventory. The Quick Menu shows installed attachments,
+  compatible alternatives whose loose-mod items are currently in inventory, and
+  validated no-loose choices that pass the explicit-target safety rule.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
 - Builder presentation settings never authorize runtime mutation. Exported
   profiles contain per-weapon presentation preferences only.
-- MCM is an optional hotkey adapter. The plugin's own polling path remains the
-  authority for menu behavior.
-- The two opener bindings are also toggles; the other opener switches menus.
-  Escape is the universal close action. There is no dedicated close binding.
+- MCM is an optional hotkey adapter. Native physical polling remains active for
+  opener state, focused Prisma pages may forward matching browser events as a
+  supplemental path, and duplicate cross-source signals are filtered.
+- Menu open/close/switch work is queued to the F4SE game thread. The two opener
+  bindings are toggles; the other opener switches menus. Escape is the universal
+  close action, and DialogueMenu blocks opener actions. There is no dedicated
+  close binding.
 - The release is text-only. Future icons require a mod-owned semantic mapping
   layer and explicit library adapters. Weapon preview remains removed until a
   renderer lifecycle can pass performance, cleanup, and Alt-Tab testing.
