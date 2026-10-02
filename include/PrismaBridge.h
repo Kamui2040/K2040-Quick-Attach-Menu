@@ -28,6 +28,7 @@ namespace k2040
 
         void OnDomReady(PrismaView view);
         void OnCloseRequested(const char* argument);
+        void OnHotkeyActionRequested(const char* argument);
         void OnOptionPreviewRequested(const char* argument);
         void OnBuilderChangeRequested(const char* argument);
         void OnSettingsChangeRequested(const char* argument);

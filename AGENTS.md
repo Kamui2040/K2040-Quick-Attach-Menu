@@ -25,6 +25,7 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Do not add an xEdit JSON runtime dependency.
 - Keep authored presentation separate from live structural validity.
 - Use resolved object-instance OMODs for installed identity.
+- Do not call `BGSMod::Attachment::Mod::GetData` on NG/AE; CommonLib marks it inlined there. Use the inherited `BGSMod::Container::GetData` when only attachment/property container data is needed.
 - Install providers before children and remove children before providers.
 - Persist form identity by source plugin and local FormID/FormKey.
 - Treat every browser selection and imported profile as untrusted input.
@@ -33,6 +34,10 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Profiles contain presentation preferences only and never weaken live checks.
 - A closed Prisma panel is not reused. Game-load and new-game transitions clear
   consumer-owned views so the next open creates a fresh view.
+- Closing or switching a Prisma menu must cancel pending DOM-ready focus so a closed menu cannot be focused again later.
+- Do not reset hotkey edge state when capture state did not actually change; a held opener must not become a second synthetic press during menu switching.
+- Prisma browser hotkey forwarding is supplemental, not exclusive. Under Proton/CEF, Mouse 4/5 may not emit DOM mouse events while the view is focused, so the native poller must remain active. Mouse-button held/release state uses the `GetAsyncKeyState` high-order physical-down bit only; do not fold the low-order pressed-since-last-query bit into held state. Cross-source duplicate opener signals must be suppressed before queuing game-thread work.
+- Browser-forwarded actions and browser close requests must queue game work through the F4SE task interface.
 - Runtime success requires target-environment evidence.
 
 ## Build and validation

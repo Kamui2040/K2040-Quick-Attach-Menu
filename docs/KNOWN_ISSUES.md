@@ -13,11 +13,12 @@ present, a matching keyword on the equipped base WEAP. OMODs with no MNAM
 targets remain generic for their attachment point. Unresolved MNAM metadata
 fails closed for uninstalled candidates.
 
-Generated discovery also rejects uninstalled OMODs that have no linked
-loose-mod item. Runtime QA showed that otherwise the Legendary slot exposes
-large sets of internal DLC/helper OMODs that are not player-facing workbench
-choices. Already-installed no-loose-mod OMODs remain visible so live weapon
-state is not lost.
+Generated discovery still rejects generic no-MNAM uninstalled OMODs that have no
+linked loose-mod item. Runtime QA showed that otherwise internal DLC/helper and
+Legendary-effect records can leak into player-facing choices. When
+`AllowNoLooseModOptions` is enabled, an uninstalled no-loose OMOD with an
+explicit resolved MNAM target matching the equipped weapon is allowed. Already-
+installed no-loose OMODs remain visible so live weapon state is not lost.
 
 ## 0.5.180 false ambiguous replacement state
 
@@ -52,8 +53,9 @@ while the quick menu, Builder, or Settings page has focus. Pause, slow-motion,
 and normal-speed choices are planned but are not exposed until each mode has
 been implemented and runtime-validated.
 
-## Runtime support is intentionally narrow
+## Runtime validation
 
-Version 0.5.180 targets Fallout 4 `1.10.163`, matching F4SE, and PrismaUI_F4
-`2.1.1`. Other runtimes and framework versions have not passed the same release
-regression and are not supported.
+The 0.5.192 release candidate has focused runtime coverage on Fallout 4
+`1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4. Other
+runtime/framework combinations have not passed the same regression and remain
+unverified.

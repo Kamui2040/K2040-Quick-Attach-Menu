@@ -456,6 +456,11 @@ void WriteWeaponInstanceDataProbeJson(std::ostringstream& json, const k2040::Wea
         k2040::GetPrismaBridge().OnCloseRequested(argument);
     }
 
+    void OnMenuHotkeyActionRequested(const char* argument)
+    {
+        k2040::GetPrismaBridge().OnHotkeyActionRequested(argument);
+    }
+
     void OnMenuOptionPreviewRequested(const char* argument)
     {
         k2040::GetPrismaBridge().OnOptionPreviewRequested(argument);
@@ -581,8 +586,15 @@ namespace k2040
 
     bool PrismaBridge::CanOpenFromHotkey() const
     {
-        if (const auto* ui = RE::UI::GetSingleton(); ui && ui->menuMode != 0) {
-            return false;
+        if (const auto* ui = RE::UI::GetSingleton()) {
+            if (ui->GetMenuOpen(RE::BSFixedString(RE::DialogueMenu::MENU_NAME.data()))) {
+                log::Info("Open-menu hotkey ignored because DialogueMenu is active.");
+                return false;
+            }
+
+            if (ui->menuMode != 0) {
+                return false;
+            }
         }
 
         if (!api_) {
@@ -1038,11 +1050,16 @@ namespace k2040
         log::Info(std::string("Prisma HasAnyActiveFocus() after Focus: ") + (anyFocus ? "true" : "false"));
 
         if (!focused || !hasFocus) {
+            SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
             UnregisterMenuCursor();
             ReleaseQuickMenuGameplayIsolation();
+            menuOpen_ = false;
             log::Warn("Prisma menu focus failed; the plugin-owned cursor was released.");
-        } else if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
+            return;
+        }
+        if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
+            SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
             UnregisterMenuCursor();
@@ -1051,6 +1068,9 @@ namespace k2040
             log::Warn("Prisma menu-builder focus cancelled because MCM hotkeys could not be isolated.");
             return;
         }
+
+        SetMenuHotkeyUiForwardingActive(true);
+        log::Info("Focused Prisma view enabled supplemental opener-hotkey forwarding.");
 
         // Browser-side focus is a supplement for current and future HTML
         // controls. The view owns a tiny focus-only heartbeat that dirties two
@@ -1363,8 +1383,10 @@ namespace k2040
     void PrismaBridge::CloseMenuInternal(bool preserveGameplayIsolation)
     {
         SetHotkeyCaptureActive(false);
+        SetMenuHotkeyUiForwardingActive(false);
         menuOpen_ = false;
-        log::Info("Prisma menu internal open state set to false.");
+        pendingFocus_ = false;
+        log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
 
         ReleaseBuilderMenuModeGuard();
 
@@ -1423,6 +1445,7 @@ namespace k2040
     {
         const PrismaView previousView = menuView_;
 
+        SetMenuHotkeyUiForwardingActive(false);
         menuOpen_ = false;
         pendingPayload_ = false;
         pendingFocus_ = false;
@@ -1478,6 +1501,7 @@ namespace k2040
         // Page-facing listeners are safest once the JavaScript context exists.
         // This view currently uses literal text and ships no translation table.
         api_->BindUIEvent(menuView_, "k2040CloseRequested", OnMenuCloseRequested);
+        api_->BindUIEvent(menuView_, "k2040HotkeyActionRequested", OnMenuHotkeyActionRequested);
         api_->BindUIEvent(menuView_, "k2040OptionPreviewRequested", OnMenuOptionPreviewRequested);
         api_->BindUIEvent(menuView_, "k2040BuilderChangeRequested", OnMenuBuilderChangeRequested);
         api_->BindUIEvent(menuView_, "k2040SettingsChangeRequested", OnMenuSettingsChangeRequested);
@@ -1493,8 +1517,33 @@ namespace k2040
 
     void PrismaBridge::OnCloseRequested(const char*)
     {
-        log::Info("Prisma menu view requested close.");
-        CloseMenu();
+        log::Info("Prisma menu view requested close; queuing it on the game thread.");
+        const auto* taskInterface = F4SE::GetTaskInterface();
+        if (!taskInterface) {
+            log::Warn("Prisma menu close ignored because the F4SE game-thread task interface is unavailable.");
+            return;
+        }
+
+        taskInterface->AddTask([]() {
+            GetPrismaBridge().CloseMenu();
+        });
+    }
+
+    void PrismaBridge::OnHotkeyActionRequested(const char* argument)
+    {
+        if (!argument) {
+            log::Warn("Focused Prisma view sent an empty hotkey action.");
+            return;
+        }
+
+        const std::string_view action(argument);
+        if (action == "quick") {
+            QueueMenuHotkeyActionFromUi(false);
+        } else if (action == "builder") {
+            QueueMenuHotkeyActionFromUi(true);
+        } else {
+            log::Warn("Focused Prisma view sent an unknown hotkey action.");
+        }
     }
 
     void PrismaBridge::RefreshBuilderPayload(bool rebuildMenu)

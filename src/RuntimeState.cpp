@@ -235,6 +235,36 @@ namespace
         return false;
     }
 
+    bool TryGetAttachmentContainerData(
+        const RE::BGSMod::Attachment::Mod* mod,
+        RE::BGSMod::Container::Data& data)
+    {
+        if (!mod) {
+            return false;
+        }
+
+        // Attachment::Mod::GetData is inlined on NG/AE and has no callable
+        // relocation there. The inherited Container::GetData exposes the
+        // attachment/property container fields we need on both OG and NG/AE.
+        const auto* container = static_cast<const RE::BGSMod::Container*>(mod);
+        return container->GetData(std::addressof(data)) != nullptr;
+    }
+
+    bool IsAttachmentCollectionOmod(const RE::BGSMod::Attachment::Mod* mod)
+    {
+        RE::BGSMod::Container::Data data{};
+        return TryGetAttachmentContainerData(mod, data) &&
+            data.attachments &&
+            data.attachmentCount > 0;
+    }
+
+    bool IsAttachmentCollectionOmod(std::uint32_t formId)
+    {
+        auto* form = formId != 0 ? RE::TESForm::GetFormByID(formId) : nullptr;
+        auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+        return IsAttachmentCollectionOmod(mod);
+    }
+
     void AppendUniqueFormRefs(std::vector<k2040::FormRef>& target, const std::vector<k2040::FormRef>& source)
     {
         for (const auto& value : source) {
@@ -674,6 +704,69 @@ void CaptureObjectInstanceExtraProbe(RE::PlayerCharacter* player, RE::TESObjectW
     k2040::log::Info("Live object-instance extra summary: " + summary);
     k2040::log::Info("Live object-instance resolved mods: " + (resolvedIndexData.empty() ? std::string("(none)") : resolvedIndexData));
     k2040::log::Info("Live object-instance installed OMOD refs: " + JoinFormRefEditorIds(info.installedObjectInstanceMods));
+
+    // Diagnostic-only MODCOL/container probe. Some weapon mods use OMOD
+    // collections that can cause multiple OMOD records from one attachment
+    // point to appear in the live object-instance vector. Record the OMOD's
+    // embedded attachment container without changing installed-state logic.
+    for (const auto& omodRef : info.installedObjectInstanceMods) {
+        auto* form = RE::TESForm::GetFormByID(omodRef.formId);
+        auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+        if (!mod) {
+            continue;
+        }
+
+        RE::BGSMod::Container::Data modData{};
+        if (!TryGetAttachmentContainerData(mod, modData)) {
+            k2040::log::Warn(
+                "Installed OMOD container diagnostic skipped because container data was unavailable: form=" +
+                k2040::ToHexFormId(omodRef.formId));
+            continue;
+        }
+
+        auto* looseMod = mod->GetLooseMod();
+        const auto consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
+
+        std::string nested;
+        if (modData.attachments && modData.attachmentCount > 0) {
+            for (std::uint32_t i = 0; i < modData.attachmentCount; ++i) {
+                const auto& attachment = modData.attachments[i];
+                if (!attachment.mod) {
+                    continue;
+                }
+                if (!nested.empty()) {
+                    nested += " | ";
+                }
+
+                const auto childRef = MakeFormRef(attachment.mod);
+                const auto childConsumes = ResolveAttachPointKeyword(attachment.mod->attachPoint.keywordIndex);
+                nested += "form=" + k2040::ToHexFormId(childRef.formId);
+                if (!childRef.editorId.empty()) {
+                    nested += "/editor=" + childRef.editorId;
+                }
+                nested += "/index=" + std::to_string(static_cast<std::uint32_t>(attachment.index));
+                nested += "/optional=" + std::string(attachment.optional ? "true" : "false");
+                nested += "/childrenExclusive=" + std::string(attachment.childrenExclusive ? "true" : "false");
+                nested += "/consumes=" +
+                    (childConsumes.editorId.empty()
+                        ? k2040::ToHexFormId(childConsumes.formId)
+                        : childConsumes.editorId);
+                nested += "/hasLooseMod=" +
+                    std::string(attachment.mod->GetLooseMod() ? "true" : "false");
+            }
+        }
+
+        k2040::log::Info(
+            "Installed OMOD container diagnostic: form=" + k2040::ToHexFormId(omodRef.formId) +
+            ", editor=" + (omodRef.editorId.empty() ? std::string("(none)") : omodRef.editorId) +
+            ", source=" + (omodRef.sourcePlugin.empty() ? std::string("(unknown)") : omodRef.sourcePlugin) +
+            ", consumes=" + (consumes.editorId.empty() ? k2040::ToHexFormId(consumes.formId) : consumes.editorId) +
+            ", hasLooseMod=" + std::string(looseMod ? "true" : "false") +
+            ", containerAttachmentCount=" + std::to_string(modData.attachmentCount) +
+            ", propertyModCount=" + std::to_string(modData.propertyModCount) +
+            ", collectionLike=" + std::string(modData.attachmentCount > 0 ? "true" : "false") +
+            ", nested={" + (nested.empty() ? std::string("(none)") : nested) + "}");
+    }
 }
     void CaptureInstanceProbe(const RE::BGSObjectInstance& equipped, k2040::EquippedWeaponInfo& info)
     {
@@ -979,32 +1072,41 @@ namespace k2040
             candidate.omod = MakeFormRef(mod);
             candidate.installed = ContainsFormId(weaponInfo.installedObjectInstanceMods, candidate.omod.formId);
 
+            if (IsAttachmentCollectionOmod(mod)) {
+                if (candidate.installed) {
+                    log::Info(
+                        "Generated menu ignored installed attachment collection container: OMOD=" +
+                        ToHexFormId(candidate.omod.formId) +
+                        ", source=" +
+                        (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
+                }
+                continue;
+            }
+
             auto* looseMod = mod->GetLooseMod();
             candidate.looseMod = MakeFormRef(looseMod);
+            const bool noLooseOptionAllowed =
+                !looseMod && GetSettings().allowNoLooseModOptions;
+
             if (looseMod) {
                 auto* player = RE::PlayerCharacter::GetSingleton();
                 candidate.inventoryAvailable = player && player->inventoryList &&
                     player->inventoryList->GetItemCount(looseMod) > 0;
-            } else if (!candidate.installed) {
-                // Generated menus model player-facing workbench choices. OMODs
-                // without a linked loose-mod item are commonly internal,
-                // scripted, legendary-effect, or helper records and are not
-                // exposed as uninstalled choices. An already-installed OMOD is
-                // still retained so the live weapon state can be represented.
+            } else if (!candidate.installed && !noLooseOptionAllowed) {
                 log::Info(
-                    "Generated candidate rejected without player-facing loose mod: OMOD=" +
+                    "Generated candidate rejected because no loose mod is linked and no-loose options are disabled: OMOD=" +
                     ToHexFormId(candidate.omod.formId) +
                     ", source=" +
                     (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
                 continue;
             }
 
-            // The quick menu exposes only installed OMODs and compatible
-            // options backed by loose-mod items the player actually carries.
-            // The builder asks for the complete workbench-compatible catalog
-            // so entries can be configured before their loose mods are acquired.
-            // This does not weaken mutation validation.
-            if (!candidate.installed && !candidate.inventoryAvailable &&
+            // Builder enumeration is inventory-independent. Gameplay Quick Menu
+            // additionally allows explicitly enabled no-loose OMOD actions,
+            // because those options do not require a carried MISC item.
+            if (!candidate.installed &&
+                !candidate.inventoryAvailable &&
+                !noLooseOptionAllowed &&
                 !includeInventoryUnavailableOptions) continue;
 
             candidate.consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
@@ -1017,6 +1119,7 @@ namespace k2040
             bool targetMatches = candidate.installed ||
                 targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
 
+            bool explicitTargetMatched = false;
             if (targetMetadata.status == OmodTargetMetadataStatus::Resolved) {
                 for (auto* keyword : targetMetadata.targetKeywords) {
                     auto target = MakeFormRef(keyword);
@@ -1027,8 +1130,23 @@ namespace k2040
                     candidate.filters.push_back(target);
                     if (equippedWeapon->HasKeyword(keyword)) {
                         targetMatches = true;
+                        explicitTargetMatched = true;
                     }
                 }
+            }
+
+            // Generated no-loose choices need an explicit weapon-family match.
+            // This supports player-facing damage tiers and similar actions while
+            // keeping generic/internal no-loose helpers out of the catalog.
+            if (!candidate.installed && !looseMod &&
+                GetSettings().allowNoLooseModOptions &&
+                !explicitTargetMatched) {
+                log::Info(
+                    "Generated no-loose candidate rejected without explicit matching MNAM target: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", source=" +
+                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
+                continue;
             }
 
             if (!candidate.installed && !targetMatches) {
@@ -1053,7 +1171,14 @@ namespace k2040
                 log::Info(
                     "Generated carried candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
                     ", looseMod=" + ToHexFormId(candidate.looseMod.formId) +
-                    ", label=\"" + SafeFullName(looseMod) + "\"" +
+                    ", label="" + SafeFullName(looseMod) + """ +
+                    ", consumes=" +
+                        (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
+                    ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
+            } else if (!candidate.installed && !looseMod && explicitTargetMatched) {
+                log::Info(
+                    "Generated no-loose candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
+                    ", label="" + SafeFullName(candidate.mod) + """ +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
@@ -1119,7 +1244,9 @@ namespace k2040
             option.isStructurallyValid = ContainsFormId(live.liveReachableAttachPoints, candidate.consumes.formId);
             option.isVisible = true;
             option.isSelectable = option.isStructurallyValid &&
-                (option.isInstalled || (option.hasLooseMod && option.isAvailableInInventory));
+                (option.isInstalled ||
+                    (option.hasLooseMod && option.isAvailableInInventory) ||
+                    (!option.hasLooseMod && GetSettings().allowNoLooseModOptions));
 
             option.label = SafeFullName(candidate.mod->GetLooseMod());
             if (option.label.empty()) option.label = SafeFullName(candidate.mod);
@@ -1132,7 +1259,7 @@ namespace k2040
             if (option.isInstalled) option.status = "installed";
             else if (!option.isStructurallyValid) option.status = "provider-not-installed";
             else if (option.hasLooseMod && !option.isAvailableInInventory) option.status = "inventory-unavailable";
-            else if (!option.hasLooseMod) option.status = "no-loose-mod-disallowed";
+            else if (!option.hasLooseMod && !GetSettings().allowNoLooseModOptions) option.status = "no-loose-mod-disallowed";
             else option.status = "ready";
 
             categoryIt->hasVisibleOptions = categoryIt->hasVisibleOptions ||
@@ -1887,14 +2014,93 @@ namespace k2040
         }
         std::vector<const OmodAttachmentInfo*> liveInstalledAtPoint;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
-            if (installed.consumesAttachPoint.formId == request.consumedAttachPointFormId) {
-                liveInstalledAtPoint.push_back(std::addressof(installed));
+            if (installed.consumesAttachPoint.formId != request.consumedAttachPointFormId) {
+                continue;
             }
+
+            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+                log::Info(
+                    "Ignoring installed attachment collection container for replacement identity: OMOD=" +
+                    ToHexFormId(installed.omod.formId) +
+                    ", AP=" + ToHexFormId(installed.consumesAttachPoint.formId));
+                continue;
+            }
+
+            liveInstalledAtPoint.push_back(std::addressof(installed));
         }
-        if (installedOptions.size() > 1 || liveInstalledAtPoint.size() > 1 ||
-            installedOptions.size() != liveInstalledAtPoint.size() ||
-            (!installedOptions.empty() &&
-                installedOptions.front()->omod.formId != liveInstalledAtPoint.front()->omod.formId)) {
+        const bool menuInstalledCountAmbiguous = installedOptions.size() > 1;
+        const bool liveInstalledCountAmbiguous = liveInstalledAtPoint.size() > 1;
+        const bool installedCountMismatch = installedOptions.size() != liveInstalledAtPoint.size();
+        const bool installedIdentityMismatch =
+            !installedCountMismatch &&
+            !installedOptions.empty() &&
+            installedOptions.front()->omod.formId != liveInstalledAtPoint.front()->omod.formId;
+
+        if (menuInstalledCountAmbiguous || liveInstalledCountAmbiguous ||
+            installedCountMismatch || installedIdentityMismatch) {
+            const auto describeRef = [](const FormRef& ref) {
+                std::string value = "form=" + ToHexFormId(ref.formId);
+                if (!ref.editorId.empty()) {
+                    value += "/editor=" + ref.editorId;
+                }
+                if (!ref.sourcePlugin.empty()) {
+                    value += "/source=" + ref.sourcePlugin;
+                }
+                if (ref.localFormId != 0) {
+                    value += "/local=" + ToHexFormId(ref.localFormId);
+                }
+                return value;
+            };
+
+            std::string reasons;
+            const auto appendReason = [&](const char* reason) {
+                if (!reasons.empty()) {
+                    reasons += ",";
+                }
+                reasons += reason;
+            };
+            if (menuInstalledCountAmbiguous) appendReason("menu-installed-count>1");
+            if (liveInstalledCountAmbiguous) appendReason("live-installed-count>1");
+            if (installedCountMismatch) appendReason("menu/live-count-mismatch");
+            if (installedIdentityMismatch) appendReason("menu/live-identity-mismatch");
+
+            log::Warn(
+                "Attachment ambiguity diagnostic: weapon={" + describeRef(weaponInfo.weapon) +
+                "}, category=\"" + categoryIt->label +
+                "\", target={" + describeRef(targetIt->omod) +
+                "}, selectedAP={" + describeRef(targetIt->consumesAttachPoint) +
+                "}, requestAP=" + ToHexFormId(request.consumedAttachPointFormId) +
+                ", menuInstalledCount=" + std::to_string(installedOptions.size()) +
+                ", liveInstalledCount=" + std::to_string(liveInstalledAtPoint.size()) +
+                ", reasons=" + reasons);
+
+            if (installedOptions.empty()) {
+                log::Warn("Attachment ambiguity menu-installed candidates: (none)");
+            } else {
+                for (std::size_t i = 0; i < installedOptions.size(); ++i) {
+                    const auto* option = installedOptions[i];
+                    log::Warn(
+                        "Attachment ambiguity menu-installed[" + std::to_string(i) +
+                        "]: omod={" + describeRef(option->omod) +
+                        "}, consumesAP={" + describeRef(option->consumesAttachPoint) +
+                        "}, label=\"" + option->label +
+                        "\", status=" + option->status);
+                }
+            }
+
+            if (liveInstalledAtPoint.empty()) {
+                log::Warn("Attachment ambiguity live-installed candidates: (none)");
+            } else {
+                for (std::size_t i = 0; i < liveInstalledAtPoint.size(); ++i) {
+                    const auto* installed = liveInstalledAtPoint[i];
+                    log::Warn(
+                        "Attachment ambiguity live-installed[" + std::to_string(i) +
+                        "]: omod={" + describeRef(installed->omod) +
+                        "}, consumesAP={" + describeRef(installed->consumesAttachPoint) +
+                        "}, providesAPCount=" + std::to_string(installed->providesAttachParentSlots.size()));
+                }
+            }
+
             return fail("installed-state-ambiguous", "The current attachment state is not safe to replace automatically.");
         }
 
@@ -1958,6 +2164,9 @@ namespace k2040
         std::vector<OmodAttachmentInfo> removals;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
             if (previousOption && installed.omod.formId == previousOption->omod.formId) continue;
+            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+                continue;
+            }
             const bool reachableNow = ContainsFormId(
                 menu.liveReachableAttachPoints,
                 installed.consumesAttachPoint.formId);

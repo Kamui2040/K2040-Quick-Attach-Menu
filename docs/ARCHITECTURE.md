@@ -68,16 +68,19 @@ gate because patches and add-ons may validly extend a weapon from another
 plugin.
 
 Generated menus expose player-facing workbench choices, not every reachable
-OMOD record. An uninstalled generated OMOD must therefore also have a linked
-loose-mod item. No-loose-mod OMODs are commonly internal, scripted, legendary
-effect, or helper records and stay out of the generated catalog unless they are
-already installed and must be represented as live state.
+OMOD record. Linked loose-mod items remain the normal generated path. When
+`AllowNoLooseModOptions` is enabled, an uninstalled no-loose OMOD may also be
+exposed if it has an explicit resolved MNAM target matching the equipped weapon.
+Generic no-MNAM no-loose records stay out of generated discovery because they
+cannot be distinguished safely from internal, scripted, legendary-effect, or
+helper records. Already-installed no-loose OMODs remain visible as live state.
 
 The Builder enumerates all compatible player-facing generated attachments under
 those rules whether or not their loose-mod items are in inventory. The gameplay
 Quick Menu uses the same compatibility catalog but suppresses uninstalled
-entries whose loose-mod items are not currently carried. Catalog enumeration
-does not authorize mutation; live transaction checks remain authoritative.
+loose-mod entries that are not currently carried. Validated no-loose choices do
+not require inventory. Catalog enumeration does not authorize mutation; live
+transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
@@ -116,11 +119,14 @@ The F4SE plugin INI remains the standalone hotkey source. When MCM has written
 an individual registered-hotkey override to its shared registry, that value
 takes precedence and is refreshed after leaving MCM. Missing registered values
 fall back independently to the plugin INI, so MCM remains optional. MCM owns
-registration and conflict reporting; the plugin's physical polling path owns
-menu behavior. The two registered opener bindings also act as menu toggles:
-the active menu's opener closes it and the other opener switches to the other
-menu without releasing gameplay isolation between views. Escape closes either
-menu. There is no separate registered close binding.
+registration and conflict reporting. Physical opener state is polled outside
+Fallout's gameplay input layer, while focused Prisma pages may forward matching
+browser events as a supplemental path. Duplicate cross-source signals are
+filtered, and all menu open/close/switch work is queued to the F4SE game thread.
+The two registered opener bindings act as toggles: the active menu's opener
+closes it and the other opener switches menus without releasing gameplay
+isolation between views. Escape closes either menu. DialogueMenu blocks opener
+actions. There is no separate registered close binding.
 
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between

@@ -1,14 +1,17 @@
 # Compatibility
 
-## Supported release target
+## Validated release candidate
 
 | Component | Version |
 |---|---|
-| Fallout 4 | `1.10.163` |
-| F4SE | matching `1.10.163` release |
-| PrismaUI_F4 | `2.1.1` |
-| Plugin | `0.5.181` |
+| Fallout 4 | `1.10.163`, `1.11.240` |
+| F4SE | matching runtime release |
+| PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
+| Plugin | `0.5.192` release candidate |
 | Architecture | Windows x64 |
+
+The current public release remains `0.5.181` until `0.5.192` is explicitly
+published.
 
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
 Hotkey Manager visibility; missing MCM bindings fall back independently to the
@@ -19,7 +22,7 @@ can use it. Otherwise the plugin builds a bounded generated menu from the
 equipped weapon, installed OMODs, available loose mods, reachable attachment
 points, and the winning OMOD records' MNAM Target OMOD keywords.
 
-## Not supported by this release
+## Not validated by this candidate
 
 - Fallout 4 `1.10.980` through `1.10.984`
 - Fallout 4 VR
@@ -41,12 +44,12 @@ Version 0.5.180 passed target-runtime checks for:
 - menu close/reopen and opener-key switching;
 - Alt-Tab, save/load, and normal exit.
 
-This evidence applies to the exact target versions above. Version 0.5.181 keeps
-the 0.5.180 runtime/dependency baseline and passed focused regression for
-generated compatibility, disabled installed-state entries, Prisma Dock discovery,
-internal no-loose-mod filtering, and the previously failing sight replacement.
-A runtime, F4SE, PrismaUI API/header, or CommonLibF4 change requires separate
-compatibility review.
+The 0.5.192 candidate adds focused regression on both validated runtime
+families for MODCOL container handling, legitimate no-MISC/no-loose options,
+game-thread hotkey/menu actions, Mouse 4/5 same-key close, Quick Menu ↔ Builder
+switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the
+previous hotkey-thread crash path. A runtime, F4SE, PrismaUI API/header, or
+CommonLibF4 change still requires separate compatibility review.
 
 ## PrismaUI SDK provenance
 

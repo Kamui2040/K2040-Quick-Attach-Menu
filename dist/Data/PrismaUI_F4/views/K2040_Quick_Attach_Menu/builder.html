@@ -222,6 +222,26 @@
         window.k2040BuilderChangeRequested(command);
       }
     }
+    function consumeHotkeyEvent(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    }
+    function forwardConfiguredHotkey(keycode, shift, ctrl, alt) {
+      var settings = payload && payload.settings ? payload.settings : {};
+      var modifiers = (shift ? 1 : 0) | (ctrl ? 2 : 0) | (alt ? 4 : 0);
+      var action = "";
+      if (Number(settings.openMenuHotkeyKeycode) === keycode &&
+          Number(settings.openMenuHotkeyModifiers || 0) === modifiers) {
+        action = "quick";
+      } else if (Number(settings.openMenuBuilderHotkeyKeycode) === keycode &&
+                 Number(settings.openMenuBuilderHotkeyModifiers || 0) === modifiers) {
+        action = "builder";
+      }
+      if (!action || typeof window.k2040HotkeyActionRequested !== "function") return false;
+      window.k2040HotkeyActionRequested(action);
+      return true;
+    }
     function setBuilderPanelPixels(width, height) {
       var panel = document.getElementById("builder");
       var maxWidth = Math.max(320, window.innerWidth - 32);
@@ -636,6 +656,19 @@
       var first = document.querySelector(".row");
       if (first) first.focus(); else document.body.focus();
     };
+    document.addEventListener("mousedown", function(event) {
+      var keycode = event.button === 1 ? 258 : event.button === 3 ? 259 : event.button === 4 ? 260 : 0;
+      if (keycode && forwardConfiguredHotkey(keycode, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+        consumeHotkeyEvent(event);
+      }
+    }, true);
+    document.addEventListener("keydown", function(event) {
+      var keycode = Number(event.keyCode || event.which || 0);
+      if (!event.repeat && forwardConfiguredHotkey(keycode, !!event.shiftKey, !!event.ctrlKey, !!event.altKey)) {
+        consumeHotkeyEvent(event);
+      }
+    }, true);
+
     document.getElementById("reset").addEventListener("click", function() { send("reset"); });
     document.getElementById("resetOrder").addEventListener("click", function() { send("reset-order"); });
     document.getElementById("resetNames").addEventListener("click", function() { send("reset-labels"); });
