@@ -34,6 +34,8 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Profiles contain presentation preferences only and never weaken live checks.
 - A closed Prisma panel is not reused. Game-load and new-game transitions clear
   consumer-owned views so the next open creates a fresh view.
+- Closing or switching a Prisma menu must cancel pending DOM-ready focus so a closed menu cannot be focused again later.
+- Do not reset hotkey edge state when capture state did not actually change; a held opener must not become a second synthetic press during menu switching.
 - Runtime success requires target-environment evidence.
 
 ## Build and validation

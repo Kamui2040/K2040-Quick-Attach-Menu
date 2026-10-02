@@ -1371,7 +1371,8 @@ namespace k2040
     {
         SetHotkeyCaptureActive(false);
         menuOpen_ = false;
-        log::Info("Prisma menu internal open state set to false.");
+        pendingFocus_ = false;
+        log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
 
         ReleaseBuilderMenuModeGuard();
 

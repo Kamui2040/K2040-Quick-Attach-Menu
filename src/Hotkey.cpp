@@ -777,11 +777,11 @@ namespace k2040
     void SetHotkeyCaptureActive(bool active)
     {
         const bool wasActive = g_hotkeyCaptureActive.exchange(active);
-        if (active) {
-            g_hotkeyCaptureReleasePending = false;
-        } else if (wasActive) {
-            g_hotkeyCaptureReleasePending = true;
+        if (active == wasActive) {
+            return;
         }
+
+        g_hotkeyCaptureReleasePending = !active;
         ResetHotkeyEdgeState();
     }
 
