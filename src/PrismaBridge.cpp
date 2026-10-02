@@ -1050,7 +1050,7 @@ namespace k2040
         log::Info(std::string("Prisma HasAnyActiveFocus() after Focus: ") + (anyFocus ? "true" : "false"));
 
         if (!focused || !hasFocus) {
-            SetMenuHotkeysOwnedByUi(false);
+            SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
             UnregisterMenuCursor();
             ReleaseQuickMenuGameplayIsolation();
@@ -1059,7 +1059,7 @@ namespace k2040
             return;
         }
         if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
-            SetMenuHotkeysOwnedByUi(false);
+            SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
             UnregisterMenuCursor();
@@ -1069,8 +1069,8 @@ namespace k2040
             return;
         }
 
-        SetMenuHotkeysOwnedByUi(true);
-        log::Info("Focused Prisma view now owns the configurable opener hotkeys.");
+        SetMenuHotkeyUiForwardingActive(true);
+        log::Info("Focused Prisma view enabled supplemental opener-hotkey forwarding.");
 
         // Browser-side focus is a supplement for current and future HTML
         // controls. The view owns a tiny focus-only heartbeat that dirties two
@@ -1383,7 +1383,7 @@ namespace k2040
     void PrismaBridge::CloseMenuInternal(bool preserveGameplayIsolation)
     {
         SetHotkeyCaptureActive(false);
-        SetMenuHotkeysOwnedByUi(false);
+        SetMenuHotkeyUiForwardingActive(false);
         menuOpen_ = false;
         pendingFocus_ = false;
         log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
@@ -1445,7 +1445,7 @@ namespace k2040
     {
         const PrismaView previousView = menuView_;
 
-        SetMenuHotkeysOwnedByUi(false);
+        SetMenuHotkeyUiForwardingActive(false);
         menuOpen_ = false;
         pendingPayload_ = false;
         pendingFocus_ = false;

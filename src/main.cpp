@@ -18,7 +18,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500BE; // 0.5.190 focused-view hotkey ownership test build
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500BF; // 0.5.191 dual-source hotkey test build
 
     void OnPluginLoaded()
     {

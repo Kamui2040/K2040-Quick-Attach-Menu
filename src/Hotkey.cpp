@@ -33,8 +33,12 @@ namespace
     std::atomic_bool g_wasEscapePressedLastPoll = false;
     std::atomic_bool g_hotkeyCaptureActive = false;
     std::atomic_bool g_hotkeyCaptureReleasePending = false;
-    std::atomic_bool g_menuHotkeysOwnedByUi = false;
+    std::atomic_bool g_menuHotkeyUiForwardingActive = false;
     std::atomic_bool g_menuHotkeyReleasePending = false;
+    std::atomic<std::uint64_t> g_lastQuickActionTick = 0;
+    std::atomic<std::uint64_t> g_lastBuilderActionTick = 0;
+    std::atomic<std::uint8_t> g_lastQuickActionSource = 0;
+    std::atomic<std::uint8_t> g_lastBuilderActionSource = 0;
 
     constexpr auto kMcmRefreshInterval = std::chrono::milliseconds(750);
     constexpr std::string_view kMcmModName = "K2040_Quick_Attach_Menu";
@@ -610,6 +614,12 @@ namespace
         CloseFocusedMenu
     };
 
+    enum class HotkeyActionSource : std::uint8_t
+    {
+        NativePoller = 1,
+        FocusedView = 2
+    };
+
     bool OpenRequestedMenu(k2040::PrismaBridge& prisma, bool openBuilder)
     {
         k2040::log::Info(openBuilder ? "Menu-builder hotkey pressed." : "Quick-menu hotkey pressed.");
@@ -680,8 +690,34 @@ namespace
         prisma.CloseMenu();
     }
 
-    void QueueHotkeyAction(HotkeyAction action)
+    void QueueHotkeyAction(HotkeyAction action, HotkeyActionSource source)
     {
+        if (action == HotkeyAction::ToggleQuickMenu || action == HotkeyAction::ToggleBuilderMenu) {
+            auto& lastTick = action == HotkeyAction::ToggleQuickMenu
+                ? g_lastQuickActionTick
+                : g_lastBuilderActionTick;
+            auto& lastSource = action == HotkeyAction::ToggleQuickMenu
+                ? g_lastQuickActionSource
+                : g_lastBuilderActionSource;
+
+            const std::uint64_t now = GetTickCount64();
+            const std::uint8_t sourceValue = static_cast<std::uint8_t>(source);
+            const std::uint8_t previousSource = lastSource.exchange(sourceValue);
+            const std::uint64_t previousTick = lastTick.exchange(now);
+
+            // The same physical press can be seen by both the native poller and
+            // the focused browser. Suppress only cross-source duplicates; two
+            // deliberate presses from the same source remain valid.
+            if (previousSource != 0 &&
+                previousSource != sourceValue &&
+                previousTick != 0 &&
+                now >= previousTick &&
+                now - previousTick < 750) {
+                k2040::log::Info("Duplicate cross-source opener hotkey signal ignored.");
+                return;
+            }
+        }
+
         const auto* taskInterface = F4SE::GetTaskInterface();
         if (!taskInterface) {
             k2040::log::Warn("Hotkey action ignored because the F4SE game-thread task interface is unavailable.");
@@ -729,7 +765,19 @@ namespace k2040
         const bool alt = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
         const bool ctrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
         const bool shift = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
-        const bool key = IsPhysicalKeyDown(hotkey.virtualKey);
+        const SHORT keyState = GetAsyncKeyState(static_cast<int>(hotkey.virtualKey));
+        bool key = (keyState & 0x8000) != 0;
+
+        // Under Proton/CEF, focused browser views can consume XBUTTON down/up
+        // quickly enough that polling misses the high bit. Preserve the normal
+        // down-state check, but also accept the "pressed since last query" bit
+        // for mouse buttons as a fallback.
+        if (!key &&
+            (hotkey.virtualKey == VK_MBUTTON ||
+             hotkey.virtualKey == VK_XBUTTON1 ||
+             hotkey.virtualKey == VK_XBUTTON2)) {
+            key = (keyState & 0x0001) != 0;
+        }
 
         // Require an exact modifier chord. This prevents Ctrl+Shift+K from
         // also matching the ordinary Shift+K quick-menu binding.
@@ -792,9 +840,9 @@ namespace k2040
         return g_hotkeyCaptureActive.load();
     }
 
-    void SetMenuHotkeysOwnedByUi(bool active)
+    void SetMenuHotkeyUiForwardingActive(bool active)
     {
-        const bool wasActive = g_menuHotkeysOwnedByUi.exchange(active);
+        const bool wasActive = g_menuHotkeyUiForwardingActive.exchange(active);
         if (active == wasActive) {
             return;
         }
@@ -811,9 +859,9 @@ namespace k2040
         log::Info(openBuilder
             ? "Focused Prisma view forwarded the menu-builder hotkey."
             : "Focused Prisma view forwarded the quick-menu hotkey.");
-        QueueHotkeyAction(openBuilder
-            ? HotkeyAction::ToggleBuilderMenu
-            : HotkeyAction::ToggleQuickMenu);
+        QueueHotkeyAction(
+            openBuilder ? HotkeyAction::ToggleBuilderMenu : HotkeyAction::ToggleQuickMenu,
+            HotkeyActionSource::FocusedView);
     }
 
     void InitializeHotkey()
@@ -851,17 +899,9 @@ namespace k2040
             return;
         }
 
-        // Once a Prisma browser view owns focus it also owns the configurable
-        // opener hotkeys. CEF/Proton can consume XBUTTON1/XBUTTON2 so the
-        // polling thread cannot reliably observe those buttons while focused.
-        if (g_menuHotkeysOwnedByUi.load()) {
-            g_wasOpenPressedLastPoll.store(openPressedNow);
-            g_wasBuilderPressedLastPoll.store(builderPressedNow);
-            if (escapeReleasedEdge) {
-                QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
-            }
-            return;
-        }
+        // Browser forwarding is supplemental while Prisma has focus. The native
+        // poller stays active as a fallback because CEF may not emit DOM events
+        // for mouse back/forward buttons under Proton.
 
         // A browser-forwarded opener may close the menu while its key/button is
         // still physically held. Do not let the native poller immediately turn
@@ -871,10 +911,10 @@ namespace k2040
                 g_menuHotkeyReleasePending = false;
                 g_wasOpenPressedLastPoll.store(false);
                 g_wasBuilderPressedLastPoll.store(false);
-                log::Info("Focused-view hotkey ownership released after opener keys were released.");
+                log::Info("Focused-view hotkey forwarding released after opener keys were released.");
             }
             if (escapeReleasedEdge) {
-                QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
+                QueueHotkeyAction(HotkeyAction::CloseFocusedMenu, HotkeyActionSource::NativePoller);
             }
             return;
         }
@@ -889,13 +929,15 @@ namespace k2040
         // thread because BSInputEnableManager notifications can synchronously
         // drive PlayerControls and the Havok animation graph.
         if (builderPressedEdge) {
-            QueueHotkeyAction(HotkeyAction::ToggleBuilderMenu);
+            log::Info("Native poller observed the menu-builder hotkey edge.");
+            QueueHotkeyAction(HotkeyAction::ToggleBuilderMenu, HotkeyActionSource::NativePoller);
         } else if (openPressedEdge) {
-            QueueHotkeyAction(HotkeyAction::ToggleQuickMenu);
+            log::Info("Native poller observed the quick-menu hotkey edge.");
+            QueueHotkeyAction(HotkeyAction::ToggleQuickMenu, HotkeyActionSource::NativePoller);
         }
 
         if (escapeReleasedEdge) {
-            QueueHotkeyAction(HotkeyAction::CloseFocusedMenu);
+            QueueHotkeyAction(HotkeyAction::CloseFocusedMenu, HotkeyActionSource::NativePoller);
         }
     }
 }
