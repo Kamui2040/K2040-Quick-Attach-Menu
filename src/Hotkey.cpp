@@ -766,19 +766,11 @@ namespace k2040
         const bool ctrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
         const bool shift = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
         const SHORT keyState = GetAsyncKeyState(static_cast<int>(hotkey.virtualKey));
-        bool key = (keyState & 0x8000) != 0;
+        const bool key = (keyState & 0x8000) != 0;
 
-        // Under Proton/CEF, focused browser views can consume XBUTTON down/up
-        // quickly enough that polling misses the high bit. Preserve the normal
-        // down-state check, but also accept the "pressed since last query" bit
-        // for mouse buttons as a fallback.
-        if (!key &&
-            (hotkey.virtualKey == VK_MBUTTON ||
-             hotkey.virtualKey == VK_XBUTTON1 ||
-             hotkey.virtualKey == VK_XBUTTON2)) {
-            key = (keyState & 0x0001) != 0;
-        }
-
+        // Treat only the high-order bit as the current physical state. The
+        // low-order "pressed since last query" bit is not a held-state signal
+        // and can prevent a clean release edge under Wine/Proton.
         // Require an exact modifier chord. This prevents Ctrl+Shift+K from
         // also matching the ordinary Shift+K quick-menu binding.
         if (hotkey.altRequired != alt) return false;
@@ -919,10 +911,21 @@ namespace k2040
             return;
         }
 
-        const bool openPressedEdge =
-            openPressedNow && !g_wasOpenPressedLastPoll.exchange(openPressedNow);
-        const bool builderPressedEdge =
-            builderPressedNow && !g_wasBuilderPressedLastPoll.exchange(builderPressedNow);
+        const bool openWasPressed = g_wasOpenPressedLastPoll.exchange(openPressedNow);
+        const bool builderWasPressed = g_wasBuilderPressedLastPoll.exchange(builderPressedNow);
+        const bool openPressedEdge = openPressedNow && !openWasPressed;
+        const bool builderPressedEdge = builderPressedNow && !builderWasPressed;
+
+        if (openPressedNow != openWasPressed) {
+            log::Info(openPressedNow
+                ? "Quick-menu hotkey physical state changed to down."
+                : "Quick-menu hotkey physical state changed to up.");
+        }
+        if (builderPressedNow != builderWasPressed) {
+            log::Info(builderPressedNow
+                ? "Menu-builder hotkey physical state changed to down."
+                : "Menu-builder hotkey physical state changed to up.");
+        }
 
         // The polling thread is deliberately limited to physical-key state.
         // All game/Prisma/menu/input-layer work is queued onto the F4SE game

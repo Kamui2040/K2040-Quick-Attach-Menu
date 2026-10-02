@@ -36,7 +36,7 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   consumer-owned views so the next open creates a fresh view.
 - Closing or switching a Prisma menu must cancel pending DOM-ready focus so a closed menu cannot be focused again later.
 - Do not reset hotkey edge state when capture state did not actually change; a held opener must not become a second synthetic press during menu switching.
-- Prisma browser hotkey forwarding is supplemental, not exclusive. Under Proton/CEF, Mouse 4/5 may not emit DOM mouse events while the view is focused, so the native poller must remain active and use the `GetAsyncKeyState` pressed-since-last-query bit as a mouse-button fallback. Cross-source duplicate opener signals must be suppressed before queuing game-thread work.
+- Prisma browser hotkey forwarding is supplemental, not exclusive. Under Proton/CEF, Mouse 4/5 may not emit DOM mouse events while the view is focused, so the native poller must remain active. Mouse-button held/release state uses the `GetAsyncKeyState` high-order physical-down bit only; do not fold the low-order pressed-since-last-query bit into held state. Cross-source duplicate opener signals must be suppressed before queuing game-thread work.
 - Browser-forwarded actions and browser close requests must queue game work through the F4SE task interface.
 - Runtime success requires target-environment evidence.
 
