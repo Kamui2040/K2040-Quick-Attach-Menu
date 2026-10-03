@@ -201,6 +201,10 @@
     ],
     "stabilizer": [
       "stabilizer"
+    ],
+    "none": [
+      "no muzzle",
+      "null - no muzzle"
     ]
   },
   "sights": {
@@ -557,7 +561,9 @@
       "compression stock",
       "m4 stock, collapsed",
       "m4 stock, extended",
-      "m4 usgi stock"
+      "m4 usgi stock",
+      "dd milspec",
+      "dd mil-spec stock"
     ],
     "folding": [
       "folding stock",
@@ -804,7 +810,11 @@
       "lpc laser sight",
       "ub laser sight",
       "ris dbal-a2 laser sight",
-      "pistol ub laser sight"
+      "pistol ub laser sight",
+      "pinty green laser sight",
+      "pinty laser sight",
+      "sbal",
+      "tlr1"
     ],
     "flashlight": [
       "flashlight",
@@ -830,7 +840,10 @@
       "vintage flashlight",
       "rifle g2 tactical light",
       "pistol x2 tactical light",
-      "vintage flashlight weapon attachment"
+      "vintage flashlight weapon attachment",
+      "x300",
+      "tlr-1",
+      "tlr1 flashlight"
     ],
     "laser_light": [
       "laser light",
@@ -867,6 +880,11 @@
       "missile launcher targeting computer",
       "lock-on targeting computer",
       "lock on targeting computer"
+    ],
+    "melee_attachment": [
+      "cqc knife",
+      "tactical knife attachment",
+      "rail knife"
     ]
   },
   "magazine": {
@@ -975,7 +993,9 @@
       "large quick-eject drum mag",
       "large quick eject drum mag",
       "extended quick-eject drum mag",
-      "extended quick eject drum mag"
+      "extended quick eject drum mag",
+      "quick magazine",
+      "quick mag"
     ],
     "stick": [
       "stick magazine",

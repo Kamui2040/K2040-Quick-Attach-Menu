@@ -408,5 +408,55 @@
     "id": "nexus_alex_attach_points_keywords",
     "url": "https://www.nexusmods.com/fallout4/mods/105783",
     "role": "recent standardized attach-point and keyword resource for modern weapon modding"
+  },
+  {
+    "id": "nexus_see_through_scopes",
+    "url": "https://www.nexusmods.com/fallout4/mods/9476",
+    "role": "optic-focused cross-section of standalone weapon mods and combat-scope support"
+  },
+  {
+    "id": "nexus_eco_redux_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/69085",
+    "role": "large ECO integration index for conventional, energy and exotic weapon mods"
+  },
+  {
+    "id": "nexus_munitions_official",
+    "url": "https://www.nexusmods.com/fallout4/mods/66052",
+    "role": "official Munitions weapon patch index and caliber ecosystem coverage"
+  },
+  {
+    "id": "nexus_reaper_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/68642",
+    "role": "large current Munitions weapon compatibility index spanning modern and classic weapon packs"
+  },
+  {
+    "id": "nexus_reaper_munitions_additional",
+    "url": "https://www.nexusmods.com/fallout4/mods/69604",
+    "role": "additional-ammo weapon compatibility index for further weapon-family discovery"
+  },
+  {
+    "id": "nexus_grimlost_horizon_weapons",
+    "url": "https://www.nexusmods.com/fallout4/mods/85808",
+    "role": "large current Horizon weapon patch index covering many recent and lore-friendly weapon mods"
+  },
+  {
+    "id": "fallout_fandom_omod_weapons_api",
+    "url": "https://fallout.fandom.com/wiki/Fallout_4_OMOD_weapons",
+    "role": "CC-BY-SA comprehensive vanilla/DLC weapon OMOD audit source; raw table is not committed"
+  },
+  {
+    "id": "nexus_sig_sauer_pistol_pack",
+    "url": "https://www.nexusmods.com/fallout4/mods/97289",
+    "role": "recent multi-pistol pack with sights, lights/lasers and muzzle-device attachment coverage"
+  },
+  {
+    "id": "nexus_hk_p30l",
+    "url": "https://www.nexusmods.com/fallout4/mods/70663",
+    "role": "explicit tactical-device, compensator, suppressor, magazine and CQC-knife vocabulary"
+  },
+  {
+    "id": "nexus_aer15",
+    "url": "https://www.nexusmods.com/fallout4/mods/47159",
+    "role": "explicit modern stock, optic, laser, flashlight and energy-wavelength vocabulary"
   }
 ]

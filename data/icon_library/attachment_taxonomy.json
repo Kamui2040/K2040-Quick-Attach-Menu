@@ -76,7 +76,8 @@
       "energy_module",
       "nozzle",
       "stabilizer",
-      "shredder"
+      "shredder",
+      "none"
     ],
     "sights": [
       "iron",
@@ -151,7 +152,8 @@
       "illuminator",
       "rangefinder",
       "designator",
-      "sensor"
+      "sensor",
+      "melee_attachment"
     ],
     "ammo_caliber": [
       "caliber_conversion",

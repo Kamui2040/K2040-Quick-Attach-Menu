@@ -52,7 +52,23 @@ Never use icon classification as evidence that an OMOD is compatible with a weap
 
 The corpus is intentionally extensible. Nexus weapon mods are a primary vocabulary source
 because modern weapon projects expose far more named parts than the vanilla/DLC game.
-Actual runtime structure remains live-game authoritative per docs/ARCHITECTURE.md.
+Large compatibility projects are kept in `weapon_mod_package_index.json` as discovery
+indexes; their package titles are not treated as runtime identities or automatically promoted
+to canonical weapon names. Actual runtime structure remains live-game authoritative per
+docs/ARCHITECTURE.md.
+
+## External OMOD audit
+
+`scripts/audit-fandom-omod-corpus.py` audits the public Fallout Wiki weapon OMOD table
+against the classifier. The wiki reports its content license as CC-BY-SA. Raw wiki source
+and descriptions are not committed; the audit fetches the public MediaWiki API (or accepts
+a local wikitext file) and reports classification coverage only.
+
+```bash
+python3 scripts/audit-fandom-omod-corpus.py
+```
+
+This audit is research/QA only and is not required by the shipped mod.
 
 ## xEdit research import
 

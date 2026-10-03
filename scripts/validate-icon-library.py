@@ -95,6 +95,24 @@ if index.get("schema") != 1:
     errors.append("unsupported nexus weapon index schema")
 if packages.get("schema") != 1:
     errors.append("unsupported weapon package index schema")
+package_sources = set()
+package_names = set()
+for package_index in packages.get("indexes", []):
+    source = package_index.get("source")
+    if not source or source in package_sources:
+        errors.append(f"missing/duplicate package-index source: {source}")
+    if source:
+        package_sources.add(source)
+    local_packages = set()
+    for package in package_index.get("packages", []):
+        if not isinstance(package, str) or not package.strip():
+            errors.append(f"invalid package title in {source}")
+            continue
+        key = package.casefold()
+        if key in local_packages:
+            errors.append(f"duplicate package title inside {source}: {package!r}")
+        local_packages.add(key)
+        package_names.add(key)
 if wars.get("schema") != 1:
     errors.append("unsupported WARS catalog schema")
 if vanilla.get("schema") != 1:
@@ -135,4 +153,5 @@ print(f"PASS: {len(seen)} unique attachment aliases ({alias_mappings} mappings)"
 print(f"PASS: {cross_slot_ambiguous} cross-slot ambiguous aliases handled by slot context")
 print(f"PASS: {len(weapon_seen)} weapon names")
 print(f"PASS: {len(sources)} provenance sources")
+print(f"PASS: {len(package_sources)} discovery indexes / {len(package_names)} unique package titles")
 print(f"PASS: {len(canonical.get('entries', []))} canonical attach points")

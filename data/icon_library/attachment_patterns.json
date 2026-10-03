@@ -2,6 +2,79 @@
   "schema": 1,
   "ordered_patterns": [
     {
+      "category": "pistol_grip",
+      "subcategory": "precision",
+      "tokens": [
+        "sharpshooter's grip",
+        "sharpshooter grip"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "ergonomic",
+      "tokens": [
+        "comfort grip",
+        "steady grip"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "standard",
+      "tokens": [
+        "standard grip"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "none",
+      "tokens": [
+        "no muzzle"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "nozzle",
+      "tokens": [
+        "compression nozzle",
+        "standard nozzle",
+        "vaporization nozzle"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "energy_module",
+      "tokens": [
+        "signal repeater",
+        "signal splitter",
+        "gyro compensating lens",
+        "quantum gyro compensating lens",
+        "electrification module",
+        "ignition module",
+        "electric signal carrier"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "stabilizer",
+      "tokens": [
+        "stabilizer"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "energy_capacitor",
+      "tokens": [
+        "crank capacitor"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "automatic",
+      "tokens": [
+        " automatic"
+      ]
+    },
+    {
       "category": "magazine",
       "subcategory": "power_cell",
       "tokens": [
