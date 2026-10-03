@@ -13,7 +13,7 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
-  hints, and close-after-apply behavior.
+  hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
 - Independent scale and click-drag position for each presentation.
 - Resizable Builder and Settings windows with saved dimensions and reset
   controls.
@@ -52,8 +52,8 @@ Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
 
-The quick menu freezes gameplay while it is open. Pause/slow-motion/real-time
-choices are planned for a later release and are not exposed yet.
+The Settings page controls gameplay slowdown while any mod menu is open. The
+range runs from normal game time at 0% slowdown to a full pause at 100%.
 
 ## Builder and settings
 
@@ -72,7 +72,8 @@ Per-weapon controls can:
 - export or import that weapon's presentation profile.
 
 General settings include presentation, background opacity, layout scale and
-position, color palette, label cleanup, controls, and behavior. Reset controls
+position, color palette, label cleanup, controls, gameplay slowdown, and
+diagnostic logging. Reset controls
 restore either a section, one presentation's position, or the complete
 fresh-install state.
 

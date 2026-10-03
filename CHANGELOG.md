@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a persistent option to disable diagnostic logging.
+- Add configurable gameplay slowdown from normal time through full pause while
+  the Quick Menu, Builder, or Settings page is open.
+
 ## 0.5.181
 
 Hotfix for generated-menu compatibility and installed-state detection.

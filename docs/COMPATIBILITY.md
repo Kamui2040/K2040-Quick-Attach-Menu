@@ -48,6 +48,11 @@ switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the
 previous hotkey-thread crash path. A runtime, F4SE, PrismaUI API/header, or
 CommonLibF4 change still requires separate compatibility review.
 
+The 0.5.193 development candidate adds persistent diagnostic-logging control
+and configurable menu slowdown from normal game time through full pause. Its
+source and build checks are separate from the focused target-runtime regression
+required before these behaviors can be described as compatible.
+
 ## PrismaUI SDK provenance
 
 The repository includes only the unchanged PrismaUI API header and its upstream

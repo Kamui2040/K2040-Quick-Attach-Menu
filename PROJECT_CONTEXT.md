@@ -7,6 +7,15 @@
 - Runtime validation: Fallout 4 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4
 - Release presentation: text-only; icons and weapon preview are not included
 
+## Development candidate
+
+Version `0.5.193` adds a persistent diagnostic-logging toggle and a shared
+0%-100% gameplay slowdown setting for the Quick Menu, Builder, and Settings
+pages. Zero keeps normal time, intermediate values slow proportionally, and 100
+fully pauses. The implementation preserves external time changes instead of
+blindly restoring a stale multiplier. Source/build validation and focused
+target-runtime regression remain required before release.
+
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,
 generated no-loose attachment support behind the existing safety setting,

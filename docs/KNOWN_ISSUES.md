@@ -46,12 +46,14 @@ adapters for compatible installed icon libraries, and optional per-weapon
 Builder overrides. Neither future feature affects the current menu's core
 attachment behavior.
 
-## Gameplay is frozen while a mod menu is open
+## Configurable gameplay slowdown requires runtime validation
 
-The current input-safety path freezes game time and owns a gameplay input layer
-while the quick menu, Builder, or Settings page has focus. Pause, slow-motion,
-and normal-speed choices are planned but are not exposed until each mode has
-been implemented and runtime-validated.
+The 0.5.193 candidate keeps the gameplay input layer active while the quick
+menu, Builder, or Settings page has focus and adds a 0%-100% slowdown range.
+Zero leaves the captured game-time multiplier unchanged; 100 fully pauses;
+intermediate values scale it proportionally. Static validation and a clean
+build do not replace focused in-game checks for normal time, partial slowdown,
+full pause, view switching, close restoration, and external multiplier safety.
 
 ## Runtime validation
 

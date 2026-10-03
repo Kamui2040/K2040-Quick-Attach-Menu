@@ -133,6 +133,18 @@ settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
 the equipped-weapon builder state, and the balanced menu-state guard.
 
+Gameplay isolation always owns the input-disable layer while a mod page has
+focus. The general slowdown setting scales the captured pre-menu global time
+multiplier from 0% slowdown (unchanged) through 100% slowdown (full pause).
+Close and game-transition paths restore the captured multiplier only when the
+runtime still matches the value applied by the mod; a newer external time
+change is preserved. Switching between mod pages keeps the same isolation span.
+
+Diagnostic logging is enabled by default and can be disabled through general
+settings. The persisted choice is loaded before the logger starts, so a
+disabled session does not create plugin diagnostic messages. Re-enabling it
+starts logging immediately without deleting an existing log file.
+
 After a game/new-game transition, the plugin prepares one hidden Quick Menu
 view so Prisma Dock can discover the mod through the framework's live-view
 enumeration. That hidden registration view does not authorize attachment

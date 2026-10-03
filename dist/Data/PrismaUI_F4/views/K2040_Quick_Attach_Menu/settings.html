@@ -170,6 +170,8 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Use ECO-authored menus globally</span><span class="setting-help">When off, generated menus are used unless a weapon forces its ECO patch.</span></span><button id="useAuthored" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Control hints</span></span><div id="controlHintsControl" class="choice-control"><button id="controlHintsTrigger" class="choice-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="controlHintsValue">Contextual</span><span class="choice-arrow" aria-hidden="true">▼</span></button><div id="controlHintsOptions" class="choice-options" role="listbox" hidden><button class="choice-option" type="button" role="option" data-value="off">Off</button><button class="choice-option" type="button" role="option" data-value="contextual">Contextual</button><button class="choice-option" type="button" role="option" data-value="always">Always</button></div></div></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Close after applying a mod</span></span><button id="closeAfterApply" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
+          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Gameplay slowdown while open</span><span class="setting-help">0% keeps normal time. 100% fully pauses gameplay.</span></span><span class="slider-wrap"><input id="menuSlowdown" type="range" min="0" max="100" step="1"><output id="menuSlowdownValue">100% · paused</output></span></div>
+          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Diagnostic logging</span><span class="setting-help">Turn off plugin diagnostic log messages. Existing log files are kept.</span></span><button id="loggingEnabled" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <button class="reset-button" data-reset="behavior" type="button">Reset behavior</button>
         </section>
 
@@ -178,7 +180,6 @@
           <p class="intro">Section resets keep unrelated settings. Reset everything removes all saved global and per-weapon choices and restores the default keybinds.</p>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Window sizes</span><span class="setting-help">Restore the original Builder or Settings window dimensions.</span></span><button id="resetBuilderSize" class="reset-button" type="button">Reset Builder</button><button id="resetSettingsSize" class="reset-button" type="button">Reset Settings</button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Fresh-install state</span><span class="setting-help">Visibility, order, labels, ECO overrides, appearance, layouts and controls are reset.</span></span><button id="resetAll" class="reset-button danger" type="button">Reset everything</button></div>
-          <p class="intro">Gameplay-time options such as Pause, Slow and Real-time remain planned for later runtime validation.</p>
         </section>
       </main>
 
@@ -299,7 +300,7 @@
 
       function toggle(id, command) {
         var value = !getToggle(id);
-        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply" };
+        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply", "logging-enabled":"loggingEnabled" };
         setToggle(id, value);
         settings[keys[command] || command] = value;
         send("set:" + command + ":" + (value ? "1" : "0"));
@@ -449,6 +450,13 @@
         return value === "off" ? "Off" : value === "always" ? "Always" : "Contextual";
       }
 
+      function menuSlowdownLabel(value) {
+        var percent = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+        if (percent === 0) return "0% · normal";
+        if (percent === 100) return "100% · paused";
+        return percent + "% slowdown";
+      }
+
       function setControlHintsOpen(open, focusSelected) {
         var trigger = document.getElementById("controlHintsTrigger");
         var options = document.getElementById("controlHintsOptions");
@@ -486,6 +494,11 @@
         document.getElementById("opacityValue").value = document.getElementById("opacity").value + "%";
         setToggle("useAuthored", settings.useAuthoredMenus !== false);
         setToggle("closeAfterApply", !!settings.closeAfterApply);
+        setToggle("loggingEnabled", settings.loggingEnabled !== false);
+        var rawSlowdown = settings.menuSlowdown === undefined ? 1 : Number(settings.menuSlowdown);
+        var slowdown = Math.round(Math.max(0, Math.min(1, isNaN(rawSlowdown) ? 1 : rawSlowdown)) * 100);
+        document.getElementById("menuSlowdown").value = slowdown;
+        document.getElementById("menuSlowdownValue").value = menuSlowdownLabel(slowdown);
         var fallback = !!settings.hideBracketedText;
         setToggle("prefix", settings.hideBracketedPrefixes === undefined ? fallback : !!settings.hideBracketedPrefixes);
         setToggle("infix", settings.hideBracketedInfixes === undefined ? fallback : !!settings.hideBracketedInfixes);
@@ -518,6 +531,9 @@
 
       document.getElementById("useAuthored").addEventListener("click", function() { toggle("useAuthored", "use-authored"); });
       document.getElementById("closeAfterApply").addEventListener("click", function() { toggle("closeAfterApply", "close-after-apply"); });
+      document.getElementById("loggingEnabled").addEventListener("click", function() { toggle("loggingEnabled", "logging-enabled"); });
+      document.getElementById("menuSlowdown").addEventListener("input", function(event) { settings.menuSlowdown = Number(event.target.value) / 100; document.getElementById("menuSlowdownValue").value = menuSlowdownLabel(event.target.value); });
+      document.getElementById("menuSlowdown").addEventListener("change", function() { send("set:menu-slowdown:" + settings.menuSlowdown.toFixed(2)); });
       ["prefix","infix","suffix"].forEach(function(id) { document.getElementById(id).addEventListener("click", function() { setToggle(id, !getToggle(id)); send("bracketed-text:" + (getToggle("prefix")?"1":"0") + ":" + (getToggle("infix")?"1":"0") + ":" + (getToggle("suffix")?"1":"0")); }); });
 
       document.getElementById("controlHintsTrigger").addEventListener("click", function() { setControlHintsOpen(document.getElementById("controlHintsTrigger").getAttribute("aria-expanded") !== "true", true); });

@@ -15,6 +15,7 @@ namespace
     std::mutex g_logMutex;
     std::ofstream g_logFile;
     bool g_initialized = false;
+    bool g_enabled = false;
 
     std::string SanitizeForFilename(std::string value)
     {
@@ -44,7 +45,11 @@ namespace
     {
         std::scoped_lock lock(g_logMutex);
 
-        if (!g_initialized) {
+        if (!g_enabled) {
+            return;
+        }
+
+        if (!g_initialized || !g_logFile.is_open()) {
             std::filesystem::create_directories(LogPath().parent_path());
             g_logFile.open(LogPath(), std::ios::out | std::ios::app);
             g_initialized = true;
@@ -67,17 +72,24 @@ namespace
 
 namespace k2040::log
 {
-    void Init()
+    void Init(bool enabled)
     {
         std::scoped_lock lock(g_logMutex);
 
         if (g_initialized) {
+            g_enabled = enabled;
+            return;
+        }
+
+        g_initialized = true;
+        g_enabled = enabled;
+
+        if (!g_enabled) {
             return;
         }
 
         std::filesystem::create_directories(LogPath().parent_path());
         g_logFile.open(LogPath(), std::ios::out | std::ios::trunc);
-        g_initialized = true;
 
         if (g_logFile.is_open()) {
             g_logFile << "[INFO] K2040's Quick Attach Menu log started." << '\n';
@@ -87,6 +99,36 @@ namespace k2040::log
         }
 
         spdlog::info("Quick Attach Menu diagnostic logging active for build {}.", K2040_QUICK_ATTACH_MENU_VERSION);
+    }
+
+    void SetEnabled(bool enabled)
+    {
+        std::scoped_lock lock(g_logMutex);
+
+        if (!g_initialized) {
+            g_initialized = true;
+        }
+        if (g_enabled == enabled) {
+            return;
+        }
+
+        if (!enabled) {
+            if (g_logFile.is_open()) {
+                g_logFile.flush();
+                g_logFile.close();
+            }
+            g_enabled = false;
+            return;
+        }
+
+        g_enabled = true;
+        std::filesystem::create_directories(LogPath().parent_path());
+        g_logFile.open(LogPath(), std::ios::out | std::ios::app);
+        if (g_logFile.is_open()) {
+            g_logFile << "[INFO] Diagnostic logging enabled from Settings." << '\n';
+            g_logFile.flush();
+        }
+        spdlog::info("Quick Attach Menu diagnostic logging enabled from Settings.");
     }
 
     void Info(std::string_view message)
