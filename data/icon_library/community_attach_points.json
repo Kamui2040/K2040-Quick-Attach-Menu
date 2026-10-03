@@ -1,0 +1,311 @@
+{
+  "schema": 1,
+  "source": {
+    "name": "Alex's Attach Points and Keywords",
+    "url": "https://www.nexusmods.com/fallout4/mods/103613",
+    "version": "1.0.1"
+  },
+  "purpose": "Community weapon attachment-point mappings for presentation classification only.",
+  "entries": [
+    {
+      "editor_id": "AAP_gun_MagazineReceiver_Platform",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "AAP_gun_Body",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "AAP_gun_Frame",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "AAP_gun_UpperReceiver",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "AAP_gun_LowerReceiver",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "AAP_gun_InternalComponents",
+      "category": "internal"
+    },
+    {
+      "editor_id": "AAP_gun_BarrelAssembly",
+      "category": "barrel"
+    },
+    {
+      "editor_id": "AAP_gun_Stock",
+      "category": "stock"
+    },
+    {
+      "editor_id": "AAP_gun_Comb",
+      "category": "stock"
+    },
+    {
+      "editor_id": "AAP_gun_Backstrap",
+      "category": "pistol_grip"
+    },
+    {
+      "editor_id": "AAP_gun_RearGrip",
+      "category": "pistol_grip"
+    },
+    {
+      "editor_id": "AAP_gun_Cylinder",
+      "category": "magazine"
+    },
+    {
+      "editor_id": "AAP_gun_Trigger",
+      "category": "internal"
+    },
+    {
+      "editor_id": "AAP_gun_Hammer",
+      "category": "internal"
+    },
+    {
+      "editor_id": "AAP_gun_Lever",
+      "category": "internal"
+    },
+    {
+      "editor_id": "AAP_gun_RearSight",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_FrontSight",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_Sight",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_ScopeMount",
+      "category": "mount"
+    },
+    {
+      "editor_id": "AAP_gun_ZoomLevel",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_ScopeReticle",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_ScopeReticleColor",
+      "category": "sights"
+    },
+    {
+      "editor_id": "AAP_gun_Gadget",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Extra",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Extra1",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Extra2",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Extra3",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Extra4",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Extra5",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Laser",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Laser1",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Laser2",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Laser3",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Laser4",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Laser5",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserUnderbarrel",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserOverbarrel",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserLeftRail",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserRightRail",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserTopRail",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserBottomRail",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserSight",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserScope",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_LaserGadget",
+      "category": "rail_accessory"
+    },
+    {
+      "editor_id": "AAP_gun_Underbarrel",
+      "category": "underbarrel"
+    },
+    {
+      "editor_id": "AAP_gun_FireMode",
+      "category": "internal"
+    },
+    {
+      "editor_id": "AAP_gun_AimMode",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_TacReloadToggle",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_AnimToggle",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_AmmoType",
+      "category": "ammo_caliber"
+    },
+    {
+      "editor_id": "AAP_gun_PlayerLevel",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_Condition",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_PackAPunch",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_gun_DamageScale",
+      "category": "special"
+    },
+    {
+      "editor_id": "AAP_Skin",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Camo",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Palette",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Primary",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Secondary",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Tertiary",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_1",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_2",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_3",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_4",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_5",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Barrel",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Cylinder",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Frame",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Backstrap",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Hammer",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Sight",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Trigger",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "AAP_Material_Grips",
+      "category": "cosmetic"
+    },
+    {
+      "editor_id": "00__AAP_WeaponGeneric_Decal",
+      "category": "cosmetic"
+    }
+  ]
+}

@@ -3,6 +3,146 @@
   "purpose": "Primary broad-category classification from attachment-point / slot identity. Presentation only.",
   "ordered_rules": [
     {
+      "category": "receiver",
+      "tokens": [
+        "AAP_gun_MagazineReceiver_Platform",
+        "AAP_gun_Body",
+        "AAP_gun_Frame",
+        "AAP_gun_UpperReceiver",
+        "AAP_gun_LowerReceiver"
+      ]
+    },
+    {
+      "category": "internal",
+      "tokens": [
+        "AAP_gun_InternalComponents",
+        "AAP_gun_Trigger",
+        "AAP_gun_Hammer",
+        "AAP_gun_Lever",
+        "AAP_gun_FireMode"
+      ]
+    },
+    {
+      "category": "barrel",
+      "tokens": [
+        "AAP_gun_BarrelAssembly"
+      ]
+    },
+    {
+      "category": "stock",
+      "tokens": [
+        "AAP_gun_Stock",
+        "AAP_gun_Comb"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "tokens": [
+        "AAP_gun_Backstrap",
+        "AAP_gun_RearGrip"
+      ]
+    },
+    {
+      "category": "magazine",
+      "tokens": [
+        "AAP_gun_Cylinder"
+      ]
+    },
+    {
+      "category": "sights",
+      "tokens": [
+        "AAP_gun_RearSight",
+        "AAP_gun_FrontSight",
+        "AAP_gun_Sight",
+        "AAP_gun_ZoomLevel",
+        "AAP_gun_ScopeReticle",
+        "AAP_gun_ScopeReticleColor"
+      ]
+    },
+    {
+      "category": "mount",
+      "tokens": [
+        "AAP_gun_ScopeMount"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "tokens": [
+        "AAP_gun_Gadget",
+        "AAP_gun_Laser",
+        "AAP_gun_Laser1",
+        "AAP_gun_Laser2",
+        "AAP_gun_Laser3",
+        "AAP_gun_Laser4",
+        "AAP_gun_Laser5",
+        "AAP_gun_LaserUnderbarrel",
+        "AAP_gun_LaserOverbarrel",
+        "AAP_gun_LaserLeftRail",
+        "AAP_gun_LaserRightRail",
+        "AAP_gun_LaserTopRail",
+        "AAP_gun_LaserBottomRail",
+        "AAP_gun_LaserSight",
+        "AAP_gun_LaserScope",
+        "AAP_gun_LaserGadget"
+      ]
+    },
+    {
+      "category": "special",
+      "tokens": [
+        "AAP_gun_Extra",
+        "AAP_gun_Extra1",
+        "AAP_gun_Extra2",
+        "AAP_gun_Extra3",
+        "AAP_gun_Extra4",
+        "AAP_gun_Extra5",
+        "AAP_gun_AimMode",
+        "AAP_gun_TacReloadToggle",
+        "AAP_gun_AnimToggle",
+        "AAP_gun_PlayerLevel",
+        "AAP_gun_Condition",
+        "AAP_gun_PackAPunch",
+        "AAP_gun_DamageScale"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "tokens": [
+        "AAP_gun_Underbarrel"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "tokens": [
+        "AAP_gun_AmmoType"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "tokens": [
+        "AAP_Skin",
+        "AAP_Camo",
+        "AAP_Palette",
+        "AAP_Material",
+        "AAP_Material_Primary",
+        "AAP_Material_Secondary",
+        "AAP_Material_Tertiary",
+        "AAP_Material_1",
+        "AAP_Material_2",
+        "AAP_Material_3",
+        "AAP_Material_4",
+        "AAP_Material_5",
+        "AAP_Material_Barrel",
+        "AAP_Material_Cylinder",
+        "AAP_Material_Frame",
+        "AAP_Material_Backstrap",
+        "AAP_Material_Hammer",
+        "AAP_Material_Sight",
+        "AAP_Material_Trigger",
+        "AAP_Material_Grips",
+        "00__AAP_WeaponGeneric_Decal"
+      ]
+    },
+    {
       "category": "muzzle",
       "tokens": [
         "ap gun muzzle",

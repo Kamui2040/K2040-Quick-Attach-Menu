@@ -9,6 +9,7 @@ aliases = json.loads((root / "attachment_aliases.json").read_text(encoding="utf-
 patterns = json.loads((root / "attachment_patterns.json").read_text(encoding="utf-8"))
 slot_patterns = json.loads((root / "attachment_slot_patterns.json").read_text(encoding="utf-8"))
 canonical = json.loads((root / "canonical_attach_points.json").read_text(encoding="utf-8"))
+community = json.loads((root / "community_attach_points.json").read_text(encoding="utf-8"))
 weapons = json.loads((root / "weapon_names.json").read_text(encoding="utf-8"))
 sources = json.loads((root / "sources.json").read_text(encoding="utf-8"))
 index = json.loads((root / "nexus_weapon_index.json").read_text(encoding="utf-8"))
@@ -59,6 +60,17 @@ for rule in slot_patterns.get("ordered_rules", []):
         errors.append(f"invalid slot fallback category: {fallback}")
     if not rule.get("tokens"):
         errors.append(f"slot pattern has no tokens: {categories}")
+
+community_edids = set()
+for entry in community.get("entries", []):
+    cat = entry.get("category")
+    if cat not in valid:
+        errors.append(f"invalid community attach-point category: {cat}")
+    editor_id = entry.get("editor_id")
+    if not editor_id or editor_id.casefold() in community_edids:
+        errors.append(f"missing/duplicate community attach-point EditorID: {editor_id}")
+    if editor_id:
+        community_edids.add(editor_id.casefold())
 
 canonical_ids, canonical_edids = set(), set()
 for entry in canonical.get("entries", []):
@@ -155,3 +167,4 @@ print(f"PASS: {len(weapon_seen)} weapon names")
 print(f"PASS: {len(sources)} provenance sources")
 print(f"PASS: {len(package_sources)} discovery indexes / {len(package_names)} unique package titles")
 print(f"PASS: {len(canonical.get('entries', []))} canonical attach points")
+print(f"PASS: {len(community.get('entries', []))} community attach points")

@@ -44,6 +44,7 @@ Never use icon classification as evidence that an OMOD is compatible with a weap
 - data/icon_library/attachment_aliases.json: known display-name vocabulary.
 - data/icon_library/attachment_slot_patterns.json: slot/AP to broad-category rules.
 - data/icon_library/canonical_attach_points.json: verified vanilla attachment-point identities.
+- data/icon_library/community_attach_points.json: mapped standardized community weapon slots used for broad-category classification.
 - data/icon_library/weapon_names.json: weapon-name vocabulary kept separate from attachments.
 - data/icon_library/vanilla_ranged_catalog.json: derived vanilla weapon/category/mod-name catalog.
 - data/icon_library/wars_catalog_seed.json: structured WARS weapon/attachment research seed.
