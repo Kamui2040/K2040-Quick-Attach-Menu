@@ -1,0 +1,1029 @@
+{
+  "schema": 1,
+  "purpose": "Production manifest for authored attachment icon artwork. No artwork is embedded here.",
+  "render_contract": {
+    "master_format": "SVG",
+    "view_box": "0 0 24 24",
+    "target_ui_size_px": 22,
+    "safe_area": "2 px from each edge; prefer a 20x20 optical footprint",
+    "stroke_width": 1.6,
+    "line_cap": "round",
+    "line_join": "round",
+    "fill_policy": "outline-first; solid fills only when required for readability",
+    "color_policy": "monochrome; artwork must be recolorable by the UI",
+    "background": "transparent",
+    "detail_rule": "one dominant silhouette and at most two secondary details; must remain readable at 22x22",
+    "brand_rule": "generic shapes only; no logos, text, trademarks, or exact branded product geometry",
+    "source_rule": "original authored artwork only; do not trace or redistribute third-party icon assets"
+  },
+  "batches": {
+    "1": {
+      "name": "Core weapon geometry",
+      "categories": [
+        "receiver",
+        "barrel",
+        "muzzle",
+        "sights",
+        "stock",
+        "magazine"
+      ],
+      "count": 50
+    },
+    "2": {
+      "name": "Mounting and handling",
+      "categories": [
+        "handguard",
+        "pistol_grip",
+        "underbarrel",
+        "mount",
+        "rail_accessory"
+      ],
+      "count": 23
+    },
+    "3": {
+      "name": "Systems, effects and fallbacks",
+      "categories": [
+        "ammo_caliber",
+        "internal",
+        "cosmetic",
+        "special",
+        "grip_stock",
+        null
+      ],
+      "count": 22
+    }
+  },
+  "entries": {
+    "attachment.generic": {
+      "filename": "attachment_generic.svg",
+      "label": "Generic Attachment",
+      "category": null,
+      "batch": 3,
+      "subject": "generic weapon attachment",
+      "orientation": "symbolic",
+      "distinguishing_feature": "small neutral attachment block with two mounting tabs; no weapon-family cues",
+      "status": "planned"
+    },
+    "receiver.generic": {
+      "filename": "receiver_generic.svg",
+      "label": "Generic",
+      "category": "receiver",
+      "batch": 1,
+      "subject": "receiver / weapon-body block",
+      "orientation": "side",
+      "distinguishing_feature": "simple receiver/body block with ejection-port cutout",
+      "status": "planned"
+    },
+    "receiver.fire_control": {
+      "filename": "receiver_fire_control.svg",
+      "label": "Fire Control",
+      "category": "receiver",
+      "batch": 1,
+      "subject": "receiver / weapon-body block",
+      "orientation": "side",
+      "distinguishing_feature": "receiver block with selector lever/three-position tick marks",
+      "status": "planned"
+    },
+    "receiver.bolt_action": {
+      "filename": "receiver_bolt_action.svg",
+      "label": "Bolt Action",
+      "category": "receiver",
+      "batch": 1,
+      "subject": "receiver / weapon-body block",
+      "orientation": "side",
+      "distinguishing_feature": "receiver with prominent rear bolt handle",
+      "status": "planned"
+    },
+    "receiver.energy": {
+      "filename": "receiver_energy.svg",
+      "label": "Energy",
+      "category": "receiver",
+      "batch": 1,
+      "subject": "receiver / weapon-body block",
+      "orientation": "side",
+      "distinguishing_feature": "receiver body with capacitor/coil node",
+      "status": "planned"
+    },
+    "barrel.generic": {
+      "filename": "barrel_generic.svg",
+      "label": "Generic",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "medium straight barrel with chamber shoulder",
+      "status": "planned"
+    },
+    "barrel.short": {
+      "filename": "barrel_short.svg",
+      "label": "Short Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "visibly shortened barrel with compact front end",
+      "status": "planned"
+    },
+    "barrel.long_precision": {
+      "filename": "barrel_long_precision.svg",
+      "label": "Long / Precision Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "long thin precision barrel with extended profile",
+      "status": "planned"
+    },
+    "barrel.heavy": {
+      "filename": "barrel_heavy.svg",
+      "label": "Heavy Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "thick reinforced barrel profile",
+      "status": "planned"
+    },
+    "barrel.ported": {
+      "filename": "barrel_ported.svg",
+      "label": "Ported / Vented Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "barrel with two or three clear top/side ports",
+      "status": "planned"
+    },
+    "barrel.shrouded": {
+      "filename": "barrel_shrouded.svg",
+      "label": "Shrouded / Shielded Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "barrel enclosed by a sleeve or heat shield",
+      "status": "planned"
+    },
+    "barrel.integral_suppressor": {
+      "filename": "barrel_integral_suppressor.svg",
+      "label": "Integral Suppressor",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "barrel flowing directly into a thick suppressor body",
+      "status": "planned"
+    },
+    "barrel.energy": {
+      "filename": "barrel_energy.svg",
+      "label": "Energy",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "energy barrel with coil/finned emitter section",
+      "status": "planned"
+    },
+    "barrel.flamer": {
+      "filename": "barrel_flamer.svg",
+      "label": "Flamer Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "wide nozzle-like flame barrel with vented shroud",
+      "status": "planned"
+    },
+    "barrel.launcher_multi": {
+      "filename": "barrel_launcher_multi.svg",
+      "label": "Launcher / Multi Barrel",
+      "category": "barrel",
+      "batch": 1,
+      "subject": "barrel assembly",
+      "orientation": "side",
+      "distinguishing_feature": "large-bore or multi-tube launcher barrel",
+      "status": "planned"
+    },
+    "handguard.generic": {
+      "filename": "handguard_generic.svg",
+      "label": "Generic",
+      "category": "handguard",
+      "batch": 2,
+      "subject": "fore-end / handguard",
+      "orientation": "side",
+      "distinguishing_feature": "plain fore-end sleeve",
+      "status": "planned"
+    },
+    "handguard.rail": {
+      "filename": "handguard_rail.svg",
+      "label": "Rail",
+      "category": "handguard",
+      "batch": 2,
+      "subject": "fore-end / handguard",
+      "orientation": "side",
+      "distinguishing_feature": "fore-end with clear continuous top/side rail teeth",
+      "status": "planned"
+    },
+    "handguard.modular": {
+      "filename": "handguard_modular.svg",
+      "label": "Modular Handguard",
+      "category": "handguard",
+      "batch": 2,
+      "subject": "fore-end / handguard",
+      "orientation": "side",
+      "distinguishing_feature": "fore-end with repeated M-LOK/KeyMod-style slot pattern, kept generic",
+      "status": "planned"
+    },
+    "handguard.cover": {
+      "filename": "handguard_cover.svg",
+      "label": "Rail / Handguard Cover",
+      "category": "handguard",
+      "batch": 2,
+      "subject": "fore-end / handguard",
+      "orientation": "side",
+      "distinguishing_feature": "short clip-on rail/handguard cover plate",
+      "status": "planned"
+    },
+    "muzzle.generic": {
+      "filename": "muzzle_generic.svg",
+      "label": "Generic",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "plain muzzle cap/thread protector",
+      "status": "planned"
+    },
+    "muzzle.suppressor": {
+      "filename": "muzzle_suppressor.svg",
+      "label": "Suppressor",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "long cylindrical suppressor can",
+      "status": "planned"
+    },
+    "muzzle.brake_compensator": {
+      "filename": "muzzle_brake_compensator.svg",
+      "label": "Brake / Compensator",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "short muzzle device with large side ports",
+      "status": "planned"
+    },
+    "muzzle.flash_hider": {
+      "filename": "muzzle_flash_hider.svg",
+      "label": "Flash Hider",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "open-prong flash hider silhouette",
+      "status": "planned"
+    },
+    "muzzle.blast_device": {
+      "filename": "muzzle_blast_device.svg",
+      "label": "Blast Device",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "wide blast can/cone",
+      "status": "planned"
+    },
+    "muzzle.choke": {
+      "filename": "muzzle_choke.svg",
+      "label": "Choke",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "short tapered shotgun choke",
+      "status": "planned"
+    },
+    "muzzle.bayonet": {
+      "filename": "muzzle_bayonet.svg",
+      "label": "Bayonet",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "muzzle ring plus forward blade",
+      "status": "planned"
+    },
+    "muzzle.energy": {
+      "filename": "muzzle_energy.svg",
+      "label": "Energy",
+      "category": "muzzle",
+      "batch": 1,
+      "subject": "muzzle-end device",
+      "orientation": "side",
+      "distinguishing_feature": "emitter/focuser shape with split beam or coil cue",
+      "status": "planned"
+    },
+    "sights.generic": {
+      "filename": "sights_generic.svg",
+      "label": "Generic",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "simple compact optic body",
+      "status": "planned"
+    },
+    "sights.iron": {
+      "filename": "sights_iron.svg",
+      "label": "Iron Sight",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "front post plus rear notch/ring",
+      "status": "planned"
+    },
+    "sights.reflex": {
+      "filename": "sights_reflex.svg",
+      "label": "Reflex / Red Dot",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "small reflex window on low base",
+      "status": "planned"
+    },
+    "sights.holographic": {
+      "filename": "sights_holographic.svg",
+      "label": "Holographic Sight",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "larger hooded rectangular optic window",
+      "status": "planned"
+    },
+    "sights.scope": {
+      "filename": "sights_scope.svg",
+      "label": "Scope / LPVO",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "tube scope with objective bell and mount feet",
+      "status": "planned"
+    },
+    "sights.magnifier": {
+      "filename": "sights_magnifier.svg",
+      "label": "Magnifier",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "short tubular magnifier with flip hinge cue",
+      "status": "planned"
+    },
+    "sights.night_vision": {
+      "filename": "sights_night_vision.svg",
+      "label": "Night Vision",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "scope body with crescent/moon cue",
+      "status": "planned"
+    },
+    "sights.thermal": {
+      "filename": "sights_thermal.svg",
+      "label": "Thermal Optic",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "scope body with three heat-wave lines",
+      "status": "planned"
+    },
+    "sights.targeting": {
+      "filename": "sights_targeting.svg",
+      "label": "Targeting / Recon",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "optic with small crosshair/rangefinder marker",
+      "status": "planned"
+    },
+    "sights.none": {
+      "filename": "sights_none.svg",
+      "label": "None / Removed",
+      "category": "sights",
+      "batch": 1,
+      "subject": "weapon sight / optic",
+      "orientation": "side",
+      "distinguishing_feature": "empty mounting rail with strike-through/remove cue",
+      "status": "planned"
+    },
+    "stock.generic": {
+      "filename": "stock_generic.svg",
+      "label": "Generic",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "solid fixed rifle stock",
+      "status": "planned"
+    },
+    "stock.collapsible": {
+      "filename": "stock_collapsible.svg",
+      "label": "Collapsible Stock",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "telescoping stock with visible buffer tube/rails",
+      "status": "planned"
+    },
+    "stock.folding": {
+      "filename": "stock_folding.svg",
+      "label": "Folding Stock",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "stock with hinge and folded-angle cue",
+      "status": "planned"
+    },
+    "stock.precision": {
+      "filename": "stock_precision.svg",
+      "label": "Precision Stock",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "large adjustable precision stock with cheek rest",
+      "status": "planned"
+    },
+    "stock.lightweight_short": {
+      "filename": "stock_lightweight_short.svg",
+      "label": "Light / Short Stock",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "compact minimalist stock silhouette",
+      "status": "planned"
+    },
+    "stock.brace": {
+      "filename": "stock_brace.svg",
+      "label": "Pistol Brace",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "pistol brace with open rear frame",
+      "status": "planned"
+    },
+    "stock.wire": {
+      "filename": "stock_wire.svg",
+      "label": "Wire Stock",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "thin wire-frame stock",
+      "status": "planned"
+    },
+    "stock.none": {
+      "filename": "stock_none.svg",
+      "label": "None / Removed",
+      "category": "stock",
+      "batch": 1,
+      "subject": "rear stock assembly",
+      "orientation": "side",
+      "distinguishing_feature": "rear receiver/buffer end with no stock, remove cue",
+      "status": "planned"
+    },
+    "pistol_grip.generic": {
+      "filename": "pistol_grip_generic.svg",
+      "label": "Generic",
+      "category": "pistol_grip",
+      "batch": 2,
+      "subject": "pistol grip",
+      "orientation": "side",
+      "distinguishing_feature": "plain angled pistol grip",
+      "status": "planned"
+    },
+    "pistol_grip.ergonomic_precision": {
+      "filename": "pistol_grip_ergonomic_precision.svg",
+      "label": "Ergonomic / Precision Grip",
+      "category": "pistol_grip",
+      "batch": 2,
+      "subject": "pistol grip",
+      "orientation": "side",
+      "distinguishing_feature": "contoured grip with palm swell/finger curve",
+      "status": "planned"
+    },
+    "pistol_grip.skeletonized": {
+      "filename": "pistol_grip_skeletonized.svg",
+      "label": "Skeletonized Grip",
+      "category": "pistol_grip",
+      "batch": 2,
+      "subject": "pistol grip",
+      "orientation": "side",
+      "distinguishing_feature": "grip with a large central cutout",
+      "status": "planned"
+    },
+    "magazine.generic": {
+      "filename": "magazine_generic.svg",
+      "label": "Generic",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "standard curved box magazine",
+      "status": "planned"
+    },
+    "magazine.extended": {
+      "filename": "magazine_extended.svg",
+      "label": "Extended Magazine",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "longer-than-standard box magazine",
+      "status": "planned"
+    },
+    "magazine.stick": {
+      "filename": "magazine_stick.svg",
+      "label": "Stick Magazine",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "long narrow straight stick magazine",
+      "status": "planned"
+    },
+    "magazine.drum": {
+      "filename": "magazine_drum.svg",
+      "label": "Drum Magazine",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "round drum magazine",
+      "status": "planned"
+    },
+    "magazine.box_belt": {
+      "filename": "magazine_box_belt.svg",
+      "label": "Box / Belt Feed",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "large box with short exposed belt/feed link cue",
+      "status": "planned"
+    },
+    "magazine.cylinder": {
+      "filename": "magazine_cylinder.svg",
+      "label": "Cylinder",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "revolver cylinder with chamber circles",
+      "status": "planned"
+    },
+    "magazine.tube": {
+      "filename": "magazine_tube.svg",
+      "label": "Tube Magazine",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "long tubular magazine below a short barrel cue",
+      "status": "planned"
+    },
+    "magazine.multi": {
+      "filename": "magazine_multi.svg",
+      "label": "Dual / Jungle Magazine",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "two magazines coupled side-by-side/offset",
+      "status": "planned"
+    },
+    "magazine.reload_aid": {
+      "filename": "magazine_reload_aid.svg",
+      "label": "Reload Aid",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "speed-loader or shell-holder silhouette",
+      "status": "planned"
+    },
+    "magazine.energy_feed": {
+      "filename": "magazine_energy_feed.svg",
+      "label": "Energy / Fuel Feed",
+      "category": "magazine",
+      "batch": 1,
+      "subject": "ammunition feed container",
+      "orientation": "side",
+      "distinguishing_feature": "power cell/canister with energy bolt mark",
+      "status": "planned"
+    },
+    "underbarrel.generic": {
+      "filename": "underbarrel_generic.svg",
+      "label": "Generic",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "small handstop attached below a short rail",
+      "status": "planned"
+    },
+    "underbarrel.vertical_grip": {
+      "filename": "underbarrel_vertical_grip.svg",
+      "label": "Vertical Grip",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "vertical foregrip below rail",
+      "status": "planned"
+    },
+    "underbarrel.angled_grip": {
+      "filename": "underbarrel_angled_grip.svg",
+      "label": "Angled Grip",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "angled triangular foregrip",
+      "status": "planned"
+    },
+    "underbarrel.bipod": {
+      "filename": "underbarrel_bipod.svg",
+      "label": "Bipod",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "folding two-leg bipod",
+      "status": "planned"
+    },
+    "underbarrel.grenade_launcher": {
+      "filename": "underbarrel_grenade_launcher.svg",
+      "label": "Grenade Launcher",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "large-bore underslung launcher tube",
+      "status": "planned"
+    },
+    "underbarrel.shotgun": {
+      "filename": "underbarrel_shotgun.svg",
+      "label": "Underbarrel Shotgun",
+      "category": "underbarrel",
+      "batch": 2,
+      "subject": "underslung weapon accessory",
+      "orientation": "side",
+      "distinguishing_feature": "short underslung shotgun with pump/receiver cue",
+      "status": "planned"
+    },
+    "rail_accessory.generic": {
+      "filename": "rail_accessory_generic.svg",
+      "label": "Generic",
+      "category": "rail_accessory",
+      "batch": 2,
+      "subject": "compact rail-mounted accessory",
+      "orientation": "side",
+      "distinguishing_feature": "small rectangular rail module",
+      "status": "planned"
+    },
+    "rail_accessory.laser": {
+      "filename": "rail_accessory_laser.svg",
+      "label": "Laser / Designator",
+      "category": "rail_accessory",
+      "batch": 2,
+      "subject": "compact rail-mounted accessory",
+      "orientation": "side",
+      "distinguishing_feature": "compact module projecting a single beam line",
+      "status": "planned"
+    },
+    "rail_accessory.flashlight": {
+      "filename": "rail_accessory_flashlight.svg",
+      "label": "Weapon Light",
+      "category": "rail_accessory",
+      "batch": 2,
+      "subject": "compact rail-mounted accessory",
+      "orientation": "side",
+      "distinguishing_feature": "cylindrical weapon light with lens face",
+      "status": "planned"
+    },
+    "rail_accessory.laser_light": {
+      "filename": "rail_accessory_laser_light.svg",
+      "label": "Laser + Light / Illuminator",
+      "category": "rail_accessory",
+      "batch": 2,
+      "subject": "compact rail-mounted accessory",
+      "orientation": "side",
+      "distinguishing_feature": "combined module with lamp circle plus beam line",
+      "status": "planned"
+    },
+    "rail_accessory.melee": {
+      "filename": "rail_accessory_melee.svg",
+      "label": "Melee Attachment",
+      "category": "rail_accessory",
+      "batch": 2,
+      "subject": "compact rail-mounted accessory",
+      "orientation": "side",
+      "distinguishing_feature": "short rail-mounted blade/knife silhouette",
+      "status": "planned"
+    },
+    "ammo_caliber.generic": {
+      "filename": "ammo_caliber_generic.svg",
+      "label": "Generic",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "single generic rifle cartridge",
+      "status": "planned"
+    },
+    "ammo_caliber.conversion": {
+      "filename": "ammo_caliber_conversion.svg",
+      "label": "Caliber Conversion",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "two different cartridges with swap arrows",
+      "status": "planned"
+    },
+    "ammo_caliber.armor_piercing": {
+      "filename": "ammo_caliber_armor_piercing.svg",
+      "label": "Armor Piercing",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "cartridge with hard pointed core cue",
+      "status": "planned"
+    },
+    "ammo_caliber.hollow_point": {
+      "filename": "ammo_caliber_hollow_point.svg",
+      "label": "Hollow Point",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "pistol bullet with visibly hollow nose",
+      "status": "planned"
+    },
+    "ammo_caliber.incendiary": {
+      "filename": "ammo_caliber_incendiary.svg",
+      "label": "Incendiary",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "cartridge/projectile with small flame cue",
+      "status": "planned"
+    },
+    "ammo_caliber.explosive": {
+      "filename": "ammo_caliber_explosive.svg",
+      "label": "Explosive",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "projectile with compact burst/star cue",
+      "status": "planned"
+    },
+    "ammo_caliber.elemental": {
+      "filename": "ammo_caliber_elemental.svg",
+      "label": "Elemental / Energy Ammo",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "energy cartridge/projectile with lightning bolt cue",
+      "status": "planned"
+    },
+    "internal.generic": {
+      "filename": "internal_generic.svg",
+      "label": "Generic",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "small internal part/plate without category-specific cue",
+      "status": "planned"
+    },
+    "internal.controls": {
+      "filename": "internal_controls.svg",
+      "label": "Controls / Trigger",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "trigger/selector assembly",
+      "status": "planned"
+    },
+    "internal.action": {
+      "filename": "internal_action.svg",
+      "label": "Bolt / Charging Handle",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "bolt body with charging handle",
+      "status": "planned"
+    },
+    "internal.spring_buffer": {
+      "filename": "internal_spring_buffer.svg",
+      "label": "Spring / Buffer",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "coil spring and buffer cylinder",
+      "status": "planned"
+    },
+    "internal.gas_system": {
+      "filename": "internal_gas_system.svg",
+      "label": "Gas System",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "gas block plus short tube/piston",
+      "status": "planned"
+    },
+    "internal.energy": {
+      "filename": "internal_energy.svg",
+      "label": "Energy",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "coil/capacitor component with lightning cue",
+      "status": "planned"
+    },
+    "internal.motor": {
+      "filename": "internal_motor.svg",
+      "label": "Motor",
+      "category": "internal",
+      "batch": 3,
+      "subject": "internal mechanical component",
+      "orientation": "side_or_symbolic",
+      "distinguishing_feature": "small motor rotor/gear silhouette",
+      "status": "planned"
+    },
+    "cosmetic.generic": {
+      "filename": "cosmetic_generic.svg",
+      "label": "Generic",
+      "category": "cosmetic",
+      "batch": 3,
+      "subject": "surface / appearance treatment",
+      "orientation": "symbolic",
+      "distinguishing_feature": "small material swatch tile with diagonal surface line",
+      "status": "planned"
+    },
+    "cosmetic.paint_skin": {
+      "filename": "cosmetic_paint_skin.svg",
+      "label": "Paint / Camo / Skin",
+      "category": "cosmetic",
+      "batch": 3,
+      "subject": "surface / appearance treatment",
+      "orientation": "symbolic",
+      "distinguishing_feature": "spray/paint swatch with two-tone pattern",
+      "status": "planned"
+    },
+    "cosmetic.detail": {
+      "filename": "cosmetic_detail.svg",
+      "label": "Cosmetic Detail",
+      "category": "cosmetic",
+      "batch": 3,
+      "subject": "surface / appearance treatment",
+      "orientation": "symbolic",
+      "distinguishing_feature": "small decal/tape strip over a part silhouette",
+      "status": "planned"
+    },
+    "special.generic": {
+      "filename": "special_generic.svg",
+      "label": "Generic",
+      "category": "special",
+      "batch": 3,
+      "subject": "functional state or mode",
+      "orientation": "symbolic",
+      "distinguishing_feature": "neutral variant diamond/branch symbol",
+      "status": "planned"
+    },
+    "special.toggle": {
+      "filename": "special_toggle.svg",
+      "label": "Function Toggle",
+      "category": "special",
+      "batch": 3,
+      "subject": "functional state or mode",
+      "orientation": "symbolic",
+      "distinguishing_feature": "toggle switch with two-state arrows",
+      "status": "planned"
+    },
+    "mount.generic": {
+      "filename": "mount_generic.svg",
+      "label": "Generic",
+      "category": "mount",
+      "batch": 2,
+      "subject": "mounting hardware / rail interface",
+      "orientation": "side",
+      "distinguishing_feature": "small adapter block clamped to rail",
+      "status": "planned"
+    },
+    "mount.rail": {
+      "filename": "mount_rail.svg",
+      "label": "Rail",
+      "category": "mount",
+      "batch": 2,
+      "subject": "mounting hardware / rail interface",
+      "orientation": "side",
+      "distinguishing_feature": "short Picatinny-style rail segment",
+      "status": "planned"
+    },
+    "mount.scope": {
+      "filename": "mount_scope.svg",
+      "label": "Scope Mount",
+      "category": "mount",
+      "batch": 2,
+      "subject": "mounting hardware / rail interface",
+      "orientation": "side",
+      "distinguishing_feature": "two scope rings on a mounting base",
+      "status": "planned"
+    },
+    "mount.riser_offset": {
+      "filename": "mount_riser_offset.svg",
+      "label": "Riser / Offset Mount",
+      "category": "mount",
+      "batch": 2,
+      "subject": "mounting hardware / rail interface",
+      "orientation": "side",
+      "distinguishing_feature": "raised/offset rail block with stepped profile",
+      "status": "planned"
+    },
+    "mount.carry_handle": {
+      "filename": "mount_carry_handle.svg",
+      "label": "Carry Handle",
+      "category": "mount",
+      "batch": 2,
+      "subject": "mounting hardware / rail interface",
+      "orientation": "side",
+      "distinguishing_feature": "arched carry-handle silhouette over rail",
+      "status": "planned"
+    },
+    "grip_stock.generic": {
+      "filename": "grip_stock_generic.svg",
+      "label": "Generic",
+      "category": "grip_stock",
+      "batch": 3,
+      "subject": "neutral grip-and-stock silhouette",
+      "orientation": "side",
+      "distinguishing_feature": "combined pistol-grip and rear-stock silhouette",
+      "status": "planned"
+    },
+    "ammo_caliber.projectile": {
+      "filename": "ammo_caliber_projectile.svg",
+      "label": "Special / Shotgun Projectile",
+      "category": "ammo_caliber",
+      "batch": 3,
+      "subject": "cartridge / projectile",
+      "orientation": "side",
+      "distinguishing_feature": "shotgun shell beside special projectile/slug cue",
+      "status": "planned"
+    }
+  },
+  "pilot_set": [
+    "attachment.generic",
+    "receiver.generic",
+    "barrel.long_precision",
+    "muzzle.suppressor",
+    "muzzle.brake_compensator",
+    "sights.reflex",
+    "sights.scope",
+    "stock.precision",
+    "magazine.drum",
+    "underbarrel.vertical_grip",
+    "rail_accessory.laser_light",
+    "ammo_caliber.generic"
+  ],
+  "status_values": [
+    "planned",
+    "draft",
+    "approved",
+    "rejected"
+  ],
+  "review_rule": "Artwork is not finished until its manifest status is approved after visual review."
+}

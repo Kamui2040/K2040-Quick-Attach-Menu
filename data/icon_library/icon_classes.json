@@ -147,7 +147,7 @@
       "category": "sights"
     },
     "sights.scope": {
-      "label": "Scope Mount",
+      "label": "Scope / LPVO",
       "category": "sights"
     },
     "sights.magnifier": {
@@ -275,7 +275,7 @@
       "category": "underbarrel"
     },
     "underbarrel.shotgun": {
-      "label": "Shotgun Ammunition",
+      "label": "Underbarrel Shotgun",
       "category": "underbarrel"
     },
     "rail_accessory.generic": {

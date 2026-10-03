@@ -51,12 +51,13 @@ Examples:
 
 Category fallbacks reuse an existing broad icon class instead of requiring separate fallback-only artwork. Only `attachment.generic` exists solely as the last-resort global fallback.
 
-`scripts/list-icon-classes.py` prints the complete artwork list grouped by category.
+`scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` is the production manifest, and `docs/ICON_ART_DIRECTION.md` defines the 24x24 SVG style, three production batches, and the 12-icon pilot review gate.
 
 ## Data files
 
 - data/icon_library/attachment_taxonomy.json: categories/subcategories.
 - data/icon_library/icon_classes.json: semantic subtype -> reusable visual artwork class mapping.
+- data/icon_library/icon_artwork_manifest.json: filenames, artwork briefs, batches, pilot set, and approval status.
 - data/icon_library/attachment_aliases.json: known display-name vocabulary.
 - data/icon_library/attachment_slot_patterns.json: slot/AP to broad-category rules.
 - data/icon_library/canonical_attach_points.json: verified vanilla attachment-point identities.

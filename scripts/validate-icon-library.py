@@ -11,6 +11,7 @@ slot_patterns = json.loads((root / "attachment_slot_patterns.json").read_text(en
 canonical = json.loads((root / "canonical_attach_points.json").read_text(encoding="utf-8"))
 community = json.loads((root / "community_attach_points.json").read_text(encoding="utf-8"))
 icon_classes = json.loads((root / "icon_classes.json").read_text(encoding="utf-8"))
+artwork_manifest = json.loads((root / "icon_artwork_manifest.json").read_text(encoding="utf-8"))
 weapons = json.loads((root / "weapon_names.json").read_text(encoding="utf-8"))
 sources = json.loads((root / "sources.json").read_text(encoding="utf-8"))
 index = json.loads((root / "nexus_weapon_index.json").read_text(encoding="utf-8"))
@@ -111,6 +112,52 @@ for cat in sorted(extra_category_maps):
 unused_classes = set(class_defs) - mapped_classes
 for class_id in sorted(unused_classes):
     errors.append(f"unused icon class: {class_id}")
+
+if artwork_manifest.get("schema") != 1:
+    errors.append("unsupported artwork-manifest schema")
+art_entries = artwork_manifest.get("entries", {})
+if set(art_entries) != set(class_defs):
+    for class_id in sorted(set(class_defs) - set(art_entries)):
+        errors.append(f"missing artwork manifest entry: {class_id}")
+    for class_id in sorted(set(art_entries) - set(class_defs)):
+        errors.append(f"unknown artwork manifest entry: {class_id}")
+
+filenames = set()
+batch_counts = {}
+for class_id, entry in art_entries.items():
+    class_meta = class_defs.get(class_id, {})
+    if entry.get("label") != class_meta.get("label"):
+        errors.append(f"artwork label mismatch: {class_id}")
+    if entry.get("category") != class_meta.get("category"):
+        errors.append(f"artwork category mismatch: {class_id}")
+    filename = entry.get("filename")
+    if not filename or not filename.endswith(".svg"):
+        errors.append(f"invalid artwork filename: {class_id} -> {filename}")
+    elif filename in filenames:
+        errors.append(f"duplicate artwork filename: {filename}")
+    else:
+        filenames.add(filename)
+    if not entry.get("subject") or not entry.get("distinguishing_feature"):
+        errors.append(f"incomplete artwork brief: {class_id}")
+    allowed_status = set(artwork_manifest.get("status_values", []))
+    if entry.get("status") not in allowed_status:
+        errors.append(f"invalid artwork status: {class_id} -> {entry.get('status')}")
+    batch = str(entry.get("batch"))
+    batch_counts[batch] = batch_counts.get(batch, 0) + 1
+
+for batch_id, batch in artwork_manifest.get("batches", {}).items():
+    if batch_counts.get(batch_id, 0) != batch.get("count"):
+        errors.append(
+            f"artwork batch count mismatch: {batch_id} "
+            f"{batch_counts.get(batch_id, 0)} != {batch.get('count')}"
+        )
+
+pilot = artwork_manifest.get("pilot_set", [])
+if len(pilot) != len(set(pilot)):
+    errors.append("duplicate icon class in artwork pilot set")
+for class_id in pilot:
+    if class_id not in class_defs:
+        errors.append(f"unknown artwork pilot icon class: {class_id}")
 
 community_edids = set()
 for entry in community.get("entries", []):
@@ -220,3 +267,4 @@ print(f"PASS: {len(package_sources)} discovery indexes / {len(package_names)} un
 print(f"PASS: {len(canonical.get('entries', []))} canonical attach points")
 print(f"PASS: {len(community.get('entries', []))} community attach points")
 print(f"PASS: {len(class_defs)} visual icon classes")
+print(f"PASS: {len(art_entries)} artwork manifest entries / {len(pilot)} pilot icons")
