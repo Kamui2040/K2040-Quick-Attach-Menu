@@ -50,6 +50,8 @@ namespace k2040
         bool useAuthoredMenus = true;
         std::string controlHints = "contextual";
         bool closeAfterApply = false;
+        bool loggingEnabled = true;
+        double menuSlowdown = 1.0;
         double builderPanelWidth = 0.0;
         double builderPanelHeight = 0.0;
         double settingsPanelWidth = 0.0;

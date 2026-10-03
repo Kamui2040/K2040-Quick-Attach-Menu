@@ -10,6 +10,11 @@
 | Plugin | `0.5.192` |
 | Architecture | Windows x64 |
 
+The release DLL is built with DCCStudios/CommonLibF4 revision
+`12beba2a89fe117a14f1707b88c99ecb1b12f8c0` and commonlib-shared revision
+`f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to
+preserve one DLL for the supported original and AE runtime families.
+
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
 Hotkey Manager visibility; missing MCM bindings fall back independently to the
 plugin INI.
@@ -47,6 +52,24 @@ game-thread hotkey/menu actions, Mouse 4/5 same-key close, Quick Menu ↔ Builde
 switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the
 previous hotkey-thread crash path. A runtime, F4SE, PrismaUI API/header, or
 CommonLibF4 change still requires separate compatibility review.
+
+The 0.5.197 development candidate adds persistent diagnostic-logging control
+and configurable menu slowdown from normal game time through full pause. Its
+Cascade refresh also reapplies persisted visibility after an attachment change.
+Its build now rejects unvalidated CommonLibF4 revisions after an incompatible
+checkout produced an Address Library lookup failure on menu open.
+The plugin verifies engine cursor ownership after PrismaUI focus. When the
+provider does not add an owner, the plugin uses the validated original-game and
+AE registration addresses directly, then clears stale constraints. This avoids
+the centered half-resolution cursor clamp seen when the cursor count remains
+zero. Builder/Settings replacement also releases the prior fallback state before
+the new page focuses, allowing every page to reacquire an owner.
+Focused Fallout 4 `1.11.240` runtime regression passed for unrestricted cursor
+movement in all three views, logging control, the slowdown range through full
+pause, and retained Cascade visibility after an attachment change. The exact
+0.5.197 candidate was not runtime-tested on Fallout 4 `1.10.163`; the source
+and build retain the original-game path and its previously validated address,
+but that runtime family is unverified for this candidate.
 
 ## PrismaUI SDK provenance
 

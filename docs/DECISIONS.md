@@ -32,6 +32,8 @@ Only durable product decisions belong here. Current release state belongs in
   validated paths globally.
 - Builder presentation settings never authorize runtime mutation. Exported
   profiles contain per-weapon presentation preferences only.
+- Every live menu rebuild, including the refresh after an attachment change,
+  reapplies persisted presentation preferences before reaching the active view.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.
@@ -39,6 +41,16 @@ Only durable product decisions belong here. Current release state belongs in
   bindings are toggles; the other opener switches menus. Escape is the universal
   close action, and DialogueMenu blocks opener actions. There is no dedicated
   close binding.
+- Every focused mod page keeps gameplay input isolated. A shared slowdown
+  setting scales the captured pre-menu time multiplier from normal time through
+  full pause and restores it only when no other runtime system replaced it.
+- Prisma normally owns the cursor for focused views. The plugin verifies the
+  engine owner count after focus and uses a validated per-runtime fallback only
+  when the provider did not register one; constraints are then cleared. Internal
+  page replacement releases fallback state after unfocus and reacquires it for
+  the new focused page.
+- Diagnostic logging defaults on, can be disabled persistently, and is not
+  initialized until the saved logging preference has been loaded.
 - The release is text-only. Future icons require a mod-owned semantic mapping
   layer and explicit library adapters. Weapon preview remains removed until a
   renderer lifecycle can pass performance, cleanup, and Alt-Tab testing.

@@ -18,13 +18,13 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500C0; // 0.5.192 release
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500C5; // 0.5.197 candidate
 
     void OnPluginLoaded()
     {
-        k2040::log::Init();
         k2040::ReloadSettings();
         k2040::LoadUserPreferences();
+        k2040::log::Init(k2040::GetQuickMenuPreferences().loggingEnabled);
         k2040::InitializeHotkey();
 
         k2040::log::Info("K2040's Quick Attach Menu compatibility build loaded.");
@@ -118,7 +118,6 @@ namespace
 
 F4SE_EXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* f4se, F4SE::PluginInfo* pluginInfo)
 {
-    k2040::log::Init();
     k2040::log::Info("F4SEPlugin_Query called.");
 
     if (!pluginInfo) {
@@ -146,7 +145,6 @@ F4SE_EXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* f4se, F4SE
 
 F4SE_PLUGIN_LOAD(const F4SE::LoadInterface* f4se)
 {
-    k2040::log::Init();
     k2040::log::Info("F4SEPlugin_Load called.");
 
     if (!f4se) {

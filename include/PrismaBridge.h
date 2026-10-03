@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 #include <string>
 
 #include "RuntimeState.h"
@@ -53,7 +54,7 @@ namespace k2040
         bool weaponWasDrawnBeforeOpen_ = false;
         bool menuOpenedInFirstPerson_ = false;
         bool firstPersonGeometryWasHiddenBeforeOpen_ = false;
-        bool cursorRegistered_ = false;
+        bool cursorFallbackRegistered_ = false;
         std::atomic_bool pendingFirstPersonPresentationRefresh_ = false;
         std::atomic_bool attachmentMutationPending_ = false;
         std::atomic_bool viewSwitchPending_ = false;
@@ -79,8 +80,8 @@ namespace k2040
         void CaptureWeaponPresentationState();
         void PrepareFirstPersonPresentationRestore();
         void CompleteFirstPersonPresentationRestore(const char* reason);
-        void RegisterMenuCursor();
-        void UnregisterMenuCursor();
+        void EnsureMenuCursorAfterFocus(std::uint32_t ownerCountBeforeFocus);
+        void UnregisterMenuCursorFallback();
         void BeginAttachmentMutation(
             std::string selectionKey,
             AttachmentMutationRequest request);

@@ -84,6 +84,10 @@ transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
+A successful attachment transaction rebuilds the live menu and then reapplies
+the same persisted visibility, ordering, and label preferences used on initial
+open before sending the refreshed payload to the active view.
+
 ## Presentation preferences
 
 Bracketed-text cleanup is presentation-only. The source label remains intact.
@@ -132,6 +136,23 @@ The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
 the equipped-weapon builder state, and the balanced menu-state guard.
+Prisma normally owns the cursor while a focused view is active. The plugin
+checks the engine cursor-owner count after focus and uses a validated OG/AE
+registration fallback when the provider did not add one. It also clears stale
+cursor constraints after focus. Internal page replacement releases the prior
+fallback state after unfocus so the new page can acquire a fresh owner.
+
+Gameplay isolation always owns the input-disable layer while a mod page has
+focus. The general slowdown setting scales the captured pre-menu global time
+multiplier from 0% slowdown (unchanged) through 100% slowdown (full pause).
+Close and game-transition paths restore the captured multiplier only when the
+runtime still matches the value applied by the mod; a newer external time
+change is preserved. Switching between mod pages keeps the same isolation span.
+
+Diagnostic logging is enabled by default and can be disabled through general
+settings. The persisted choice is loaded before the logger starts, so a
+disabled session does not create plugin diagnostic messages. Re-enabling it
+starts logging immediately without deleting an existing log file.
 
 After a game/new-game transition, the plugin prepares one hidden Quick Menu
 view so Prisma Dock can discover the mod through the framework's live-view

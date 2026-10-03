@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- Add a persistent option to disable diagnostic logging.
+- Add configurable gameplay slowdown from normal time through full pause while
+  the Quick Menu, Builder, or Settings page is open.
+- Keep saved hidden categories and attachments filtered when the Cascade menu
+  refreshes after a successful attachment change.
+- Reject unvalidated CommonLibF4 revisions during configuration to preserve the
+  original-game and AE single-DLL compatibility target.
+- Verify that PrismaUI focus established engine cursor ownership and use a
+  corrected OG/AE registration fallback when it did not. This prevents the
+  cursor from being confined to the centered half-resolution region.
+- Release plugin fallback cursor state during internal Builder/Settings view
+  replacement so the newly focused page always acquires its own cursor owner.
+
 ## 0.5.181
 
 Hotfix for generated-menu compatibility and installed-state detection.

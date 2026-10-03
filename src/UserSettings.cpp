@@ -171,6 +171,8 @@ namespace
             std::optional<bool> useAuthoredMenus;
             std::optional<std::string> controlHints;
             std::optional<bool> closeAfterApply;
+            std::optional<bool> loggingEnabled;
+            std::optional<double> menuSlowdown;
             std::optional<double> builderPanelWidth;
             std::optional<double> builderPanelHeight;
             std::optional<double> settingsPanelWidth;
@@ -190,6 +192,7 @@ namespace
                     customPanel.has_value() || customInstalled.has_value() ||
                     useAuthoredMenus.has_value() ||
                     controlHints.has_value() || closeAfterApply.has_value() ||
+                    loggingEnabled.has_value() || menuSlowdown.has_value() ||
                     builderPanelWidth.has_value() || builderPanelHeight.has_value() ||
                     settingsPanelWidth.has_value() || settingsPanelHeight.has_value() ||
                     cascade.HasExplicitValues() || radial.HasExplicitValues() ||
@@ -1239,6 +1242,8 @@ namespace
             writeBool("useAuthoredMenus", g_document.general.useAuthoredMenus);
             writeString("controlHints", g_document.general.controlHints);
             writeBool("closeAfterApply", g_document.general.closeAfterApply);
+            writeBool("loggingEnabled", g_document.general.loggingEnabled);
+            writeNumber("menuSlowdown", g_document.general.menuSlowdown);
             writeNumber("builderPanelWidth", g_document.general.builderPanelWidth);
             writeNumber("builderPanelHeight", g_document.general.builderPanelHeight);
             writeNumber("settingsPanelWidth", g_document.general.settingsPanelWidth);
@@ -1849,6 +1854,8 @@ namespace k2040
                 !ReadOptionalBoolMember(*general, "useAuthoredMenus", g_document.general.useAuthoredMenus) ||
                 !ReadOptionalStringMember(*general, "controlHints", g_document.general.controlHints) ||
                 !ReadOptionalBoolMember(*general, "closeAfterApply", g_document.general.closeAfterApply) ||
+                !ReadOptionalBoolMember(*general, "loggingEnabled", g_document.general.loggingEnabled) ||
+                !ReadOptionalNumberMember(*general, "menuSlowdown", g_document.general.menuSlowdown) ||
                 !ReadOptionalNumberMember(*general, "builderPanelWidth", g_document.general.builderPanelWidth) ||
                 !ReadOptionalNumberMember(*general, "builderPanelHeight", g_document.general.builderPanelHeight) ||
                 !ReadOptionalNumberMember(*general, "settingsPanelWidth", g_document.general.settingsPanelWidth) ||
@@ -2634,6 +2641,8 @@ namespace k2040
         result.useAuthoredMenus = g_document.general.useAuthoredMenus.value_or(sourceMode != "generatedonly");
         result.controlHints = g_document.general.controlHints.value_or(legacy.showControlHints ? "always" : "contextual");
         result.closeAfterApply = g_document.general.closeAfterApply.value_or(legacy.closeAfterApply);
+        result.loggingEnabled = g_document.general.loggingEnabled.value_or(true);
+        result.menuSlowdown = std::clamp(g_document.general.menuSlowdown.value_or(1.0), 0.0, 1.0);
         const auto resolvePanelDimension = [](const std::optional<double>& dimension) {
             const double value = dimension.value_or(0.0);
             return !std::isfinite(value) || value <= 0.0 ? 0.0 : std::clamp(value, 0.25, 0.98);
@@ -2663,6 +2672,8 @@ namespace k2040
         if (!IsHexColour(value.customPanel)) value.customPanel = "#0b1218";
         if (!IsHexColour(value.customInstalled)) value.customInstalled = "#74e398";
         value.backgroundOpacity = std::clamp(value.backgroundOpacity, 0.25, 1.0);
+        if (!std::isfinite(value.menuSlowdown)) value.menuSlowdown = 1.0;
+        value.menuSlowdown = std::clamp(value.menuSlowdown, 0.0, 1.0);
         const auto clampPanelDimension = [](double value) {
             if (!std::isfinite(value) || value <= 0.0) return 0.0;
             return std::clamp(value, 0.25, 0.98);
@@ -2693,6 +2704,8 @@ namespace k2040
             current.useAuthoredMenus == value.useAuthoredMenus &&
             current.controlHints == value.controlHints &&
             current.closeAfterApply == value.closeAfterApply &&
+            current.loggingEnabled == value.loggingEnabled &&
+            current.menuSlowdown == value.menuSlowdown &&
             current.builderPanelWidth == value.builderPanelWidth &&
             current.builderPanelHeight == value.builderPanelHeight &&
             current.settingsPanelWidth == value.settingsPanelWidth &&
@@ -2713,6 +2726,8 @@ namespace k2040
         general.useAuthoredMenus = value.useAuthoredMenus;
         general.controlHints = value.controlHints;
         general.closeAfterApply = value.closeAfterApply;
+        general.loggingEnabled = value.loggingEnabled;
+        general.menuSlowdown = value.menuSlowdown;
         general.builderPanelWidth = value.builderPanelWidth;
         general.builderPanelHeight = value.builderPanelHeight;
         general.settingsPanelWidth = value.settingsPanelWidth;

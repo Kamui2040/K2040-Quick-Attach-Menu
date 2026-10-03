@@ -50,9 +50,80 @@ namespace
     PauseHoldMenuEventSink g_pauseHoldMenuEventSink;
     bool g_pauseHoldMenuEventSinkRegistered = false;
     RE::BSTSmartPointer<RE::BSInputEnableLayer> g_quickMenuInputLayer;
-    bool g_quickMenuTimeFrozen = false;
+    bool g_quickMenuGameplayIsolationActive = false;
+    bool g_quickMenuTimeBaselineCaptured = false;
+    bool g_quickMenuTimeAdjusted = false;
     bool g_builderMenuModeGuard = false;
     float g_previousTimeMultiplier = 1.0F;
+    float g_appliedMenuTimeMultiplier = 1.0F;
+
+    void RegisterMenuCursorForRuntime(RE::MenuCursor* cursor)
+    {
+        // CommonLibF4's current NG ID names the internal visibility update
+        // helper (2287475), not the public register wrapper (2287485). The OG
+        // ID is correct. Keep this focused relocation local until upstream's
+        // cross-runtime MenuCursor ID is corrected.
+        using func_t = void (*)(RE::MenuCursor*);
+        static REL::Relocation<func_t> registerCursor{ REL::VariantID(1318193, 2287485) };
+        registerCursor(cursor);
+    }
+
+    void UnregisterMenuCursorForRuntime(RE::MenuCursor* cursor)
+    {
+        using func_t = void (*)(RE::MenuCursor*);
+        static REL::Relocation<func_t> unregisterCursor{ REL::VariantID(1225249, 2287486) };
+        unregisterCursor(cursor);
+    }
+
+    bool TimeMultiplierMatches(float value, float expected)
+    {
+        return std::abs(value - expected) < 0.0001F;
+    }
+
+    bool UpdateQuickMenuTimeAdjustment(double requestedSlowdown)
+    {
+        if (!g_quickMenuGameplayIsolationActive) {
+            return true;
+        }
+
+        auto* timer = RE::BSTimer::GetSingleton();
+        if (!timer) {
+            k2040::log::Warn("Could not update menu slowdown because the game timer is unavailable.");
+            return false;
+        }
+
+        const float currentMultiplier = RE::BSTimer::QGlobalTimeMultiplier();
+        const float currentTarget = RE::BSTimer::QGlobalTimeMultiplierTarget();
+        if (g_quickMenuTimeAdjusted &&
+            (!TimeMultiplierMatches(currentMultiplier, g_appliedMenuTimeMultiplier) ||
+                !TimeMultiplierMatches(currentTarget, g_appliedMenuTimeMultiplier))) {
+            k2040::log::Warn("Game time changed while a mod menu was open; preserving the newer multiplier instead of applying a menu slowdown change.");
+            g_quickMenuTimeAdjusted = false;
+            g_quickMenuTimeBaselineCaptured = false;
+            return false;
+        }
+
+        const bool hadMenuAdjustment = g_quickMenuTimeAdjusted;
+        if (!g_quickMenuTimeBaselineCaptured) {
+            g_previousTimeMultiplier = currentTarget;
+            g_quickMenuTimeBaselineCaptured = true;
+        } else if (!hadMenuAdjustment && !TimeMultiplierMatches(currentTarget, g_previousTimeMultiplier)) {
+            g_previousTimeMultiplier = currentTarget;
+        }
+
+        const float slowdown = static_cast<float>(std::clamp(requestedSlowdown, 0.0, 1.0));
+        g_appliedMenuTimeMultiplier = g_previousTimeMultiplier * (1.0F - slowdown);
+        if (hadMenuAdjustment || slowdown > 0.0001F) {
+            timer->SetGlobalTimeMultiplier(g_appliedMenuTimeMultiplier, true);
+        }
+        g_quickMenuTimeAdjusted = !TimeMultiplierMatches(g_appliedMenuTimeMultiplier, g_previousTimeMultiplier);
+
+        std::ostringstream message;
+        message << "Menu slowdown set to " << std::lround(slowdown * 100.0F)
+                << "% (time multiplier " << g_appliedMenuTimeMultiplier << ").";
+        k2040::log::Info(message.str());
+        return true;
+    }
 
     void RefreshModifiedEquippedItem(RE::TESObjectREFR* container, RE::TESBoundObject* item)
     {
@@ -65,13 +136,12 @@ namespace
 
     bool ActivateQuickMenuGameplayIsolation()
     {
-        if (g_quickMenuInputLayer && g_quickMenuTimeFrozen) {
+        if (g_quickMenuInputLayer && g_quickMenuGameplayIsolationActive) {
             return true;
         }
 
         auto* inputManager = RE::BSInputEnableManager::GetSingleton();
-        auto* timer = RE::BSTimer::GetSingleton();
-        if (!inputManager || !timer) {
+        if (!inputManager) {
             k2040::log::Warn("Could not activate quick-menu gameplay isolation because an engine service is unavailable.");
             return false;
         }
@@ -103,31 +173,38 @@ namespace
             return false;
         }
 
-        g_previousTimeMultiplier = RE::BSTimer::QGlobalTimeMultiplierTarget();
-        timer->SetGlobalTimeMultiplier(0.0F, true);
-        g_quickMenuTimeFrozen = true;
+        g_quickMenuGameplayIsolationActive = true;
+        if (!UpdateQuickMenuTimeAdjustment(k2040::GetQuickMenuPreferences().menuSlowdown)) {
+            g_quickMenuGameplayIsolationActive = false;
+            g_quickMenuInputLayer.reset();
+            return false;
+        }
 
-        k2040::log::Info("Quick-menu gameplay input disabled and game time frozen without opening Prisma's pause-holder menu.");
+        k2040::log::Info("Mod-menu gameplay input disabled and the configured menu slowdown applied without opening Prisma's pause-holder menu.");
         return true;
     }
 
     void ReleaseQuickMenuGameplayIsolation()
     {
-        if (g_quickMenuTimeFrozen) {
+        if (g_quickMenuTimeAdjusted) {
             if (auto* timer = RE::BSTimer::GetSingleton()) {
                 const float currentMultiplier = RE::BSTimer::QGlobalTimeMultiplier();
                 const float currentTarget = RE::BSTimer::QGlobalTimeMultiplierTarget();
-                if (std::abs(currentMultiplier) < 0.0001F && std::abs(currentTarget) < 0.0001F) {
+                if (TimeMultiplierMatches(currentMultiplier, g_appliedMenuTimeMultiplier) &&
+                    TimeMultiplierMatches(currentTarget, g_appliedMenuTimeMultiplier)) {
                     timer->SetGlobalTimeMultiplier(g_previousTimeMultiplier, true);
-                    k2040::log::Info("Restored the game-time multiplier captured before opening the quick menu.");
+                    k2040::log::Info("Restored the game-time multiplier captured before opening the mod menu.");
                 } else {
-                    k2040::log::Warn("Game time changed while the quick menu was open; preserving the newer multiplier.");
+                    k2040::log::Warn("Game time changed while a mod menu was open; preserving the newer multiplier.");
                 }
             }
-
-            g_quickMenuTimeFrozen = false;
-            g_previousTimeMultiplier = 1.0F;
         }
+
+        g_quickMenuGameplayIsolationActive = false;
+        g_quickMenuTimeBaselineCaptured = false;
+        g_quickMenuTimeAdjusted = false;
+        g_previousTimeMultiplier = 1.0F;
+        g_appliedMenuTimeMultiplier = 1.0F;
 
         if (g_quickMenuInputLayer) {
             g_quickMenuInputLayer.reset();
@@ -911,6 +988,8 @@ namespace k2040
                  << "\"openMenuBuilderHotkeyKeycode\":" << builderHotkey.keycode << ","
                  << "\"openMenuBuilderHotkeyModifiers\":" << builderHotkey.modifiers << ","
                  << "\"closeAfterApply\":" << (quickMenu.closeAfterApply ? "true" : "false") << ","
+                 << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
+                 << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
                  << "\"menuSource\":\"" << JsonEscape(settings.menuSource) << "\","
                  << "\"autoInstallProviderIfSafe\":" << (settings.autoInstallProviderIfSafe ? "true" : "false") << ","
@@ -1036,11 +1115,18 @@ namespace k2040
             return;
         }
 
-        RegisterMenuCursor();
+        std::uint32_t cursorOwnerCountBeforeFocus = 0;
+        if (const auto* cursor = RE::MenuCursor::GetSingleton()) {
+            cursorOwnerCountBeforeFocus = cursor->registeredCursors;
+        }
 
         const bool focused = api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
         const bool hasFocus = api_->HasFocus(menuView_);
         const bool anyFocus = api_->HasAnyActiveFocus();
+
+        if (focused && hasFocus) {
+            EnsureMenuCursorAfterFocus(cursorOwnerCountBeforeFocus);
+        }
 
         pendingFocus_ = false;
 
@@ -1052,17 +1138,17 @@ namespace k2040
         if (!focused || !hasFocus) {
             SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             ReleaseQuickMenuGameplayIsolation();
             menuOpen_ = false;
-            log::Warn("Prisma menu focus failed; the plugin-owned cursor was released.");
+            log::Warn("Prisma menu focus failed; any plugin fallback cursor ownership was released.");
             return;
         }
         if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
             SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             ReleaseQuickMenuGameplayIsolation();
             menuOpen_ = false;
             log::Warn("Prisma menu-builder focus cancelled because MCM hotkeys could not be isolated.");
@@ -1202,37 +1288,54 @@ namespace k2040
         CompleteFirstPersonPresentationRestore("after the Prisma pause-holder closed");
     }
 
-    void PrismaBridge::RegisterMenuCursor()
+    void PrismaBridge::EnsureMenuCursorAfterFocus(std::uint32_t ownerCountBeforeFocus)
     {
-        if (cursorRegistered_) {
-            return;
-        }
-
         auto* cursor = RE::MenuCursor::GetSingleton();
         if (!cursor) {
-            log::Warn("The game cursor is unavailable; Prisma focus will continue without plugin cursor ownership.");
+            log::Warn("The game cursor is unavailable after Prisma focus.");
             return;
         }
 
-        cursor->RegisterCursor();
-        cursorRegistered_ = true;
-        log::Info("Game cursor registered for the focused Prisma menu.");
+        // Current Prisma providers own the game cursor for focused views. Older
+        // providers did not always register one when FocusMenu was disabled, so
+        // retain a fallback only when focus did not add a cursor owner. This
+        // avoids double ownership and stale constraints across view switches.
+        if (!cursorFallbackRegistered_ && cursor->registeredCursors <= ownerCountBeforeFocus) {
+            const auto ownerCountBeforeFallback = cursor->registeredCursors;
+            RegisterMenuCursorForRuntime(cursor);
+            if (cursor->registeredCursors <= ownerCountBeforeFallback) {
+                log::Warn("Prisma focus and the plugin fallback both failed to register the game cursor.");
+            } else {
+                cursorFallbackRegistered_ = true;
+                log::Info(
+                    "Prisma focus did not register the game cursor; plugin fallback cursor ownership activated (owners " +
+                    std::to_string(ownerCountBeforeFallback) + "->" + std::to_string(cursor->registeredCursors) + ").");
+            }
+        } else if (!cursorFallbackRegistered_) {
+            log::Info("Prisma owns the game cursor for the focused mod view.");
+        }
+
+        cursor->ClearConstraints();
+        log::Info("Game cursor constraints cleared for the focused mod view.");
     }
 
-    void PrismaBridge::UnregisterMenuCursor()
+    void PrismaBridge::UnregisterMenuCursorFallback()
     {
-        if (!cursorRegistered_) {
+        if (!cursorFallbackRegistered_) {
             return;
         }
 
         if (auto* cursor = RE::MenuCursor::GetSingleton()) {
-            cursor->UnregisterCursor();
-            log::Info("Game cursor unregistered after Prisma menu focus.");
+            const auto ownerCountBeforeRelease = cursor->registeredCursors;
+            UnregisterMenuCursorForRuntime(cursor);
+            log::Info(
+                "Plugin fallback cursor ownership released after Prisma menu focus (owners " +
+                std::to_string(ownerCountBeforeRelease) + "->" + std::to_string(cursor->registeredCursors) + ").");
         } else {
-            log::Warn("The game cursor was unavailable while releasing plugin cursor ownership.");
+            log::Warn("The game cursor was unavailable while releasing plugin fallback cursor ownership.");
         }
 
-        cursorRegistered_ = false;
+        cursorFallbackRegistered_ = false;
     }
 
     void PrismaBridge::OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode)
@@ -1351,6 +1454,10 @@ namespace k2040
             api_->Hide(previousView);
             api_->Destroy(previousView);
         }
+        // Prisma releases the active engine cursor owner during Unfocus. Clear
+        // the matching fallback state before focusing the replacement view so
+        // Builder <-> Settings switches can acquire a new owner.
+        UnregisterMenuCursorFallback();
 
         viewMode_ = mode;
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
@@ -1395,7 +1502,7 @@ namespace k2040
         }
 
         if (!api_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             currentWeaponInfo_ = {};
             currentMenu_ = {};
             attachmentMutationPending_ = false;
@@ -1422,7 +1529,7 @@ namespace k2040
 
         api_->Hide(menuView_);
         log::Info("Prisma menu view Hide() called.");
-        UnregisterMenuCursor();
+        UnregisterMenuCursorFallback();
         currentWeaponInfo_ = {};
         currentMenu_ = {};
         attachmentMutationPending_ = false;
@@ -1477,7 +1584,7 @@ namespace k2040
             log::Info("Prisma menu view destroyed for game transition.");
         }
 
-        UnregisterMenuCursor();
+        UnregisterMenuCursorFallback();
         ReleaseQuickMenuGameplayIsolation();
 
         std::string message = "Prisma menu view state reset for game transition";
@@ -1959,6 +2066,8 @@ namespace k2040
                 return std::nullopt;
             };
             bool rebuildMenu = false;
+            bool updateLogging = false;
+            bool updateMenuSlowdown = false;
             if (parts.size() == 3 && parts[1] == "presentation") preferences.presentation = std::string(parts[2]);
             else if (parts.size() == 3 && parts[1] == "opacity") {
                 const auto value = ParseFiniteDouble(parts[2]);
@@ -1976,6 +2085,15 @@ namespace k2040
             } else if (parts.size() == 3 && parts[1] == "control-hints") preferences.controlHints = std::string(parts[2]);
             else if (parts.size() == 3 && parts[1] == "close-after-apply") {
                 const auto value = boolValue(parts[2]); if (!value) return; preferences.closeAfterApply = *value;
+            } else if (parts.size() == 3 && parts[1] == "logging-enabled") {
+                const auto value = boolValue(parts[2]); if (!value) return;
+                updateLogging = preferences.loggingEnabled != *value;
+                preferences.loggingEnabled = *value;
+            } else if (parts.size() == 3 && parts[1] == "menu-slowdown") {
+                const auto value = ParseFiniteDouble(parts[2]);
+                if (!value) return;
+                updateMenuSlowdown = preferences.menuSlowdown != *value;
+                preferences.menuSlowdown = *value;
             } else if (parts.size() == 4 && parts[1] == "settings-panel-size") {
                 const auto width = ParseFiniteDouble(parts[2]);
                 const auto height = ParseFiniteDouble(parts[3]);
@@ -1998,9 +2116,19 @@ namespace k2040
                 log::Warn("General-settings change rejected because its setting is unsupported.");
                 return;
             }
-            SetQuickMenuPreferences(preferences);
+            const bool changed = SetQuickMenuPreferences(preferences);
             const auto& diagnostics = GetUserSettingsDiagnostics();
-            if (diagnostics.dirty && !SaveUserPreferences()) log::Warn("General settings could not be saved.");
+            const bool saved = !diagnostics.dirty || SaveUserPreferences();
+            if (!saved) {
+                log::Warn("General settings could not be saved.");
+            } else if (changed) {
+                if (updateMenuSlowdown) {
+                    UpdateQuickMenuTimeAdjustment(GetQuickMenuPreferences().menuSlowdown);
+                }
+                if (updateLogging) {
+                    log::SetEnabled(GetQuickMenuPreferences().loggingEnabled);
+                }
+            }
             RefreshBuilderPayload(rebuildMenu);
             return;
         } else if (parts.size() == 2 && parts[0] == "reset") {
@@ -2039,6 +2167,8 @@ namespace k2040
                     preferences.useAuthoredMenus = sourceMode != "generatedonly";
                     preferences.controlHints = legacy.showControlHints ? "always" : "contextual";
                     preferences.closeAfterApply = legacy.closeAfterApply;
+                    preferences.loggingEnabled = true;
+                    preferences.menuSlowdown = 1.0;
                 } else if (parts[1] == "labels") {
                     SetBracketedTextPreferences({ legacy.hideBracketedText, legacy.hideBracketedText, legacy.hideBracketedText });
                 } else if (parts[1] == "builder-panel-size") {
@@ -2058,7 +2188,14 @@ namespace k2040
         }
 
         const auto& diagnostics = GetUserSettingsDiagnostics();
-        if (diagnostics.dirty && !SaveUserPreferences()) log::Warn("General settings could not be saved.");
+        const bool saved = !diagnostics.dirty || SaveUserPreferences();
+        if (!saved) {
+            log::Warn("General settings could not be saved.");
+        } else if (parts.size() == 2 && parts[0] == "reset" && (parts[1] == "all" || parts[1] == "behavior")) {
+            const auto preferences = GetQuickMenuPreferences();
+            UpdateQuickMenuTimeAdjustment(preferences.menuSlowdown);
+            log::SetEnabled(preferences.loggingEnabled);
+        }
         RefreshBuilderPayload(parts.size() == 2 && parts[0] == "reset" && (parts[1] == "all" || parts[1] == "behavior"));
     }
 
@@ -2255,9 +2392,10 @@ namespace k2040
             return;
         }
 
-        currentMenu_ = result.menu;
         currentWeaponInfo_ = result.weaponInfo;
-        lastPayload_ = BuildMenuPayload(result.weaponInfo, result.menu);
+        currentMenu_ = result.menu;
+        ApplyVisibilityPreferences(currentMenu_);
+        lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         PushPayloadToView();
 
         auto* player = RE::PlayerCharacter::GetSingleton();
