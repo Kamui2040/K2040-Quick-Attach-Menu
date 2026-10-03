@@ -48,12 +48,12 @@ attachment behavior.
 
 ## 0.5.197 original-game runtime is unverified
 
-The 0.5.197 candidate keeps the gameplay input layer active while the quick
+Version 0.5.197 keeps the gameplay input layer active while the quick
 menu, Builder, or Settings page has focus and adds a 0%-100% slowdown range.
 Zero leaves the captured game-time multiplier unchanged; 100 fully pauses;
 intermediate values scale it proportionally. Focused Fallout 4 `1.11.240`
 runtime testing passed for the new features and the unrestricted cursor fix in
-all three views. The exact candidate was not runtime-tested on Fallout 4
+all three views. This release was not runtime-tested on Fallout 4
 `1.10.163`; its original-game compatibility path is retained but unverified.
 
 ## Runtime validation
@@ -62,3 +62,6 @@ Version 0.5.192 has focused runtime coverage on Fallout 4
 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4. Other
 runtime/framework combinations have not passed the same regression and remain
 unverified.
+
+Version 0.5.197 has focused runtime coverage on Fallout 4 `1.11.240` for the
+new settings, Cascade refresh, cursor ownership, and all three views.
