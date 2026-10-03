@@ -6,6 +6,7 @@
 - Package identifier: `K2040_Quick_Attach_Menu`
 - Runtime validation: Fallout 4 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4
 - Release presentation: text-only; icons and weapon preview are not included
+- Icon research: branch `research/icon-semantic-library` contains a presentation-only semantic vocabulary seeded from vanilla/DLC terminology and major Nexus weapon ecosystems; it is not wired into runtime behavior.
 
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,

@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "purpose": "Semantic attachment-name to icon-class vocabulary. Research/build input only; never runtime attachment authority.",
+  "match_order": [
+    "exact_alias",
+    "normalized_alias",
+    "token_pattern",
+    "category_fallback",
+    "generic_attachment"
+  ],
+  "categories": {
+    "receiver": [
+      "standard",
+      "light",
+      "hardened",
+      "powerful",
+      "advanced",
+      "semi_auto",
+      "automatic",
+      "burst",
+      "bolt_action",
+      "fire_control"
+    ],
+    "barrel": [
+      "short",
+      "standard",
+      "long",
+      "heavy",
+      "ported",
+      "fluted",
+      "shrouded",
+      "integrally_suppressed"
+    ],
+    "handguard": [
+      "standard",
+      "rail",
+      "picatinny",
+      "mlok",
+      "keymod",
+      "free_float",
+      "cover"
+    ],
+    "muzzle": [
+      "suppressor",
+      "compensator",
+      "muzzle_brake",
+      "flash_hider",
+      "hybrid_device",
+      "blast_device",
+      "choke",
+      "bayonet"
+    ],
+    "sights": [
+      "iron",
+      "glow_iron",
+      "reflex_red_dot",
+      "holographic",
+      "prism",
+      "scope",
+      "lpvo",
+      "magnifier",
+      "night_vision",
+      "thermal",
+      "recon"
+    ],
+    "stock": [
+      "fixed",
+      "collapsible",
+      "folding",
+      "precision",
+      "lightweight",
+      "pistol_brace",
+      "cheek_riser",
+      "no_stock"
+    ],
+    "pistol_grip": [
+      "standard",
+      "ergonomic",
+      "rubberized",
+      "skeletonized",
+      "precision"
+    ],
+    "magazine": [
+      "standard",
+      "extended",
+      "quick_eject",
+      "stick",
+      "drum",
+      "box",
+      "belt",
+      "caliber_specific"
+    ],
+    "underbarrel": [
+      "vertical_grip",
+      "angled_grip",
+      "handstop",
+      "bipod",
+      "grenade_launcher",
+      "shotgun"
+    ],
+    "rail_accessory": [
+      "laser",
+      "flashlight",
+      "laser_light",
+      "illuminator",
+      "rangefinder",
+      "designator"
+    ],
+    "ammo_caliber": [
+      "caliber_conversion",
+      "ammo_type",
+      "armor_piercing",
+      "hollow_point",
+      "incendiary",
+      "explosive",
+      "elemental",
+      "projectile_conversion"
+    ],
+    "internal": [
+      "trigger",
+      "bolt",
+      "spring",
+      "gas_system",
+      "charging_handle",
+      "buffer",
+      "capacitor",
+      "coil"
+    ],
+    "cosmetic": [
+      "paint",
+      "camo",
+      "finish",
+      "material",
+      "furniture",
+      "skin"
+    ],
+    "special": [
+      "weapon_variant",
+      "animation_or_function_toggle",
+      "other"
+    ]
+  }
+}

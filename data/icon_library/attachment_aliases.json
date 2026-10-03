@@ -1,0 +1,698 @@
+{
+  "muzzle": {
+    "suppressor": [
+      "suppressor",
+      "silencer",
+      "sound suppressor",
+      "kac suppressor",
+      "aac556 suppressor",
+      "blackhawk suppressor",
+      "osprey suppressor",
+      "osprey 45",
+      "gemtech tundra",
+      "tirant suppressor",
+      "tgp-a suppressor",
+      "pbs-1 suppressor",
+      "pbs-4 suppressor",
+      "sig suppressor",
+      "surefire sb2",
+      "kac nt4",
+      "kac qdc",
+      "awc thor",
+      "hybrid 46",
+      "thunderbeast suppressor"
+    ],
+    "compensator": [
+      "compensator",
+      "compensated muzzle",
+      "ster45",
+      "jak bfb"
+    ],
+    "muzzle_brake": [
+      "muzzle brake",
+      "muzzle break",
+      "brake",
+      "dd wave brake",
+      "thunderbeast brake",
+      "kac brake"
+    ],
+    "flash_hider": [
+      "flash hider",
+      "flash suppressor",
+      "akml flash hider",
+      "krum flash hider",
+      "psl flash hider",
+      "srvv flash hider",
+      "sf4p flash hider",
+      "fh556rc"
+    ],
+    "hybrid_device": [
+      "warcomp",
+      "compensated flash hider",
+      "zehmn35",
+      "hybrid muzzle"
+    ],
+    "blast_device": [
+      "blast shield",
+      "blast can",
+      "linear compensator"
+    ],
+    "choke": [
+      "choke",
+      "duckbill choke"
+    ],
+    "bayonet": [
+      "bayonet",
+      "m7 bayonet",
+      "m9 bayonet",
+      "6h4 bayonet",
+      "6h5 bayonet",
+      "large bayonet"
+    ]
+  },
+  "sights": {
+    "iron": [
+      "iron sight",
+      "iron sights",
+      "standard sights",
+      "mbus",
+      "mbus ironsights",
+      "kac ironsights",
+      "troy ironsights",
+      "scar iron sights",
+      "command arms iron sights",
+      "front post sight"
+    ],
+    "glow_iron": [
+      "glow sights",
+      "glowing ironsights",
+      "night sights",
+      "tritium sights"
+    ],
+    "reflex_red_dot": [
+      "red dot",
+      "red dot sight",
+      "reflex sight",
+      "mini red dot",
+      "deltapoint",
+      "romeo3xl",
+      "romeo-xl",
+      "sig romeo 8t",
+      "sig 4t",
+      "aimpoint t-1",
+      "aimpoint pro",
+      "comp m4s",
+      "mro",
+      "lco",
+      "c-more",
+      "barska",
+      "holosun",
+      "holosun hs510c",
+      "holosun aems",
+      "pk-06",
+      "pk-122",
+      "pilad p1x42",
+      "kobra",
+      "okp-7",
+      "docter",
+      "srs02",
+      "uh-1",
+      "vortex sight"
+    ],
+    "holographic": [
+      "holographic sight",
+      "holo sight",
+      "eotech",
+      "eotech 552",
+      "eotech xps2",
+      "eotech xps3",
+      "eotech exps3",
+      "exps3",
+      "exp3"
+    ],
+    "prism": [
+      "prism sight",
+      "monstrum prism",
+      "acog",
+      "trijicon acog",
+      "trijicon rx01"
+    ],
+    "scope": [
+      "scope",
+      "sniper scope",
+      "cqbss scope",
+      "specterdr",
+      "specter dr",
+      "trijicon ta648",
+      "atacr 4-16",
+      "su-296/pvs"
+    ],
+    "lpvo": [
+      "lpvo",
+      "vortex strike eagle",
+      "strike eagle 1-6x24"
+    ],
+    "magnifier": [
+      "magnifier",
+      "g33 magnifier",
+      "eotech g33",
+      "g45 magnifier"
+    ],
+    "night_vision": [
+      "night vision scope",
+      "nightvision scope",
+      "nv scope"
+    ],
+    "thermal": [
+      "thermal scope",
+      "thermal optic",
+      "ir hunter",
+      "trijicon ir hunter"
+    ],
+    "recon": [
+      "recon scope",
+      "advanced targeting system",
+      "targeting scope"
+    ]
+  },
+  "stock": {
+    "fixed": [
+      "stock",
+      "fixed stock",
+      "sopmod stock",
+      "b5 sopmod",
+      "ubr stock",
+      "vltor stock",
+      "vltor imod",
+      "vltor emod",
+      "hogue stock",
+      "hogue 15",
+      "magpul ctr",
+      "magpul moe-sl",
+      "magpul str",
+      "larue rat",
+      "kriss ds150",
+      "fab glr-16",
+      "fab gl-core"
+    ],
+    "collapsible": [
+      "collapsible stock",
+      "telescoping stock",
+      "adjustable stock",
+      "maxim defense stock"
+    ],
+    "folding": [
+      "folding stock",
+      "folded stock"
+    ],
+    "precision": [
+      "marksman's stock",
+      "marksman stock",
+      "precision stock",
+      "magpul prs2"
+    ],
+    "lightweight": [
+      "light stock",
+      "ultralite stock",
+      "minimalist stock",
+      "mft minimalist",
+      "mft bus stock"
+    ],
+    "pistol_brace": [
+      "pistol brace",
+      "sbm4",
+      "brace"
+    ],
+    "cheek_riser": [
+      "cheek riser",
+      "cheek rest"
+    ],
+    "no_stock": [
+      "no stock",
+      "stock removed",
+      "stock delete"
+    ]
+  },
+  "pistol_grip": {
+    "standard": [
+      "pistol grip",
+      "m4 pistol grip",
+      "fab pistol grip",
+      "miad",
+      "hk battle grip",
+      "b5 pistol grip",
+      "bcm gunfighter grip",
+      "magpul moe pistol grip",
+      "ergo pistol grip",
+      "f1 pistol grip"
+    ],
+    "ergonomic": [
+      "ergonomic grip",
+      "ergo grip",
+      "phantom grip",
+      "xten grip"
+    ],
+    "rubberized": [
+      "rubber grip",
+      "hogue grip",
+      "grip tape"
+    ],
+    "skeletonized": [
+      "skeletonized pistol grip",
+      "skeleton grip"
+    ],
+    "precision": [
+      "precision grip",
+      "match grip",
+      "sakin zx grip",
+      "harrow palmrest grip"
+    ]
+  },
+  "underbarrel": {
+    "vertical_grip": [
+      "vertical grip",
+      "vertical foregrip",
+      "vfg",
+      "tango vertical grip",
+      "tangodown vertical grip",
+      "troy vertical grip",
+      "magpul vertical grip",
+      "fab defense vfg",
+      "kac grip",
+      "kac foregrip",
+      "rvg",
+      "bruen heavy",
+      "vx pineapple",
+      "operator grip",
+      "merc foregrip",
+      "op-x9",
+      "schlager tango",
+      "grip pod"
+    ],
+    "angled_grip": [
+      "angled grip",
+      "angled foregrip",
+      "afg",
+      "afg2",
+      "commando foregrip",
+      "xten gravedigger",
+      "ftac ripper",
+      "xten nexus",
+      "bruen tilt",
+      "ftac rs-9",
+      "strike industries angled vertical grip"
+    ],
+    "handstop": [
+      "handstop",
+      "dr-6",
+      "xten phantom-5",
+      "xten tx-12",
+      "ldag"
+    ],
+    "bipod": [
+      "bipod",
+      "atlas bt10"
+    ],
+    "grenade_launcher": [
+      "grenade launcher",
+      "underbarrel grenade launcher",
+      "ugl",
+      "m203",
+      "m320"
+    ],
+    "shotgun": [
+      "underbarrel shotgun",
+      "masterkey"
+    ]
+  },
+  "rail_accessory": {
+    "laser": [
+      "laser",
+      "laser sight",
+      "lasersight",
+      "an/peq-15",
+      "anpeq15",
+      "peq-15",
+      "dbal-2",
+      "dbal2",
+      "mawl",
+      "mawl c1",
+      "mawlc1",
+      "perst-3",
+      "perst-4",
+      "holosun ls321",
+      "holosun ls117",
+      "steiner cqbl-1",
+      "ozark laser",
+      "viridian c5l",
+      "liner lasersight",
+      "schlager peq",
+      "1mw laser",
+      "corio laz-44",
+      "corvus peq",
+      "vibro-dot",
+      "l3 la-5c",
+      "eotech ogl"
+    ],
+    "flashlight": [
+      "flashlight",
+      "surefire flashlight",
+      "surefire m300c",
+      "surefire m600",
+      "surefire x300",
+      "surefire xc1",
+      "inforce flashlight",
+      "insight wmx200",
+      "sig foxtrot1",
+      "aplc",
+      "tlr7",
+      "luminate-44",
+      "dxs flash 90"
+    ],
+    "laser_light": [
+      "laser light",
+      "laser + light",
+      "laser flashlight",
+      "x400",
+      "surefire x400",
+      "sl razorhawk laser light",
+      "viridian c5l laser light"
+    ],
+    "illuminator": [
+      "illuminator",
+      "ir illuminator"
+    ],
+    "rangefinder": [
+      "rangefinder",
+      "range finder"
+    ],
+    "designator": [
+      "target designator",
+      "designator"
+    ]
+  },
+  "magazine": {
+    "standard": [
+      "standard magazine",
+      "standard mag",
+      "20rnd",
+      "20 round magazine",
+      "20-round magazine",
+      "30rnd",
+      "30 round magazine",
+      "30-round magazine",
+      "pmag",
+      "magpul pmag",
+      "battlemag",
+      "troy battlemag"
+    ],
+    "extended": [
+      "extended magazine",
+      "extended mag",
+      "large magazine",
+      "high capacity magazine",
+      "40rnd",
+      "40 round magazine",
+      "45 round magazine",
+      "60rnd",
+      "60 round magazine",
+      "100 round magazine",
+      "24rnd",
+      "24 round magazine",
+      "33rnd",
+      "33 round magazine",
+      "mag extender"
+    ],
+    "quick_eject": [
+      "quick eject magazine",
+      "quick-eject magazine",
+      "fast reload magazine"
+    ],
+    "stick": [
+      "stick magazine",
+      "stick mag"
+    ],
+    "drum": [
+      "drum magazine",
+      "drum mag",
+      "50rnd drum",
+      "60rnd drum",
+      "75rnd drum",
+      "100rnd drum"
+    ],
+    "box": [
+      "box magazine",
+      "box mag"
+    ],
+    "belt": [
+      "belt",
+      "ammo belt",
+      "belt feed",
+      "belt-fed"
+    ],
+    "caliber_specific": [
+      "9mm mag",
+      ".300 blk pmag",
+      "7.62 magazine",
+      "5.56 magazine",
+      "9x39 magazine"
+    ]
+  },
+  "barrel": {
+    "short": [
+      "short barrel",
+      "short improved barrel",
+      "short welded barrel"
+    ],
+    "standard": [
+      "standard barrel",
+      "barrel"
+    ],
+    "long": [
+      "long barrel",
+      "long improved barrel"
+    ],
+    "heavy": [
+      "heavy barrel",
+      "bull barrel"
+    ],
+    "ported": [
+      "ported barrel",
+      "short covered improved barrel",
+      "short covered welded barrel",
+      "long covered improved barrel"
+    ],
+    "fluted": [
+      "fluted barrel"
+    ],
+    "shrouded": [
+      "barrel shroud",
+      "shrouded barrel"
+    ],
+    "integrally_suppressed": [
+      "integral suppressor",
+      "integrally suppressed",
+      "suppressed barrel",
+      "sd barrel"
+    ]
+  },
+  "handguard": {
+    "standard": [
+      "handguard",
+      "fore-end",
+      "forend"
+    ],
+    "rail": [
+      "rail handguard",
+      "ris",
+      "ddm4 ris",
+      "hera arms handguard",
+      "midwest industries handguard",
+      "lch handguard"
+    ],
+    "picatinny": [
+      "picatinny",
+      "quad rail"
+    ],
+    "mlok": [
+      "mlok",
+      "m-lok",
+      "mlok handguard",
+      "mi-crm"
+    ],
+    "keymod": [
+      "keymod",
+      "keymod handguard",
+      "mcx keymod"
+    ],
+    "free_float": [
+      "free float handguard",
+      "free-float handguard"
+    ],
+    "cover": [
+      "rail cover",
+      "handguard cover",
+      "ergo ladder cover"
+    ]
+  },
+  "ammo_caliber": {
+    "caliber_conversion": [
+      "ammo conversion",
+      "caliber conversion",
+      ".45 ammo conversion",
+      ".300 blackout",
+      ".300 blk",
+      "5.56 conversion",
+      "9mm conversion",
+      "9x39 conversion"
+    ],
+    "ammo_type": [
+      "ammo type",
+      "ammunition type",
+      "wavelength"
+    ],
+    "armor_piercing": [
+      "armor piercing",
+      "armour piercing",
+      "ap ammo"
+    ],
+    "hollow_point": [
+      "hollow point",
+      "hp ammo"
+    ],
+    "incendiary": [
+      "incendiary",
+      "fire ammo"
+    ],
+    "explosive": [
+      "explosive ammo",
+      "explosive rounds"
+    ],
+    "elemental": [
+      "elemental damage",
+      "cryogenic",
+      "plasma-infused",
+      "electric damage"
+    ],
+    "projectile_conversion": [
+      "flechettes",
+      "flechette mod",
+      "harpoon flechettes",
+      "bowling ball conversion"
+    ]
+  },
+  "receiver": {
+    "standard": [
+      "standard receiver",
+      "receiver"
+    ],
+    "light": [
+      "light receiver",
+      "light frame receiver"
+    ],
+    "hardened": [
+      "hardened receiver"
+    ],
+    "powerful": [
+      "powerful receiver",
+      "calibrated powerful receiver"
+    ],
+    "advanced": [
+      "advanced receiver",
+      "mega receiver"
+    ],
+    "semi_auto": [
+      "semi auto",
+      "semi-auto",
+      "semi automatic",
+      "semi-automatic receiver"
+    ],
+    "automatic": [
+      "automatic receiver",
+      "full auto",
+      "full-auto",
+      "automatic"
+    ],
+    "burst": [
+      "burst receiver",
+      "burst fire"
+    ],
+    "bolt_action": [
+      "bolt action",
+      "bolt-action",
+      "action"
+    ],
+    "fire_control": [
+      "fire selector",
+      "select fire",
+      "selective fire",
+      "fire control"
+    ]
+  },
+  "internal": {
+    "trigger": [
+      "trigger",
+      "match trigger"
+    ],
+    "bolt": [
+      "bolt",
+      "bolt carrier",
+      "bcg",
+      "bolt carrier group"
+    ],
+    "spring": [
+      "spring",
+      "recoil spring"
+    ],
+    "gas_system": [
+      "gas system",
+      "gas block",
+      "gas tube"
+    ],
+    "charging_handle": [
+      "charging handle"
+    ],
+    "buffer": [
+      "buffer",
+      "buffer tube"
+    ],
+    "capacitor": [
+      "capacitor",
+      "capacitor boost"
+    ],
+    "coil": [
+      "coil",
+      "magnetic coil"
+    ]
+  },
+  "cosmetic": {
+    "paint": [
+      "paint",
+      "weapon paint"
+    ],
+    "camo": [
+      "camo",
+      "camouflage"
+    ],
+    "finish": [
+      "finish",
+      "blackened",
+      "chrome",
+      "nickel"
+    ],
+    "material": [
+      "material",
+      "materials"
+    ],
+    "furniture": [
+      "furniture",
+      "polymer furniture",
+      "wood furniture",
+      "bakelite"
+    ],
+    "skin": [
+      "skin",
+      "weapon skin"
+    ]
+  }
+}

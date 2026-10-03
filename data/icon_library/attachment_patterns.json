@@ -1,0 +1,600 @@
+{
+  "schema": 1,
+  "ordered_patterns": [
+    {
+      "category": "muzzle",
+      "subcategory": "suppressor",
+      "tokens": [
+        "suppressor",
+        "silencer",
+        "silenced"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "flash_hider",
+      "tokens": [
+        "flash hider",
+        "flash suppressor"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "muzzle_brake",
+      "tokens": [
+        "muzzle brake",
+        "muzzle break"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "compensator",
+      "tokens": [
+        "compensator"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "bayonet",
+      "tokens": [
+        "bayonet"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "choke",
+      "tokens": [
+        "choke"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "night_vision",
+      "tokens": [
+        "night vision",
+        "nightvision"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "thermal",
+      "tokens": [
+        "thermal"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "recon",
+      "tokens": [
+        "recon scope",
+        "targeting scope"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "magnifier",
+      "tokens": [
+        "magnifier"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "lpvo",
+      "tokens": [
+        "lpvo"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "holographic",
+      "tokens": [
+        "holographic",
+        "holo sight",
+        "eotech"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "reflex_red_dot",
+      "tokens": [
+        "red dot",
+        "reddot",
+        "reflex sight"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "glow_iron",
+      "tokens": [
+        "glow sight",
+        "tritium sight",
+        "night sight"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "iron",
+      "tokens": [
+        "iron sight",
+        "ironsight"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "scope",
+      "tokens": [
+        "scope",
+        "optic"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "grenade_launcher",
+      "tokens": [
+        "grenade launcher",
+        "m203",
+        "m320"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "shotgun",
+      "tokens": [
+        "underbarrel shotgun",
+        "masterkey"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "bipod",
+      "tokens": [
+        "bipod"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "handstop",
+      "tokens": [
+        "handstop",
+        "hand stop"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "angled_grip",
+      "tokens": [
+        "angled grip",
+        "angled foregrip",
+        "afg"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "subcategory": "vertical_grip",
+      "tokens": [
+        "vertical grip",
+        "vertical foregrip",
+        "vfg",
+        "foregrip"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "laser_light",
+      "tokens": [
+        "laser light",
+        "laser flashlight"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "flashlight",
+      "tokens": [
+        "flashlight",
+        "weapon light"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "laser",
+      "tokens": [
+        "laser sight",
+        "lasersight",
+        "laser"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "illuminator",
+      "tokens": [
+        "illuminator"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "rangefinder",
+      "tokens": [
+        "rangefinder",
+        "range finder"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "drum",
+      "tokens": [
+        "drum mag",
+        "drum magazine",
+        "drum"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "quick_eject",
+      "tokens": [
+        "quick eject",
+        "quick-eject",
+        "fast reload mag"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "extended",
+      "tokens": [
+        "extended mag",
+        "extended magazine",
+        "high capacity",
+        "large magazine"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "stick",
+      "tokens": [
+        "stick mag",
+        "stick magazine"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "box",
+      "tokens": [
+        "box mag",
+        "box magazine"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "belt",
+      "tokens": [
+        "belt fed",
+        "belt-fed",
+        "ammo belt"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "standard",
+      "tokens": [
+        "magazine",
+        " mag "
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "pistol_brace",
+      "tokens": [
+        "pistol brace"
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "folding",
+      "tokens": [
+        "folding stock",
+        "folded stock"
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "collapsible",
+      "tokens": [
+        "collapsible stock",
+        "telescoping stock",
+        "adjustable stock"
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "precision",
+      "tokens": [
+        "precision stock",
+        "marksman stock",
+        "marksman's stock"
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "no_stock",
+      "tokens": [
+        "no stock",
+        "stock delete"
+      ]
+    },
+    {
+      "category": "stock",
+      "subcategory": "fixed",
+      "tokens": [
+        "stock"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "skeletonized",
+      "tokens": [
+        "skeletonized grip",
+        "skeleton grip"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "rubberized",
+      "tokens": [
+        "rubber grip",
+        "grip tape"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "ergonomic",
+      "tokens": [
+        "ergonomic grip",
+        "ergo grip"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "subcategory": "standard",
+      "tokens": [
+        "pistol grip"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "mlok",
+      "tokens": [
+        "m-lok",
+        "mlok"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "keymod",
+      "tokens": [
+        "keymod"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "picatinny",
+      "tokens": [
+        "picatinny",
+        "quad rail"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "cover",
+      "tokens": [
+        "rail cover",
+        "handguard cover"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "free_float",
+      "tokens": [
+        "free float",
+        "free-float"
+      ]
+    },
+    {
+      "category": "handguard",
+      "subcategory": "standard",
+      "tokens": [
+        "handguard",
+        "fore-end",
+        "forend"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "integrally_suppressed",
+      "tokens": [
+        "integrally suppressed",
+        "integral suppressor",
+        "suppressed barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "ported",
+      "tokens": [
+        "ported barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "fluted",
+      "tokens": [
+        "fluted barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "heavy",
+      "tokens": [
+        "heavy barrel",
+        "bull barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "short",
+      "tokens": [
+        "short barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "long",
+      "tokens": [
+        "long barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "standard",
+      "tokens": [
+        "barrel"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "automatic",
+      "tokens": [
+        "automatic receiver",
+        "auto receiver",
+        "full auto",
+        "full-auto"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "semi_auto",
+      "tokens": [
+        "semi auto",
+        "semi-auto",
+        "semi automatic",
+        "semi-automatic"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "burst",
+      "tokens": [
+        "burst receiver",
+        "burst fire"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "hardened",
+      "tokens": [
+        "hardened receiver"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "powerful",
+      "tokens": [
+        "powerful receiver"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "light",
+      "tokens": [
+        "light receiver",
+        "light frame receiver"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "standard",
+      "tokens": [
+        "receiver"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "caliber_conversion",
+      "tokens": [
+        "caliber conversion",
+        "ammo conversion"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "armor_piercing",
+      "tokens": [
+        "armor piercing",
+        "armour piercing"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "hollow_point",
+      "tokens": [
+        "hollow point"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "incendiary",
+      "tokens": [
+        "incendiary"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "explosive",
+      "tokens": [
+        "explosive ammo",
+        "explosive round"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "projectile_conversion",
+      "tokens": [
+        "flechette"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "subcategory": "camo",
+      "tokens": [
+        "camo",
+        "camouflage"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "subcategory": "paint",
+      "tokens": [
+        "paint"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "subcategory": "skin",
+      "tokens": [
+        "skin"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "subcategory": "furniture",
+      "tokens": [
+        "furniture"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "subcategory": "material",
+      "tokens": [
+        "material"
+      ]
+    }
+  ]
+}

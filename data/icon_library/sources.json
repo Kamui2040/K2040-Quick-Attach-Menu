@@ -1,0 +1,82 @@
+[
+  {
+    "id": "nexus_attachment_pack",
+    "url": "https://www.nexusmods.com/fallout4/mods/76924",
+    "role": "large vanilla/DLC attachment vocabulary; 400+ attachments"
+  },
+  {
+    "id": "nexus_aks_ar15s",
+    "url": "https://www.nexusmods.com/fallout4/mods/26693",
+    "role": "AK/AR weapon names, magazines, suppressors, flash hiders, bayonets, optics rails"
+  },
+  {
+    "id": "nexus_mk18",
+    "url": "https://www.nexusmods.com/fallout4/mods/42000",
+    "role": "modern sights, stocks, pistol grips, foregrips, lasers, flashlights, suppressors, handguards"
+  },
+  {
+    "id": "nexus_sig_mcx",
+    "url": "https://www.nexusmods.com/fallout4/mods/52697",
+    "role": "large multi-slot modern attachment vocabulary"
+  },
+  {
+    "id": "nexus_sig_mcx_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/56210",
+    "role": "additional optics, stocks, rails, lasers, suppressors and grips"
+  },
+  {
+    "id": "nexus_sig_mcx_armory_2",
+    "url": "https://www.nexusmods.com/fallout4/mods/71240",
+    "role": "additional modern optics, lights, lasers, stocks, brakes and suppressors"
+  },
+  {
+    "id": "nexus_sig_mcx_armory_3",
+    "url": "https://www.nexusmods.com/fallout4/mods/77022",
+    "role": "additional optics, magnifiers, grips, lights and muzzle devices"
+  },
+  {
+    "id": "nexus_mp5_complex",
+    "url": "https://www.nexusmods.com/fallout4/mods/41444",
+    "role": "SMG optics, lasers, lights, grips, suppressors and bayonet naming"
+  },
+  {
+    "id": "nexus_glock19x",
+    "url": "https://www.nexusmods.com/fallout4/mods/44404",
+    "role": "pistol magazines, compensator, suppressors, lights, laser and mini red dots"
+  },
+  {
+    "id": "nexus_combined_arms",
+    "url": "https://www.nexusmods.com/fallout4/mods/50505",
+    "role": "large weapon-name seed and reticle/ammo customization vocabulary"
+  },
+  {
+    "id": "nexus_scar_h_replacer",
+    "url": "https://www.nexusmods.com/fallout4/mods/59037",
+    "role": "SCAR slot structure and modern attachment naming"
+  },
+  {
+    "id": "nexus_attachment_overhaul",
+    "url": "https://www.nexusmods.com/fallout4/mods/109206",
+    "role": "recent muzzle, grip, rail and magazine naming patterns"
+  },
+  {
+    "id": "fallout_wiki_weapon_mods",
+    "url": "https://fallout.fandom.com/wiki/Fallout_4_weapon_mods",
+    "role": "vanilla/DLC baseline terminology"
+  },
+  {
+    "id": "fallout_wiki_handmade",
+    "url": "https://fallout.fandom.com/wiki/Handmade_rifle_%28Nuka-World%29",
+    "role": "Nuka-World slot/attachment baseline"
+  },
+  {
+    "id": "fallout_wiki_harpoon",
+    "url": "https://fallout.fandom.com/wiki/Harpoon_gun_%28Far_Harbor%29",
+    "role": "Far Harbor projectile-conversion baseline"
+  },
+  {
+    "id": "fallout_wiki_lever",
+    "url": "https://fallout.fandom.com/wiki/Lever-action_rifle_%28Far_Harbor%29",
+    "role": "Far Harbor rifle attachment baseline"
+  }
+]
