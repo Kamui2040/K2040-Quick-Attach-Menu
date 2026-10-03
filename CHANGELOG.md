@@ -12,6 +12,8 @@
 - Verify that PrismaUI focus established engine cursor ownership and use a
   corrected OG/AE registration fallback when it did not. This prevents the
   cursor from being confined to the centered half-resolution region.
+- Release plugin fallback cursor state during internal Builder/Settings view
+  replacement so the newly focused page always acquires its own cursor owner.
 
 ## 0.5.181
 

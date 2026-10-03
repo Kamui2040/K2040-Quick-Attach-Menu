@@ -53,7 +53,7 @@ switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the
 previous hotkey-thread crash path. A runtime, F4SE, PrismaUI API/header, or
 CommonLibF4 change still requires separate compatibility review.
 
-The 0.5.196 development candidate adds persistent diagnostic-logging control
+The 0.5.197 development candidate adds persistent diagnostic-logging control
 and configurable menu slowdown from normal game time through full pause. Its
 Cascade refresh also reapplies persisted visibility after an attachment change.
 Its build now rejects unvalidated CommonLibF4 revisions after an incompatible
@@ -62,7 +62,8 @@ The plugin verifies engine cursor ownership after PrismaUI focus. When the
 provider does not add an owner, the plugin uses the validated original-game and
 AE registration addresses directly, then clears stale constraints. This avoids
 the centered half-resolution cursor clamp seen when the cursor count remains
-zero.
+zero. Builder/Settings replacement also releases the prior fallback state before
+the new page focuses, allowing every page to reacquire an owner.
 Source and build checks are separate from the focused target-runtime regression
 required before these behaviors can be described as compatible.
 

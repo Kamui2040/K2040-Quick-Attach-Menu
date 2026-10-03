@@ -9,7 +9,7 @@
 
 ## Development candidate
 
-Version `0.5.196` adds a persistent diagnostic-logging toggle and a shared
+Version `0.5.197` adds a persistent diagnostic-logging toggle and a shared
 0%-100% gameplay slowdown setting for the Quick Menu, Builder, and Settings
 pages. Zero keeps normal time, intermediate values slow proportionally, and 100
 fully pauses. The implementation preserves external time changes instead of
@@ -20,7 +20,9 @@ target-runtime regression remain required before release. The cross-runtime
 build dependency is now pinned so an incompatible CommonLibF4 revision fails
 during configuration instead of producing a candidate DLL. It also verifies
 cursor ownership after PrismaUI focus and uses a validated OG/AE registration
-fallback when the provider did not establish an engine cursor owner.
+fallback when the provider did not establish an engine cursor owner. Internal
+Builder/Settings replacement releases the old fallback state before focusing
+the new page so each view reacquires cursor ownership.
 
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,

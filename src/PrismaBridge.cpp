@@ -1454,6 +1454,10 @@ namespace k2040
             api_->Hide(previousView);
             api_->Destroy(previousView);
         }
+        // Prisma releases the active engine cursor owner during Unfocus. Clear
+        // the matching fallback state before focusing the replacement view so
+        // Builder <-> Settings switches can acquire a new owner.
+        UnregisterMenuCursorFallback();
 
         viewMode_ = mode;
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);

@@ -139,7 +139,8 @@ the equipped-weapon builder state, and the balanced menu-state guard.
 Prisma normally owns the cursor while a focused view is active. The plugin
 checks the engine cursor-owner count after focus and uses a validated OG/AE
 registration fallback when the provider did not add one. It also clears stale
-cursor constraints after focus.
+cursor constraints after focus. Internal page replacement releases the prior
+fallback state after unfocus so the new page can acquire a fresh owner.
 
 Gameplay isolation always owns the input-disable layer while a mod page has
 focus. The general slowdown setting scales the captured pre-menu global time
