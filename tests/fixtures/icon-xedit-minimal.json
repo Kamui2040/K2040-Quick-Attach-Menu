@@ -8,12 +8,20 @@
     {
       "Signature": "OMOD",
       "EDID - Editor ID": "mod_TestRifle_Muzzle_Suppressor",
-      "FULL - Name": "PBS-1 Suppressor"
+      "FULL - Name": "PBS-1 Suppressor",
+      "Attachment Point": "ap_gun_Muzzle"
     },
     {
       "Signature": "OMOD",
       "EDID - Editor ID": "mod_TestRifle_CustomWidget",
-      "FULL - Name": "Experimental Flux Widget"
+      "FULL - Name": "Experimental Flux Widget",
+      "Attachment Point": "ap_gun_Scope"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_MisleadingName",
+      "FULL - Name": "PBS-1 Suppressor",
+      "Attachment Point": "ap_gun_Scope"
     }
   ]
 }

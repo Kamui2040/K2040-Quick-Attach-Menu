@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "purpose": "Primary broad-category classification from attachment-point / slot identity. Presentation only.",
+  "ordered_rules": [
+    {
+      "category": "muzzle",
+      "tokens": [
+        "ap gun muzzle",
+        "ap_gun_muzzle",
+        "muzzle",
+        "silencer",
+        "suppressor",
+        "choke"
+      ]
+    },
+    {
+      "category": "sights",
+      "tokens": [
+        "ap gun scope",
+        "ap_gun_scope",
+        "scope",
+        "sight",
+        "optic",
+        "reflex",
+        "holo"
+      ]
+    },
+    {
+      "category": "magazine",
+      "tokens": [
+        "ap gun magazine",
+        "ap_gun_magazine",
+        "magazine",
+        "magwell",
+        "ammo feed",
+        "feed system"
+      ]
+    },
+    {
+      "category": "stock",
+      "tokens": [
+        "ap gun stock",
+        "ap_gun_stock",
+        "stock",
+        "buttstock",
+        "brace"
+      ]
+    },
+    {
+      "category": "barrel",
+      "tokens": [
+        "ap gun barrel",
+        "ap_gun_barrel",
+        "barrel"
+      ]
+    },
+    {
+      "category": "receiver",
+      "tokens": [
+        "ap gun receiver",
+        "ap_gun_receiver",
+        "receiver",
+        "upper",
+        "lower",
+        "frame"
+      ]
+    },
+    {
+      "category": "pistol_grip",
+      "tokens": [
+        "pistol grip",
+        "pistolgrip",
+        "grip rear",
+        "rear grip"
+      ]
+    },
+    {
+      "category": "handguard",
+      "tokens": [
+        "handguard",
+        "hand guard",
+        "fore end",
+        "forend"
+      ]
+    },
+    {
+      "category": "underbarrel",
+      "tokens": [
+        "underbarrel",
+        "under barrel",
+        "foregrip",
+        "fore grip",
+        "bipod",
+        "grenade launcher",
+        "masterkey"
+      ]
+    },
+    {
+      "category": "mount",
+      "tokens": [
+        "mount",
+        "optic rail",
+        "scope rail",
+        "sight rail",
+        "riser",
+        "adapter",
+        "tri rail",
+        "trirail"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "tokens": [
+        "laser",
+        "flashlight",
+        "light",
+        "peq",
+        "dbal",
+        "mawl",
+        "illuminator",
+        "rangefinder",
+        "designator",
+        "sensor"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "tokens": [
+        "ammo",
+        "caliber",
+        "calibre",
+        "projectile",
+        "bolt ammo",
+        "round type"
+      ]
+    },
+    {
+      "category": "internal",
+      "tokens": [
+        "trigger",
+        "bolt carrier",
+        "gas system",
+        "spring",
+        "buffer",
+        "capacitor",
+        "coil",
+        "motor",
+        "charging handle"
+      ]
+    },
+    {
+      "category": "cosmetic",
+      "tokens": [
+        "paint",
+        "skin",
+        "camo",
+        "material",
+        "finish",
+        "furniture",
+        "decoration"
+      ]
+    },
+    {
+      "category": "special",
+      "tokens": [
+        "special",
+        "variant",
+        "toggle"
+      ]
+    }
+  ]
+}

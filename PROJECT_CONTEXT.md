@@ -6,7 +6,7 @@
 - Package identifier: `K2040_Quick_Attach_Menu`
 - Runtime validation: Fallout 4 `1.10.163` and `1.11.240` with matching F4SE and compatible PrismaUI_F4
 - Release presentation: text-only; icons and weapon preview are not included
-- Icon research: branch `research/icon-semantic-library` contains a presentation-only semantic vocabulary seeded from vanilla/DLC terminology and major Nexus weapon ecosystems; current seed is 15 top-level categories, 1,145 attachment aliases, 227 weapon names, and 72 provenance sources. A research-only xEdit candidate extractor can ingest local WEAP/OMOD JSON exports for review without making xEdit a runtime dependency. None of this is wired into runtime behavior.
+- Icon research: branch `research/icon-semantic-library` contains a presentation-only semantic vocabulary seeded from vanilla/DLC terminology and major Nexus weapon ecosystems; current seed is 15 top-level categories, 1,145 attachment aliases, 227 weapon names, and 72 provenance sources. Classification is now slot-first: attachment-point identity chooses the broad icon family, while names only refine subtypes within that family. A research-only xEdit candidate extractor can ingest local WEAP/OMOD JSON exports for review without making xEdit a runtime dependency. None of this is wired into runtime behavior.
 
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,

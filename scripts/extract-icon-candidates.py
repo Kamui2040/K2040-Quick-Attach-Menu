@@ -7,6 +7,7 @@ from icon_library_common import classify, normalize
 SIG_KEYS = {"signature", "recordsignature", "record signature"}
 EDID_KEYS = {"editorid", "editor id", "edid", "edid editor id"}
 NAME_KEYS = {"name", "full", "full name", "full - name"}
+SLOT_KEYS = {"attachment point", "attach point", "slot", "ap", "attach parent slot"}
 
 def scalar(value):
     if isinstance(value, (str, int, float)):
@@ -46,6 +47,7 @@ def walk(node, source, out):
         if sig:
             editor_id = pick_field(node, EDID_KEYS)
             name = pick_field(node, NAME_KEYS)
+            slot = pick_field(node, SLOT_KEYS)
             if editor_id or name:
                 display = name or editor_id
                 item = {
@@ -53,9 +55,10 @@ def walk(node, source, out):
                     "signature": sig,
                     "editor_id": editor_id or None,
                     "name": name or None,
+                    "slot": slot or None,
                 }
                 if sig == "OMOD":
-                    item["classification"] = classify(display)
+                    item["classification"] = classify(display, slot or None)
                 out.append(item)
         for value in node.values():
             walk(value, source, out)

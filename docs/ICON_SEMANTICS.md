@@ -6,6 +6,8 @@ identity, inventory checks, or mutation authorization.
 
 ## Classification model
 
+Classification is slot-first. When an attachment-point / slot identity is available, it determines the broad icon category. The display name may only refine the subtype within that category; it cannot move an attachment into a different top-level category.
+
 Classification starts with the physical/functional location on the weapon:
 
 Receiver, Barrel, Handguard, Muzzle, Sights, Stock, Pistol Grip,
@@ -26,12 +28,12 @@ shares the Muzzle -> Suppressor icon unless a future visual distinction is justi
 
 ## Matching priority
 
-1. Stable explicit adapter supplied by a supported library/mod.
-2. Exact known alias.
-3. Normalized known alias.
-4. Conservative token/pattern match.
-5. Known top-level slot/category fallback.
-6. Generic attachment icon.
+1. Attachment-point / slot identity determines the broad category when available.
+2. Exact known alias may refine the subtype only inside that slot category.
+3. Conservative name token/pattern matching may refine the subtype only inside that slot category.
+4. If no subtype is known, use the slot category fallback icon.
+5. Only when no slot identity is available, use name-only alias/pattern classification.
+6. Otherwise use the generic attachment icon.
 
 Never use icon classification as evidence that an OMOD is compatible with a weapon.
 

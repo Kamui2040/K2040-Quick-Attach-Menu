@@ -1,11 +1,12 @@
 {
   "schema": 1,
-  "purpose": "Semantic attachment-name to icon-class vocabulary. Research/build input only; never runtime attachment authority.",
+  "purpose": "Semantic attachment icon vocabulary. Broad category is determined from attachment-point/slot identity when available; names refine subtype. Research/build input only.",
   "match_order": [
-    "exact_alias",
-    "normalized_alias",
-    "token_pattern",
-    "category_fallback",
+    "slot_exact_or_pattern",
+    "name_exact_alias_within_slot",
+    "name_token_pattern_within_slot",
+    "slot_category_fallback",
+    "name_only_fallback_when_no_slot",
     "generic_attachment"
   ],
   "categories": {
