@@ -493,5 +493,30 @@
     "id": "nexus_msbs_grot_b",
     "url": "https://www.nexusmods.com/fallout4/mods/70964",
     "role": "explicit mounts, magazines, optics, foregrips, brakes and suppressor vocabulary"
+  },
+  {
+    "id": "nexus_brians_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/69489",
+    "role": "secondary Munitions patch index exposing additional conventional and pack-based weapon coverage"
+  },
+  {
+    "id": "nexus_margot_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/69547",
+    "role": "Munitions/MAA patch index with revolver, shotgun, rifle, SMG and caliber-conversion coverage"
+  },
+  {
+    "id": "nexus_spulunker_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/69690",
+    "role": "Munitions patch index with SREP, G43, Luger and weapon-pack coverage"
+  },
+  {
+    "id": "nexus_maa_official_patches",
+    "url": "https://www.nexusmods.com/fallout4/mods/69592",
+    "role": "official Munitions Additional Ammo patch index"
+  },
+  {
+    "id": "nexus_zodicab_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/69561",
+    "role": "additional Munitions/MAA patch repository used as discovery cross-reference"
   }
 ]

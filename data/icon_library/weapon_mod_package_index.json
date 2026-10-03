@@ -629,6 +629,104 @@
         "Marine Anti-Materiel Rifle - Barrett M82 50 Cal - Cobra Assault Cannon"
       ],
       "focus": "current Horizon weapon compatibility coverage"
+    },
+    {
+      "source": "Brian's Munitions Patches",
+      "url": "https://www.nexusmods.com/fallout4/mods/69489",
+      "packages": [
+        "AnotherOne Bren Addon For FOLON Standalone Releaser",
+        "AnotherOne PPSh-41",
+        "AnotherOne's Police Weapon Pack",
+        "AR15 Family",
+        "Brotherhood of Steel Weapons Pack",
+        "Compact Surplus Pistol - Glock 19",
+        "Fallout London - Bren Gun",
+        "FALLOUT New Eden - The Gobbi Shotti",
+        "FN FAL - SA58 (Plus Kukri)",
+        "Gunners Weapons Pack",
+        "Handmade Energy Pistol",
+        "Henry Repeating Rifle",
+        "Japanese Type 4 Garand",
+        "Magazine Fed Lever Action Rifle - MFLAR",
+        "Makeshift Shotgun and Improvised Grenade Launcher",
+        "Mannlicher Md. 1905",
+        "Mateba six unica",
+        "Mekanika Uru SMG",
+        "Minutemen Weapon Pack REDUX",
+        "Mk 41 Gyrojet Heavy Machine Gun",
+        "Modern Apocalypse - Thing's G3",
+        "Modern Apocalypse - Thing's M4A1",
+        "Modern Apocalypse - Thing's MP5 (REDUX)",
+        "Mossberg 500 Pump-Action Shotgun",
+        "Raider Weapons Pack",
+        "Railroad Weapons Pack",
+        "Rem92 Lever Action Shotgun",
+        "Remington Model Eight",
+        "Ruger Mini-14",
+        "SA80 British Rifle (L85 and L86)",
+        "Sawn-Off Shotguns",
+        "Self-Loading Rifle",
+        "Silverman Pistol",
+        "SNT Motiv (Daewoo) K5 Pistol",
+        "Thompson-Center Contender",
+        "VSV Rifle",
+        "Danuvia 43M"
+      ],
+      "focus": "secondary Munitions weapon discovery index"
+    },
+    {
+      "source": "Margot's Munitions and MAA Patch Repository",
+      "url": "https://www.nexusmods.com/fallout4/mods/69547",
+      "packages": [
+        "Ak5C - A Nordic Relic",
+        "AnotherOne Borchardt C93",
+        "AnotherOne Huot Automatic Rifle",
+        "Bullpup Bozar",
+        "China Lake and Holorifle",
+        "Cowboy Repeater AKA Winchester Model 1892",
+        "EM 2 Rifle No.9 Mk1 - From Trash to Glory",
+        "Glock 17-18 - A Standalone Pistol",
+        "Handmade Musket and Flintlock",
+        "Heckler und Koch - UMP",
+        "Hunting Revolver and Ranger Sequoia",
+        "Ingram MAC-10",
+        "Mare's Leg Lever-Action Pistol",
+        "MG42 and MG34",
+        "Miami Misadventures - Episode 1",
+        "Miniguns Rebirth",
+        "Modular AN94 Abakan",
+        "MTs-255 Revolver Shotgun",
+        "Quad-Barrel Shotgun",
+        "Riot Shotgun (Fallout 4 Edition)",
+        "Russian Assault Pack - SVD Dragunov - Saiga 12 - PP-19 Bizon - Stechkin APS - MP412 REX"
+      ],
+      "focus": "Munitions/MAA conversion and weapon discovery index"
+    },
+    {
+      "source": "Spulunker's Stitches - Munitions Patch Repository",
+      "url": "https://www.nexusmods.com/fallout4/mods/69690",
+      "packages": [
+        "AnotherOne's SREP AR10 Extension",
+        "BH Gewehr 43 - Battle Rifle",
+        "Fallout London - Luger",
+        "Grease Gun SMG",
+        "Luger",
+        "Skibadaa Weapon Pack REDUX",
+        "SREP REDUX - Service Rifle Expansion Project"
+      ],
+      "focus": "small Munitions weapon discovery index"
+    },
+    {
+      "source": "Munitions - Additional Ammo Official Patch Repository",
+      "url": "https://www.nexusmods.com/fallout4/mods/69592",
+      "packages": [
+        "9x39 Project",
+        "A Bundle of Tape - A weapons pack",
+        "Makarov PM",
+        "Mosin Nagant - Sniper Rifle",
+        "PKM"
+      ],
+      "focus": "official Munitions Additional Ammo weapon discovery index"
     }
   ]
 }
