@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "Signature": "WEAP",
+      "EDID - Editor ID": "TestRifle",
+      "FULL - Name": "Test Rifle"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_Muzzle_Suppressor",
+      "FULL - Name": "PBS-1 Suppressor"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_CustomWidget",
+      "FULL - Name": "Experimental Flux Widget"
+    }
+  ]
+}

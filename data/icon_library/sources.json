@@ -213,5 +213,150 @@
     "id": "nexus_acr_w17",
     "url": "https://www.nexusmods.com/fallout4/mods/26302",
     "role": "suppressor, foregrip, laser, flashlight and heartbeat-sensor vocabulary"
+  },
+  {
+    "id": "nexus_weapon_overhaul_36469",
+    "url": "https://www.nexusmods.com/fallout4/mods/36469",
+    "role": "large vanilla weapon attachment vocabulary across pistols, revolvers, rifles, assault rifle, radium rifle and SMG"
+  },
+  {
+    "id": "nexus_m1_garand_20687",
+    "url": "https://www.nexusmods.com/fallout4/mods/20687",
+    "role": "M1 Garand receivers, M84 scopes, experimental sights, bayonet, flash hider, suppressor and cosmetic tape vocabulary"
+  },
+  {
+    "id": "nexus_wop_69026",
+    "url": "https://www.nexusmods.com/fallout4/mods/69026",
+    "role": "weapon-overhaul slot behavior including independent bayonet slot and adaptive magazine/muzzle/sight menus"
+  },
+  {
+    "id": "nexus_lever_customization_16662",
+    "url": "https://www.nexusmods.com/fallout4/mods/16662",
+    "role": "lever-action suppressor, stock/grip, camo, bayonet and bipod terminology"
+  },
+  {
+    "id": "nexus_44_customization_92355",
+    "url": "https://www.nexusmods.com/fallout4/mods/92355",
+    "role": "revolver caliber conversions, barrels, finishes, grips, scope, reflex and recon terminology"
+  },
+  {
+    "id": "nexus_lemat_23059",
+    "url": "https://www.nexusmods.com/fallout4/mods/23059",
+    "role": "revolver receivers, barrels, reflex/scopes, grips, ammo, decorations and trigger-guard vocabulary"
+  },
+  {
+    "id": "nexus_gatling_rifle_10289",
+    "url": "https://www.nexusmods.com/fallout4/mods/10289",
+    "role": "gatling sights, barrel jackets, magazines, stocks, muzzles, motor modification and ammo-conversion receivers"
+  },
+  {
+    "id": "nexus_fusillade_32114",
+    "url": "https://www.nexusmods.com/fallout4/mods/32114",
+    "role": "grenade-launcher barrels, grips/stocks, cylinders, heavy magazine and extended muzzle/barrel vocabulary"
+  },
+  {
+    "id": "nexus_submachine_improvements_73266",
+    "url": "https://www.nexusmods.com/fallout4/mods/73266",
+    "role": "SMG grip/no-stock, stick magazines, scopes, bayonet and tactical-stock terminology"
+  },
+  {
+    "id": "nexus_minigun_barrels_73442",
+    "url": "https://www.nexusmods.com/fallout4/mods/73442",
+    "role": "heavy-weapon barrel family vocabulary including extended, assault, compact, peppermill, reinforced and defence barrels"
+  },
+  {
+    "id": "nexus_type4_garand_49307",
+    "url": "https://www.nexusmods.com/fallout4/mods/49307",
+    "role": "classic rifle stocks, bayonets, scopes, barrels and receivers"
+  },
+  {
+    "id": "nexus_rpd_64875",
+    "url": "https://www.nexusmods.com/fallout4/mods/64875",
+    "role": "LMG sight, stock, muzzle, foregrip, barrel, pistol-grip, handguard, magazine, trigger, light, laser and bipod coverage"
+  },
+  {
+    "id": "nexus_realistic_shotgun_mechanics",
+    "url": "https://www.nexusmods.com/fallout4/mods/94336",
+    "role": "shotgun magazines, dual mags, speed loaders, shell saddles, chokes, clamped muzzles, upper/lower receivers, triggers, barrel selector, hinge lock, grips and ammo vocabulary"
+  },
+  {
+    "id": "nexus_m1014",
+    "url": "https://www.nexusmods.com/fallout4/mods/15414",
+    "role": "shotgun receiver, barrel, stock, front/rear sight, ammo, muzzle and texture coverage"
+  },
+  {
+    "id": "nexus_riot_shotgun_update",
+    "url": "https://www.nexusmods.com/fallout4/mods/69610",
+    "role": "ported/shielded barrels, tactical stock and suppressor terminology"
+  },
+  {
+    "id": "nexus_vintage_riot_shotgun",
+    "url": "https://www.nexusmods.com/fallout4/mods/94763",
+    "role": "recent 50+ attachment shotgun family plus Gamma Shotgun variant"
+  },
+  {
+    "id": "nexus_small_game_shotgun",
+    "url": "https://www.nexusmods.com/fallout4/mods/80683",
+    "role": "lever-action shotgun with 45+ attachments, ammo types, bayonet and sight/muzzle assets"
+  },
+  {
+    "id": "nexus_mw2019_m1911",
+    "url": "https://www.nexusmods.com/fallout4/mods/106485",
+    "role": "recent full-attachment modern M1911 weapon family"
+  },
+  {
+    "id": "nexus_saiga12_redux_2026",
+    "url": "https://www.nexusmods.com/fallout4/mods/107048",
+    "role": "recent 60+ attachment semi-auto shotgun family"
+  },
+  {
+    "id": "nexus_missile_targeting_scope",
+    "url": "https://www.nexusmods.com/fallout4/mods/10121",
+    "role": "missile-launcher targeting computer combined with recon/night-vision scope terminology"
+  },
+  {
+    "id": "nexus_gatling_laser_tweaks",
+    "url": "https://www.nexusmods.com/fallout4/mods/24665",
+    "role": "gatling-laser capacitor/tuner receiver names"
+  },
+  {
+    "id": "nexus_energy_fixed_gatling",
+    "url": "https://www.nexusmods.com/fallout4/mods/85439",
+    "role": "gatling-laser EC Pack, Fusion Core upgrade, capacitors, beam splitters and continuous-beam vocabulary"
+  },
+  {
+    "id": "nexus_plasma_gatling_gauss_minigun",
+    "url": "https://www.nexusmods.com/fallout4/mods/51586",
+    "role": "plasma chamber, institute capacitor, gauss coil and caliber-conversion receiver vocabulary"
+  },
+  {
+    "id": "nexus_better_plasma_barrels",
+    "url": "https://www.nexusmods.com/fallout4/mods/13618",
+    "role": "plasma Finned Barrel and Focused Barrel terminology"
+  },
+  {
+    "id": "nexus_plasma_arsenal",
+    "url": "https://www.nexusmods.com/fallout4/mods/14273",
+    "role": "plasma sawed-off barrel, riot/pumping stock and receiver-family vocabulary"
+  },
+  {
+    "id": "nexus_mw2019_crossbow",
+    "url": "https://www.nexusmods.com/fallout4/mods/105271",
+    "role": "recent crossbow weapon family and 20-inch bolt terminology"
+  },
+  {
+    "id": "nexus_crossbow_munitions",
+    "url": "https://www.nexusmods.com/fallout4/mods/95922",
+    "role": "standard crossbow bolt naming and ammunition integration"
+  },
+  {
+    "id": "nexus_gatling_declaration",
+    "url": "https://www.nexusmods.com/fallout4/mods/84203",
+    "role": "gatling-gun .45-70/.308 receiver-conversion terminology"
+  },
+  {
+    "id": "nexus_lightweight_missile_barrel",
+    "url": "https://www.nexusmods.com/fallout4/mods/18715",
+    "role": "missile-launcher barrel-slot vocabulary"
   }
 ]

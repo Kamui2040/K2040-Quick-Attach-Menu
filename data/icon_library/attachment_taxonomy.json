@@ -20,7 +20,9 @@
       "burst",
       "bolt_action",
       "fire_control",
-      "dust_cover"
+      "dust_cover",
+      "upper",
+      "lower"
     ],
     "barrel": [
       "short",
@@ -39,7 +41,10 @@
       "automatic",
       "cluster",
       "reactor",
-      "launcher"
+      "launcher",
+      "jacket",
+      "vented",
+      "heat_shielded"
     ],
     "handguard": [
       "standard",
@@ -62,7 +67,8 @@
       "beam_splitter",
       "beam_focuser",
       "continuous_beam",
-      "energy_emitter"
+      "energy_emitter",
+      "energy_module"
     ],
     "sights": [
       "iron",
@@ -76,7 +82,11 @@
       "night_vision",
       "thermal",
       "recon",
-      "launcher_sight"
+      "launcher_sight",
+      "none",
+      "experimental",
+      "ring",
+      "combat"
     ],
     "stock": [
       "fixed",
@@ -86,7 +96,10 @@
       "lightweight",
       "pistol_brace",
       "cheek_riser",
-      "no_stock"
+      "no_stock",
+      "wire",
+      "short",
+      "pumping"
     ],
     "pistol_grip": [
       "standard",
@@ -103,7 +116,14 @@
       "drum",
       "box",
       "belt",
-      "caliber_specific"
+      "caliber_specific",
+      "cylinder",
+      "tube",
+      "jungle",
+      "dual",
+      "speed_loader",
+      "shell_saddle",
+      "power_cell"
     ],
     "underbarrel": [
       "vertical_grip",
@@ -146,7 +166,11 @@
       "capacitor",
       "coil",
       "heat_sink",
-      "containment_lens"
+      "containment_lens",
+      "motor",
+      "trigger_guard",
+      "barrel_selector",
+      "hinge_lock"
     ],
     "cosmetic": [
       "paint",
@@ -154,7 +178,9 @@
       "finish",
       "material",
       "furniture",
-      "skin"
+      "skin",
+      "decoration",
+      "tape"
     ],
     "special": [
       "weapon_variant",

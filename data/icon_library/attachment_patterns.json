@@ -2,6 +2,162 @@
   "schema": 1,
   "ordered_patterns": [
     {
+      "category": "magazine",
+      "subcategory": "power_cell",
+      "tokens": [
+        "fusion core",
+        "electron charge pack",
+        "ec pack"
+      ]
+    },
+    {
+      "category": "rail_accessory",
+      "subcategory": "sensor",
+      "tokens": [
+        "targeting computer"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "projectile_conversion",
+      "tokens": [
+        "crossbow bolt",
+        "standard bolt"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "shell_saddle",
+      "tokens": [
+        "shell saddle"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "speed_loader",
+      "tokens": [
+        "speed loader"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "dual",
+      "tokens": [
+        "dual mags",
+        "dual magazine"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "choke",
+      "tokens": [
+        "choke"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "barrel_selector",
+      "tokens": [
+        "barrel selector"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "hinge_lock",
+      "tokens": [
+        "hinge lock"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "lower",
+      "tokens": [
+        "lower receiver"
+      ]
+    },
+    {
+      "category": "receiver",
+      "subcategory": "upper",
+      "tokens": [
+        "upper receiver"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "cylinder",
+      "tokens": [
+        " cylinder"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "tube",
+      "tokens": [
+        " round tube",
+        "magazine tube"
+      ]
+    },
+    {
+      "category": "magazine",
+      "subcategory": "jungle",
+      "tokens": [
+        "jungle-style magazine",
+        "jungle style magazine"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "heat_shielded",
+      "tokens": [
+        "heat shielded barrel",
+        "shielded barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "jacket",
+      "tokens": [
+        "barrel jacket"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "motor",
+      "tokens": [
+        "motor modification",
+        "gatling motor"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "trigger_guard",
+      "tokens": [
+        "trigger guard"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "none",
+      "tokens": [
+        "no sights",
+        "no sight"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "ring",
+      "tokens": [
+        "ring sight"
+      ]
+    },
+    {
+      "category": "sights",
+      "subcategory": "experimental",
+      "tokens": [
+        "experimental sight"
+      ]
+    },
+    {
       "category": "sights",
       "subcategory": "launcher_sight",
       "tokens": [

@@ -45,3 +45,18 @@ Never use icon classification as evidence that an OMOD is compatible with a weap
 The corpus is intentionally extensible. Nexus weapon mods are a primary vocabulary source
 because modern weapon projects expose far more named parts than the vanilla/DLC game.
 Actual runtime structure remains live-game authoritative per docs/ARCHITECTURE.md.
+
+## xEdit research import
+
+`scripts/extract-icon-candidates.py` accepts JSON created by K2040 xEdit JSON Exporter and
+extracts WEAP/OMOD naming candidates. Known OMOD names are classified through the same
+semantic alias/pattern library; unknown names can be emitted for manual review. Exported
+game/mod data remains local research material and must not be committed.
+
+Example:
+
+```bash
+python3 scripts/extract-icon-candidates.py /path/to/export.json --unknown-only --output /tmp/icon-candidates.json
+```
+
+This tooling is development-only. The shipped mod does not read xEdit exports at runtime.
