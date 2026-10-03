@@ -64,8 +64,12 @@ AE registration addresses directly, then clears stale constraints. This avoids
 the centered half-resolution cursor clamp seen when the cursor count remains
 zero. Builder/Settings replacement also releases the prior fallback state before
 the new page focuses, allowing every page to reacquire an owner.
-Source and build checks are separate from the focused target-runtime regression
-required before these behaviors can be described as compatible.
+Focused Fallout 4 `1.11.240` runtime regression passed for unrestricted cursor
+movement in all three views, logging control, the slowdown range through full
+pause, and retained Cascade visibility after an attachment change. The exact
+0.5.197 candidate was not runtime-tested on Fallout 4 `1.10.163`; the source
+and build retain the original-game path and its previously validated address,
+but that runtime family is unverified for this candidate.
 
 ## PrismaUI SDK provenance
 

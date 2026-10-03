@@ -15,14 +15,20 @@ pages. Zero keeps normal time, intermediate values slow proportionally, and 100
 fully pauses. The implementation preserves external time changes instead of
 blindly restoring a stale multiplier. It also reapplies saved visibility after
 a successful Cascade attachment change so hidden categories and attachments do
-not reappear in the refreshed menu. Source/build validation and focused
-target-runtime regression remain required before release. The cross-runtime
-build dependency is now pinned so an incompatible CommonLibF4 revision fails
-during configuration instead of producing a candidate DLL. It also verifies
-cursor ownership after PrismaUI focus and uses a validated OG/AE registration
-fallback when the provider did not establish an engine cursor owner. Internal
-Builder/Settings replacement releases the old fallback state before focusing
-the new page so each view reacquires cursor ownership.
+not reappear in the refreshed menu. The cross-runtime build dependency is now
+pinned so an incompatible CommonLibF4 revision fails during configuration
+instead of producing a candidate DLL. It also verifies cursor ownership after
+PrismaUI focus and uses a validated OG/AE registration fallback when the
+provider did not establish an engine cursor owner. Internal Builder/Settings
+replacement releases the old fallback state before focusing the new page so
+each view reacquires cursor ownership.
+
+Focused runtime testing on Fallout 4 `1.11.240` passed for unrestricted cursor
+movement in Quick Menu, Builder, and Settings; the logging toggle; the complete
+slowdown range from normal time through full pause; and retained Cascade
+visibility after attachment changes. The candidate retains its original-game
+code and build path, but version 0.5.197 has not been runtime-tested on Fallout
+4 `1.10.163`.
 
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,

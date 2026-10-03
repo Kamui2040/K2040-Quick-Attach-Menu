@@ -46,14 +46,15 @@ adapters for compatible installed icon libraries, and optional per-weapon
 Builder overrides. Neither future feature affects the current menu's core
 attachment behavior.
 
-## Configurable gameplay slowdown requires runtime validation
+## 0.5.197 original-game runtime is unverified
 
 The 0.5.197 candidate keeps the gameplay input layer active while the quick
 menu, Builder, or Settings page has focus and adds a 0%-100% slowdown range.
 Zero leaves the captured game-time multiplier unchanged; 100 fully pauses;
-intermediate values scale it proportionally. Static validation and a clean
-build do not replace focused in-game checks for normal time, partial slowdown,
-full pause, view switching, close restoration, and external multiplier safety.
+intermediate values scale it proportionally. Focused Fallout 4 `1.11.240`
+runtime testing passed for the new features and the unrestricted cursor fix in
+all three views. The exact candidate was not runtime-tested on Fallout 4
+`1.10.163`; its original-game compatibility path is retained but unverified.
 
 ## Runtime validation
 
