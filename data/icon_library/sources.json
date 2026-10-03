@@ -458,5 +458,25 @@
     "id": "nexus_aer15",
     "url": "https://www.nexusmods.com/fallout4/mods/47159",
     "role": "explicit modern stock, optic, laser, flashlight and energy-wavelength vocabulary"
+  },
+  {
+    "id": "nexus_noveske_oaa_recce",
+    "url": "https://www.nexusmods.com/fallout4/mods/70457",
+    "role": "very large modern attachment changelog with named optics, stocks, grips, handguards, magazines and muzzle devices"
+  },
+  {
+    "id": "nexus_delta_force_m4a1",
+    "url": "https://www.nexusmods.com/fallout4/mods/103372",
+    "role": "recent explicit barrel, brake, grip, stock, magazine and suppressor vocabulary"
+  },
+  {
+    "id": "nexus_bt_spr",
+    "url": "https://www.nexusmods.com/fallout4/mods/63258",
+    "role": "large sniper-rifle optic, stock, muzzle, foregrip, laser and flashlight ecosystem"
+  },
+  {
+    "id": "nexus_hk_g3_battle_rifle",
+    "url": "https://www.nexusmods.com/fallout4/mods/51754",
+    "role": "large battle-rifle sight, stock, handguard, foregrip, magazine, muzzle, laser and flashlight ecosystem"
   }
 ]

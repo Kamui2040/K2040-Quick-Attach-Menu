@@ -59,7 +59,10 @@
       "salvo 12 suppressor",
       "qdl suppressor",
       "can suppressor",
-      "5.56mm nt4 suppressor"
+      "5.56mm nt4 suppressor",
+      "diligent defense enticer",
+      "oss hx qd",
+      "m7 suppressor"
     ],
     "compensator": [
       "compensator",
@@ -100,7 +103,10 @@
       "m82 muzzle brake",
       "m107a1 muzzle brake",
       "5.56mm three port muzzle brake",
-      "12 gauge three port muzzle brake"
+      "12 gauge three port muzzle brake",
+      "rearden dpb",
+      "ffc double port muzzle brake",
+      "titanium contest muzzle brake"
     ],
     "flash_hider": [
       "flash hider",
@@ -130,7 +136,9 @@
     "blast_device": [
       "blast shield",
       "blast can",
-      "linear compensator"
+      "linear compensator",
+      "strike industries oppressor",
+      "oppressor"
     ],
     "choke": [
       "choke",
@@ -228,7 +236,9 @@
       "pipe sight",
       "nydar gun sight",
       "pipe gun iron sights",
-      "pipe gun pipe sight"
+      "pipe gun pipe sight",
+      "spikes tactical gen-2",
+      "spikes tactical gen 2"
     ],
     "glow_iron": [
       "glow sights",
@@ -320,7 +330,22 @@
       "ris heads up reflex sight",
       "ris railway reflex sight",
       "small reflex sight",
-      "aer9 reflex sight"
+      "aer9 reflex sight",
+      "vector optics frenzy plus",
+      "steiner mps",
+      "mps sight",
+      "holosun hs507",
+      "hs507",
+      "sig romeozero",
+      "romeozero",
+      "aimpoint h2",
+      "h2 sight",
+      "sig romeo1 pro",
+      "romeo1 pro",
+      "aimpoint acro",
+      "acro sight",
+      "holosun hs512c",
+      "hs512c"
     ],
     "holographic": [
       "holographic sight",
@@ -338,7 +363,11 @@
       "m&a holo",
       "ma holo",
       "m552 holographic sight",
-      "ris m552 holographic sight"
+      "ris m552 holographic sight",
+      "vortex amg uh-1",
+      "amg uh-1",
+      "uh-1 gen2",
+      "vortex amg uh-1 gen2"
     ],
     "prism": [
       "prism sight",
@@ -358,7 +387,12 @@
       "ta31 acog",
       "c79 scope",
       "susat scope",
-      "ris c79 scope (3.4x)"
+      "ris c79 scope (3.4x)",
+      "vortex spitfire",
+      "spitfire prism",
+      "bravo 5",
+      "swampfox trihawk",
+      "trihawk"
     ],
     "scope": [
       "scope",
@@ -417,7 +451,11 @@
       "strike eagle 1-6x24",
       "eotech vudu",
       "vudu",
-      "vortex razor hd"
+      "vortex razor hd",
+      "vortex razor hd g3",
+      "razor hd g3",
+      "march-fx 2",
+      "march fx 2"
     ],
     "magnifier": [
       "magnifier",
@@ -551,7 +589,10 @@
       "full stock, polymer",
       "glr-440 tactical stock",
       "pipe gun full rifle stock",
-      "pipe gun recoil compensating stock"
+      "pipe gun recoil compensating stock",
+      "magpul moe fixed carbine",
+      "m16 a4 stable stock",
+      "m16a4 stable stock"
     ],
     "collapsible": [
       "collapsible stock",
@@ -563,7 +604,8 @@
       "m4 stock, extended",
       "m4 usgi stock",
       "dd milspec",
-      "dd mil-spec stock"
+      "dd mil-spec stock",
+      "magpul dt carbine"
     ],
     "folding": [
       "folding stock",
@@ -586,7 +628,10 @@
       "mannlicher stock",
       "marksman stock folded bipod",
       "marksman stock extended bipod",
-      "pipe gun marksman's stock"
+      "pipe gun marksman's stock",
+      "b5 precision stock",
+      "prs gen3",
+      "magpul prs gen3"
     ],
     "lightweight": [
       "light stock",
@@ -669,7 +714,8 @@
       "xten grip",
       "tactical grip",
       "comfort grip",
-      "steady grip"
+      "steady grip",
+      "modular era rear grip"
     ],
     "rubberized": [
       "rubber grip",
@@ -740,7 +786,8 @@
       "strike industries cobra foregrip",
       "cobra foregrip",
       "magpul afg-1",
-      "fortis shift"
+      "fortis shift",
+      "x25u angled combat grip"
     ],
     "handstop": [
       "handstop",
@@ -814,7 +861,8 @@
       "pinty green laser sight",
       "pinty laser sight",
       "sbal",
-      "tlr1"
+      "tlr1",
+      "red lasers"
     ],
     "flashlight": [
       "flashlight",
@@ -977,7 +1025,8 @@
       "stanag 30 rd usgi mag + mag pull floor plate",
       "stanag 30 rd emag + mag pull sleeve",
       "stanag 30 rd emag + mag pull floor plate",
-      "stanag 60 rd mag5-60 magazine"
+      "stanag 60 rd mag5-60 magazine",
+      "45-round magazine"
     ],
     "quick_eject": [
       "quick eject magazine",
@@ -1139,13 +1188,16 @@
       "xl22e2 barrel",
       "l22a2 barrel",
       "l123a2 ugl barrel",
-      "standard barrel + ext. tube"
+      "standard barrel + ext. tube",
+      "ar trench standard barrel"
     ],
     "long": [
       "long barrel",
       "long improved barrel",
       "extra long ported barrel",
-      "l86 barrel"
+      "l86 barrel",
+      "elite long barrel",
+      "ar trench elite long barrel"
     ],
     "heavy": [
       "heavy barrel",
