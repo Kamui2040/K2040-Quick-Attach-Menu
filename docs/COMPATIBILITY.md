@@ -7,7 +7,7 @@
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.192` |
+| Plugin | `0.5.197` |
 | Architecture | Windows x64 |
 
 The release DLL is built with DCCStudios/CommonLibF4 revision
@@ -53,7 +53,7 @@ switching, DialogueMenu blocking, cross-runtime OMOD container reads, and the
 previous hotkey-thread crash path. A runtime, F4SE, PrismaUI API/header, or
 CommonLibF4 change still requires separate compatibility review.
 
-The 0.5.197 development candidate adds persistent diagnostic-logging control
+Version 0.5.197 adds persistent diagnostic-logging control
 and configurable menu slowdown from normal game time through full pause. Its
 Cascade refresh also reapplies persisted visibility after an attachment change.
 Its build now rejects unvalidated CommonLibF4 revisions after an incompatible
@@ -67,9 +67,9 @@ the new page focuses, allowing every page to reacquire an owner.
 Focused Fallout 4 `1.11.240` runtime regression passed for unrestricted cursor
 movement in all three views, logging control, the slowdown range through full
 pause, and retained Cascade visibility after an attachment change. The exact
-0.5.197 candidate was not runtime-tested on Fallout 4 `1.10.163`; the source
+0.5.197 was not runtime-tested on Fallout 4 `1.10.163`; the source
 and build retain the original-game path and its previously validated address,
-but that runtime family is unverified for this candidate.
+but that runtime family is unverified for this release.
 
 ## PrismaUI SDK provenance
 

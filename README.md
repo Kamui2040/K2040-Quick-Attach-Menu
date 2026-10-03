@@ -22,12 +22,12 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - Live attachment validation, provider/child ordering, inventory verification,
   and rollback for supported changes.
 
-Version 0.5.181 is intentionally text-only. Attachment icons and weapon-preview
+Version 0.5.197 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
 
 ## Requirements
 
-- Fallout 4 runtime `1.10.163`
+- Fallout 4 runtime `1.10.163` or `1.11.240`
 - The matching F4SE release
 - PrismaUI_F4 `2.1.1`
 
@@ -36,6 +36,10 @@ the mod's own Settings page remain available.
 
 Other Fallout 4 runtimes, Fallout 4 VR, and mismatched F4SE or PrismaUI builds
 are not supported by this release.
+
+Version 0.5.197 passed focused runtime testing on Fallout 4 `1.11.240`. The
+original-game compatibility path remains included, but this version was not
+rerun on `1.10.163`.
 
 ## Installation
 

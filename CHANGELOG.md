@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.197
 
 - Add a persistent option to disable diagnostic logging.
 - Add configurable gameplay slowdown from normal time through full pause while
