@@ -32,6 +32,8 @@ Only durable product decisions belong here. Current release state belongs in
   validated paths globally.
 - Builder presentation settings never authorize runtime mutation. Exported
   profiles contain per-weapon presentation preferences only.
+- Every live menu rebuild, including the refresh after an attachment change,
+  reapplies persisted presentation preferences before reaching the active view.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.

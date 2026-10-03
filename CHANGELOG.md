@@ -5,6 +5,8 @@
 - Add a persistent option to disable diagnostic logging.
 - Add configurable gameplay slowdown from normal time through full pause while
   the Quick Menu, Builder, or Settings page is open.
+- Keep saved hidden categories and attachments filtered when the Cascade menu
+  refreshes after a successful attachment change.
 
 ## 0.5.181
 

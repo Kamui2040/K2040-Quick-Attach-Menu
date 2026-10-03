@@ -2346,9 +2346,10 @@ namespace k2040
             return;
         }
 
-        currentMenu_ = result.menu;
         currentWeaponInfo_ = result.weaponInfo;
-        lastPayload_ = BuildMenuPayload(result.weaponInfo, result.menu);
+        currentMenu_ = result.menu;
+        ApplyVisibilityPreferences(currentMenu_);
+        lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         PushPayloadToView();
 
         auto* player = RE::PlayerCharacter::GetSingleton();

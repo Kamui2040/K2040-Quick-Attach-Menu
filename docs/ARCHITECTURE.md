@@ -84,6 +84,10 @@ transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 
+A successful attachment transaction rebuilds the live menu and then reapplies
+the same persisted visibility, ordering, and label preferences used on initial
+open before sending the refreshed payload to the active view.
+
 ## Presentation preferences
 
 Bracketed-text cleanup is presentation-only. The source label remains intact.
