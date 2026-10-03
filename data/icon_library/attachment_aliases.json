@@ -68,7 +68,9 @@
       "oil filter suppressor",
       "ultra 5 suppressor",
       "surefire rc2",
-      "kac nt-4 suppressor"
+      "kac nt-4 suppressor",
+      "griffin m4sd",
+      "griffin m4sd suppressor"
     ],
     "compensator": [
       "compensator",
@@ -121,7 +123,8 @@
       "zenitco dtk-2 brake compensator",
       "thunderbeast 223cb",
       "asr556 brake",
-      "fatman brake"
+      "fatman brake",
+      "griffin m4sd brake"
     ],
     "flash_hider": [
       "flash hider",
@@ -259,7 +262,9 @@
       "pipe gun iron sights",
       "pipe gun pipe sight",
       "spikes tactical gen-2",
-      "spikes tactical gen 2"
+      "spikes tactical gen 2",
+      "kac 300mm iron sight",
+      "dd front post sight"
     ],
     "glow_iron": [
       "glow sights",
@@ -469,7 +474,10 @@
       "scope (9x)",
       "ris accupoint scope (9x)",
       "aer9 scope (10x)",
-      "pipe gun scope (6x)"
+      "pipe gun scope (6x)",
+      "kahles scope",
+      "s&b pm ii",
+      "schmidt & bender pm ii"
     ],
     "lpvo": [
       "lpvo",
@@ -633,7 +641,9 @@
       "m4 usgi stock",
       "dd milspec",
       "dd mil-spec stock",
-      "magpul dt carbine"
+      "magpul dt carbine",
+      "cmmg ripstock",
+      "hke1 stock"
     ],
     "folding": [
       "folding stock",
@@ -733,7 +743,9 @@
       "standard grip",
       "pistol grip, polymer",
       "pipe gun pistol grip",
-      "pipe gun comfort pistol grip"
+      "pipe gun comfort pistol grip",
+      "mcx pistol grip",
+      "b5 type 23 pistol grip"
     ],
     "ergonomic": [
       "ergonomic grip",
@@ -830,7 +842,8 @@
       "bipod",
       "atlas bt10",
       "folded bipod",
-      "unfolded bipod"
+      "unfolded bipod",
+      "harris bipod"
     ],
     "grenade_launcher": [
       "grenade launcher",
@@ -878,7 +891,6 @@
       "an/peq-2",
       "peq-2",
       "wilcox raid xe",
-      "olight baldr pro",
       "zenit perst-4",
       "zenit perst-3",
       "laser sights",
@@ -928,7 +940,12 @@
       "inforce wmlx weapon mounted light",
       "inforce wmlx",
       "surefire m300c compact led scout weapon mounted light",
-      "surefire m600v led ir scout weapon mounted light"
+      "surefire m600v led ir scout weapon mounted light",
+      "modlite flashlight",
+      "modlite weapon light",
+      "surefire m300",
+      "zenit klesch-1",
+      "klesch-1"
     ],
     "laser_light": [
       "laser light",
@@ -942,7 +959,9 @@
       "flashlight and laser",
       "combo light laser",
       "x2 tactical light + laser sight",
-      "pistol x2 tactical light + laser sight"
+      "pistol x2 tactical light + laser sight",
+      "olight baldr pro",
+      "baldr pro"
     ],
     "illuminator": [
       "illuminator",
@@ -1013,7 +1032,8 @@
       "10 rd box magazine",
       "stanag 20 rd usgi magazine",
       "stanag 30 rd usgi magazine",
-      "stanag 30 rd emag magazine"
+      "stanag 30 rd emag magazine",
+      "hk polymer magazine"
     ],
     "extended": [
       "extended magazine",
@@ -1372,7 +1392,12 @@
       "dd ris 9.5 quadrail",
       "dd ris quadrail",
       "mk12 handguard",
-      "mcx lvaw handguard"
+      "mcx lvaw handguard",
+      "dd ris ii",
+      "dd ris ii 12.5",
+      "dd ris ii 12.5 fsp",
+      "dd ris iii",
+      "troy alpha rail"
     ],
     "picatinny": [
       "picatinny",
@@ -1390,7 +1415,9 @@
       "keymod",
       "keymod handguard",
       "mcx keymod",
-      "mcx keymod handguard"
+      "mcx keymod handguard",
+      "kac urx-4 keymod",
+      "kac urx 4 keymod"
     ],
     "free_float": [
       "free float handguard",
@@ -1399,7 +1426,9 @@
     "cover": [
       "rail cover",
       "handguard cover",
-      "ergo ladder cover"
+      "ergo ladder cover",
+      "magpul xt rail cover",
+      "kac rail cover"
     ]
   },
   "ammo_caliber": {
@@ -1561,7 +1590,8 @@
       "standard 10mm receiver",
       "standard .44 receiver",
       "standard .45 receiver",
-      "standard 5.56mm receiver"
+      "standard 5.56mm receiver",
+      "slr receiver"
     ],
     "light": [
       "light receiver",
@@ -1638,7 +1668,8 @@
       "standard lower receiver",
       "lower receiver",
       "improved wooden furniture",
-      "textured wooden furniture"
+      "textured wooden furniture",
+      "m4a1 lower"
     ],
     "upper": [
       "upper receiver"
@@ -1842,7 +1873,10 @@
       "optic riser",
       "scope riser",
       "unity fast optic riser",
-      "wilcox riser"
+      "wilcox riser",
+      "larue lt-101 riser",
+      "lt-101 riser",
+      "wilcox mount"
     ],
     "offset_mount": [
       "offset mount",
@@ -1864,7 +1898,9 @@
       "stock adapter",
       "scope mount fix",
       "g36 stock adapter",
-      "acr stock adapter"
+      "acr stock adapter",
+      "sur-300 adapter",
+      "sur 300 adapter"
     ],
     "carry_handle": [
       "carry handle",

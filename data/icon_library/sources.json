@@ -518,5 +518,10 @@
     "id": "nexus_zodicab_munitions",
     "url": "https://www.nexusmods.com/fallout4/mods/69561",
     "role": "additional Munitions/MAA patch repository used as discovery cross-reference"
+  },
+  {
+    "id": "nexus_mk18_armory_3",
+    "url": "https://www.nexusmods.com/fallout4/mods/74328",
+    "role": "explicit MK18 attachment credits covering handguards, optics, stocks, grips, rail covers, bipod, lights, mounts and muzzle devices"
   }
 ]
