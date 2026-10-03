@@ -136,9 +136,10 @@ The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
 the equipped-weapon builder state, and the balanced menu-state guard.
-Prisma owns the cursor while a focused view is active. The plugin adds cursor
-ownership only as a fallback when an older provider does not register one, and
-clears stale cursor constraints after focus.
+Prisma normally owns the cursor while a focused view is active. The plugin
+checks the engine cursor-owner count after focus and uses a validated OG/AE
+registration fallback when the provider did not add one. It also clears stale
+cursor constraints after focus.
 
 Gameplay isolation always owns the input-disable layer while a mod page has
 focus. The general slowdown setting scales the captured pre-menu global time

@@ -9,9 +9,9 @@
   refreshes after a successful attachment change.
 - Reject unvalidated CommonLibF4 revisions during configuration to preserve the
   original-game and AE single-DLL compatibility target.
-- Let current PrismaUI versions own the focused cursor while retaining a
-  fallback for older providers, preventing stale mouse constraints when moving
-  from the Builder to the larger Settings page.
+- Verify that PrismaUI focus established engine cursor ownership and use a
+  corrected OG/AE registration fallback when it did not. This prevents the
+  cursor from being confined to the centered half-resolution region.
 
 ## 0.5.181
 

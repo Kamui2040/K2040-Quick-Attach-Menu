@@ -57,6 +57,24 @@ namespace
     float g_previousTimeMultiplier = 1.0F;
     float g_appliedMenuTimeMultiplier = 1.0F;
 
+    void RegisterMenuCursorForRuntime(RE::MenuCursor* cursor)
+    {
+        // CommonLibF4's current NG ID names the internal visibility update
+        // helper (2287475), not the public register wrapper (2287485). The OG
+        // ID is correct. Keep this focused relocation local until upstream's
+        // cross-runtime MenuCursor ID is corrected.
+        using func_t = void (*)(RE::MenuCursor*);
+        static REL::Relocation<func_t> registerCursor{ REL::VariantID(1318193, 2287485) };
+        registerCursor(cursor);
+    }
+
+    void UnregisterMenuCursorForRuntime(RE::MenuCursor* cursor)
+    {
+        using func_t = void (*)(RE::MenuCursor*);
+        static REL::Relocation<func_t> unregisterCursor{ REL::VariantID(1225249, 2287486) };
+        unregisterCursor(cursor);
+    }
+
     bool TimeMultiplierMatches(float value, float expected)
     {
         return std::abs(value - expected) < 0.0001F;
@@ -1283,9 +1301,16 @@ namespace k2040
         // retain a fallback only when focus did not add a cursor owner. This
         // avoids double ownership and stale constraints across view switches.
         if (!cursorFallbackRegistered_ && cursor->registeredCursors <= ownerCountBeforeFocus) {
-            cursor->RegisterCursor();
-            cursorFallbackRegistered_ = true;
-            log::Info("Prisma focus did not register the game cursor; plugin fallback cursor ownership activated.");
+            const auto ownerCountBeforeFallback = cursor->registeredCursors;
+            RegisterMenuCursorForRuntime(cursor);
+            if (cursor->registeredCursors <= ownerCountBeforeFallback) {
+                log::Warn("Prisma focus and the plugin fallback both failed to register the game cursor.");
+            } else {
+                cursorFallbackRegistered_ = true;
+                log::Info(
+                    "Prisma focus did not register the game cursor; plugin fallback cursor ownership activated (owners " +
+                    std::to_string(ownerCountBeforeFallback) + "->" + std::to_string(cursor->registeredCursors) + ").");
+            }
         } else if (!cursorFallbackRegistered_) {
             log::Info("Prisma owns the game cursor for the focused mod view.");
         }
@@ -1301,8 +1326,11 @@ namespace k2040
         }
 
         if (auto* cursor = RE::MenuCursor::GetSingleton()) {
-            cursor->UnregisterCursor();
-            log::Info("Plugin fallback cursor ownership released after Prisma menu focus.");
+            const auto ownerCountBeforeRelease = cursor->registeredCursors;
+            UnregisterMenuCursorForRuntime(cursor);
+            log::Info(
+                "Plugin fallback cursor ownership released after Prisma menu focus (owners " +
+                std::to_string(ownerCountBeforeRelease) + "->" + std::to_string(cursor->registeredCursors) + ").");
         } else {
             log::Warn("The game cursor was unavailable while releasing plugin fallback cursor ownership.");
         }
