@@ -38,9 +38,25 @@ shares the Muzzle -> Suppressor icon unless a future visual distinction is justi
 
 Never use icon classification as evidence that an OMOD is compatible with a weapon.
 
+## Visual icon classes
+
+The semantic taxonomy is intentionally more detailed than the artwork set. Every semantic subtype maps to exactly one reusable visual `icon_class`. The current taxonomy has 172 semantic subtypes but only 95 visual classes including the final generic fallback.
+
+Examples:
+
+- `receiver/light`, `receiver/hardened`, `receiver/powerful` -> `receiver.generic`
+- `muzzle/compensator`, `muzzle/muzzle_brake`, `muzzle/hybrid_device` -> `muzzle.brake_compensator`
+- `sights/reflex_red_dot` -> `sights.reflex`
+- `magazine/power_cell`, `magazine/canister`, `magazine/fuel_tank` -> `magazine.energy_feed`
+
+Category fallbacks reuse an existing broad icon class instead of requiring separate fallback-only artwork. Only `attachment.generic` exists solely as the last-resort global fallback.
+
+`scripts/list-icon-classes.py` prints the complete artwork list grouped by category.
+
 ## Data files
 
 - data/icon_library/attachment_taxonomy.json: categories/subcategories.
+- data/icon_library/icon_classes.json: semantic subtype -> reusable visual artwork class mapping.
 - data/icon_library/attachment_aliases.json: known display-name vocabulary.
 - data/icon_library/attachment_slot_patterns.json: slot/AP to broad-category rules.
 - data/icon_library/canonical_attach_points.json: verified vanilla attachment-point identities.

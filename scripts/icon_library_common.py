@@ -86,6 +86,28 @@ def classify_name(value: str, category_filter=None):
                 }
     return None
 
+def load_icon_classes():
+    return json.loads((ROOT / "icon_classes.json").read_text(encoding="utf-8"))
+
+def resolve_icon_class(category: str | None, subcategory: str | None = None) -> str:
+    icon_data = load_icon_classes()
+    if category and subcategory:
+        mapped = icon_data.get("subtype_map", {}).get(category, {}).get(subcategory)
+        if mapped:
+            return mapped
+    if category:
+        fallback = icon_data.get("category_fallbacks", {}).get(category)
+        if fallback:
+            return fallback
+    return icon_data["generic_fallback"]
+
+def with_icon_class(result: dict) -> dict:
+    result["icon_class"] = resolve_icon_class(
+        result.get("category"),
+        result.get("subcategory"),
+    )
+    return result
+
 def classify(value: str, slot_value: str | None = None):
     slot = classify_slot(slot_value or "")
     if slot:
@@ -94,24 +116,24 @@ def classify(value: str, slot_value: str | None = None):
             refined["method"] = f"slot_{refined['method']}"
             refined["slot"] = slot_value
             refined["slot_categories"] = slot["categories"]
-            return refined
-        return {
+            return with_icon_class(refined)
+        return with_icon_class({
             "category": slot["fallback_category"],
             "subcategory": None,
             "method": "slot_category_fallback",
             "matched": slot["matched"],
             "slot": slot_value,
             "slot_categories": slot["categories"],
-        }
+        })
 
     by_name = classify_name(value)
     if by_name:
         by_name["method"] = f"name_only_{by_name['method']}"
-        return by_name
+        return with_icon_class(by_name)
 
-    return {
+    return with_icon_class({
         "category": "special",
         "subcategory": "other",
         "method": "generic_fallback",
         "matched": None,
-    }
+    })

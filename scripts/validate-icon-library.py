@@ -10,6 +10,7 @@ patterns = json.loads((root / "attachment_patterns.json").read_text(encoding="ut
 slot_patterns = json.loads((root / "attachment_slot_patterns.json").read_text(encoding="utf-8"))
 canonical = json.loads((root / "canonical_attach_points.json").read_text(encoding="utf-8"))
 community = json.loads((root / "community_attach_points.json").read_text(encoding="utf-8"))
+icon_classes = json.loads((root / "icon_classes.json").read_text(encoding="utf-8"))
 weapons = json.loads((root / "weapon_names.json").read_text(encoding="utf-8"))
 sources = json.loads((root / "sources.json").read_text(encoding="utf-8"))
 index = json.loads((root / "nexus_weapon_index.json").read_text(encoding="utf-8"))
@@ -60,6 +61,56 @@ for rule in slot_patterns.get("ordered_rules", []):
         errors.append(f"invalid slot fallback category: {fallback}")
     if not rule.get("tokens"):
         errors.append(f"slot pattern has no tokens: {categories}")
+
+if icon_classes.get("schema") != 1:
+    errors.append("unsupported icon-class schema")
+
+class_defs = icon_classes.get("classes", {})
+subtype_map = icon_classes.get("subtype_map", {})
+category_fallbacks = icon_classes.get("category_fallbacks", {})
+generic_fallback = icon_classes.get("generic_fallback")
+
+if generic_fallback not in class_defs:
+    errors.append(f"missing generic icon class: {generic_fallback}")
+
+mapped_classes = {generic_fallback} if generic_fallback else set()
+for cat, subtypes in valid.items():
+    mappings = subtype_map.get(cat)
+    if mappings is None:
+        errors.append(f"missing icon-class category map: {cat}")
+        mappings = {}
+    missing = subtypes - set(mappings)
+    extra = set(mappings) - subtypes
+    for sub in sorted(missing):
+        errors.append(f"missing icon-class mapping: {cat}/{sub}")
+    for sub in sorted(extra):
+        errors.append(f"unknown icon-class mapping: {cat}/{sub}")
+    for sub, class_id in mappings.items():
+        if class_id not in class_defs:
+            errors.append(f"unknown icon class for {cat}/{sub}: {class_id}")
+        else:
+            class_category = class_defs[class_id].get("category")
+            if class_category != cat:
+                errors.append(
+                    f"icon class category mismatch for {cat}/{sub}: "
+                    f"{class_id} has {class_category}"
+                )
+        mapped_classes.add(class_id)
+
+    fallback = category_fallbacks.get(cat)
+    if fallback not in class_defs:
+        errors.append(f"missing/invalid category icon fallback: {cat} -> {fallback}")
+    elif class_defs[fallback].get("category") != cat:
+        errors.append(f"category icon fallback mismatch: {cat} -> {fallback}")
+    mapped_classes.add(fallback)
+
+extra_category_maps = set(subtype_map) - set(valid)
+for cat in sorted(extra_category_maps):
+    errors.append(f"unknown icon-class category: {cat}")
+
+unused_classes = set(class_defs) - mapped_classes
+for class_id in sorted(unused_classes):
+    errors.append(f"unused icon class: {class_id}")
 
 community_edids = set()
 for entry in community.get("entries", []):
@@ -168,3 +219,4 @@ print(f"PASS: {len(sources)} provenance sources")
 print(f"PASS: {len(package_sources)} discovery indexes / {len(package_names)} unique package titles")
 print(f"PASS: {len(canonical.get('entries', []))} canonical attach points")
 print(f"PASS: {len(community.get('entries', []))} community attach points")
+print(f"PASS: {len(class_defs)} visual icon classes")

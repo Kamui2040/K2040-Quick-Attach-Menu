@@ -1,0 +1,612 @@
+{
+  "schema": 1,
+  "purpose": "Visual artwork layer. Semantic subcategories map onto a smaller set of reusable icon artworks.",
+  "generic_fallback": "attachment.generic",
+  "category_fallbacks": {
+    "receiver": "receiver.generic",
+    "barrel": "barrel.generic",
+    "handguard": "handguard.generic",
+    "muzzle": "muzzle.generic",
+    "sights": "sights.generic",
+    "stock": "stock.generic",
+    "pistol_grip": "pistol_grip.generic",
+    "magazine": "magazine.generic",
+    "underbarrel": "underbarrel.generic",
+    "rail_accessory": "rail_accessory.generic",
+    "ammo_caliber": "ammo_caliber.generic",
+    "internal": "internal.generic",
+    "cosmetic": "cosmetic.generic",
+    "special": "special.generic",
+    "mount": "mount.generic",
+    "grip_stock": "grip_stock.generic"
+  },
+  "classes": {
+    "attachment.generic": {
+      "label": "Generic Attachment",
+      "category": null,
+      "purpose": "Last-resort artwork when neither slot nor name produces a usable family."
+    },
+    "receiver.generic": {
+      "label": "Generic",
+      "category": "receiver"
+    },
+    "receiver.fire_control": {
+      "label": "Fire Control",
+      "category": "receiver"
+    },
+    "receiver.bolt_action": {
+      "label": "Bolt Action",
+      "category": "receiver"
+    },
+    "receiver.energy": {
+      "label": "Energy",
+      "category": "receiver"
+    },
+    "barrel.generic": {
+      "label": "Generic",
+      "category": "barrel"
+    },
+    "barrel.short": {
+      "label": "Short Barrel",
+      "category": "barrel"
+    },
+    "barrel.long_precision": {
+      "label": "Long / Precision Barrel",
+      "category": "barrel"
+    },
+    "barrel.heavy": {
+      "label": "Heavy Barrel",
+      "category": "barrel"
+    },
+    "barrel.ported": {
+      "label": "Ported / Vented Barrel",
+      "category": "barrel"
+    },
+    "barrel.shrouded": {
+      "label": "Shrouded / Shielded Barrel",
+      "category": "barrel"
+    },
+    "barrel.integral_suppressor": {
+      "label": "Integral Suppressor",
+      "category": "barrel"
+    },
+    "barrel.energy": {
+      "label": "Energy",
+      "category": "barrel"
+    },
+    "barrel.flamer": {
+      "label": "Flamer Barrel",
+      "category": "barrel"
+    },
+    "barrel.launcher_multi": {
+      "label": "Launcher / Multi Barrel",
+      "category": "barrel"
+    },
+    "handguard.generic": {
+      "label": "Generic",
+      "category": "handguard"
+    },
+    "handguard.rail": {
+      "label": "Rail",
+      "category": "handguard"
+    },
+    "handguard.modular": {
+      "label": "Modular Handguard",
+      "category": "handguard"
+    },
+    "handguard.cover": {
+      "label": "Rail / Handguard Cover",
+      "category": "handguard"
+    },
+    "muzzle.generic": {
+      "label": "Generic",
+      "category": "muzzle"
+    },
+    "muzzle.suppressor": {
+      "label": "Suppressor",
+      "category": "muzzle"
+    },
+    "muzzle.brake_compensator": {
+      "label": "Brake / Compensator",
+      "category": "muzzle"
+    },
+    "muzzle.flash_hider": {
+      "label": "Flash Hider",
+      "category": "muzzle"
+    },
+    "muzzle.blast_device": {
+      "label": "Blast Device",
+      "category": "muzzle"
+    },
+    "muzzle.choke": {
+      "label": "Choke",
+      "category": "muzzle"
+    },
+    "muzzle.bayonet": {
+      "label": "Bayonet",
+      "category": "muzzle"
+    },
+    "muzzle.energy": {
+      "label": "Energy",
+      "category": "muzzle"
+    },
+    "sights.generic": {
+      "label": "Generic",
+      "category": "sights"
+    },
+    "sights.iron": {
+      "label": "Iron Sight",
+      "category": "sights"
+    },
+    "sights.reflex": {
+      "label": "Reflex / Red Dot",
+      "category": "sights"
+    },
+    "sights.holographic": {
+      "label": "Holographic Sight",
+      "category": "sights"
+    },
+    "sights.scope": {
+      "label": "Scope Mount",
+      "category": "sights"
+    },
+    "sights.magnifier": {
+      "label": "Magnifier",
+      "category": "sights"
+    },
+    "sights.night_vision": {
+      "label": "Night Vision",
+      "category": "sights"
+    },
+    "sights.thermal": {
+      "label": "Thermal Optic",
+      "category": "sights"
+    },
+    "sights.targeting": {
+      "label": "Targeting / Recon",
+      "category": "sights"
+    },
+    "sights.none": {
+      "label": "None / Removed",
+      "category": "sights"
+    },
+    "stock.generic": {
+      "label": "Generic",
+      "category": "stock"
+    },
+    "stock.collapsible": {
+      "label": "Collapsible Stock",
+      "category": "stock"
+    },
+    "stock.folding": {
+      "label": "Folding Stock",
+      "category": "stock"
+    },
+    "stock.precision": {
+      "label": "Precision Stock",
+      "category": "stock"
+    },
+    "stock.lightweight_short": {
+      "label": "Light / Short Stock",
+      "category": "stock"
+    },
+    "stock.brace": {
+      "label": "Pistol Brace",
+      "category": "stock"
+    },
+    "stock.wire": {
+      "label": "Wire Stock",
+      "category": "stock"
+    },
+    "stock.none": {
+      "label": "None / Removed",
+      "category": "stock"
+    },
+    "pistol_grip.generic": {
+      "label": "Generic",
+      "category": "pistol_grip"
+    },
+    "pistol_grip.ergonomic_precision": {
+      "label": "Ergonomic / Precision Grip",
+      "category": "pistol_grip"
+    },
+    "pistol_grip.skeletonized": {
+      "label": "Skeletonized Grip",
+      "category": "pistol_grip"
+    },
+    "magazine.generic": {
+      "label": "Generic",
+      "category": "magazine"
+    },
+    "magazine.extended": {
+      "label": "Extended Magazine",
+      "category": "magazine"
+    },
+    "magazine.stick": {
+      "label": "Stick Magazine",
+      "category": "magazine"
+    },
+    "magazine.drum": {
+      "label": "Drum Magazine",
+      "category": "magazine"
+    },
+    "magazine.box_belt": {
+      "label": "Box / Belt Feed",
+      "category": "magazine"
+    },
+    "magazine.cylinder": {
+      "label": "Cylinder",
+      "category": "magazine"
+    },
+    "magazine.tube": {
+      "label": "Tube Magazine",
+      "category": "magazine"
+    },
+    "magazine.multi": {
+      "label": "Dual / Jungle Magazine",
+      "category": "magazine"
+    },
+    "magazine.reload_aid": {
+      "label": "Reload Aid",
+      "category": "magazine"
+    },
+    "magazine.energy_feed": {
+      "label": "Energy / Fuel Feed",
+      "category": "magazine"
+    },
+    "underbarrel.generic": {
+      "label": "Generic",
+      "category": "underbarrel"
+    },
+    "underbarrel.vertical_grip": {
+      "label": "Vertical Grip",
+      "category": "underbarrel"
+    },
+    "underbarrel.angled_grip": {
+      "label": "Angled Grip",
+      "category": "underbarrel"
+    },
+    "underbarrel.bipod": {
+      "label": "Bipod",
+      "category": "underbarrel"
+    },
+    "underbarrel.grenade_launcher": {
+      "label": "Grenade Launcher",
+      "category": "underbarrel"
+    },
+    "underbarrel.shotgun": {
+      "label": "Shotgun Ammunition",
+      "category": "underbarrel"
+    },
+    "rail_accessory.generic": {
+      "label": "Generic",
+      "category": "rail_accessory"
+    },
+    "rail_accessory.laser": {
+      "label": "Laser / Designator",
+      "category": "rail_accessory"
+    },
+    "rail_accessory.flashlight": {
+      "label": "Weapon Light",
+      "category": "rail_accessory"
+    },
+    "rail_accessory.laser_light": {
+      "label": "Laser + Light / Illuminator",
+      "category": "rail_accessory"
+    },
+    "rail_accessory.melee": {
+      "label": "Melee Attachment",
+      "category": "rail_accessory"
+    },
+    "ammo_caliber.generic": {
+      "label": "Generic",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.conversion": {
+      "label": "Caliber Conversion",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.armor_piercing": {
+      "label": "Armor Piercing",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.hollow_point": {
+      "label": "Hollow Point",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.incendiary": {
+      "label": "Incendiary",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.explosive": {
+      "label": "Explosive",
+      "category": "ammo_caliber"
+    },
+    "ammo_caliber.elemental": {
+      "label": "Elemental / Energy Ammo",
+      "category": "ammo_caliber"
+    },
+    "internal.generic": {
+      "label": "Generic",
+      "category": "internal"
+    },
+    "internal.controls": {
+      "label": "Controls / Trigger",
+      "category": "internal"
+    },
+    "internal.action": {
+      "label": "Bolt / Charging Handle",
+      "category": "internal"
+    },
+    "internal.spring_buffer": {
+      "label": "Spring / Buffer",
+      "category": "internal"
+    },
+    "internal.gas_system": {
+      "label": "Gas System",
+      "category": "internal"
+    },
+    "internal.energy": {
+      "label": "Energy",
+      "category": "internal"
+    },
+    "internal.motor": {
+      "label": "Motor",
+      "category": "internal"
+    },
+    "cosmetic.generic": {
+      "label": "Generic",
+      "category": "cosmetic"
+    },
+    "cosmetic.paint_skin": {
+      "label": "Paint / Camo / Skin",
+      "category": "cosmetic"
+    },
+    "cosmetic.detail": {
+      "label": "Cosmetic Detail",
+      "category": "cosmetic"
+    },
+    "special.generic": {
+      "label": "Generic",
+      "category": "special"
+    },
+    "special.toggle": {
+      "label": "Function Toggle",
+      "category": "special"
+    },
+    "mount.generic": {
+      "label": "Generic",
+      "category": "mount"
+    },
+    "mount.rail": {
+      "label": "Rail",
+      "category": "mount"
+    },
+    "mount.scope": {
+      "label": "Scope Mount",
+      "category": "mount"
+    },
+    "mount.riser_offset": {
+      "label": "Riser / Offset Mount",
+      "category": "mount"
+    },
+    "mount.carry_handle": {
+      "label": "Carry Handle",
+      "category": "mount"
+    },
+    "grip_stock.generic": {
+      "label": "Generic",
+      "category": "grip_stock"
+    },
+    "ammo_caliber.projectile": {
+      "label": "Special / Shotgun Projectile",
+      "category": "ammo_caliber"
+    }
+  },
+  "subtype_map": {
+    "receiver": {
+      "standard": "receiver.generic",
+      "light": "receiver.generic",
+      "hardened": "receiver.generic",
+      "powerful": "receiver.generic",
+      "advanced": "receiver.generic",
+      "dust_cover": "receiver.generic",
+      "upper": "receiver.generic",
+      "lower": "receiver.generic",
+      "semi_auto": "receiver.fire_control",
+      "automatic": "receiver.fire_control",
+      "burst": "receiver.fire_control",
+      "fire_control": "receiver.fire_control",
+      "bolt_action": "receiver.bolt_action",
+      "energy_capacitor": "receiver.energy",
+      "energy_tuner": "receiver.energy",
+      "energy_emitter": "receiver.energy"
+    },
+    "barrel": {
+      "standard": "barrel.generic",
+      "rifled": "barrel.generic",
+      "automatic": "barrel.generic",
+      "short": "barrel.short",
+      "long": "barrel.long_precision",
+      "sniper": "barrel.long_precision",
+      "heavy": "barrel.heavy",
+      "ported": "barrel.ported",
+      "fluted": "barrel.ported",
+      "vented": "barrel.ported",
+      "shrouded": "barrel.shrouded",
+      "jacket": "barrel.shrouded",
+      "heat_shielded": "barrel.shrouded",
+      "integrally_suppressed": "barrel.integral_suppressor",
+      "laser": "barrel.energy",
+      "plasma": "barrel.energy",
+      "gauss": "barrel.energy",
+      "reactor": "barrel.energy",
+      "dish": "barrel.energy",
+      "flamer": "barrel.flamer",
+      "launcher": "barrel.launcher_multi",
+      "cluster": "barrel.launcher_multi"
+    },
+    "handguard": {
+      "standard": "handguard.generic",
+      "free_float": "handguard.generic",
+      "rail": "handguard.rail",
+      "picatinny": "handguard.rail",
+      "mlok": "handguard.modular",
+      "keymod": "handguard.modular",
+      "cover": "handguard.cover"
+    },
+    "muzzle": {
+      "none": "muzzle.generic",
+      "thread_protector": "muzzle.generic",
+      "suppressor": "muzzle.suppressor",
+      "compensator": "muzzle.brake_compensator",
+      "muzzle_brake": "muzzle.brake_compensator",
+      "hybrid_device": "muzzle.brake_compensator",
+      "flash_hider": "muzzle.flash_hider",
+      "blast_device": "muzzle.blast_device",
+      "choke": "muzzle.choke",
+      "bayonet": "muzzle.bayonet",
+      "beam_splitter": "muzzle.energy",
+      "beam_focuser": "muzzle.energy",
+      "continuous_beam": "muzzle.energy",
+      "energy_emitter": "muzzle.energy",
+      "energy_module": "muzzle.energy",
+      "nozzle": "muzzle.energy",
+      "stabilizer": "muzzle.energy",
+      "shredder": "muzzle.energy"
+    },
+    "sights": {
+      "experimental": "sights.generic",
+      "iron": "sights.iron",
+      "glow_iron": "sights.iron",
+      "ring": "sights.iron",
+      "combat": "sights.iron",
+      "reflex_red_dot": "sights.reflex",
+      "holographic": "sights.holographic",
+      "prism": "sights.scope",
+      "scope": "sights.scope",
+      "lpvo": "sights.scope",
+      "magnifier": "sights.magnifier",
+      "night_vision": "sights.night_vision",
+      "thermal": "sights.thermal",
+      "recon": "sights.targeting",
+      "targeting": "sights.targeting",
+      "launcher_sight": "sights.targeting",
+      "none": "sights.none"
+    },
+    "stock": {
+      "fixed": "stock.generic",
+      "collapsible": "stock.collapsible",
+      "folding": "stock.folding",
+      "precision": "stock.precision",
+      "cheek_riser": "stock.precision",
+      "lightweight": "stock.lightweight_short",
+      "short": "stock.lightweight_short",
+      "pistol_brace": "stock.brace",
+      "wire": "stock.wire",
+      "pumping": "stock.generic",
+      "no_stock": "stock.none"
+    },
+    "pistol_grip": {
+      "standard": "pistol_grip.generic",
+      "rubberized": "pistol_grip.generic",
+      "ergonomic": "pistol_grip.ergonomic_precision",
+      "precision": "pistol_grip.ergonomic_precision",
+      "skeletonized": "pistol_grip.skeletonized"
+    },
+    "magazine": {
+      "standard": "magazine.generic",
+      "caliber_specific": "magazine.generic",
+      "extended": "magazine.extended",
+      "quick_eject": "magazine.extended",
+      "stick": "magazine.stick",
+      "drum": "magazine.drum",
+      "box": "magazine.box_belt",
+      "belt": "magazine.box_belt",
+      "cylinder": "magazine.cylinder",
+      "tube": "magazine.tube",
+      "jungle": "magazine.multi",
+      "dual": "magazine.multi",
+      "speed_loader": "magazine.reload_aid",
+      "shell_saddle": "magazine.reload_aid",
+      "power_cell": "magazine.energy_feed",
+      "canister": "magazine.energy_feed",
+      "fuel_tank": "magazine.energy_feed"
+    },
+    "underbarrel": {
+      "handstop": "underbarrel.generic",
+      "vertical_grip": "underbarrel.vertical_grip",
+      "angled_grip": "underbarrel.angled_grip",
+      "bipod": "underbarrel.bipod",
+      "grenade_launcher": "underbarrel.grenade_launcher",
+      "shotgun": "underbarrel.shotgun"
+    },
+    "rail_accessory": {
+      "sensor": "rail_accessory.generic",
+      "laser": "rail_accessory.laser",
+      "designator": "rail_accessory.laser",
+      "flashlight": "rail_accessory.flashlight",
+      "laser_light": "rail_accessory.laser_light",
+      "illuminator": "rail_accessory.laser_light",
+      "rangefinder": "rail_accessory.generic",
+      "melee_attachment": "rail_accessory.melee"
+    },
+    "ammo_caliber": {
+      "ammo_type": "ammo_caliber.generic",
+      "full_metal_jacket": "ammo_caliber.generic",
+      "caliber_conversion": "ammo_caliber.conversion",
+      "armor_piercing": "ammo_caliber.armor_piercing",
+      "hollow_point": "ammo_caliber.hollow_point",
+      "incendiary": "ammo_caliber.incendiary",
+      "explosive": "ammo_caliber.explosive",
+      "elemental": "ammo_caliber.elemental",
+      "buckshot": "ammo_caliber.projectile",
+      "slug": "ammo_caliber.projectile",
+      "projectile_conversion": "ammo_caliber.projectile",
+      "exotic": "ammo_caliber.projectile"
+    },
+    "internal": {
+      "trigger_guard": "internal.generic",
+      "trigger": "internal.controls",
+      "barrel_selector": "internal.controls",
+      "hinge_lock": "internal.controls",
+      "bolt": "internal.action",
+      "charging_handle": "internal.action",
+      "spring": "internal.spring_buffer",
+      "buffer": "internal.spring_buffer",
+      "gas_system": "internal.gas_system",
+      "capacitor": "internal.energy",
+      "coil": "internal.energy",
+      "heat_sink": "internal.energy",
+      "containment_lens": "internal.energy",
+      "motor": "internal.motor"
+    },
+    "cosmetic": {
+      "finish": "cosmetic.generic",
+      "material": "cosmetic.generic",
+      "furniture": "cosmetic.generic",
+      "paint": "cosmetic.paint_skin",
+      "camo": "cosmetic.paint_skin",
+      "skin": "cosmetic.paint_skin",
+      "decoration": "cosmetic.detail",
+      "tape": "cosmetic.detail"
+    },
+    "special": {
+      "other": "special.generic",
+      "weapon_variant": "special.generic",
+      "animation_or_function_toggle": "special.toggle"
+    },
+    "mount": {
+      "adapter": "mount.generic",
+      "optic_rail": "mount.rail",
+      "tri_rail": "mount.rail",
+      "scope_mount": "mount.scope",
+      "riser": "mount.riser_offset",
+      "offset_mount": "mount.riser_offset",
+      "carry_handle": "mount.carry_handle"
+    },
+    "grip_stock": {
+      "generic": "grip_stock.generic"
+    }
+  }
+}
