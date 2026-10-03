@@ -10,6 +10,11 @@
 | Plugin | `0.5.192` |
 | Architecture | Windows x64 |
 
+The release DLL is built with DCCStudios/CommonLibF4 revision
+`12beba2a89fe117a14f1707b88c99ecb1b12f8c0` and commonlib-shared revision
+`f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to
+preserve one DLL for the supported original and AE runtime families.
+
 Mod Configuration Menu is optional. It supplies registered hotkey controls and
 Hotkey Manager visibility; missing MCM bindings fall back independently to the
 plugin INI.
@@ -51,6 +56,8 @@ CommonLibF4 change still requires separate compatibility review.
 The 0.5.194 development candidate adds persistent diagnostic-logging control
 and configurable menu slowdown from normal game time through full pause. Its
 Cascade refresh also reapplies persisted visibility after an attachment change.
+Its build now rejects unvalidated CommonLibF4 revisions after an incompatible
+checkout produced an Address Library lookup failure on menu open.
 Source and build checks are separate from the focused target-runtime regression
 required before these behaviors can be described as compatible.
 

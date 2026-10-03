@@ -16,7 +16,9 @@ fully pauses. The implementation preserves external time changes instead of
 blindly restoring a stale multiplier. It also reapplies saved visibility after
 a successful Cascade attachment change so hidden categories and attachments do
 not reappear in the refreshed menu. Source/build validation and focused
-target-runtime regression remain required before release.
+target-runtime regression remain required before release. The cross-runtime
+build dependency is now pinned so an incompatible CommonLibF4 revision fails
+during configuration instead of producing a candidate DLL.
 
 Version 0.5.192 is the current public release. It keeps the 0.5.181
 generated-menu compatibility model and adds validated MODCOL container handling,

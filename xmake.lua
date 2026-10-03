@@ -17,6 +17,8 @@ set_languages("c++23")
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
 
 local commonlibf4 = os.getenv("K2040_COMMONLIBF4_ROOT")
+local required_commonlibf4_revision = "12beba2a89fe117a14f1707b88c99ecb1b12f8c0"
+local required_commonlib_shared_revision = "f0b1670ee9caac2e349497f6f3c08a69633a8ea7"
 if not commonlibf4 or commonlibf4 == "" then
     raise("K2040_COMMONLIBF4_ROOT must point to an xmake-compatible CommonLibF4 checkout")
 end
@@ -78,6 +80,28 @@ target("K2040_Quick_Attach_Menu")
     set_languages("c++23")
     set_filename("K2040_Quick_Attach_Menu.dll")
     set_symbols("debug")
+
+    on_load(function(_)
+        local git = import("devel.git")
+        local commonlibf4_revision = git.lastcommit({ repodir = commonlibf4 })
+        if commonlibf4_revision ~= required_commonlibf4_revision then
+            raise(
+                "Unsupported CommonLibF4 revision " .. commonlibf4_revision ..
+                "; expected " .. required_commonlibf4_revision ..
+                " for Fallout 4 1.10.163 and 1.11.240 compatibility"
+            )
+        end
+
+        local commonlib_shared_revision = git.lastcommit({
+            repodir = path.join(commonlibf4, "lib", "commonlib-shared")
+        })
+        if commonlib_shared_revision ~= required_commonlib_shared_revision then
+            raise(
+                "Unsupported commonlib-shared revision " .. commonlib_shared_revision ..
+                "; expected " .. required_commonlib_shared_revision
+            )
+        end
+    end)
 
     add_rules("commonlibf4.plugin", {
         name    = "K2040_Quick_Attach_Menu",

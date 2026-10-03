@@ -7,6 +7,8 @@
   the Quick Menu, Builder, or Settings page is open.
 - Keep saved hidden categories and attachments filtered when the Cascade menu
   refreshes after a successful attachment change.
+- Reject unvalidated CommonLibF4 revisions during configuration to preserve the
+  original-game and AE single-DLL compatibility target.
 
 ## 0.5.181
 

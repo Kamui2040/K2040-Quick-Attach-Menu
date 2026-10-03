@@ -44,6 +44,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 
 Builds target a Windows x64 F4SE DLL from Linux. CommonLibF4 is supplied through
 `K2040_COMMONLIBF4_ROOT`; the Windows SDK and LLVM paths are local configuration.
+Cross-runtime builds require DCCStudios/CommonLibF4 revision
+`12beba2a89fe117a14f1707b88c99ecb1b12f8c0` with commonlib-shared revision
+`f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The configure step rejects other
+revisions so a single-runtime or incompatible dependency cannot produce a
+candidate DLL.
 
 ```bash
 export K2040_COMMONLIBF4_ROOT="/path/to/commonlibf4"
