@@ -523,5 +523,35 @@
     "id": "nexus_mk18_armory_3",
     "url": "https://www.nexusmods.com/fallout4/mods/74328",
     "role": "explicit MK18 attachment credits covering handguards, optics, stocks, grips, rail covers, bipod, lights, mounts and muzzle devices"
+  },
+  {
+    "id": "nexus_marco_attachment_expansion",
+    "url": "https://www.nexusmods.com/fallout4/mods/99349",
+    "role": "2025 laser/flashlight extension and recent weapon-platform discovery source"
+  },
+  {
+    "id": "nexus_rat_runners_combat_rifle",
+    "url": "https://www.nexusmods.com/fallout4/mods/88182",
+    "role": "five explicit combat-rifle-family weapon names plus new barrel/stock/scope/muzzle families"
+  },
+  {
+    "id": "nexus_utility_shotgun",
+    "url": "https://www.nexusmods.com/fallout4/mods/96083",
+    "role": "2025-2026 modular shotgun with explicit receiver, grip, barrel, sight and device counts/naming"
+  },
+  {
+    "id": "nexus_attachment_pack_expansion",
+    "url": "https://www.nexusmods.com/fallout4/mods/90399",
+    "role": "2025 expansion/refinement of The Attachment Pack with additional stocks, minigun parts and launcher additions"
+  },
+  {
+    "id": "nexus_scrap_guns_2026",
+    "url": "https://www.nexusmods.com/fallout4/mods/107437",
+    "role": "2026 standalone pipe-gun family used for freshness coverage"
+  },
+  {
+    "id": "nexus_marcos_an94_extend",
+    "url": "https://www.nexusmods.com/fallout4/mods/99349",
+    "role": "attachment-extension ecosystem cross-reference for 2025 weapon ports"
   }
 ]

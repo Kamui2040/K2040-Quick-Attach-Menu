@@ -558,7 +558,8 @@
       "combat glow sights",
       "holo-tech combat sight",
       "gunner sight",
-      "improved sights"
+      "improved sights",
+      "combat sight"
     ],
     "experimental": [
       "experimental sight",
@@ -628,7 +629,8 @@
       "magpul moe fixed carbine",
       "m16 a4 stable stock",
       "m16a4 stable stock",
-      "g36 idz stock"
+      "g36 idz stock",
+      "full engagement stock"
     ],
     "collapsible": [
       "collapsible stock",
@@ -907,7 +909,8 @@
       "zenitco perst-4 tactical laser designator",
       "eotech atpial an/peq-15 laser aiming device",
       "steiner dbal-a2 an/peq-15 aiming laser",
-      "zenit 2ks"
+      "zenit 2ks",
+      "utility shotgun laser sight"
     ],
     "flashlight": [
       "flashlight",
@@ -1323,10 +1326,14 @@
     ],
     "automatic": [
       "automatic barrel",
-      "auto barrel"
+      "auto barrel",
+      "auto barrels"
     ],
     "cluster": [
-      "cluster barrel"
+      "cluster barrel",
+      "triple barrel",
+      "three round barrel",
+      "three-round barrel"
     ],
     "reactor": [
       "reactor barrel",
@@ -1363,6 +1370,10 @@
       "deep dish",
       "lorenzo's artifact",
       "standard dish"
+    ],
+    "rifled": [
+      "rifled barrel",
+      "rifled shotgun barrel"
     ]
   },
   "handguard": {
@@ -1821,7 +1832,9 @@
     ],
     "material": [
       "material",
-      "materials"
+      "materials",
+      "combat rifle material swap",
+      "combat rifle material swaps"
     ],
     "furniture": [
       "furniture",

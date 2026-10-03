@@ -727,6 +727,28 @@
         "PKM"
       ],
       "focus": "official Munitions Additional Ammo weapon discovery index"
+    },
+    {
+      "source": "2025-2026 Attachment-Focused Releases",
+      "url": "https://www.nexusmods.com/fallout4/mods/",
+      "packages": [
+        "Marco's Weapon Attachment Expansion",
+        "Black Ops 6 - AS Val - VSS",
+        "Black Ops 6 - Krig-C",
+        "Modern Warfare - Kilo-141 Redux",
+        "Modern Warfare III - ACR Platform 2.0",
+        "MW2023 - ACR Platform",
+        "MW2023 - ISO Hemlock",
+        "MWIII - Riveter - Omni .410",
+        "Combat Rifle Attachment And Weaponry Expansion - Rat Runners Arsenal",
+        "The Utility Shotgun",
+        "Attachment Pack Unofficial Expansion and Refinement",
+        "That Gun of the Wasteland (.223 Pistol - 556 Pistol - PKD Blaster)",
+        "Scrap Guns - Nina's Revisited Pipe Guns Standalone",
+        "Experimental Institute Weapons Pack",
+        "MW - AN94 - Attachment Extend"
+      ],
+      "focus": "recent attachment-heavy and weapon-expansion releases"
     }
   ]
 }
