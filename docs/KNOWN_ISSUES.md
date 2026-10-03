@@ -48,7 +48,7 @@ attachment behavior.
 
 ## Configurable gameplay slowdown requires runtime validation
 
-The 0.5.194 candidate keeps the gameplay input layer active while the quick
+The 0.5.195 candidate keeps the gameplay input layer active while the quick
 menu, Builder, or Settings page has focus and adds a 0%-100% slowdown range.
 Zero leaves the captured game-time multiplier unchanged; 100 fully pauses;
 intermediate values scale it proportionally. Static validation and a clean

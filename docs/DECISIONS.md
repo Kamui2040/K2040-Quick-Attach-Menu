@@ -44,6 +44,9 @@ Only durable product decisions belong here. Current release state belongs in
 - Every focused mod page keeps gameplay input isolated. A shared slowdown
   setting scales the captured pre-menu time multiplier from normal time through
   full pause and restores it only when no other runtime system replaced it.
+- Prisma owns the cursor for focused views. Plugin cursor ownership is a
+  fallback only when the active provider does not register one; constraints are
+  cleared after focus so view switches cannot preserve a smaller window bound.
 - Diagnostic logging defaults on, can be disabled persistently, and is not
   initialized until the saved logging preference has been loaded.
 - The release is text-only. Future icons require a mod-owned semantic mapping

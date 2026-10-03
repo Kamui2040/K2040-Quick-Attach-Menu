@@ -1097,11 +1097,18 @@ namespace k2040
             return;
         }
 
-        RegisterMenuCursor();
+        std::uint32_t cursorOwnerCountBeforeFocus = 0;
+        if (const auto* cursor = RE::MenuCursor::GetSingleton()) {
+            cursorOwnerCountBeforeFocus = cursor->registeredCursors;
+        }
 
         const bool focused = api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
         const bool hasFocus = api_->HasFocus(menuView_);
         const bool anyFocus = api_->HasAnyActiveFocus();
+
+        if (focused && hasFocus) {
+            EnsureMenuCursorAfterFocus(cursorOwnerCountBeforeFocus);
+        }
 
         pendingFocus_ = false;
 
@@ -1113,17 +1120,17 @@ namespace k2040
         if (!focused || !hasFocus) {
             SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             ReleaseQuickMenuGameplayIsolation();
             menuOpen_ = false;
-            log::Warn("Prisma menu focus failed; the plugin-owned cursor was released.");
+            log::Warn("Prisma menu focus failed; any plugin fallback cursor ownership was released.");
             return;
         }
         if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
             SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             ReleaseQuickMenuGameplayIsolation();
             menuOpen_ = false;
             log::Warn("Prisma menu-builder focus cancelled because MCM hotkeys could not be isolated.");
@@ -1263,37 +1270,44 @@ namespace k2040
         CompleteFirstPersonPresentationRestore("after the Prisma pause-holder closed");
     }
 
-    void PrismaBridge::RegisterMenuCursor()
+    void PrismaBridge::EnsureMenuCursorAfterFocus(std::uint32_t ownerCountBeforeFocus)
     {
-        if (cursorRegistered_) {
-            return;
-        }
-
         auto* cursor = RE::MenuCursor::GetSingleton();
         if (!cursor) {
-            log::Warn("The game cursor is unavailable; Prisma focus will continue without plugin cursor ownership.");
+            log::Warn("The game cursor is unavailable after Prisma focus.");
             return;
         }
 
-        cursor->RegisterCursor();
-        cursorRegistered_ = true;
-        log::Info("Game cursor registered for the focused Prisma menu.");
+        // Current Prisma providers own the game cursor for focused views. Older
+        // providers did not always register one when FocusMenu was disabled, so
+        // retain a fallback only when focus did not add a cursor owner. This
+        // avoids double ownership and stale constraints across view switches.
+        if (!cursorFallbackRegistered_ && cursor->registeredCursors <= ownerCountBeforeFocus) {
+            cursor->RegisterCursor();
+            cursorFallbackRegistered_ = true;
+            log::Info("Prisma focus did not register the game cursor; plugin fallback cursor ownership activated.");
+        } else if (!cursorFallbackRegistered_) {
+            log::Info("Prisma owns the game cursor for the focused mod view.");
+        }
+
+        cursor->ClearConstraints();
+        log::Info("Game cursor constraints cleared for the focused mod view.");
     }
 
-    void PrismaBridge::UnregisterMenuCursor()
+    void PrismaBridge::UnregisterMenuCursorFallback()
     {
-        if (!cursorRegistered_) {
+        if (!cursorFallbackRegistered_) {
             return;
         }
 
         if (auto* cursor = RE::MenuCursor::GetSingleton()) {
             cursor->UnregisterCursor();
-            log::Info("Game cursor unregistered after Prisma menu focus.");
+            log::Info("Plugin fallback cursor ownership released after Prisma menu focus.");
         } else {
-            log::Warn("The game cursor was unavailable while releasing plugin cursor ownership.");
+            log::Warn("The game cursor was unavailable while releasing plugin fallback cursor ownership.");
         }
 
-        cursorRegistered_ = false;
+        cursorFallbackRegistered_ = false;
     }
 
     void PrismaBridge::OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode)
@@ -1456,7 +1470,7 @@ namespace k2040
         }
 
         if (!api_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
-            UnregisterMenuCursor();
+            UnregisterMenuCursorFallback();
             currentWeaponInfo_ = {};
             currentMenu_ = {};
             attachmentMutationPending_ = false;
@@ -1483,7 +1497,7 @@ namespace k2040
 
         api_->Hide(menuView_);
         log::Info("Prisma menu view Hide() called.");
-        UnregisterMenuCursor();
+        UnregisterMenuCursorFallback();
         currentWeaponInfo_ = {};
         currentMenu_ = {};
         attachmentMutationPending_ = false;
@@ -1538,7 +1552,7 @@ namespace k2040
             log::Info("Prisma menu view destroyed for game transition.");
         }
 
-        UnregisterMenuCursor();
+        UnregisterMenuCursorFallback();
         ReleaseQuickMenuGameplayIsolation();
 
         std::string message = "Prisma menu view state reset for game transition";

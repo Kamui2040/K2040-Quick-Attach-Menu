@@ -9,6 +9,9 @@
   refreshes after a successful attachment change.
 - Reject unvalidated CommonLibF4 revisions during configuration to preserve the
   original-game and AE single-DLL compatibility target.
+- Let current PrismaUI versions own the focused cursor while retaining a
+  fallback for older providers, preventing stale mouse constraints when moving
+  from the Builder to the larger Settings page.
 
 ## 0.5.181
 
