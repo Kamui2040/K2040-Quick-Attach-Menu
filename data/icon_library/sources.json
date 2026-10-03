@@ -78,5 +78,140 @@
     "id": "fallout_wiki_lever",
     "url": "https://fallout.fandom.com/wiki/Lever-action_rifle_%28Far_Harbor%29",
     "role": "Far Harbor rifle attachment baseline"
+  },
+  {
+    "id": "nexus_randomized_attachments",
+    "url": "https://www.nexusmods.com/fallout4/mods/73987",
+    "role": "coverage index for dozens of popular weapon mods with randomized attachment pools"
+  },
+  {
+    "id": "nexus_famas",
+    "url": "https://www.nexusmods.com/fallout4/mods/22830",
+    "role": "receivers, barrels, magazines, bipods, lights/lasers, grips, muzzles and sights"
+  },
+  {
+    "id": "nexus_p90",
+    "url": "https://www.nexusmods.com/fallout4/mods/22871",
+    "role": "barrels, receivers, optics, suppressors, ammo types/conversions, magazines, shroud, fire modes and rail parts"
+  },
+  {
+    "id": "nexus_fn_fal_sa58",
+    "url": "https://www.nexusmods.com/fallout4/mods/40907",
+    "role": "large receiver/handguard/muzzle/optic/magazine/grip/bipod/rail/stock vocabulary"
+  },
+  {
+    "id": "nexus_ru556",
+    "url": "https://www.nexusmods.com/fallout4/mods/22536",
+    "role": "modern AR attachment vocabulary including optics, stocks, grips, handguards, magazines, lights, lasers and suppressors"
+  },
+  {
+    "id": "nexus_12_7_smg",
+    "url": "https://www.nexusmods.com/fallout4/mods/63447",
+    "role": "receivers, grips, barrels, stocks, foregrips, magazines, muzzles, sights/scopes and skins"
+  },
+  {
+    "id": "nexus_spas12",
+    "url": "https://www.nexusmods.com/fallout4/mods/43414",
+    "role": "shotgun receivers, barrels, lights/lasers, optics, ammo, capacity and stock vocabulary"
+  },
+  {
+    "id": "nexus_mosin",
+    "url": "https://www.nexusmods.com/fallout4/mods/23258",
+    "role": "bolt-action scopes, suppressor, bayonet, barrel and bolt vocabulary"
+  },
+  {
+    "id": "nexus_benelli_m2",
+    "url": "https://www.nexusmods.com/fallout4/mods/55488",
+    "role": "shotgun sights, stocks, muzzle devices, foregrips, magazines, ammo, laser and flashlight"
+  },
+  {
+    "id": "nexus_hk416_remake",
+    "url": "https://www.nexusmods.com/fallout4/mods/76637",
+    "role": "HK416/BCM barrels, stocks, custom sights and modern accessory naming"
+  },
+  {
+    "id": "nexus_saiga12_redux",
+    "url": "https://www.nexusmods.com/fallout4/mods/107048",
+    "role": "recent lore-friendly shotgun with 60+ attachments"
+  },
+  {
+    "id": "nexus_pump_actions",
+    "url": "https://www.nexusmods.com/fallout4/mods/99991",
+    "role": "current pump-action shotgun family coverage"
+  },
+  {
+    "id": "nexus_west_tek_optics",
+    "url": "https://www.nexusmods.com/fallout4/mods/64467",
+    "role": "shared lore-friendly reflex, holo and marksman optic naming"
+  },
+  {
+    "id": "nexus_energy_weapons_fixed",
+    "url": "https://www.nexusmods.com/fallout4/mods/85439",
+    "role": "energy-weapon attachment vocabulary across laser, plasma, Tesla, Gauss, Flamer and related weapons"
+  },
+  {
+    "id": "nexus_laser_plasma_power",
+    "url": "https://www.nexusmods.com/fallout4/mods/18826",
+    "role": "laser/plasma barrels, suppressors, continuous-beam muzzles and beam splitters"
+  },
+  {
+    "id": "nexus_mier",
+    "url": "https://www.nexusmods.com/fallout4/mods/37624",
+    "role": "modular laser/plasma/gauss/plasma-cannon barrel terminology"
+  },
+  {
+    "id": "nexus_accelerator_plasma",
+    "url": "https://www.nexusmods.com/fallout4/mods/27127",
+    "role": "energy barrels, depleted-uranium receiver, holographic sight and modular energy terminology"
+  },
+  {
+    "id": "nexus_west_tek_patches",
+    "url": "https://www.nexusmods.com/fallout4/mods/72623",
+    "role": "weapon-name coverage for many conventional/lore-friendly weapon mods"
+  },
+  {
+    "id": "nexus_svd_2024",
+    "url": "https://www.nexusmods.com/fallout4/mods/83832",
+    "role": "modern SVD optics/mount vocabulary"
+  },
+  {
+    "id": "nexus_sv98",
+    "url": "https://www.nexusmods.com/fallout4/mods/43086",
+    "role": "sniper rifle attachment and reticle vocabulary"
+  },
+  {
+    "id": "nexus_mk18_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/52424",
+    "role": "modern magazines, night-vision/thermal optics, grips, stocks, lights, muzzle devices, barrels and handguards"
+  },
+  {
+    "id": "nexus_mk18_armory_2",
+    "url": "https://www.nexusmods.com/fallout4/mods/65872",
+    "role": "additional modern optics, handguards, stocks, magazines, suppressors and brakes"
+  },
+  {
+    "id": "nexus_fn_fal_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/67180",
+    "role": "large real-world tactical attachment vocabulary for FAL/SA58"
+  },
+  {
+    "id": "nexus_rem700_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/72852",
+    "role": "precision-rifle stocks, optics, lasers, rangefinder, muzzle devices, grips and furniture"
+  },
+  {
+    "id": "nexus_ma_optics",
+    "url": "https://www.nexusmods.com/fallout4/mods/83026",
+    "role": "shared reflex/holo/short/medium/long/night-vision/recon optic vocabulary"
+  },
+  {
+    "id": "nexus_sig_mpx_armory",
+    "url": "https://www.nexusmods.com/fallout4/mods/75891",
+    "role": "optic mounts, risers, backup sights, stock adapters, magazines and suppressors"
+  },
+  {
+    "id": "nexus_acr_w17",
+    "url": "https://www.nexusmods.com/fallout4/mods/26302",
+    "role": "suppressor, foregrip, laser, flashlight and heartbeat-sensor vocabulary"
   }
 ]

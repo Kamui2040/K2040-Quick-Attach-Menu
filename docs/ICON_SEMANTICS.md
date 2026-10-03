@@ -9,7 +9,7 @@ identity, inventory checks, or mutation authorization.
 Classification starts with the physical/functional location on the weapon:
 
 Receiver, Barrel, Handguard, Muzzle, Sights, Stock, Pistol Grip,
-Magazine, Underbarrel, Rail Accessory, Ammo/Caliber, Internal,
+Magazine, Underbarrel, Mount, Rail Accessory, Ammo/Caliber, Internal,
 Cosmetic, and Special.
 
 Each category has semantic subcategories. Examples:
@@ -17,7 +17,8 @@ Each category has semantic subcategories. Examples:
 - Muzzle -> Suppressor / Compensator / Muzzle Brake / Flash Hider / Bayonet
 - Sights -> Iron / Reflex-Red Dot / Holographic / Prism / Scope / LPVO / Magnifier
 - Underbarrel -> Vertical Grip / Angled Grip / Handstop / Bipod / Grenade Launcher
-- Rail Accessory -> Laser / Flashlight / Laser+Light
+- Mount -> Optic Rail / Scope Mount / Riser / Offset Mount / Tri-Rail / Adapter
+- Rail Accessory -> Laser / Flashlight / Laser+Light / Sensor
 - Magazine -> Standard / Extended / Quick-Eject / Stick / Drum / Box / Belt
 
 A named part such as PBS-1 Suppressor, Osprey 45, or KAC Suppressor therefore

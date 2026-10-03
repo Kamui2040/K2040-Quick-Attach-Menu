@@ -20,7 +20,28 @@
       "kac qdc",
       "awc thor",
       "hybrid 46",
-      "thunderbeast suppressor"
+      "thunderbeast suppressor",
+      "aac silencer",
+      "aac suppressor",
+      "helix hx silencer",
+      "nato silencer",
+      "mall ninja suppressor",
+      "yhm phantom lt.30",
+      "swr trident",
+      "aac ti-rant 45m",
+      "aac ti rant 45m",
+      "sig suppressors",
+      "sr25 suppressor",
+      "5.56 ar15 suppressor",
+      "blackhawk silencer",
+      "dd wave suppressor",
+      "surefire fh556rc suppressor",
+      "silencerco asr suppressor",
+      "mk12 suppressor",
+      "aac 51t suppressor",
+      "awc suppressor",
+      "yankee hill suppressor",
+      "ti-rant suppressor"
     ],
     "compensator": [
       "compensator",
@@ -34,7 +55,19 @@
       "brake",
       "dd wave brake",
       "thunderbeast brake",
-      "kac brake"
+      "kac brake",
+      "fortis muzzle brake",
+      "fortis nitride brake",
+      "aac 51t brake",
+      "kac qdc brake",
+      "asr brake",
+      "kac triple-tap brake",
+      "kac triple tap brake",
+      "strike industries jcomp",
+      "jcomp",
+      "yankee hill brake",
+      "accelerator brake",
+      "accelerator break"
     ],
     "flash_hider": [
       "flash hider",
@@ -44,13 +77,20 @@
       "psl flash hider",
       "srvv flash hider",
       "sf4p flash hider",
-      "fh556rc"
+      "fh556rc",
+      "fortis flash hider",
+      "m16 flash hider",
+      "surefire fh556rc",
+      "surefire fh556rc flash hider"
     ],
     "hybrid_device": [
       "warcomp",
       "compensated flash hider",
       "zehmn35",
-      "hybrid muzzle"
+      "hybrid muzzle",
+      "fortis muzzle",
+      "nato muzzle device",
+      "surefire warcomp"
     ],
     "blast_device": [
       "blast shield",
@@ -68,6 +108,24 @@
       "6h4 bayonet",
       "6h5 bayonet",
       "large bayonet"
+    ],
+    "beam_splitter": [
+      "beam splitter",
+      "improved beam splitter",
+      "amplified beam splitter"
+    ],
+    "beam_focuser": [
+      "beam focuser",
+      "improved beam focuser"
+    ],
+    "continuous_beam": [
+      "continuous beam muzzle",
+      "continuous beam laser muzzle"
+    ],
+    "energy_emitter": [
+      "laser emitter",
+      "plasma emitter",
+      "energy emitter"
     ]
   },
   "sights": {
@@ -117,7 +175,39 @@
       "docter",
       "srs02",
       "uh-1",
-      "vortex sight"
+      "vortex sight",
+      "aimpoint",
+      "aimpoint micro",
+      "aimpoint micro t-1",
+      "aimpoint t1",
+      "aimpoint compm2",
+      "compm2",
+      "m68 sight",
+      "aimpoint comp m5",
+      "aimpoint compm5",
+      "ultrashot",
+      "rmr",
+      "trijicon rmr",
+      "c-more sight",
+      "ssr3",
+      "sig romeo 3",
+      "romeo 3",
+      "minireddot",
+      "mini red dot sight",
+      "deltapoint sight",
+      "rainbox sight",
+      "fc sight",
+      "west-tek reflex sight",
+      "west tek reflex sight",
+      "ekp8",
+      "holosun he510c",
+      "zenit pk06",
+      "trijicon mro",
+      "aimpoint t-2",
+      "aimpoint t2",
+      "ncstar red dot",
+      "m&a reflex",
+      "ma reflex"
     ],
     "holographic": [
       "holographic sight",
@@ -128,14 +218,29 @@
       "eotech xps3",
       "eotech exps3",
       "exps3",
-      "exp3"
+      "exp3",
+      "exp3 sight",
+      "west-tek holo sight",
+      "west tek holo sight",
+      "m&a holo",
+      "ma holo"
     ],
     "prism": [
       "prism sight",
       "monstrum prism",
       "acog",
       "trijicon acog",
-      "trijicon rx01"
+      "trijicon rx01",
+      "elcan m145",
+      "specterdr scope",
+      "specter dr scope",
+      "acog scope",
+      "west-tek marksman sight",
+      "west tek marksman sight",
+      "elcan 1-6",
+      "sig bravo 4",
+      "hamr",
+      "ta31 acog"
     ],
     "scope": [
       "scope",
@@ -145,34 +250,65 @@
       "specter dr",
       "trijicon ta648",
       "atacr 4-16",
-      "su-296/pvs"
+      "su-296/pvs",
+      "leupold",
+      "mark 4 10x40 scope",
+      "mark 4 scope",
+      "pso-1 scope",
+      "pso1 scope",
+      "colt 4x20 scope",
+      "cqbss",
+      "trijicon accupower",
+      "pe scope",
+      "pu scope",
+      "leupold carbine optic",
+      "m&a short scope",
+      "m&a medium scope",
+      "m&a long scope"
     ],
     "lpvo": [
       "lpvo",
       "vortex strike eagle",
-      "strike eagle 1-6x24"
+      "strike eagle 1-6x24",
+      "eotech vudu",
+      "vudu",
+      "vortex razor hd"
     ],
     "magnifier": [
       "magnifier",
       "g33 magnifier",
       "eotech g33",
-      "g45 magnifier"
+      "g45 magnifier",
+      "aimpoint magnifier",
+      "3x magnifier",
+      "3x mag ftc",
+      "aimpoint t-2 magnifier",
+      "aimpoint t2 magnifier"
     ],
     "night_vision": [
       "night vision scope",
       "nightvision scope",
-      "nv scope"
+      "nv scope",
+      "2da night vision scope",
+      "m&a long night vision"
     ],
     "thermal": [
       "thermal scope",
       "thermal optic",
       "ir hunter",
-      "trijicon ir hunter"
+      "trijicon ir hunter",
+      "reap-ir",
+      "reap ir"
     ],
     "recon": [
       "recon scope",
       "advanced targeting system",
-      "targeting scope"
+      "targeting scope",
+      "m&a long recon"
+    ],
+    "launcher_sight": [
+      "grenade launcher sight",
+      "launcher sight"
     ]
   },
   "stock": {
@@ -193,7 +329,18 @@
       "larue rat",
       "kriss ds150",
       "fab glr-16",
-      "fab gl-core"
+      "fab gl-core",
+      "fab stock",
+      "fab stocks",
+      "mako stock",
+      "tactic unfolded stock",
+      "static stock",
+      "bcm gunfighter stock",
+      "hk slim line stock",
+      "colt le stock",
+      "fab glcore",
+      "spr stock",
+      "ak-12 stock"
     ],
     "collapsible": [
       "collapsible stock",
@@ -203,13 +350,16 @@
     ],
     "folding": [
       "folding stock",
-      "folded stock"
+      "folded stock",
+      "tactic folded stock",
+      "folded tactic stock"
     ],
     "precision": [
       "marksman's stock",
       "marksman stock",
       "precision stock",
-      "magpul prs2"
+      "magpul prs2",
+      "magpul prs3"
     ],
     "lightweight": [
       "light stock",
@@ -244,7 +394,16 @@
       "bcm gunfighter grip",
       "magpul moe pistol grip",
       "ergo pistol grip",
-      "f1 pistol grip"
+      "f1 pistol grip",
+      "miad pistol grip",
+      "magwell grip",
+      "daniel defense pistol grip",
+      "hk pistol grip",
+      "hk grip",
+      "moe pistol grip",
+      "bcm gunfighter pistol grip",
+      "hogue overmolded pistol grip",
+      "tyrant designs pistol grip"
     ],
     "ergonomic": [
       "ergonomic grip",
@@ -287,7 +446,18 @@
       "merc foregrip",
       "op-x9",
       "schlager tango",
-      "grip pod"
+      "grip pod",
+      "viking vertical grip",
+      "magpul foregrip",
+      "tri-rail foregrip",
+      "uvg foregrip",
+      "larue foregrip",
+      "kac sawed foregrip",
+      "hk sturmgriff",
+      "se-5 grip",
+      "zenitco foregrip",
+      "zenitco foregrips",
+      "hera cqr foregrip"
     ],
     "angled_grip": [
       "angled grip",
@@ -300,7 +470,11 @@
       "xten nexus",
       "bruen tilt",
       "ftac rs-9",
-      "strike industries angled vertical grip"
+      "strike industries angled vertical grip",
+      "strike industries cobra foregrip",
+      "cobra foregrip",
+      "magpul afg-1",
+      "fortis shift"
     ],
     "handstop": [
       "handstop",
@@ -311,7 +485,9 @@
     ],
     "bipod": [
       "bipod",
-      "atlas bt10"
+      "atlas bt10",
+      "folded bipod",
+      "unfolded bipod"
     ],
     "grenade_launcher": [
       "grenade launcher",
@@ -352,7 +528,16 @@
       "corvus peq",
       "vibro-dot",
       "l3 la-5c",
-      "eotech ogl"
+      "eotech ogl",
+      "linear lasersight",
+      "red laser",
+      "ncstar laser",
+      "an/peq-2",
+      "peq-2",
+      "wilcox raid xe",
+      "olight baldr pro",
+      "zenit perst-4",
+      "zenit perst-3"
     ],
     "flashlight": [
       "flashlight",
@@ -367,7 +552,10 @@
       "aplc",
       "tlr7",
       "luminate-44",
-      "dxs flash 90"
+      "dxs flash 90",
+      "weapon light",
+      "red light",
+      "tactical flashlight"
     ],
     "laser_light": [
       "laser light",
@@ -376,7 +564,10 @@
       "x400",
       "surefire x400",
       "sl razorhawk laser light",
-      "viridian c5l laser light"
+      "viridian c5l laser light",
+      "light and laser",
+      "flashlight and laser",
+      "combo light laser"
     ],
     "illuminator": [
       "illuminator",
@@ -384,11 +575,17 @@
     ],
     "rangefinder": [
       "rangefinder",
-      "range finder"
+      "range finder",
+      "wilcox raptars",
+      "wilcox raptar s"
     ],
     "designator": [
       "target designator",
       "designator"
+    ],
+    "sensor": [
+      "heartbeat sensor",
+      "tracking sensor"
     ]
   },
   "magazine": {
@@ -404,7 +601,16 @@
       "pmag",
       "magpul pmag",
       "battlemag",
-      "troy battlemag"
+      "troy battlemag",
+      "stanag 30",
+      "stanag 30 mag",
+      "pmag 30",
+      "ak bakelite mag",
+      "ak 30 round mag",
+      "akm 30 round mag",
+      "ak74 30 round mag",
+      "standard 50 round",
+      "daniel defense magazine"
     ],
     "extended": [
       "extended magazine",
@@ -421,7 +627,21 @@
       "24 round magazine",
       "33rnd",
       "33 round magazine",
-      "mag extender"
+      "mag extender",
+      "stanag 60",
+      "stanag sixty",
+      "x15 mag",
+      "ak 40 round mag",
+      "ak74 45 round mag",
+      "ak74 60 round mag",
+      "extended 75 round",
+      "7 round tube",
+      "10 round tube",
+      "daniel defense 32 round magazine",
+      "daniel defense 32rd magazine",
+      "tti magazine",
+      "hk gen ii pmag",
+      "strike industries magazine"
     ],
     "quick_eject": [
       "quick eject magazine",
@@ -438,7 +658,10 @@
       "50rnd drum",
       "60rnd drum",
       "75rnd drum",
-      "100rnd drum"
+      "100rnd drum",
+      "ak 75rds drum mag",
+      "ak 75 round drum",
+      "75 round drum mag"
     ],
     "box": [
       "box magazine",
@@ -455,7 +678,11 @@
       ".300 blk pmag",
       "7.62 magazine",
       "5.56 magazine",
-      "9x39 magazine"
+      "9x39 magazine",
+      "steel magazine",
+      "resin magazine",
+      "polymer magazine",
+      "bakelite magazine"
     ]
   },
   "barrel": {
@@ -494,13 +721,57 @@
       "integrally suppressed",
       "suppressed barrel",
       "sd barrel"
+    ],
+    "laser": [
+      "laser barrel",
+      "mk3 laser barrel"
+    ],
+    "plasma": [
+      "plasma barrel",
+      "long plasma barrel",
+      "mk2 plasma barrel",
+      "mk3 plasma barrel",
+      "blue shift plasma barrel"
+    ],
+    "gauss": [
+      "gauss barrel"
+    ],
+    "flamer": [
+      "flamer barrel",
+      "mk2 flamer barrel"
+    ],
+    "sniper": [
+      "sniper barrel",
+      "mk2 institute sniper barrel",
+      "mk3 sniper barrel",
+      "auto sniper barrel",
+      "heavy sniper barrel"
+    ],
+    "automatic": [
+      "automatic barrel",
+      "auto barrel"
+    ],
+    "cluster": [
+      "cluster barrel"
+    ],
+    "reactor": [
+      "reactor barrel",
+      "heavy reactor barrel"
+    ],
+    "launcher": [
+      "launcher barrel",
+      "grenade launcher barrel"
     ]
   },
   "handguard": {
     "standard": [
       "handguard",
       "fore-end",
-      "forend"
+      "forend",
+      "saigry handguard",
+      "long handguard",
+      "sopmod handguard",
+      "noveske handguard"
     ],
     "rail": [
       "rail handguard",
@@ -508,7 +779,17 @@
       "ddm4 ris",
       "hera arms handguard",
       "midwest industries handguard",
-      "lch handguard"
+      "lch handguard",
+      "mk18 handguard",
+      "tactical handguard",
+      "kac ras handguard",
+      "kac ras",
+      "kac urx handguard",
+      "si gridlok handguard",
+      "dd ris 9.5 quadrail",
+      "dd ris quadrail",
+      "mk12 handguard",
+      "mcx lvaw handguard"
     ],
     "picatinny": [
       "picatinny",
@@ -523,7 +804,8 @@
     "keymod": [
       "keymod",
       "keymod handguard",
-      "mcx keymod"
+      "mcx keymod",
+      "mcx keymod handguard"
     ],
     "free_float": [
       "free float handguard",
@@ -544,17 +826,33 @@
       ".300 blk",
       "5.56 conversion",
       "9mm conversion",
-      "9x39 conversion"
+      "9x39 conversion",
+      ".45 caliber conversion",
+      "10mm conversion",
+      ".38 caliber conversion",
+      "9mm conversion kit"
     ],
     "ammo_type": [
       "ammo type",
       "ammunition type",
-      "wavelength"
+      "wavelength",
+      "12ga",
+      "12 gauge",
+      "5.7x28mm",
+      "7.62x39mm",
+      "5.45x39mm",
+      "7.92x57mm mauser",
+      "7.62x54mm",
+      "9x39mm"
     ],
     "armor_piercing": [
       "armor piercing",
       "armour piercing",
-      "ap ammo"
+      "ap ammo",
+      "green-tipped penetrators",
+      "green tipped penetrators",
+      "penetrator rounds",
+      "depleted uranium"
     ],
     "hollow_point": [
       "hollow point",
@@ -572,13 +870,37 @@
       "elemental damage",
       "cryogenic",
       "plasma-infused",
-      "electric damage"
+      "electric damage",
+      "elemental damage attachment",
+      "elemental damage mod"
     ],
     "projectile_conversion": [
       "flechettes",
       "flechette mod",
       "harpoon flechettes",
       "bowling ball conversion"
+    ],
+    "full_metal_jacket": [
+      "fmj",
+      "standard fmj",
+      "full metal jacket",
+      "ae tmj",
+      "tmj"
+    ],
+    "buckshot": [
+      "00 buckshot",
+      "000 buckshot",
+      "buckshot",
+      "12ga buckshot"
+    ],
+    "slug": [
+      "slug",
+      "metal slug",
+      "shotgun slug"
+    ],
+    "exotic": [
+      "bolo ammunition",
+      "bolo ammo"
     ]
   },
   "receiver": {
@@ -599,7 +921,11 @@
     ],
     "advanced": [
       "advanced receiver",
-      "mega receiver"
+      "mega receiver",
+      "depleted uranium receiver",
+      "laser receiver",
+      "plasma receiver",
+      "gauss receiver"
     ],
     "semi_auto": [
       "semi auto",
@@ -626,7 +952,15 @@
       "fire selector",
       "select fire",
       "selective fire",
-      "fire control"
+      "fire control",
+      "semi auto fire mode",
+      "full auto fire mode",
+      "firemode",
+      "fire mode"
+    ],
+    "dust_cover": [
+      "dust cover",
+      "receiver dust cover"
     ]
   },
   "internal": {
@@ -638,7 +972,11 @@
       "bolt",
       "bolt carrier",
       "bcg",
-      "bolt carrier group"
+      "bolt carrier group",
+      "straight bolt",
+      "curved bolt",
+      "straight bolt handle",
+      "curved bolt handle"
     ],
     "spring": [
       "spring",
@@ -658,11 +996,23 @@
     ],
     "capacitor": [
       "capacitor",
-      "capacitor boost"
+      "capacitor boost",
+      "recharge capacitor",
+      "80% recharge capacitor",
+      "capacitor mode"
     ],
     "coil": [
       "coil",
       "magnetic coil"
+    ],
+    "heat_sink": [
+      "heat sink",
+      "heat sink module",
+      "cooling module"
+    ],
+    "containment_lens": [
+      "containment lens",
+      "tokamak containment lens"
     ]
   },
   "cosmetic": {
@@ -693,6 +1043,54 @@
     "skin": [
       "skin",
       "weapon skin"
+    ]
+  },
+  "mount": {
+    "optic_rail": [
+      "optics rail",
+      "optic rail",
+      "sight rail",
+      "scope rail",
+      "top rail",
+      "side rail",
+      "accessory rail"
+    ],
+    "scope_mount": [
+      "scope mount",
+      "optic mount",
+      "sight mount",
+      "scope base",
+      "eotech vudu mount"
+    ],
+    "riser": [
+      "riser",
+      "optic riser",
+      "scope riser"
+    ],
+    "offset_mount": [
+      "offset mount",
+      "45 degree mount",
+      "45-degree mount",
+      "canted mount"
+    ],
+    "tri_rail": [
+      "tri-rail",
+      "tri rail",
+      "trirail"
+    ],
+    "adapter": [
+      "rail adapter",
+      "optic adapter",
+      "scope adapter",
+      "mount adapter",
+      "sig stock adapter",
+      "stock adapter",
+      "scope mount fix"
+    ],
+    "carry_handle": [
+      "carry handle",
+      "g-series carry handle",
+      "sa-58 carry handle"
     ]
   }
 }

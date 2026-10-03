@@ -2,6 +2,171 @@
   "schema": 1,
   "ordered_patterns": [
     {
+      "category": "sights",
+      "subcategory": "launcher_sight",
+      "tokens": [
+        "grenade launcher sight",
+        "launcher sight"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "launcher",
+      "tokens": [
+        "grenade launcher barrel",
+        "launcher barrel"
+      ]
+    },
+    {
+      "category": "mount",
+      "subcategory": "tri_rail",
+      "tokens": [
+        "tri-rail",
+        "tri rail"
+      ]
+    },
+    {
+      "category": "mount",
+      "subcategory": "offset_mount",
+      "tokens": [
+        "offset mount",
+        "canted mount",
+        "45 degree mount",
+        "45-degree mount"
+      ]
+    },
+    {
+      "category": "mount",
+      "subcategory": "riser",
+      "tokens": [
+        "optic riser",
+        "scope riser",
+        "riser"
+      ]
+    },
+    {
+      "category": "mount",
+      "subcategory": "optic_rail",
+      "tokens": [
+        "optics rail",
+        "optic rail",
+        "sight rail",
+        "scope rail"
+      ]
+    },
+    {
+      "category": "mount",
+      "subcategory": "scope_mount",
+      "tokens": [
+        "scope mount",
+        "optic mount",
+        "sight mount"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "beam_splitter",
+      "tokens": [
+        "beam splitter"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "beam_focuser",
+      "tokens": [
+        "beam focuser"
+      ]
+    },
+    {
+      "category": "muzzle",
+      "subcategory": "continuous_beam",
+      "tokens": [
+        "continuous beam"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "cluster",
+      "tokens": [
+        "cluster barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "reactor",
+      "tokens": [
+        "reactor barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "flamer",
+      "tokens": [
+        "flamer barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "gauss",
+      "tokens": [
+        "gauss barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "plasma",
+      "tokens": [
+        "plasma barrel"
+      ]
+    },
+    {
+      "category": "barrel",
+      "subcategory": "laser",
+      "tokens": [
+        "laser barrel"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "heat_sink",
+      "tokens": [
+        "heat sink",
+        "cooling module"
+      ]
+    },
+    {
+      "category": "internal",
+      "subcategory": "containment_lens",
+      "tokens": [
+        "containment lens"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "buckshot",
+      "tokens": [
+        "buckshot"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "slug",
+      "tokens": [
+        "shotgun slug",
+        "metal slug",
+        " slug"
+      ]
+    },
+    {
+      "category": "ammo_caliber",
+      "subcategory": "full_metal_jacket",
+      "tokens": [
+        "full metal jacket",
+        " fmj",
+        "tmj"
+      ]
+    },
+    {
       "category": "muzzle",
       "subcategory": "suppressor",
       "tokens": [

@@ -19,7 +19,8 @@
       "automatic",
       "burst",
       "bolt_action",
-      "fire_control"
+      "fire_control",
+      "dust_cover"
     ],
     "barrel": [
       "short",
@@ -29,7 +30,16 @@
       "ported",
       "fluted",
       "shrouded",
-      "integrally_suppressed"
+      "integrally_suppressed",
+      "laser",
+      "plasma",
+      "gauss",
+      "flamer",
+      "sniper",
+      "automatic",
+      "cluster",
+      "reactor",
+      "launcher"
     ],
     "handguard": [
       "standard",
@@ -48,7 +58,11 @@
       "hybrid_device",
       "blast_device",
       "choke",
-      "bayonet"
+      "bayonet",
+      "beam_splitter",
+      "beam_focuser",
+      "continuous_beam",
+      "energy_emitter"
     ],
     "sights": [
       "iron",
@@ -61,7 +75,8 @@
       "magnifier",
       "night_vision",
       "thermal",
-      "recon"
+      "recon",
+      "launcher_sight"
     ],
     "stock": [
       "fixed",
@@ -104,7 +119,8 @@
       "laser_light",
       "illuminator",
       "rangefinder",
-      "designator"
+      "designator",
+      "sensor"
     ],
     "ammo_caliber": [
       "caliber_conversion",
@@ -114,7 +130,11 @@
       "incendiary",
       "explosive",
       "elemental",
-      "projectile_conversion"
+      "projectile_conversion",
+      "full_metal_jacket",
+      "buckshot",
+      "slug",
+      "exotic"
     ],
     "internal": [
       "trigger",
@@ -124,7 +144,9 @@
       "charging_handle",
       "buffer",
       "capacitor",
-      "coil"
+      "coil",
+      "heat_sink",
+      "containment_lens"
     ],
     "cosmetic": [
       "paint",
@@ -138,6 +160,15 @@
       "weapon_variant",
       "animation_or_function_toggle",
       "other"
+    ],
+    "mount": [
+      "optic_rail",
+      "scope_mount",
+      "riser",
+      "offset_mount",
+      "tri_rail",
+      "adapter",
+      "carry_handle"
     ]
   }
 }
