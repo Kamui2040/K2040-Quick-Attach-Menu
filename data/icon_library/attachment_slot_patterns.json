@@ -28,6 +28,8 @@
     {
       "category": "magazine",
       "tokens": [
+        "ap_gun_Mag",
+        "ap gun mag",
         "ap gun magazine",
         "ap_gun_magazine",
         "magazine",
@@ -66,13 +68,19 @@
       ]
     },
     {
-      "category": "pistol_grip",
       "tokens": [
+        "ap_gun_Grip",
+        "ap gun grip",
         "pistol grip",
         "pistolgrip",
         "grip rear",
         "rear grip"
-      ]
+      ],
+      "categories": [
+        "pistol_grip",
+        "stock"
+      ],
+      "fallback_category": "grip_stock"
     },
     {
       "category": "handguard",

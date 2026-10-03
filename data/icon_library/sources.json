@@ -358,5 +358,55 @@
     "id": "nexus_lightweight_missile_barrel",
     "url": "https://www.nexusmods.com/fallout4/mods/18715",
     "role": "missile-launcher barrel-slot vocabulary"
+  },
+  {
+    "id": "nexus_wars_weapons",
+    "url": "https://www.nexusmods.com/fallout4/articles/4506",
+    "role": "structured weapon-by-weapon lists of ammo, receivers, barrels, stocks, magazines, sights, muzzles and attach-point capability"
+  },
+  {
+    "id": "nexus_wars_features",
+    "url": "https://www.nexusmods.com/fallout4/articles/4507",
+    "role": "universal attachment vocabulary and category conventions"
+  },
+  {
+    "id": "nexus_lore_friendly_weapons_project",
+    "url": "https://www.nexusmods.com/fallout4/mods/46565",
+    "role": "high-yield index covering about 70 popular Fallout 4 weapon mods"
+  },
+  {
+    "id": "nexus_weapon_integration_project",
+    "url": "https://www.nexusmods.com/fallout4/mods/64441",
+    "role": "ECO-integrated index of popular weapon mods and standardized attachment-point families"
+  },
+  {
+    "id": "nexus_vanilla_weapon_modifications_sheet",
+    "url": "https://docs.google.com/spreadsheets/d/1hMMhddeTwhGRD7E5X9aBIH1zF5jFNNOrsxFdBem_IVc/edit?usp=sharing",
+    "role": "public vanilla weapon-modification spreadsheet grouped by weapon and category"
+  },
+  {
+    "id": "fallout_wiki_omod_weapons",
+    "url": "https://fallout.fandom.com/wiki/Fallout_4_OMOD_weapons",
+    "role": "comprehensive vanilla weapon OMOD table with attachment type, name, description and OMOD ID"
+  },
+  {
+    "id": "mutagen_fallout4_formkeys",
+    "url": "https://github.com/Mutagen-Modding/Mutagen.Bethesda.FormKeys",
+    "role": "canonical Fallout 4 keyword names and FormKeys used to verify vanilla attachment-point identities"
+  },
+  {
+    "id": "nexus_weapon_overhaul_project",
+    "url": "https://www.nexusmods.com/fallout4/mods/69026",
+    "role": "high-yield integration source documenting standardized Ammo, Bipod, Firing Mode, Magazine, Muzzle, Rail and Sight categories across large weapon packs"
+  },
+  {
+    "id": "nexus_attach_point_keyword_adder",
+    "url": "https://www.nexusmods.com/fallout4/mods/22291",
+    "role": "reference for Fallout 4 attachment-point keyword ordering and mod-slot conventions"
+  },
+  {
+    "id": "nexus_alex_attach_points_keywords",
+    "url": "https://www.nexusmods.com/fallout4/mods/105783",
+    "role": "recent standardized attach-point and keyword resource for modern weapon modding"
   }
 ]

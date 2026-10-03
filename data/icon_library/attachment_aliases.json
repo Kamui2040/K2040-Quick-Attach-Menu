@@ -54,14 +54,24 @@
       "ported suppressor",
       "choked suppressor",
       "clamped suppressor",
-      "riot shotgun suppressor"
+      "riot shotgun suppressor",
+      "nt4 suppressor",
+      "salvo 12 suppressor",
+      "qdl suppressor",
+      "can suppressor",
+      "5.56mm nt4 suppressor"
     ],
     "compensator": [
       "compensator",
       "compensated muzzle",
       "ster45",
       "jak bfb",
-      "clamped compensator"
+      "clamped compensator",
+      "micro compensator",
+      "three port compensator",
+      "cutts compensator",
+      "5.56mm micro compensator",
+      "12 gauge micro compensator"
     ],
     "muzzle_brake": [
       "muzzle brake",
@@ -85,7 +95,12 @@
       "russian brake",
       "compensator with short bayonet",
       "compensator with long bayonet",
-      "clamped muzzle brake"
+      "clamped muzzle brake",
+      "three port muzzle brake",
+      "m82 muzzle brake",
+      "m107a1 muzzle brake",
+      "5.56mm three port muzzle brake",
+      "12 gauge three port muzzle brake"
     ],
     "flash_hider": [
       "flash hider",
@@ -99,7 +114,9 @@
       "fortis flash hider",
       "m16 flash hider",
       "surefire fh556rc",
-      "surefire fh556rc flash hider"
+      "surefire fh556rc flash hider",
+      "a1 flash hider",
+      "a2 flash hider"
     ],
     "hybrid_device": [
       "warcomp",
@@ -139,7 +156,9 @@
       "bayonet alt",
       "new bayonet",
       "new bayonets",
-      "m1 garand bayonet"
+      "m1 garand bayonet",
+      "l3a1 bayonet",
+      "m2 bayonet"
     ],
     "beam_splitter": [
       "beam splitter",
@@ -164,7 +183,24 @@
       "energy emitter"
     ],
     "energy_module": [
-      "electrification module"
+      "electrification module",
+      "signal repeater",
+      "electric signal carrier atennae",
+      "electric signal carrier antennae",
+      "gyro compensating lens",
+      "quantum gyro compensating lens",
+      "ignition module"
+    ],
+    "nozzle": [
+      "compression nozzle",
+      "standard nozzle",
+      "vaporization nozzle"
+    ],
+    "shredder": [
+      "shredder"
+    ],
+    "stabilizer": [
+      "stabilizer"
     ]
   },
   "sights": {
@@ -181,13 +217,24 @@
       "front post sight",
       "bead sight",
       "front sight",
-      "rear sight"
+      "rear sight",
+      "carry handle sights",
+      "flip-up sights",
+      "ghost ring sights",
+      "pipe sight",
+      "nydar gun sight",
+      "pipe gun iron sights",
+      "pipe gun pipe sight"
     ],
     "glow_iron": [
       "glow sights",
       "glowing ironsights",
       "night sights",
-      "tritium sights"
+      "tritium sights",
+      "pipe glow sight",
+      "pipe gun glow sights",
+      "pipe gun pipe glow sight",
+      "glow front sight ring"
     ],
     "reflex_red_dot": [
       "red dot",
@@ -261,7 +308,15 @@
       "vintage reflex sight",
       "black reflex sight",
       "gold reflex sight",
-      "chrome reflex sight"
+      "chrome reflex sight",
+      "heads up reflex sight",
+      "railway reflex sight",
+      "reflex sight (dot)",
+      "reflex sight (circle)",
+      "ris heads up reflex sight",
+      "ris railway reflex sight",
+      "small reflex sight",
+      "aer9 reflex sight"
     ],
     "holographic": [
       "holographic sight",
@@ -277,7 +332,9 @@
       "west-tek holo sight",
       "west tek holo sight",
       "m&a holo",
-      "ma holo"
+      "ma holo",
+      "m552 holographic sight",
+      "ris m552 holographic sight"
     ],
     "prism": [
       "prism sight",
@@ -294,7 +351,10 @@
       "elcan 1-6",
       "sig bravo 4",
       "hamr",
-      "ta31 acog"
+      "ta31 acog",
+      "c79 scope",
+      "susat scope",
+      "ris c79 scope (3.4x)"
     ],
     "scope": [
       "scope",
@@ -338,7 +398,14 @@
       "3x scope",
       "4x scope",
       "6x scope",
-      "8x scope"
+      "8x scope",
+      "accupoint scope",
+      "223 scope",
+      "mk 4 scope",
+      "scope (9x)",
+      "ris accupoint scope (9x)",
+      "aer9 scope (10x)",
+      "pipe gun scope (6x)"
     ],
     "lpvo": [
       "lpvo",
@@ -371,7 +438,12 @@
       "long night vision scope",
       "long night vision scope alt",
       "targeting computer with nightvision scope",
-      "targeting computer with night vision scope"
+      "targeting computer with night vision scope",
+      "pvs-4 starlight scope",
+      "night vision scope (4x)",
+      "ris pvs-4 starlight scope (3.6x)",
+      "aer9 night vision scope (4x)",
+      "pipe gun night vision scope (4x)"
     ],
     "thermal": [
       "thermal scope",
@@ -389,19 +461,27 @@
       "short recon scope",
       "long recon scope",
       "targeting computer with recon scope",
-      "recon scope sights"
+      "recon scope sights",
+      "pvs-4 recon scope",
+      "recon scope (4x)",
+      "ris pvs-4 recon scope (3.6x)",
+      "aer9 recon scope (4x)",
+      "pipe gun recon scope (4x)"
     ],
     "launcher_sight": [
       "grenade launcher sight",
       "launcher sight"
     ],
     "ring": [
-      "ring sight"
+      "ring sight",
+      "front sight ring"
     ],
     "combat": [
       "combat sights",
       "combat glow sights",
-      "holo-tech combat sight"
+      "holo-tech combat sight",
+      "gunner sight",
+      "improved sights"
     ],
     "experimental": [
       "experimental sight",
@@ -412,6 +492,9 @@
     "none": [
       "no sights",
       "no sight"
+    ],
+    "targeting": [
+      "targeting computer"
     ]
   },
   "stock": {
@@ -455,20 +538,36 @@
       "high tech stock",
       "riot stock",
       "recoil compensating marksman's stock",
-      "recoil compensating marksman stock"
+      "recoil compensating marksman stock",
+      "a2 stock",
+      "padded stock",
+      "lsw stock",
+      "integral stock",
+      "full stock, wood",
+      "full stock, polymer",
+      "glr-440 tactical stock",
+      "pipe gun full rifle stock",
+      "pipe gun recoil compensating stock"
     ],
     "collapsible": [
       "collapsible stock",
       "telescoping stock",
       "adjustable stock",
       "maxim defense stock",
-      "compression stock"
+      "compression stock",
+      "m4 stock, collapsed",
+      "m4 stock, extended",
+      "m4 usgi stock"
     ],
     "folding": [
       "folding stock",
       "folded stock",
       "tactic folded stock",
-      "folded tactic stock"
+      "folded tactic stock",
+      "factory folding stock",
+      "factory folding stock (detached)",
+      "polymer folding stock",
+      "polymer folding stock (detached)"
     ],
     "precision": [
       "marksman's stock",
@@ -480,7 +579,8 @@
       "advanced sharpshooter stock",
       "mannlicher stock",
       "marksman stock folded bipod",
-      "marksman stock extended bipod"
+      "marksman stock extended bipod",
+      "pipe gun marksman's stock"
     ],
     "lightweight": [
       "light stock",
@@ -488,7 +588,8 @@
       "minimalist stock",
       "mft minimalist",
       "mft bus stock",
-      "compact stock"
+      "compact stock",
+      "skeleton stock"
     ],
     "pistol_brace": [
       "pistol brace",
@@ -504,7 +605,8 @@
       "stock removed",
       "stock delete",
       "shortest stock",
-      "standard grip no stock"
+      "standard grip no stock",
+      "buffer tube (no stock)"
     ],
     "wire": [
       "wire stock",
@@ -514,7 +616,9 @@
     "short": [
       "short marksman stock",
       "short marksman stock bipod",
-      "short stock"
+      "short stock",
+      "sawn-off stock",
+      "sawn-off stock, wood"
     ],
     "pumping": [
       "pumping stock",
@@ -546,14 +650,20 @@
       "hunting comfort grip",
       "scavver grip",
       "metal grip",
-      "high tech grip"
+      "high tech grip",
+      "standard grip",
+      "pistol grip, polymer",
+      "pipe gun pistol grip",
+      "pipe gun comfort pistol grip"
     ],
     "ergonomic": [
       "ergonomic grip",
       "ergo grip",
       "phantom grip",
       "xten grip",
-      "tactical grip"
+      "tactical grip",
+      "comfort grip",
+      "steady grip"
     ],
     "rubberized": [
       "rubber grip",
@@ -568,7 +678,9 @@
       "precision grip",
       "match grip",
       "sakin zx grip",
-      "harrow palmrest grip"
+      "harrow palmrest grip",
+      "pipe gun sharpshooter's pistol grip",
+      "sharpshooter's grip"
     ]
   },
   "underbarrel": {
@@ -603,7 +715,9 @@
       "zenitco foregrips",
       "hera cqr foregrip",
       "laser sight and vertical grip",
-      "laser sight & vertical grip"
+      "laser sight & vertical grip",
+      "ris vertical foregrip",
+      "ris grip pod"
     ],
     "angled_grip": [
       "angled grip",
@@ -685,7 +799,12 @@
       "olight baldr pro",
       "zenit perst-4",
       "zenit perst-3",
-      "laser sights"
+      "laser sights",
+      "dbal-a2 laser sight",
+      "lpc laser sight",
+      "ub laser sight",
+      "ris dbal-a2 laser sight",
+      "pistol ub laser sight"
     ],
     "flashlight": [
       "flashlight",
@@ -705,7 +824,13 @@
       "red light",
       "tactical flashlight",
       "tactical lights",
-      "tactical light"
+      "tactical light",
+      "g2 tactical light",
+      "x2 tactical light",
+      "vintage flashlight",
+      "rifle g2 tactical light",
+      "pistol x2 tactical light",
+      "vintage flashlight weapon attachment"
     ],
     "laser_light": [
       "laser light",
@@ -717,7 +842,9 @@
       "viridian c5l laser light",
       "light and laser",
       "flashlight and laser",
-      "combo light laser"
+      "combo light laser",
+      "x2 tactical light + laser sight",
+      "pistol x2 tactical light + laser sight"
     ],
     "illuminator": [
       "illuminator",
@@ -771,7 +898,19 @@
       "medium magazine",
       "small magazine",
       "small mag",
-      "medium mag"
+      "medium mag",
+      "17 rd magazine",
+      "7 rd magazine",
+      "10 rd magazine",
+      "20 rd magazine",
+      "20 rd usgi magazine",
+      "30 rd magazine",
+      "30 rd usgi magazine",
+      "6 rd box magazine",
+      "10 rd box magazine",
+      "stanag 20 rd usgi magazine",
+      "stanag 30 rd usgi magazine",
+      "stanag 30 rd emag magazine"
     ],
     "extended": [
       "extended magazine",
@@ -803,7 +942,24 @@
       "strike industries magazine",
       "restored large magazine",
       "medium quick eject magazine alt",
-      "large quick eject magazine alt"
+      "large quick eject magazine alt",
+      "25 rd magazine",
+      "33 rd magazine",
+      "60 rd mag5-60 magazine",
+      "20 rd usgi mag + mag pull sleeve",
+      "20 rd usgi mag + mag pull floor plate",
+      "30 rd usgi mag + mag pull sleeve",
+      "30 rd usgi mag + mag pull floor plate",
+      "30 rd emag magazine",
+      "30 rd emag + mag pull sleeve",
+      "30 rd emag + mag pull floor plate",
+      "stanag 20 rd usgi mag + mag pull sleeve",
+      "stanag 20 rd usgi mag + mag pull floor plate",
+      "stanag 30 rd usgi mag + mag pull sleeve",
+      "stanag 30 rd usgi mag + mag pull floor plate",
+      "stanag 30 rd emag + mag pull sleeve",
+      "stanag 30 rd emag + mag pull floor plate",
+      "stanag 60 rd mag5-60 magazine"
     ],
     "quick_eject": [
       "quick eject magazine",
@@ -841,7 +997,11 @@
       "extended drum mag",
       "12 round drum",
       "20 round drum",
-      "30 round drum"
+      "30 round drum",
+      "100 rd c-mag magazine",
+      "20 rd drum magazine",
+      "40 rd drum magazine",
+      "stanag 100 rd c-mag magazine"
     ],
     "box": [
       "box magazine",
@@ -903,7 +1063,21 @@
       "fusion core upgrade",
       "fusion core",
       "fusion cell feed",
-      "power cell"
+      "power cell",
+      "capacitor boosting coil",
+      "full capacitors",
+      "half capacitors"
+    ],
+    "canister": [
+      "multi shot canister",
+      "standard shot canister"
+    ],
+    "fuel_tank": [
+      "huge propellant tank",
+      "large propellant tank",
+      "standard propellant tank",
+      "napalm tank",
+      "standard tank"
     ]
   },
   "barrel": {
@@ -913,7 +1087,12 @@
       "short welded barrel",
       "short bull barrel",
       "sawed-off barrel",
-      "sawed off barrel"
+      "sawed off barrel",
+      "cqb barrel",
+      "cqb ris barrel",
+      "sawn-off barrel",
+      "stub barrel",
+      "snubnose barrel"
     ],
     "standard": [
       "standard barrel",
@@ -931,12 +1110,22 @@
       "compact minigun barrel",
       "peppermill minigun barrel",
       "reinforced minigun barrel",
-      "defence minigun barrel"
+      "defence minigun barrel",
+      "carbine ris barrel",
+      "a1 barrel",
+      "a2 barrel",
+      "a4 barrel",
+      "xl22e1 barrel",
+      "xl22e2 barrel",
+      "l22a2 barrel",
+      "l123a2 ugl barrel",
+      "standard barrel + ext. tube"
     ],
     "long": [
       "long barrel",
       "long improved barrel",
-      "extra long ported barrel"
+      "extra long ported barrel",
+      "l86 barrel"
     ],
     "heavy": [
       "heavy barrel",
@@ -952,7 +1141,8 @@
       "long ported barrel",
       "long ported barrel no dish",
       "short ported and shielded barrel",
-      "long ported and shielded barrel"
+      "long ported and shielded barrel",
+      "standard ported barrel"
     ],
     "fluted": [
       "fluted barrel"
@@ -982,7 +1172,9 @@
       "finned barrel",
       "focused barrel",
       "institute plasma barrel",
-      "plasma gatling barrel"
+      "plasma gatling barrel",
+      "splitter",
+      "improved splitter"
     ],
     "gauss": [
       "gauss barrel"
@@ -1017,7 +1209,10 @@
       "jackhammer barrel",
       "bottle extended barrel",
       "metal dragon extended barrel",
-      "lightweight missile launcher barrel"
+      "lightweight missile launcher barrel",
+      "mirv launcer",
+      "mirv launcher",
+      "standard launcher"
     ],
     "heat_shielded": [
       "heat shielded barrel",
@@ -1032,6 +1227,11 @@
     "vented": [
       "vented barrel",
       "high tech barrel"
+    ],
+    "dish": [
+      "deep dish",
+      "lorenzo's artifact",
+      "standard dish"
     ]
   },
   "handguard": {
@@ -1126,7 +1326,15 @@
       ".45-70 ammo",
       "40mm mglr",
       "railway spikes",
-      "5mm ammo"
+      "5mm ammo",
+      "9x19mm",
+      ".45 acp",
+      "10mm auto",
+      "5.56x45mm",
+      "40x46mm grenades",
+      ".50 bmg",
+      ".380 acp",
+      ".38 special"
     ],
     "armor_piercing": [
       "armor piercing",
@@ -1288,6 +1496,26 @@
     ],
     "upper": [
       "upper receiver"
+    ],
+    "energy_tuner": [
+      "beta wave tuner"
+    ],
+    "energy_emitter": [
+      "gamma wave emitter",
+      "boosted gamma wave emitter"
+    ],
+    "energy_capacitor": [
+      "photon exciter",
+      "photon agitator",
+      "boosted capacitor",
+      "boosted photon agitator",
+      "maximized capacitor",
+      "overcharged capacitor",
+      "standard capacitor",
+      "three crank capacitor",
+      "four crank capacitor",
+      "five crank capacitor",
+      "six crank capacitor"
     ]
   },
   "internal": {
@@ -1299,7 +1527,10 @@
       "dual trigger",
       "dual triggers",
       "hair trigger and vertical grip",
-      "hair trigger & vertical grip"
+      "hair trigger & vertical grip",
+      "semi-auto trigger group",
+      "select fire (semi, auto) trigger group",
+      "select fire (semi, burst, auto) trigger group"
     ],
     "bolt": [
       "bolt",
@@ -1405,7 +1636,11 @@
       "worn gold",
       "chrome finish",
       "worn chrome",
-      "color case hardened"
+      "color case hardened",
+      "stainless",
+      "stainless + wood",
+      "two-tone",
+      "two-tone + wood"
     ],
     "material": [
       "material",

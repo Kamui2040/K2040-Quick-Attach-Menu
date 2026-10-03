@@ -12,7 +12,7 @@ Classification starts with the physical/functional location on the weapon:
 
 Receiver, Barrel, Handguard, Muzzle, Sights, Stock, Pistol Grip,
 Magazine, Underbarrel, Mount, Rail Accessory, Ammo/Caliber, Internal,
-Cosmetic, and Special.
+Cosmetic, Special, plus a neutral Grip/Stock fallback for ambiguous shared slots.
 
 Each category has semantic subcategories. Examples:
 
@@ -33,7 +33,8 @@ shares the Muzzle -> Suppressor icon unless a future visual distinction is justi
 3. Conservative name token/pattern matching may refine the subtype only inside that slot category.
 4. If no subtype is known, use the slot category fallback icon.
 5. Only when no slot identity is available, use name-only alias/pattern classification.
-6. Otherwise use the generic attachment icon.
+6. If an exact name is known in more than one top-level category, slot context is required; name-only matching deliberately falls back rather than guessing.
+7. Otherwise use the generic attachment icon.
 
 Never use icon classification as evidence that an OMOD is compatible with a weapon.
 
@@ -41,7 +42,12 @@ Never use icon classification as evidence that an OMOD is compatible with a weap
 
 - data/icon_library/attachment_taxonomy.json: categories/subcategories.
 - data/icon_library/attachment_aliases.json: known display-name vocabulary.
+- data/icon_library/attachment_slot_patterns.json: slot/AP to broad-category rules.
+- data/icon_library/canonical_attach_points.json: verified vanilla attachment-point identities.
 - data/icon_library/weapon_names.json: weapon-name vocabulary kept separate from attachments.
+- data/icon_library/vanilla_ranged_catalog.json: derived vanilla weapon/category/mod-name catalog.
+- data/icon_library/wars_catalog_seed.json: structured WARS weapon/attachment research seed.
+- data/icon_library/weapon_mod_package_index.json: high-yield public weapon-mod coverage indexes.
 - data/icon_library/sources.json: public research provenance.
 
 The corpus is intentionally extensible. Nexus weapon mods are a primary vocabulary source

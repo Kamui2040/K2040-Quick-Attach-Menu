@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "source": "WARS - The Weapons",
+  "url": "https://www.nexusmods.com/fallout4/articles/4506",
+  "purpose": "Structured public attachment-name test corpus; presentation research only.",
+  "weapons": [
+    {
+      "name": "AR-15",
+      "attachments": {
+        "barrel": [
+          "CQB Barrel",
+          "CQB RIS Barrel",
+          "Carbine Barrel",
+          "Carbine RIS Barrel",
+          "Carbine Barrel + M203",
+          "A1 Barrel",
+          "A2 Barrel",
+          "A4 Barrel"
+        ],
+        "stock": [
+          "Buffer Tube (No Stock)",
+          "M4 Stock, Collapsed",
+          "M4 Stock, Extended",
+          "A2 Stock"
+        ],
+        "magazine": [
+          "20 Rd USGI Magazine",
+          "30 Rd USGI Magazine",
+          "30 Rd EMAG Magazine",
+          "60 Rd MAG5-60 Magazine",
+          "100 Rd C-MAG Magazine"
+        ],
+        "sights": [
+          "Carry Handle Sights",
+          "Flip-up Sights",
+          "Heads Up Reflex Sight",
+          "Railway Reflex Sight",
+          "M552 Holographic Sight",
+          "C79 Scope",
+          "AccuPoint Scope",
+          "PVS-4 Starlight Scope",
+          "PVS-4 Recon Scope"
+        ],
+        "muzzle": [
+          "Flash Hider",
+          "Micro Compensator",
+          "Three Port Muzzle Brake",
+          "NT4 Suppressor"
+        ],
+        "underbarrel": [
+          "Vertical Foregrip",
+          "Grip Pod",
+          "DBAL-A2 Laser Sight",
+          "G2 Tactical Light"
+        ]
+      }
+    },
+    {
+      "name": "Glock 20",
+      "attachments": {
+        "barrel": [
+          "Standard Barrel",
+          "Long Barrel",
+          "Standard Ported Barrel",
+          "Long Ported Barrel"
+        ],
+        "grip_stock": [
+          "Standard Grip",
+          "Flared Magwell",
+          "GLR-440 Tactical Stock"
+        ],
+        "magazine": [
+          "17 Rd Magazine",
+          "33 Rd Magazine"
+        ],
+        "sights": [
+          "Iron Sights",
+          "Glow Sights",
+          "Reflex Sight (Dot)",
+          "Reflex Sight (Circle)"
+        ],
+        "muzzle": [
+          "Three Port Compensator",
+          "Osprey Suppressor"
+        ],
+        "underbarrel": [
+          "X2 Tactical Light",
+          "UB Laser Sight",
+          "X2 Tactical Light + Laser Sight"
+        ]
+      }
+    },
+    {
+      "name": "M107 Anti-Materiel Rifle",
+      "attachments": {
+        "barrel": [
+          "Short Barrel",
+          "Standard Barrel"
+        ],
+        "magazine": [
+          "10 Rd Magazine"
+        ],
+        "sights": [
+          "Iron Sights",
+          "Heads Up Reflex Sight",
+          "Railway Reflex Sight",
+          "M552 Holographic Sight",
+          "C79 Scope",
+          "Mk 4 Scope",
+          "PVS-4 Starlight Scope",
+          "PVS-4 Recon Scope"
+        ],
+        "muzzle": [
+          "M82 Muzzle Brake",
+          "M107A1 Muzzle Brake",
+          "QDL Suppressor"
+        ],
+        "underbarrel": [
+          "G2 Tactical Light",
+          "DBAL-A2 Laser Sight"
+        ]
+      }
+    },
+    {
+      "name": "M1911 Pistol",
+      "attachments": {
+        "barrel": [
+          "Short Barrel",
+          "Short Barrel + Glow Sights",
+          "Standard Barrel",
+          "Standard Barrel + Glow Sights",
+          "Long Barrel",
+          "Long Barrel + Glow Sights"
+        ],
+        "stock": [
+          "No Stock",
+          "Skeleton Stock"
+        ],
+        "magazine": [
+          "7 Rd Magazine",
+          "10 Rd Magazine",
+          "25 Rd Magazine"
+        ],
+        "sights": [
+          "Iron Sights",
+          "Vintage Flashlight",
+          "LPC Laser Sight",
+          "Reflex Sight (Dot)",
+          "Reflex Sight (Circle)"
+        ],
+        "muzzle": [
+          "Cutts Compensator",
+          "Muzzle Brake",
+          "Can Suppressor",
+          "Osprey Suppressor"
+        ],
+        "underbarrel": [
+          "Off-Hand M2 Combat Knife",
+          "Off-Hand M7 Bayonet",
+          "Off-Hand L3A1 Bayonet",
+          "Vertical Foregrip"
+        ],
+        "cosmetic": [
+          "Blued",
+          "Stainless",
+          "Stainless + Wood",
+          "Two-tone",
+          "Two-tone + Wood"
+        ]
+      }
+    },
+    {
+      "name": "Mossberg 590 Shotgun",
+      "attachments": {
+        "barrel": [
+          "Short Barrel",
+          "Standard Barrel",
+          "Standard Barrel + Ext. Tube"
+        ],
+        "stock": [
+          "Sawn-off Stock, Wood",
+          "Full Stock, Wood",
+          "Pistol Grip, Polymer",
+          "Full Stock, Polymer"
+        ],
+        "sights": [
+          "Bead Sight",
+          "Ghost Ring Sights",
+          "Heads Up Reflex Sight",
+          "Railway Reflex Sight",
+          "M552 Holographic Sight",
+          "C79 Scope",
+          "AccuPoint Scope",
+          "PVS-4 Starlight Scope",
+          "PVS-4 Recon Scope"
+        ],
+        "muzzle": [
+          "Micro Compensator",
+          "Three Port Muzzle Brake",
+          "Salvo 12 Suppressor"
+        ],
+        "underbarrel": [
+          "M2 Bayonet",
+          "M7 Bayonet",
+          "G2 Tactical Light",
+          "LPC Laser Sight"
+        ]
+      }
+    },
+    {
+      "name": "SA80",
+      "attachments": {
+        "barrel": [
+          "XL22E1 Barrel",
+          "XL22E2 Barrel",
+          "L22A2 Barrel",
+          "A1 Barrel",
+          "A2 Barrel",
+          "L123A2 UGL Barrel",
+          "L86 Barrel"
+        ],
+        "stock": [
+          "Integral Stock",
+          "LSW Stock"
+        ],
+        "magazine": [
+          "20 Rd USGI Magazine",
+          "30 Rd USGI Magazine",
+          "30 Rd EMAG Magazine",
+          "60 Rd MAG5-60 Magazine",
+          "100 Rd C-MAG Magazine"
+        ],
+        "sights": [
+          "Carry Handle Sights",
+          "Heads Up Reflex Sight",
+          "Railway Reflex Sight",
+          "M552 Holographic Sight",
+          "SUSAT Scope",
+          "AccuPoint Scope",
+          "PVS-4 Starlight Scope",
+          "PVS-4 Recon Scope"
+        ],
+        "muzzle": [
+          "A1 Flash Hider",
+          "A2 Flash Hider",
+          "L3A1 Bayonet",
+          "Micro Compensator",
+          "Three Port Muzzle Brake",
+          "NT4 Suppressor"
+        ],
+        "underbarrel": [
+          "Vertical Foregrip",
+          "Grip Pod",
+          "DBAL-A2 Laser Sight",
+          "G2 Tactical Light"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "purpose": "Canonical vanilla Fallout 4 weapon attachment-point keywords used for presentation classification only.",
+  "source": "Mutagen.Bethesda.FormKeys Fallout4 Keyword.cs",
+  "entries": [
+    {
+      "editor_id": "ap_gun_receiver",
+      "local_form_id": "00024004",
+      "category": "receiver"
+    },
+    {
+      "editor_id": "ap_gun_Scope",
+      "local_form_id": "00022499",
+      "category": "sights"
+    },
+    {
+      "editor_id": "ap_gun_Muzzle",
+      "local_form_id": "0002249C",
+      "category": "muzzle"
+    },
+    {
+      "editor_id": "ap_gun_Barrel",
+      "local_form_id": "0002249D",
+      "category": "barrel"
+    },
+    {
+      "editor_id": "ap_gun_Grip",
+      "local_form_id": "0002249F",
+      "categories": [
+        "pistol_grip",
+        "stock"
+      ],
+      "fallback_category": "grip_stock"
+    },
+    {
+      "editor_id": "ap_gun_Mag",
+      "local_form_id": "0005D4D7",
+      "category": "magazine"
+    }
+  ]
+}

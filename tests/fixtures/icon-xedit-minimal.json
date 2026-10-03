@@ -22,6 +22,24 @@
       "EDID - Editor ID": "mod_TestRifle_MisleadingName",
       "FULL - Name": "PBS-1 Suppressor",
       "Attachment Point": "ap_gun_Scope"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_Grip",
+      "FULL - Name": "Wood Grip",
+      "Attachment Point": "ap_gun_Grip"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_Stock",
+      "FULL - Name": "Rifle Stock",
+      "Attachment Point": "ap_gun_Grip"
+    },
+    {
+      "Signature": "OMOD",
+      "EDID - Editor ID": "mod_TestRifle_UnknownGripStock",
+      "FULL - Name": "Mystery Grip Widget",
+      "Attachment Point": "ap_gun_Grip"
     }
   ]
 }

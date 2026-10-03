@@ -17,7 +17,10 @@ def load_aliases():
     for category, subs in raw.items():
         for subcategory, names in subs.items():
             for name in names:
-                out[normalize(name)] = (category, subcategory, name)
+                key = normalize(name)
+                bucket = out.setdefault(key, [])
+                if not any(item[0] == category and item[1] == subcategory for item in bucket):
+                    bucket.append((category, subcategory, name))
     return out
 
 def classify_slot(slot_value: str):
@@ -29,30 +32,48 @@ def classify_slot(slot_value: str):
         for token in rule["tokens"]:
             nt = normalize(token)
             if nt and nt in normalized:
+                categories = rule.get("categories")
+                if not categories:
+                    categories = [rule["category"]]
                 return {
-                    "category": rule["category"],
+                    "categories": categories,
+                    "fallback_category": rule.get("fallback_category", categories[0]),
                     "method": "slot_pattern",
                     "matched": token,
                     "slot": slot_value,
                 }
     return None
 
-def classify_name(value: str, category_filter: str | None = None):
+def classify_name(value: str, category_filter=None):
     aliases = load_aliases()
     normalized = normalize(value or "")
-    exact = aliases.get(normalized)
-    if exact and (category_filter is None or exact[0] == category_filter):
-        category, subcategory, matched = exact
-        return {
-            "category": category,
-            "subcategory": subcategory,
-            "method": "exact_alias",
-            "matched": matched,
-        }
+    if category_filter is None:
+        allowed = None
+    elif isinstance(category_filter, str):
+        allowed = {category_filter}
+    else:
+        allowed = set(category_filter)
+    exact_matches = aliases.get(normalized, [])
+    if exact_matches:
+        eligible = exact_matches if allowed is None else [
+            match for match in exact_matches if match[0] in allowed
+        ]
+        if len(eligible) == 1:
+            category, subcategory, matched = eligible[0]
+            return {
+                "category": category,
+                "subcategory": subcategory,
+                "method": "exact_alias",
+                "matched": matched,
+            }
+        if allowed is None and len(exact_matches) > 1:
+            return None
+        if len(eligible) > 1:
+            return None
 
     patterns = json.loads((ROOT / "attachment_patterns.json").read_text(encoding="utf-8"))
     for rule in patterns["ordered_patterns"]:
-        if category_filter is not None and rule["category"] != category_filter:
+        if allowed is not None and rule["category"] not in allowed:
             continue
         for token in rule["tokens"]:
             nt = normalize(token)
@@ -68,17 +89,19 @@ def classify_name(value: str, category_filter: str | None = None):
 def classify(value: str, slot_value: str | None = None):
     slot = classify_slot(slot_value or "")
     if slot:
-        refined = classify_name(value, slot["category"])
+        refined = classify_name(value, slot["categories"])
         if refined:
             refined["method"] = f"slot_{refined['method']}"
             refined["slot"] = slot_value
+            refined["slot_categories"] = slot["categories"]
             return refined
         return {
-            "category": slot["category"],
+            "category": slot["fallback_category"],
             "subcategory": None,
             "method": "slot_category_fallback",
             "matched": slot["matched"],
             "slot": slot_value,
+            "slot_categories": slot["categories"],
         }
 
     by_name = classify_name(value)

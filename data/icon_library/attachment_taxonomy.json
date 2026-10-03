@@ -23,7 +23,10 @@
       "fire_control",
       "dust_cover",
       "upper",
-      "lower"
+      "lower",
+      "energy_capacitor",
+      "energy_tuner",
+      "energy_emitter"
     ],
     "barrel": [
       "short",
@@ -45,7 +48,8 @@
       "launcher",
       "jacket",
       "vented",
-      "heat_shielded"
+      "heat_shielded",
+      "dish"
     ],
     "handguard": [
       "standard",
@@ -69,7 +73,10 @@
       "beam_focuser",
       "continuous_beam",
       "energy_emitter",
-      "energy_module"
+      "energy_module",
+      "nozzle",
+      "stabilizer",
+      "shredder"
     ],
     "sights": [
       "iron",
@@ -87,7 +94,8 @@
       "none",
       "experimental",
       "ring",
-      "combat"
+      "combat",
+      "targeting"
     ],
     "stock": [
       "fixed",
@@ -124,7 +132,9 @@
       "dual",
       "speed_loader",
       "shell_saddle",
-      "power_cell"
+      "power_cell",
+      "canister",
+      "fuel_tank"
     ],
     "underbarrel": [
       "vertical_grip",
@@ -196,6 +206,9 @@
       "tri_rail",
       "adapter",
       "carry_handle"
+    ],
+    "grip_stock": [
+      "generic"
     ]
   }
 }

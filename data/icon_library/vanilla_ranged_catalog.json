@@ -1,0 +1,1114 @@
+{
+  "schema": 1,
+  "source": {
+    "name": "Complete List of All Vanilla Weapon Modifications",
+    "url": "https://docs.google.com/spreadsheets/d/1hMMhddeTwhGRD7E5X9aBIH1zF5jFNNOrsxFdBem_IVc/edit?usp=sharing",
+    "sheet": "All Ranged Weapons"
+  },
+  "purpose": "Derived short-name catalog for icon research. Stats/descriptions from the source sheet are intentionally omitted.",
+  "counts": {
+    "weapons": 29,
+    "attachment_rows": 691,
+    "unique_attachment_names": 166
+  },
+  "weapons": [
+    {
+      "name": ".44 Magnum",
+      "attachments": {
+        "barrel": [
+          "Bull Barrel",
+          "Standard Barrel",
+          "Snubnose Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Standard Grip"
+        ],
+        "receiver": [
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Short Scope",
+          "Recon Scope",
+          "Reflex Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "10mm Pistol",
+      "attachments": {
+        "barrel": [
+          "Long Light Ported Barrel",
+          "Long Light Barrel",
+          "Long Ported Barrel",
+          "Long Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip"
+        ],
+        "magazine": [
+          "Large Magazine",
+          "Large Quick Eject Magazine",
+          "Standard Magazine",
+          "Quick Eject Magazine"
+        ],
+        "muzzle": [
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          "Automatic Receiver",
+          "Armor Piercing Automatic Receiver",
+          "Hardened Automatic Receiver",
+          "Hardened Piercing Auto Receiver",
+          "Powerful Automatic Receiver",
+          "Rapid Automatic Receiver",
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Recon Scope",
+          "Reflex Sight",
+          "Reflex Sight (Circle)",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Alien Blaster",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Sharpshooter's Grip",
+          "Standard Grip"
+        ],
+        "magazine": [
+          "Fusion Mag",
+          "Standard Mag"
+        ],
+        "sights": [
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Assault Rifle",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Vented Barrel",
+          "Ported Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock",
+          "Short Stock"
+        ],
+        "magazine": [
+          "Drum Magazine",
+          "Quick Eject Drum Mag",
+          "Standard Magazine",
+          "Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          "Automatic Receiver",
+          "Armor Piercing Automatic Receiver",
+          "Hardened Automatic Receiver",
+          "Hardened Piercing Auto Receiver",
+          "Powerful Automatic Receiver",
+          "Rapid Automatic Receiver",
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Reflex Sight (Circle)",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Broadsider",
+      "attachments": {
+        "barrel": [
+          "Light Barrel",
+          "Standard Barrel"
+        ],
+        "grip_stock": [
+          "Steady Grip",
+          "Standard Grip"
+        ],
+        "magazine": [
+          "Multi Shot Canister",
+          "Standard Shot Canister"
+        ]
+      }
+    },
+    {
+      "name": "Combat Rifle",
+      "attachments": {
+        "barrel": [
+          "Long Light Barrel",
+          "Short Light Barrel",
+          "Long Barrel",
+          "Long Ported Barrel",
+          "Short Ported Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock",
+          "Short Stock"
+        ],
+        "magazine": [
+          "Large Magazine",
+          "Large Quick Eject Mag",
+          "Standard Magazine",
+          "Medium Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Large Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          ".38 Receiver",
+          "Automatic Receiver",
+          "Armor Piercing Automatic Receiver",
+          "Hardened Automatic Receiver",
+          "Hardened Piercing Auto Receiver",
+          "Powerful Automatic Receiver",
+          "Rapid Automatic Receiver",
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          ".308 Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight (Circle)",
+          "Reflex Sight (Dot)",
+          "Glow Front Sight Ring",
+          "Front Sight Ring",
+          "Standard Sights",
+          "Glow Sights"
+        ]
+      }
+    },
+    {
+      "name": "Combat Shotgun",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Long Ported and Shielded Barrel",
+          "Short Ported and Shielded Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock",
+          "Short Stock"
+        ],
+        "magazine": [
+          "Drum Magazine",
+          "Medium Magazine",
+          "Medium Quick Eject Mag",
+          "Quick Eject Drum Mag",
+          "Standard Magazine",
+          "Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Large Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          "Automatic Receiver",
+          "Armor Piercing Automatic Receiver",
+          "Hardened Automatic Receiver",
+          "Hardened Piercing Auto Receiver",
+          "Powerful Automatic Receiver",
+          "Rapid Automatic Receiver",
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight (Circle)",
+          "Reflex Sight (Dot)",
+          "Glow Front Sight Ring",
+          "Front Sight Ring",
+          "Standard Sights",
+          "Glow Sights"
+        ]
+      }
+    },
+    {
+      "name": "Cryolator",
+      "attachments": {
+        "barrel": [
+          "Crystallizing Barrel",
+          "Standard Barrel"
+        ],
+        "grip_stock": [
+          "Standard Stock",
+          "Recoil Compensating Stock"
+        ],
+        "sights": [
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Deliverer",
+      "attachments": {
+        "barrel": [
+          "Extended Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip"
+        ],
+        "magazine": [
+          "Large Magazine",
+          "Large Quick Eject Mag",
+          "Standard Mag",
+          "Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Suppressor"
+        ],
+        "receiver": [
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Double-Barrel Shotgun",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Short Barrel",
+          "Sawed-Off Barrel"
+        ],
+        "stock": [
+          "Full Stock",
+          "Short Stock"
+        ],
+        "muzzle": [
+          "Muzzle Brake",
+          "Spiked Muzzle Brake"
+        ],
+        "receiver": [
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          "Advanced Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Reflex Sight (Dot)",
+          "Reflex Sight (Circle)",
+          "Standard Sights",
+          "Glow Sights"
+        ]
+      }
+    },
+    {
+      "name": "Fat Man",
+      "attachments": {
+        "barrel": [
+          "MIRV Launcer",
+          "Standard Launcher"
+        ]
+      }
+    },
+    {
+      "name": "Flamer",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Standard Barrel"
+        ],
+        "muzzle": [
+          "Compression Nozzle",
+          "Standard Nozzle",
+          "Vaporization Nozzle"
+        ],
+        "magazine": [
+          "Huge Propellant Tank",
+          "Large Propellant Tank",
+          "Standard Propellant Tank",
+          "Napalm Tank",
+          "Standard Tank"
+        ]
+      }
+    },
+    {
+      "name": "Gamma Gun",
+      "attachments": {
+        "barrel": [
+          "Deep Dish",
+          "Zeta Wave Barrel",
+          "Lorenzo's Artifact",
+          "Standard Dish"
+        ],
+        "grip_stock": [
+          "Sharpshooter's Grip",
+          "Standard Grip"
+        ],
+        "muzzle": [
+          "Signal Repeater",
+          "Electric Signal Carrier Atennae"
+        ]
+      }
+    },
+    {
+      "name": "Gatling Laser",
+      "attachments": {
+        "barrel": [
+          "Standard Barrels",
+          "Charging Barrels"
+        ],
+        "muzzle": [
+          "Beam Focuser"
+        ],
+        "receiver": [
+          "Beta Wave Tuner",
+          "Gamma Wave Emitter",
+          "Photon Exciter",
+          "Photon Agitator",
+          "Boosted Capacitor",
+          "Boosted Gamma Wave Emitter",
+          "Boosted Photon Agitator",
+          "Maximized Capacitor",
+          "Overcharged Capacitor",
+          "Gatling Laser Receiver"
+        ],
+        "sights": [
+          "Standard Sights",
+          "Reflex Sights"
+        ]
+      }
+    },
+    {
+      "name": "Gauss Rifle",
+      "attachments": {
+        "barrel": [
+          "Standard Barrel",
+          "Shielded Barrel"
+        ],
+        "grip_stock": [
+          "Standard Stock",
+          "Recoil Compensating Stock"
+        ],
+        "magazine": [
+          "Capacitor Boosting Coil",
+          "Full Capacitors",
+          "Half Capacitors"
+        ],
+        "muzzle": [
+          "Compensator",
+          "Suppressor"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Gauss Reflex Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Hunting Rifle",
+      "attachments": {
+        "barrel": [
+          "Long Light Barrel",
+          "Short Light Barrel",
+          "Long Barrel",
+          "Long Ported Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Marksman's Stock",
+          "Short Stock"
+        ],
+        "magazine": [
+          "Large Magazine",
+          "Medium Magazine",
+          "Medium Quick Eject Mag",
+          "Large Quick Eject Mag",
+          "Standard Magazine",
+          "Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          ".38 Receiver",
+          "Calibrated Receiver",
+          "Tuned Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          ".50 Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight (Dot)",
+          "Reflex Sight (Circle)",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Institute Laser Gun",
+      "attachments": {
+        "barrel": [
+          "Automatic Barrel",
+          "Improved Automatic Barrel",
+          "Long Barrel",
+          "Improved Long Barrel",
+          "Short Barrel",
+          "Improved Short Barrel"
+        ],
+        "grip_stock": [
+          "Standard Grip",
+          "Full Stock"
+        ],
+        "muzzle": [
+          "Gyro Compensating Lens",
+          "Quantum Gyro Compensating Lens",
+          "Beam Focuser",
+          "Fine-tuned Beam Focuser",
+          "Beam Splitter",
+          "Amplified Beam Splitter"
+        ],
+        "receiver": [
+          "Beta Wave Tuner",
+          "Gamma Wave Emitter",
+          "Photon Exciter",
+          "Photon Agitator",
+          "Boosted Capacitor",
+          "Boosted Gamma Wave Emitter",
+          "Boosted Photon Agitator",
+          "Maximized Capacitor",
+          "Overcharged Capacitor",
+          "Standard Capacitor"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Junk Jet",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Recoil Compensating Stock",
+          "Standard Stock"
+        ],
+        "muzzle": [
+          "Electrification Module",
+          "Ignition Module"
+        ],
+        "receiver": [
+          "JunkJet Receiver"
+        ],
+        "sights": [
+          "Gunner Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Laser Gun",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Improved Long Barrel",
+          "Short Barrel",
+          "Improved Short Barrel",
+          "Automatic Barrel",
+          "Improved Automatic Barrel",
+          "Sniper Barrel",
+          "Improved Sniper Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip",
+          "Full Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock",
+          "Short Stock"
+        ],
+        "muzzle": [
+          "Gyro Compensating Lens",
+          "Quantum Gyro Compensating Lens",
+          "Beam Focuser",
+          "Fine-tuned Beam Focuser",
+          "Beam Splitter",
+          "Amplified Beam Splitter"
+        ],
+        "receiver": [
+          "Beta Wave Tuner",
+          "Gamma Wave Emitter",
+          "Photon Exciter",
+          "Photon Agitator",
+          "Boosted Capacitor",
+          "Boosted Gamma Wave Emitter",
+          "Boosted Photon Agitator",
+          "Maximized Capacitor",
+          "Overcharged Capacitor",
+          "Standard Capacitor"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Improved Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Laser Musket",
+      "attachments": {
+        "barrel": [
+          "Extended Long Barrel",
+          "Bracketed Long Barrel",
+          "Long Barrel",
+          "Extended Short Barrel",
+          "Bracketed Short Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Short Stock"
+        ],
+        "muzzle": [
+          "Gyro Compensating Lens",
+          "Beam Focuser",
+          "Beam Splitter"
+        ],
+        "receiver": [
+          "Standard Capacitor",
+          "Three Crank Capacitor",
+          "Four Crank Capacitor",
+          "Five Crank Capacitor",
+          "Six Crank Capacitor"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Minigun",
+      "attachments": {
+        "barrel": [
+          "Standard Barrel",
+          "Accelerated Barrel",
+          "Tri Barrel"
+        ],
+        "muzzle": [
+          "Shredder"
+        ],
+        "sights": [
+          "Gunner Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Missile Launcher",
+      "attachments": {
+        "barrel": [
+          "Quad Barrel",
+          "Standard Barrel",
+          "Triple Barrel"
+        ],
+        "muzzle": [
+          "Bayonet",
+          "Stabilizer"
+        ],
+        "sights": [
+          "Scope",
+          "Night Vision Scope",
+          "Standard Sights",
+          "Targeting Computer"
+        ]
+      }
+    },
+    {
+      "name": "Pipe Bolt-Action",
+      "attachments": {
+        "barrel": [
+          "Long Finned Barrel",
+          "Long Light Barrel",
+          "Short Light Barrel",
+          "Long Barrel",
+          "Long Ported Barrel",
+          "Short Ported Barrel",
+          "Short Barrel",
+          "Stub Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip",
+          "Standard Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock"
+        ],
+        "muzzle": [
+          "Large Bayonet",
+          "Small Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          ".38 Receiver",
+          "Calibrated Receiver",
+          "Tuned Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          ".50 Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Glow Reflex Sights",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Pipe Gun",
+      "attachments": {
+        "barrel": [
+          "Long Finned Barrel",
+          "Long Light Barrel",
+          "Short Light Barrel",
+          "Long Barrel",
+          "Long Ported Barrel",
+          "Short Ported Barrel",
+          "Short Barrel",
+          "Stub Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip",
+          "Standard Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock"
+        ],
+        "magazine": [
+          "Drum Magazine",
+          "Large Magazine",
+          "Large Quick Eject Mag",
+          "Quick Eject Drum Mag",
+          "Standard Magazine",
+          "Quick Eject Mag"
+        ],
+        "muzzle": [
+          "Large Bayonet",
+          "Small Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          "Automatic Receiver",
+          "Armor Piercing Automatic Receiver",
+          "Hardened Automatic Receiver",
+          "Hardened Piercing Auto Receiver",
+          "Powerful Automatic Receiver",
+          "Rapid Automatic Receiver",
+          "Calibrated Receiver",
+          "Hair Trigger Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          ".45 Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Glow Reflex Sights",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Pipe Revolver",
+      "attachments": {
+        "barrel": [
+          "Long Finned Barrel",
+          "Long Light Barrel",
+          "Short Light Barrel",
+          "Long Barrel",
+          "Long Ported Barrel",
+          "Short Ported Barrel",
+          "Short Barrel",
+          "Stub Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Sharpshooter's Grip",
+          "Standard Grip",
+          "Standard Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock"
+        ],
+        "muzzle": [
+          "Large Bayonet",
+          "Small Bayonet",
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          ".38 Receiver",
+          "Calibrated Receiver",
+          "Tuned Receiver",
+          "Heavy Frame Receiver",
+          "Light Frame Receiver",
+          "Hardened Receiver",
+          "Powerful Receiver",
+          "Calibrated Powerful Receiver",
+          ".308 Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Glow Reflex Sights",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Plasma Gun",
+      "attachments": {
+        "barrel": [
+          "Flamer Barrel",
+          "Short Barrel",
+          "Improved Short Barrel",
+          "Splitter",
+          "Improved Splitter",
+          "Sniper Barrel",
+          "Improved Sniper Barrel",
+          "Automatic Barrel",
+          "Improved Automatic Barrel"
+        ],
+        "grip_stock": [
+          "Comfort Grip",
+          "Standard Grip",
+          "Standard Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock"
+        ],
+        "receiver": [
+          "Beta Wave Tuner",
+          "Gamma Wave Emitter",
+          "Photon Exciter",
+          "Photon Agitator",
+          "Boosted Capacitor",
+          "Boosted Gamma Wave Emitter",
+          "Boosted Photon Agitator",
+          "Maximized Capacitor",
+          "Overcharged Capacitor",
+          "Standard Capacitor"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Railway Rifle",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Short Barrel"
+        ],
+        "grip_stock": [
+          "Standard Stock",
+          "Recoil Compensating Stock"
+        ],
+        "muzzle": [
+          "Large Bayonet"
+        ],
+        "receiver": [
+          "Automatic Piston Receiver",
+          "Standard Receiver"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Standard Sights"
+        ]
+      }
+    },
+    {
+      "name": "Submachine Gun",
+      "attachments": {
+        "barrel": [
+          "Short Light Barrel",
+          "Standard Barrel"
+        ],
+        "grip_stock": [
+          "Full Stock",
+          "Recoil Compensating Stock",
+          "Short Stock"
+        ],
+        "magazine": [
+          "Large Drum",
+          "Large Quick Eject Drum",
+          "Medium Magazine",
+          "Medium Quick Eject Drum"
+        ],
+        "muzzle": [
+          "Compensator",
+          "Muzzle Brake",
+          "Suppressor"
+        ],
+        "receiver": [
+          "Standard Receiver",
+          "Armor Piercing Receiver",
+          "Hardened Receiver",
+          "Hardened Piercing Receiver",
+          "Powerful Receiver",
+          "Rapid Receiver"
+        ],
+        "sights": [
+          "Reflex Sight",
+          "Standard Sights",
+          "Glow Sights"
+        ]
+      }
+    },
+    {
+      "name": "Syringer",
+      "attachments": {
+        "barrel": [
+          "Long Barrel",
+          "Short Barrel",
+          "Stub Barrel"
+        ],
+        "grip_stock": [
+          "Standard Stock",
+          "Marksman's Stock",
+          "Recoil Compensating Stock"
+        ],
+        "sights": [
+          "Long Scope",
+          "Long Night Vision Scope",
+          "Long Recon Scope",
+          "Medium Scope",
+          "Medium Night Vision Scope",
+          "Short Scope",
+          "Short Night Vision Scope",
+          "Short Recon Scope",
+          "Reflex Sight",
+          "Glow Reflex Sights",
+          "Glow Sights",
+          "Standard Sights"
+        ]
+      }
+    }
+  ]
+}
