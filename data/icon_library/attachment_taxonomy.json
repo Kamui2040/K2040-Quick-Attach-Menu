@@ -77,7 +77,8 @@
       "nozzle",
       "stabilizer",
       "shredder",
-      "none"
+      "none",
+      "thread_protector"
     ],
     "sights": [
       "iron",

@@ -62,7 +62,13 @@
       "5.56mm nt4 suppressor",
       "diligent defense enticer",
       "oss hx qd",
-      "m7 suppressor"
+      "m7 suppressor",
+      "zenitco putnik suppressor",
+      "putnik suppressor",
+      "oil filter suppressor",
+      "ultra 5 suppressor",
+      "surefire rc2",
+      "kac nt-4 suppressor"
     ],
     "compensator": [
       "compensator",
@@ -106,7 +112,16 @@
       "12 gauge three port muzzle brake",
       "rearden dpb",
       "ffc double port muzzle brake",
-      "titanium contest muzzle brake"
+      "titanium contest muzzle brake",
+      "6p26 0-20 muzzle brake",
+      "6p20 0-20 brake-compensator",
+      "6p20 0-20 brake compensator",
+      "zenitco dtk-1 muzzle brake",
+      "zenitco dtk-2 brake-compensator",
+      "zenitco dtk-2 brake compensator",
+      "thunderbeast 223cb",
+      "asr556 brake",
+      "fatman brake"
     ],
     "flash_hider": [
       "flash hider",
@@ -122,7 +137,9 @@
       "surefire fh556rc",
       "surefire fh556rc flash hider",
       "a1 flash hider",
-      "a2 flash hider"
+      "a2 flash hider",
+      "noveske kx3 flash hider",
+      "surefire sf3p"
     ],
     "hybrid_device": [
       "warcomp",
@@ -213,6 +230,10 @@
     "none": [
       "no muzzle",
       "null - no muzzle"
+    ],
+    "thread_protector": [
+      "thread protector",
+      "thread protector muzzle device"
     ]
   },
   "sights": {
@@ -345,7 +366,11 @@
       "aimpoint acro",
       "acro sight",
       "holosun hs512c",
-      "hs512c"
+      "hs512c",
+      "sig romeo 1",
+      "sig romeo 3 xl",
+      "trijicon sro",
+      "belomo pk-06"
     ],
     "holographic": [
       "holographic sight",
@@ -367,7 +392,8 @@
       "vortex amg uh-1",
       "amg uh-1",
       "uh-1 gen2",
-      "vortex amg uh-1 gen2"
+      "vortex amg uh-1 gen2",
+      "vortex uh-1"
     ],
     "prism": [
       "prism sight",
@@ -455,7 +481,8 @@
       "vortex razor hd g3",
       "razor hd g3",
       "march-fx 2",
-      "march fx 2"
+      "march fx 2",
+      "burris mtac"
     ],
     "magnifier": [
       "magnifier",
@@ -592,7 +619,8 @@
       "pipe gun recoil compensating stock",
       "magpul moe fixed carbine",
       "m16 a4 stable stock",
-      "m16a4 stable stock"
+      "m16a4 stable stock",
+      "g36 idz stock"
     ],
     "collapsible": [
       "collapsible stock",
@@ -724,7 +752,8 @@
     ],
     "skeletonized": [
       "skeletonized pistol grip",
-      "skeleton grip"
+      "skeleton grip",
+      "tactical dynamics skeleton grip"
     ],
     "precision": [
       "precision grip",
@@ -862,7 +891,11 @@
       "pinty laser sight",
       "sbal",
       "tlr1",
-      "red lasers"
+      "red lasers",
+      "zenitco perst-4 tactical laser designator",
+      "eotech atpial an/peq-15 laser aiming device",
+      "steiner dbal-a2 an/peq-15 aiming laser",
+      "zenit 2ks"
     ],
     "flashlight": [
       "flashlight",
@@ -891,7 +924,11 @@
       "vintage flashlight weapon attachment",
       "x300",
       "tlr-1",
-      "tlr1 flashlight"
+      "tlr1 flashlight",
+      "inforce wmlx weapon mounted light",
+      "inforce wmlx",
+      "surefire m300c compact led scout weapon mounted light",
+      "surefire m600v led ir scout weapon mounted light"
     ],
     "laser_light": [
       "laser light",
@@ -1070,7 +1107,9 @@
       "100 rd c-mag magazine",
       "20 rd drum magazine",
       "40 rd drum magazine",
-      "stanag 100 rd c-mag magazine"
+      "stanag 100 rd c-mag magazine",
+      "magpul d-60",
+      "d-60 drum magazine"
     ],
     "box": [
       "box magazine",
@@ -1314,7 +1353,8 @@
       "saigry handguard",
       "long handguard",
       "sopmod handguard",
-      "noveske handguard"
+      "noveske handguard",
+      "g36k handguard"
     ],
     "rail": [
       "rail handguard",
@@ -1336,7 +1376,9 @@
     ],
     "picatinny": [
       "picatinny",
-      "quad rail"
+      "quad rail",
+      "b&t short quadrail",
+      "b&t long quadrail"
     ],
     "mlok": [
       "mlok",
@@ -1747,19 +1789,28 @@
       "scope rail",
       "top rail",
       "side rail",
-      "accessory rail"
+      "accessory rail",
+      "mlok 1913 picatinny rail",
+      "m-lok 1913 picatinny rail"
     ],
     "scope_mount": [
       "scope mount",
       "optic mount",
       "sight mount",
       "scope base",
-      "eotech vudu mount"
+      "eotech vudu mount",
+      "utg picatinny rail mount",
+      "toz 6p29m rail mount",
+      "geissele micro mount",
+      "geissele micro mounts",
+      "badger c1 mount"
     ],
     "riser": [
       "riser",
       "optic riser",
-      "scope riser"
+      "scope riser",
+      "unity fast optic riser",
+      "wilcox riser"
     ],
     "offset_mount": [
       "offset mount",
@@ -1779,12 +1830,16 @@
       "mount adapter",
       "sig stock adapter",
       "stock adapter",
-      "scope mount fix"
+      "scope mount fix",
+      "g36 stock adapter",
+      "acr stock adapter"
     ],
     "carry_handle": [
       "carry handle",
       "g-series carry handle",
-      "sa-58 carry handle"
+      "sa-58 carry handle",
+      "b&t carry handle",
+      "sl8 carry handle"
     ]
   }
 }

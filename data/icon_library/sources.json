@@ -478,5 +478,20 @@
     "id": "nexus_hk_g3_battle_rifle",
     "url": "https://www.nexusmods.com/fallout4/mods/51754",
     "role": "large battle-rifle sight, stock, handguard, foregrip, magazine, muzzle, laser and flashlight ecosystem"
+  },
+  {
+    "id": "nexus_bh_ppsh41",
+    "url": "https://www.nexusmods.com/fallout4/mods/78134",
+    "role": "explicit rail mounts, optic riser, muzzle brakes, suppressors, optics, lasers and weapon-light vocabulary"
+  },
+  {
+    "id": "nexus_escape_g36_redux",
+    "url": "https://www.nexusmods.com/fallout4/mods/64108",
+    "role": "explicit G36 stocks, adapters, handguards, magazines, optics, grips, muzzle devices, lasers and lights"
+  },
+  {
+    "id": "nexus_msbs_grot_b",
+    "url": "https://www.nexusmods.com/fallout4/mods/70964",
+    "role": "explicit mounts, magazines, optics, foregrips, brakes and suppressor vocabulary"
   }
 ]
