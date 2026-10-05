@@ -11,8 +11,9 @@ Version `0.5.198` is an unreleased compatibility candidate. It keeps the three
 known `TacticalReload_IngameSwitch.esp` infrastructure OMODs internal and out of
 dependency-removal planning, and adds a stable WEAP-keyed **Force unsafe swaps**
 override for dependency-cycle refusals only. The override defaults off and is
-not included in distributable weapon menu profiles. Source/build validation and
-target-runtime testing remain required before this candidate can be accepted.
+not included in distributable weapon menu profiles. The clean Linux releasedbg
+build and static validation passed; focused target-runtime testing remains
+required before this candidate can be accepted.
 
 ## Current release
 
