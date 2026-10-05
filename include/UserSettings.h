@@ -155,6 +155,8 @@ namespace k2040
     BracketedTextOverride GetBracketedTextOverride(const FormRef& weapon);
     bool SetBracketedTextOverride(const FormRef& weapon, BracketedTextOverride value);
     const char* BracketedTextOverrideName(BracketedTextOverride value);
+    bool GetForceUnsafeSwaps(const FormRef& weapon);
+    bool SetForceUnsafeSwaps(const FormRef& weapon, bool enabled);
     BracketedTextPreferences GetBracketedTextPreferences();
     bool SetBracketedTextPreferences(const BracketedTextPreferences& value);
     QuickMenuPreferences GetQuickMenuPreferences();

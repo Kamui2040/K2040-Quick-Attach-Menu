@@ -12,6 +12,8 @@ Only durable product decisions belong here. Current release state belongs in
   persisted keys.
 - Providers are installed before children and removed after children. Hidden,
   internal, and script-only OMODs stay out of player-facing menus.
+- Tactical Reload's three known switcher infrastructure OMODs remain in the
+  live graph but stay out of generated choices and dependency-removal planning.
 - Generated-menu target compatibility uses the winning OMOD record's raw
   `MNAM` Target OMOD / Mod Association keywords, not CommonLibF4
   `filterKeywords`/`FNAM`. A reachable attachment point is also required.
@@ -30,6 +32,9 @@ Only durable product decisions belong here. Current release state belongs in
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
+- Force Unsafe Swaps is a stable-WEAP, per-weapon escape hatch that defaults
+  off and bypasses only a diagnosed dependency-cycle ordering refusal. All
+  other transaction checks remain active, and menu profiles cannot carry it.
 - Builder presentation settings never authorize runtime mutation. Exported
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,

@@ -4,7 +4,9 @@ Weapon menu profiles let a configured Builder menu be shared without creating
 an ESP or changing attachment data. A profile contains only one weapon's menu
 source override, bracketed-text override, visibility, ordering, and custom
 labels. General appearance, keybindings, inventory, installed attachments, and
-mutation permissions are never exported.
+mutation permissions are never exported. The per-weapon Force Unsafe Swaps
+preference is also excluded, and importing a profile preserves its current
+value for the target weapon.
 
 ## Export and import
 

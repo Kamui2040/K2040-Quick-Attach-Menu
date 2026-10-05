@@ -83,6 +83,10 @@ not require inventory. Catalog enumeration does not authorize mutation; live
 transaction checks remain authoritative.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
+The known Tactical Reload switcher records `TRT_mod_EntryPoint1`,
+`TRT_mod_EntryPoint2`, and `TRT_mod_KeywordApply` from
+`TacticalReload_IngameSwitch.esp` remain live graph inputs but are not generated
+player choices or dependency-removal candidates.
 
 A successful attachment transaction rebuilds the live menu and then reapplies
 the same persisted visibility, ordering, and label preferences used on initial
@@ -107,7 +111,8 @@ The Builder can export one weapon's presentation preferences as a standalone
 JSON profile and import a selected matching profile through the normal atomic
 user-settings path. Profiles contain the per-weapon source and bracket overrides,
 visibility, ordering, and labels only. They do not contain general settings,
-inventory state, installed attachments, or mutation authorization.
+inventory state, installed attachments, mutation authorization, or the
+per-weapon Force Unsafe Swaps preference.
 
 Profile discovery scans the mod-owned `WeaponMenus` and `Exports` directories,
 accepts only bounded regular `.k2040qam.json` files, and validates the complete
@@ -168,6 +173,13 @@ with installed-child removal are available through the normal quick menu. There
 is no global mutation switch. Every operation is revalidated against the live
 weapon, exact equipped stack, inventory, and hypothetical post-change attachment
 graph before it can change anything.
+
+An identity-keyed per-weapon Force Unsafe Swaps preference defaults off. When
+enabled, it bypasses only the final dependency-cycle ordering refusal after the
+normal graph analysis and cycle diagnostics have run. It does not bypass menu,
+weapon, stack, inventory, form, attachment-point, stale-state, return, mutation,
+post-change, or rollback checks. Turning it off restores normal fail-closed
+dependency handling for that weapon.
 
 The transaction accepts either a one-for-one replacement or a first leaf install
 into an empty, live-reachable attachment point on an exact equipped inventory

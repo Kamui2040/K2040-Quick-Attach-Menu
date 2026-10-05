@@ -111,6 +111,7 @@ namespace
         bool hidden = false;
         k2040::AuthoredMenuOverride authoredMenuOverride = k2040::AuthoredMenuOverride::Inherit;
         k2040::BracketedTextOverride bracketedTextOverride = k2040::BracketedTextOverride::Inherit;
+        bool forceUnsafeSwaps = false;
         bool parseMalformed = false;
         std::vector<PersistedCategoryIdentity> hiddenCategories;
         std::vector<PersistedIdentity> hiddenOptions;
@@ -971,6 +972,9 @@ namespace
         } else {
             record.bracketedTextOverride = *parsedBracketedTextOverride;
         }
+        record.parseMalformed =
+            !ReadOptionalBoolMember(weaponObject, "forceUnsafeSwaps", record.forceUnsafeSwaps) ||
+            record.parseMalformed;
 
         const auto readCategoryArray = [&](const char* key, std::vector<PersistedCategoryIdentity>& output) {
             const auto* member = FindMember(weaponObject, key);
@@ -1089,7 +1093,8 @@ namespace
     void WriteWeaponPreferencesObject(
         std::ostringstream& json,
         const WeaponPreferences& weapon,
-        const std::string& indent)
+        const std::string& indent,
+        bool includeSafetyPreferences)
     {
         const auto memberIndent = indent + "  ";
         json << indent << "{\n";
@@ -1104,6 +1109,10 @@ namespace
             k2040::AuthoredMenuOverrideName(weapon.authoredMenuOverride) << "\",\n";
         json << memberIndent << "\"bracketedTextOverride\": \"" <<
             k2040::BracketedTextOverrideName(weapon.bracketedTextOverride) << "\",\n";
+        if (includeSafetyPreferences) {
+            json << memberIndent << "\"forceUnsafeSwaps\": " <<
+                (weapon.forceUnsafeSwaps ? "true" : "false") << ",\n";
+        }
         json << memberIndent << "\"hiddenCategories\": [";
         for (std::size_t index = 0; index < weapon.hiddenCategories.size(); ++index) {
             json << (index == 0 ? "" : ", ");
@@ -1154,7 +1163,7 @@ namespace
             weapon.diagnosticName.empty() ? "Weapon menu" : weapon.diagnosticName + " menu") << "\",\n";
         json << "  \"categoryIdentityRule\": \"plugin filename plus local FormID; generated categories use their attachment-point keyword\",\n";
         json << "  \"weapon\":\n";
-        WriteWeaponPreferencesObject(json, weapon, "  ");
+        WriteWeaponPreferencesObject(json, weapon, "  ", false);
         json << "\n}\n";
         return json.str();
     }
@@ -1259,7 +1268,7 @@ namespace
         for (std::size_t wi = 0; wi < g_document.weapons.size(); ++wi) {
             const auto& weapon = g_document.weapons[wi];
             json << (wi == 0 ? "\n" : ",\n");
-            WriteWeaponPreferencesObject(json, weapon, "    ");
+            WriteWeaponPreferencesObject(json, weapon, "    ", true);
         }
 
         if (!g_document.weapons.empty()) {
@@ -2576,6 +2585,30 @@ namespace k2040
         }
     }
 
+    bool GetForceUnsafeSwaps(const FormRef& weapon)
+    {
+        EnsureLoaded();
+        const auto* record = FindWeaponConst(weapon);
+        return record ? record->forceUnsafeSwaps : false;
+    }
+
+    bool SetForceUnsafeSwaps(const FormRef& weapon, bool enabled)
+    {
+        EnsureLoaded();
+        if (!CanMutatePreferences()) {
+            return false;
+        }
+
+        auto* record = FindWeapon(weapon);
+        if (!record || record->forceUnsafeSwaps == enabled) {
+            return false;
+        }
+
+        record->forceUnsafeSwaps = enabled;
+        MarkDirty();
+        return true;
+    }
+
     BracketedTextPreferences GetBracketedTextPreferences()
     {
         EnsureLoaded();
@@ -2839,8 +2872,10 @@ namespace k2040
 
         const auto previous = *existing;
         const bool wasDirty = g_dirty;
+        const bool forceUnsafeSwaps = existing->forceUnsafeSwaps;
         imported.weapon.weapon = currentIdentity;
         imported.weapon.diagnosticName = menu.weapon.displayName;
+        imported.weapon.forceUnsafeSwaps = forceUnsafeSwaps;
         imported.weapon.parseMalformed = false;
         *existing = std::move(imported.weapon);
         RecomputeDocumentSyntaxDiagnostics();

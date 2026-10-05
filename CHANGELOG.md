@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.198
+
+- Keep Tactical Reload's `TRT_mod_EntryPoint1`, `TRT_mod_EntryPoint2`, and
+  `TRT_mod_KeywordApply` infrastructure records out of generated player choices
+  and dependency-removal planning without weakening normal provider ordering.
+- Add a per-weapon **Force unsafe swaps** override, off by default, that logs
+  and bypasses only a dependency-cycle ordering refusal. Turning it off restores
+  the normal fail-closed behavior for that weapon.
+- Log the unresolved OMOD, consumed attachment point, and provided attachment
+  points when dependency ordering finds a cycle.
+
 ## 0.5.197
 
 - Add a persistent option to disable diagnostic logging.

@@ -22,6 +22,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -263,6 +264,25 @@ namespace
         auto* form = formId != 0 ? RE::TESForm::GetFormByID(formId) : nullptr;
         auto* mod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
         return IsAttachmentCollectionOmod(mod);
+    }
+
+    bool AsciiEqualsInsensitive(std::string_view left, std::string_view right)
+    {
+        if (left.size() != right.size()) return false;
+        return std::equal(left.begin(), left.end(), right.begin(), [](unsigned char lhs, unsigned char rhs) {
+            return std::tolower(lhs) == std::tolower(rhs);
+        });
+    }
+
+    bool IsTacticalReloadInfrastructureOmod(const k2040::FormRef& omod)
+    {
+        if (!AsciiEqualsInsensitive(omod.sourcePlugin, "TacticalReload_IngameSwitch.esp")) {
+            return false;
+        }
+
+        return AsciiEqualsInsensitive(omod.editorId, "TRT_mod_EntryPoint1") ||
+            AsciiEqualsInsensitive(omod.editorId, "TRT_mod_EntryPoint2") ||
+            AsciiEqualsInsensitive(omod.editorId, "TRT_mod_KeywordApply");
     }
 
     void AppendUniqueFormRefs(std::vector<k2040::FormRef>& target, const std::vector<k2040::FormRef>& source)
@@ -1047,6 +1067,7 @@ namespace k2040
         }
 
         std::vector<Candidate> candidates;
+        std::vector<OmodAttachmentInfo> internalGraphProviders;
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
 
@@ -1071,6 +1092,24 @@ namespace k2040
             candidate.mod = mod;
             candidate.omod = MakeFormRef(mod);
             candidate.installed = ContainsFormId(weaponInfo.installedObjectInstanceMods, candidate.omod.formId);
+
+            if (IsTacticalReloadInfrastructureOmod(candidate.omod)) {
+                if (candidate.installed) {
+                    OmodAttachmentInfo internal;
+                    internal.omod = candidate.omod;
+                    internal.consumesAttachPoint = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
+                    internal.providesAttachParentSlots = CollectAttachParentSlots(mod->attachParents);
+                    if (internal.consumesAttachPoint.formId != 0) {
+                        internalGraphProviders.push_back(std::move(internal));
+                    }
+                    log::Info(
+                        "Generated menu kept Tactical Reload infrastructure internal: OMOD=" +
+                        ToHexFormId(candidate.omod.formId) +
+                        ", editor=" + candidate.omod.editorId +
+                        ", source=" + candidate.omod.sourcePlugin);
+                }
+                continue;
+            }
 
             if (IsAttachmentCollectionOmod(mod)) {
                 if (candidate.installed) {
@@ -1193,6 +1232,12 @@ namespace k2040
         bool expanded = true;
         while (expanded) {
             expanded = false;
+            for (const auto& internal : internalGraphProviders) {
+                if (!ContainsFormId(graphAttachPoints, internal.consumesAttachPoint.formId)) continue;
+                const auto before = graphAttachPoints.size();
+                AppendUniqueFormRefs(graphAttachPoints, internal.providesAttachParentSlots);
+                expanded = expanded || graphAttachPoints.size() != before;
+            }
             for (const auto& candidate : candidates) {
                 if (!ContainsFormId(graphAttachPoints, candidate.consumes.formId)) continue;
                 const auto before = graphAttachPoints.size();
@@ -2164,6 +2209,14 @@ namespace k2040
         std::vector<OmodAttachmentInfo> removals;
         for (const auto& installed : menu.installedOmodAttachmentInfo) {
             if (previousOption && installed.omod.formId == previousOption->omod.formId) continue;
+            if (IsTacticalReloadInfrastructureOmod(installed.omod)) {
+                log::Info(
+                    "Tactical Reload infrastructure retained during attachment dependency planning: OMOD=" +
+                    ToHexFormId(installed.omod.formId) +
+                    ", editor=" + installed.omod.editorId +
+                    ", source=" + installed.omod.sourcePlugin);
+                continue;
+            }
             if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
                 continue;
             }
@@ -2188,7 +2241,35 @@ namespace k2040
                 });
             });
             if (leaf == removals.end()) {
-                return fail("dependency-cycle", "The installed attachment dependencies could not be ordered safely.");
+                log::Warn(
+                    "Attachment dependency cycle detected for weapon=" +
+                    ToHexFormId(weaponInfo.weapon.formId) +
+                    "; unresolved removal count=" + std::to_string(removals.size()) + ".");
+                for (const auto& unresolved : removals) {
+                    log::Warn(
+                        "Attachment dependency cycle member: OMOD=" + ToHexFormId(unresolved.omod.formId) +
+                        ", editor=" + (unresolved.omod.editorId.empty() ? std::string("(empty)") : unresolved.omod.editorId) +
+                        ", source=" + (unresolved.omod.sourcePlugin.empty() ? std::string("(unknown)") : unresolved.omod.sourcePlugin) +
+                        ", consumes=" + ToHexFormId(unresolved.consumesAttachPoint.formId) +
+                        ", provides=" + JoinFormRefEditorIds(unresolved.providesAttachParentSlots) + ".");
+                }
+
+                if (!GetForceUnsafeSwaps(weaponInfo.weapon)) {
+                    return fail("dependency-cycle", "The installed attachment dependencies could not be ordered safely.");
+                }
+
+                preparation.unsafeOverrideUsed = true;
+                log::Warn(
+                    "Per-weapon Force Unsafe Swaps override accepted the unresolved dependency cycle for weapon=" +
+                    ToHexFormId(weaponInfo.weapon.formId) + ".");
+                std::sort(removals.begin(), removals.end(), [](const auto& left, const auto& right) {
+                    return left.omod.formId < right.omod.formId;
+                });
+                for (const auto& unresolved : removals) {
+                    preparation.dependentRemovalOmodFormIds.push_back(unresolved.omod.formId);
+                }
+                removals.clear();
+                break;
             }
             preparation.dependentRemovalOmodFormIds.push_back(leaf->omod.formId);
             removals.erase(leaf);
@@ -2235,10 +2316,17 @@ namespace k2040
 
         preparation.success = true;
         preparation.required = !preparation.looseReturns.empty();
-        preparation.status = preparation.required ? "return-required" : "no-return-required";
-        preparation.message = preparation.required
-            ? "Installed attachments must be returned before the provider changes."
-            : "No loose mod needs to be returned before the attachment changes.";
+        if (preparation.unsafeOverrideUsed) {
+            preparation.status = preparation.required ? "forced-unsafe-return-required" : "forced-unsafe-no-return-required";
+            preparation.message = preparation.required
+                ? "Force Unsafe Swaps accepted an unresolved dependency cycle; installed attachments must be returned before the provider changes."
+                : "Force Unsafe Swaps accepted an unresolved dependency cycle.";
+        } else {
+            preparation.status = preparation.required ? "return-required" : "no-return-required";
+            preparation.message = preparation.required
+                ? "Installed attachments must be returned before the provider changes."
+                : "No loose mod needs to be returned before the attachment changes.";
+        }
         return preparation;
     }
 
@@ -2341,6 +2429,7 @@ namespace k2040
             return fail(revalidatedPlan.status, revalidatedPlan.message);
         }
         if (revalidatedPlan.previousOmodFormId != request.expectedPreviousOmodFormId ||
+            revalidatedPlan.unsafeOverrideUsed != request.unsafeOverrideUsed ||
             revalidatedPlan.dependentRemovalOmodFormIds != request.dependentRemovalOmodFormIds ||
             revalidatedPlan.looseReturns.size() != request.preparedLooseReturns.size()) {
             return fail("dependency-state-changed", "The installed attachment dependencies changed before the weapon could be updated.");

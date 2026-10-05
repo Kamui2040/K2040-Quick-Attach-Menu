@@ -21,6 +21,8 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - Export and import of distributable per-weapon menu profiles.
 - Live attachment validation, provider/child ordering, inventory verification,
   and rollback for supported changes.
+- An off-by-default, per-weapon Force unsafe swaps escape hatch for diagnosed
+  dependency cycles.
 
 Version 0.5.197 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
@@ -73,6 +75,8 @@ Per-weapon controls can:
 - reorder categories and entries by dragging;
 - replace labels without changing the source records;
 - override global bracketed-text cleanup;
+- enable or restore safe swaps for this weapon; the unsafe override affects
+  dependency-cycle refusals only;
 - export or import that weapon's presentation profile.
 
 General settings include presentation, background opacity, layout scale and
