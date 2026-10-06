@@ -13,7 +13,7 @@ This document defines how those 95 icons should be authored and reviewed.
 - Rounded line caps and joins.
 - Transparent background.
 - Monochrome and recolorable by the UI.
-- Outline-first. Use solid fill only when it materially improves readability.
+- Silhouette-first. Prefer solid monochrome bodies with transparent negative-space cutouts; use strokes only for secondary detail when needed.
 - One dominant silhouette, with at most two secondary details.
 - Avoid details that disappear at 22 px.
 - No text, logos, trademarks, or exact branded product geometry.

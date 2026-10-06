@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1] / "data" / "icon_library"
@@ -140,8 +141,30 @@ for class_id, entry in art_entries.items():
     if not entry.get("subject") or not entry.get("distinguishing_feature"):
         errors.append(f"incomplete artwork brief: {class_id}")
     allowed_status = set(artwork_manifest.get("status_values", []))
-    if entry.get("status") not in allowed_status:
-        errors.append(f"invalid artwork status: {class_id} -> {entry.get('status')}")
+    status = entry.get("status")
+    if status not in allowed_status:
+        errors.append(f"invalid artwork status: {class_id} -> {status}")
+
+    if status in {"draft", "approved"}:
+        asset_root = artwork_manifest.get("asset_root")
+        asset_path = root.parents[1] / asset_root / filename if asset_root and filename else None
+        if asset_path is None or not asset_path.is_file():
+            errors.append(f"missing artwork asset: {class_id} -> {asset_path}")
+        else:
+            try:
+                svg_root = ET.parse(asset_path).getroot()
+                if not svg_root.tag.endswith("svg"):
+                    errors.append(f"artwork root is not svg: {class_id}")
+                if svg_root.attrib.get("viewBox") != artwork_manifest["render_contract"]["view_box"]:
+                    errors.append(f"artwork viewBox mismatch: {class_id}")
+                if any(element.tag.endswith("text") for element in svg_root.iter()):
+                    errors.append(f"text element forbidden in artwork: {class_id}")
+                raw_svg = asset_path.read_text(encoding="utf-8")
+                if "currentColor" not in raw_svg:
+                    errors.append(f"artwork is not recolor-friendly: {class_id}")
+            except Exception as exc:
+                errors.append(f"invalid artwork svg {class_id}: {exc}")
+
     batch = str(entry.get("batch"))
     batch_counts[batch] = batch_counts.get(batch, 0) + 1
 

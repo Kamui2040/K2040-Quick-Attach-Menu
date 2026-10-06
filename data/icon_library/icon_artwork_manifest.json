@@ -9,7 +9,7 @@
     "stroke_width": 1.6,
     "line_cap": "round",
     "line_join": "round",
-    "fill_policy": "outline-first; solid fills only when required for readability",
+    "fill_policy": "silhouette-first; solid currentColor bodies with transparent negative-space cutouts; strokes only for secondary detail when needed",
     "color_policy": "monochrome; artwork must be recolorable by the UI",
     "background": "transparent",
     "detail_rule": "one dominant silhouette and at most two secondary details; must remain readable at 22x22",
@@ -63,7 +63,7 @@
       "subject": "generic weapon attachment",
       "orientation": "symbolic",
       "distinguishing_feature": "small neutral attachment block with two mounting tabs; no weapon-family cues",
-      "status": "planned"
+      "status": "draft"
     },
     "receiver.generic": {
       "filename": "receiver_generic.svg",
@@ -73,7 +73,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "simple receiver/body block with ejection-port cutout",
-      "status": "planned"
+      "status": "draft"
     },
     "receiver.fire_control": {
       "filename": "receiver_fire_control.svg",
@@ -133,7 +133,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "long thin precision barrel with extended profile",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.heavy": {
       "filename": "barrel_heavy.svg",
@@ -263,7 +263,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "long cylindrical suppressor can",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.brake_compensator": {
       "filename": "muzzle_brake_compensator.svg",
@@ -273,7 +273,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "short muzzle device with large side ports",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.flash_hider": {
       "filename": "muzzle_flash_hider.svg",
@@ -353,7 +353,7 @@
       "subject": "weapon sight / optic",
       "orientation": "side",
       "distinguishing_feature": "small reflex window on low base",
-      "status": "planned"
+      "status": "draft"
     },
     "sights.holographic": {
       "filename": "sights_holographic.svg",
@@ -373,7 +373,7 @@
       "subject": "weapon sight / optic",
       "orientation": "side",
       "distinguishing_feature": "tube scope with objective bell and mount feet",
-      "status": "planned"
+      "status": "draft"
     },
     "sights.magnifier": {
       "filename": "sights_magnifier.svg",
@@ -463,7 +463,7 @@
       "subject": "rear stock assembly",
       "orientation": "side",
       "distinguishing_feature": "large adjustable precision stock with cheek rest",
-      "status": "planned"
+      "status": "draft"
     },
     "stock.lightweight_short": {
       "filename": "stock_lightweight_short.svg",
@@ -573,7 +573,7 @@
       "subject": "ammunition feed container",
       "orientation": "side",
       "distinguishing_feature": "round drum magazine",
-      "status": "planned"
+      "status": "draft"
     },
     "magazine.box_belt": {
       "filename": "magazine_box_belt.svg",
@@ -653,7 +653,7 @@
       "subject": "underslung weapon accessory",
       "orientation": "side",
       "distinguishing_feature": "vertical foregrip below rail",
-      "status": "planned"
+      "status": "draft"
     },
     "underbarrel.angled_grip": {
       "filename": "underbarrel_angled_grip.svg",
@@ -733,7 +733,7 @@
       "subject": "compact rail-mounted accessory",
       "orientation": "side",
       "distinguishing_feature": "combined module with lamp circle plus beam line",
-      "status": "planned"
+      "status": "draft"
     },
     "rail_accessory.melee": {
       "filename": "rail_accessory_melee.svg",
@@ -753,7 +753,7 @@
       "subject": "cartridge / projectile",
       "orientation": "side",
       "distinguishing_feature": "single generic rifle cartridge",
-      "status": "planned"
+      "status": "draft"
     },
     "ammo_caliber.conversion": {
       "filename": "ammo_caliber_conversion.svg",
@@ -1028,5 +1028,6 @@
   ],
   "review_rule": "Artwork is not finished until its manifest status is approved after visual review.",
   "pilot_style_status": "approved",
-  "pilot_style_note": "FallUI/FIS-inspired monochrome silhouette language approved for production. Individual SVG assets remain planned until authored and reviewed."
+  "pilot_style_note": "FallUI/FIS-inspired monochrome silhouette language approved for production. Individual SVG assets remain planned until authored and reviewed.",
+  "asset_root": "assets/icon_library/svg"
 }
