@@ -1026,5 +1026,7 @@
     "approved",
     "rejected"
   ],
-  "review_rule": "Artwork is not finished until its manifest status is approved after visual review."
+  "review_rule": "Artwork is not finished until its manifest status is approved after visual review.",
+  "pilot_style_status": "approved",
+  "pilot_style_note": "FallUI/FIS-inspired monochrome silhouette language approved for production. Individual SVG assets remain planned until authored and reviewed."
 }
