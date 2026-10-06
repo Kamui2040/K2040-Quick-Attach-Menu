@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><circle cx="15" cy="12" r="2" fill="black"/></mask></defs>
+  <path fill="currentColor" mask="url(#cut)" d="M4 10h5v4H4zM9 8h8l4 4-4 4H9z"/>
+  <path fill="currentColor" d="M14 5h2v3h-2zM14 16h2v3h-2zM20 7l1.4 1.4-2.1 2.1-1.4-1.4zM20 17l-2.1-2.1 1.4-1.4 2.1 2.1z"/>
+</svg>

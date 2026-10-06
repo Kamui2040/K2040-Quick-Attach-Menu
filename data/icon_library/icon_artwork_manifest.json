@@ -83,7 +83,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver block with selector lever/three-position tick marks",
-      "status": "planned"
+      "status": "draft"
     },
     "receiver.bolt_action": {
       "filename": "receiver_bolt_action.svg",
@@ -93,7 +93,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver with prominent rear bolt handle",
-      "status": "planned"
+      "status": "draft"
     },
     "receiver.energy": {
       "filename": "receiver_energy.svg",
@@ -103,7 +103,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver body with capacitor/coil node",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.generic": {
       "filename": "barrel_generic.svg",
@@ -113,7 +113,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "medium straight barrel with chamber shoulder",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.short": {
       "filename": "barrel_short.svg",
@@ -123,7 +123,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "visibly shortened barrel with compact front end",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.long_precision": {
       "filename": "barrel_long_precision.svg",
@@ -143,7 +143,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "thick reinforced barrel profile",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.ported": {
       "filename": "barrel_ported.svg",
@@ -153,7 +153,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel with two or three clear top/side ports",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.shrouded": {
       "filename": "barrel_shrouded.svg",
@@ -163,7 +163,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel enclosed by a sleeve or heat shield",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.integral_suppressor": {
       "filename": "barrel_integral_suppressor.svg",
@@ -173,7 +173,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel flowing directly into a thick suppressor body",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.energy": {
       "filename": "barrel_energy.svg",
@@ -183,7 +183,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "energy barrel with coil/finned emitter section",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.flamer": {
       "filename": "barrel_flamer.svg",
@@ -193,7 +193,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "wide nozzle-like flame barrel with vented shroud",
-      "status": "planned"
+      "status": "draft"
     },
     "barrel.launcher_multi": {
       "filename": "barrel_launcher_multi.svg",
@@ -203,7 +203,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "large-bore or multi-tube launcher barrel",
-      "status": "planned"
+      "status": "draft"
     },
     "handguard.generic": {
       "filename": "handguard_generic.svg",
@@ -253,7 +253,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "plain muzzle cap/thread protector",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.suppressor": {
       "filename": "muzzle_suppressor.svg",
@@ -283,7 +283,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "open-prong flash hider silhouette",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.blast_device": {
       "filename": "muzzle_blast_device.svg",
@@ -293,7 +293,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "wide blast can/cone",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.choke": {
       "filename": "muzzle_choke.svg",
@@ -303,7 +303,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "short tapered shotgun choke",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.bayonet": {
       "filename": "muzzle_bayonet.svg",
@@ -313,7 +313,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "muzzle ring plus forward blade",
-      "status": "planned"
+      "status": "draft"
     },
     "muzzle.energy": {
       "filename": "muzzle_energy.svg",
@@ -323,7 +323,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "emitter/focuser shape with split beam or coil cue",
-      "status": "planned"
+      "status": "draft"
     },
     "sights.generic": {
       "filename": "sights_generic.svg",
@@ -1031,5 +1031,27 @@
   "pilot_style_note": "FallUI/FIS-inspired monochrome silhouette language approved for production. Individual SVG assets remain planned until authored and reviewed.",
   "asset_root": "assets/icon_library/svg",
   "pilot_assets_status": "approved",
-  "pilot_assets_note": "All 12 pilot SVG assets were visually reviewed and approved as the production baseline."
+  "pilot_assets_note": "All 12 pilot SVG assets were visually reviewed and approved as the production baseline.",
+  "review_sets": {
+    "batch_1a_receiver_barrel_muzzle": [
+      "receiver.fire_control",
+      "receiver.bolt_action",
+      "receiver.energy",
+      "barrel.generic",
+      "barrel.short",
+      "barrel.heavy",
+      "barrel.ported",
+      "barrel.shrouded",
+      "barrel.integral_suppressor",
+      "barrel.energy",
+      "barrel.flamer",
+      "barrel.launcher_multi",
+      "muzzle.generic",
+      "muzzle.flash_hider",
+      "muzzle.blast_device",
+      "muzzle.choke",
+      "muzzle.bayonet",
+      "muzzle.energy"
+    ]
+  }
 }
