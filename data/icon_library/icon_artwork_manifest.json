@@ -14,7 +14,8 @@
     "background": "transparent",
     "detail_rule": "one dominant silhouette and at most two secondary details; must remain readable at 22x22",
     "brand_rule": "generic shapes only; no logos, text, trademarks, or exact branded product geometry",
-    "source_rule": "original authored artwork only; do not trace or redistribute third-party icon assets"
+    "source_rule": "original authored artwork only; do not trace or redistribute third-party icon assets",
+    "style_reference": "Established FallUI/FIS icon-library visual language: compact monochrome symbols, strong silhouettes, restrained detail, recolorable UI presentation; original artwork only."
   },
   "batches": {
     "1": {

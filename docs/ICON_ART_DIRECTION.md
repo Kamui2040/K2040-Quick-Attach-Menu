@@ -21,6 +21,8 @@ This document defines how those 95 icons should be authored and reviewed.
 
 ## Visual language
 
+The visual reference is the established FallUI/FIS icon-library language: compact monochrome UI symbols with strong silhouettes, restrained internal detail, and clean readability at inventory-icon sizes. The goal is visual compatibility with common FallUI icon mods, not duplication of their individual artwork. All icons in this project remain original authored assets.
+
 The set should look like one technical inventory system rather than 95 separate illustrations.
 
 - Long weapon parts normally use a left-to-right side profile.
