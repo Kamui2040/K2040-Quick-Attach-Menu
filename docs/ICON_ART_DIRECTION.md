@@ -57,7 +57,7 @@ Approve these before producing the complete set:
 The pilot deliberately mixes simple and complex silhouettes. It is the style gate for stroke weight,
 negative space, optical centering, readability, and category consistency.
 
-Pilot visual style: **approved**. This approves the shared visual language only; each individual SVG still requires its own artwork review before its manifest status becomes approved.
+Pilot visual style: **approved**. All 12 pilot SVG assets are also individually **approved** and now define the production baseline for the remaining icons.
 
 ### Batch 1 — Core weapon geometry
 
