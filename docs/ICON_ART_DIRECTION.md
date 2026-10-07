@@ -26,6 +26,7 @@ The visual reference is the established FallUI/FIS icon-library language: compac
 The set should look like one technical inventory system rather than 95 separate illustrations.
 
 - Prefer the smoother, recognizable silhouettes and tapered/rounded contours seen in Extra Icons/FallUI over blocky rectangular construction.
+- Do not derive a production icon from the semantic label alone. Ground each silhouette in real visual references for that attachment type, then author a distinct original shape. The first 18-icon receiver/barrel/muzzle production batch proved that abstracting from labels alone produces unacceptable generic/blocky results.
 - Long weapon parts normally use a left-to-right side profile.
 - Small mechanical parts use a simplified side profile or schematic symbol.
 - Optics use their recognizable outer silhouette, not internal branding.

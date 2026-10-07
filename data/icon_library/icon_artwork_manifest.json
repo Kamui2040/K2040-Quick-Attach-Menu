@@ -83,7 +83,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver block with selector lever/three-position tick marks",
-      "status": "draft"
+      "status": "rejected"
     },
     "receiver.bolt_action": {
       "filename": "receiver_bolt_action.svg",
@@ -93,7 +93,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver with prominent rear bolt handle",
-      "status": "draft"
+      "status": "rejected"
     },
     "receiver.energy": {
       "filename": "receiver_energy.svg",
@@ -103,7 +103,7 @@
       "subject": "receiver / weapon-body block",
       "orientation": "side",
       "distinguishing_feature": "receiver body with capacitor/coil node",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.generic": {
       "filename": "barrel_generic.svg",
@@ -113,7 +113,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "medium straight barrel with chamber shoulder",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.short": {
       "filename": "barrel_short.svg",
@@ -123,7 +123,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "visibly shortened barrel with compact front end",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.long_precision": {
       "filename": "barrel_long_precision.svg",
@@ -143,7 +143,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "thick reinforced barrel profile",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.ported": {
       "filename": "barrel_ported.svg",
@@ -153,7 +153,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel with two or three clear top/side ports",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.shrouded": {
       "filename": "barrel_shrouded.svg",
@@ -163,7 +163,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel enclosed by a sleeve or heat shield",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.integral_suppressor": {
       "filename": "barrel_integral_suppressor.svg",
@@ -173,7 +173,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "barrel flowing directly into a thick suppressor body",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.energy": {
       "filename": "barrel_energy.svg",
@@ -183,7 +183,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "energy barrel with coil/finned emitter section",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.flamer": {
       "filename": "barrel_flamer.svg",
@@ -193,7 +193,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "wide nozzle-like flame barrel with vented shroud",
-      "status": "draft"
+      "status": "rejected"
     },
     "barrel.launcher_multi": {
       "filename": "barrel_launcher_multi.svg",
@@ -203,7 +203,7 @@
       "subject": "barrel assembly",
       "orientation": "side",
       "distinguishing_feature": "large-bore or multi-tube launcher barrel",
-      "status": "draft"
+      "status": "rejected"
     },
     "handguard.generic": {
       "filename": "handguard_generic.svg",
@@ -253,7 +253,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "plain muzzle cap/thread protector",
-      "status": "draft"
+      "status": "rejected"
     },
     "muzzle.suppressor": {
       "filename": "muzzle_suppressor.svg",
@@ -283,7 +283,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "open-prong flash hider silhouette",
-      "status": "draft"
+      "status": "rejected"
     },
     "muzzle.blast_device": {
       "filename": "muzzle_blast_device.svg",
@@ -293,7 +293,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "wide blast can/cone",
-      "status": "draft"
+      "status": "rejected"
     },
     "muzzle.choke": {
       "filename": "muzzle_choke.svg",
@@ -303,7 +303,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "short tapered shotgun choke",
-      "status": "draft"
+      "status": "rejected"
     },
     "muzzle.bayonet": {
       "filename": "muzzle_bayonet.svg",
@@ -313,7 +313,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "muzzle ring plus forward blade",
-      "status": "draft"
+      "status": "rejected"
     },
     "muzzle.energy": {
       "filename": "muzzle_energy.svg",
@@ -323,7 +323,7 @@
       "subject": "muzzle-end device",
       "orientation": "side",
       "distinguishing_feature": "emitter/focuser shape with split beam or coil cue",
-      "status": "draft"
+      "status": "rejected"
     },
     "sights.generic": {
       "filename": "sights_generic.svg",
@@ -1052,6 +1052,8 @@
       "muzzle.choke",
       "muzzle.bayonet",
       "muzzle.energy"
-    ]
+    ],
+    "batch_1a_receiver_barrel_muzzle_status": "rejected",
+    "batch_1a_receiver_barrel_muzzle_note": "Rejected as a whole after visual review. Do not iterate from this geometry; replace with fresh reference-grounded silhouettes."
   }
 }
