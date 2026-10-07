@@ -21,10 +21,11 @@ This document defines how those 95 icons should be authored and reviewed.
 
 ## Visual language
 
-The visual reference is the established FallUI/FIS icon-library language: compact monochrome UI symbols with strong silhouettes, restrained internal detail, and clean readability at inventory-icon sizes. The goal is visual compatibility with common FallUI icon mods, not duplication of their individual artwork. All icons in this project remain original authored assets.
+The visual reference is the established FallUI/FIS icon-library language: compact monochrome UI symbols with strong silhouettes, restrained internal detail, and clean readability at inventory-icon sizes. **Extra Icons for FIS is the primary reference for shape language and silhouette treatment** because it extends the same ecosystem with additional weapon and item icon variants. Use it to guide broad proportions, contour vocabulary, negative-space treatment, and small-size readability. Do not trace, extract, convert, or reproduce individual Extra Icons assets. All project icons remain original authored SVGs.
 
 The set should look like one technical inventory system rather than 95 separate illustrations.
 
+- Prefer the smoother, recognizable silhouettes and tapered/rounded contours seen in Extra Icons/FallUI over blocky rectangular construction.
 - Long weapon parts normally use a left-to-right side profile.
 - Small mechanical parts use a simplified side profile or schematic symbol.
 - Optics use their recognizable outer silhouette, not internal branding.

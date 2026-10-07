@@ -15,7 +15,7 @@
     "detail_rule": "one dominant silhouette and at most two secondary details; must remain readable at 22x22",
     "brand_rule": "generic shapes only; no logos, text, trademarks, or exact branded product geometry",
     "source_rule": "original authored artwork only; do not trace or redistribute third-party icon assets",
-    "style_reference": "Established FallUI/FIS icon-library visual language: compact monochrome symbols, strong silhouettes, restrained detail, recolorable UI presentation; original artwork only."
+    "style_reference": "Established FallUI/FIS visual language, using Extra Icons for FIS as the primary shape-language reference for broad silhouette proportions, contour vocabulary, negative space, and small-size readability. Original artwork only; do not trace, extract, convert, or reproduce individual third-party assets."
   },
   "batches": {
     "1": {
