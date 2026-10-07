@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><rect x="10" y="10.5" width="7" height="3" rx="1.4" fill="black"/></mask></defs>
-  <path fill="currentColor" mask="url(#cut)" d="M3 9h5v6H3zM8 8h10v8H8zM18 9.5h3v5h-3z"/>
-  <path fill="currentColor" d="M10 6.5h1.5V8H10zM13 6.5h1.5V8H13zM16 6.5h1.5V8H16zM10 16h1.5v1.5H10zM13 16h1.5v1.5H13zM16 16h1.5v1.5H16z"/>
+  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><ellipse cx="14.4" cy="12" rx="3.5" ry="2.1" fill="black"/></mask></defs>
+  <path fill="currentColor" mask="url(#cut)" d="M3.2 8.7h5.4l1.5 1h8.2l2.7 2.3-2.7 2.3h-8.2l-1.5 1H3.2z"/>
+  <path fill="currentColor" d="M11 6.8h1.4v2.5H11zM14 6.3h1.4v3H14zM17 6.8h1.4v2.5H17zM11 14.7h1.4v2.5H11zM14 14.7h1.4v3H14zM17 14.7h1.4v2.5H17z"/>
 </svg>

@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><rect x="11" y="10.5" width="8" height="3" rx="1.5" fill="black"/></mask></defs>
-  <path fill="currentColor" mask="url(#cut)" d="M4 10h5v4H4zM9 8.5h5L21 6v12l-7-2.5H9z"/>
+  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><path d="M11.1 10.6h7.4" stroke="black" stroke-width="2.4" stroke-linecap="round"/></mask></defs>
+  <path fill="currentColor" mask="url(#cut)" d="M3.6 9.8h5.1l1.5-1.4h3L21.5 5v14l-8.3-3.4h-3l-1.5-1.4H3.6z"/>
 </svg>

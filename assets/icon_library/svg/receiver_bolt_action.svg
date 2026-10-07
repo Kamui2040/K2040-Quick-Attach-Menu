@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><rect x="7" y="11" width="7" height="2" rx=".5" fill="black"/></mask></defs>
-  <path fill="currentColor" mask="url(#cut)" d="M4 8h13l2 2v5H8l-1.5 2H4z"/>
-  <path fill="currentColor" d="M14 9h2.2l1.8-2 1.2 1-1.5 2.2 2.3 1.5-.9 1.4-3.1-1.7H14z"/>
+  <defs><mask id="cut"><rect width="24" height="24" fill="white"/><path d="M7.4 11h7.2" stroke="black" stroke-width="1.7" stroke-linecap="round"/></mask></defs>
+  <path fill="currentColor" mask="url(#cut)" d="M3.8 8.6h12.7l3.3 2v4.4h-7.3l-1.7 2H6.1L5 14.8H3.8z"/>
+  <path fill="currentColor" d="M14.2 8.7h2.2l1.8-2.3 1.3 1-1.5 2 2 1.4-1 1.4-3-1.8h-1.8z"/>
+  <circle fill="currentColor" cx="19.6" cy="7" r="1.15"/>
 </svg>
