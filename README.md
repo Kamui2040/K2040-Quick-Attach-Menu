@@ -24,7 +24,7 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - An off-by-default, per-weapon Force unsafe swaps escape hatch for diagnosed
   dependency cycles.
 
-Version 0.5.197 is intentionally text-only. Attachment icons and weapon-preview
+Version 0.5.198 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
 
 ## Requirements
@@ -39,9 +39,11 @@ the mod's own Settings page remain available.
 Other Fallout 4 runtimes, Fallout 4 VR, and mismatched F4SE or PrismaUI builds
 are not supported by this release.
 
-Version 0.5.197 passed focused runtime testing on Fallout 4 `1.11.240`. The
-original-game compatibility path remains included, but this version was not
-rerun on `1.10.163`.
+Version 0.5.198 received focused external confirmation that the reported
+Tactical Reload false safety block was resolved. The broader attachment
+regression matrix was not independently repeated for this release. Version
+0.5.197 passed focused runtime testing on Fallout 4 `1.11.240`; its original-game
+compatibility path remains included but was not rerun on `1.10.163`.
 
 ## Installation
 
