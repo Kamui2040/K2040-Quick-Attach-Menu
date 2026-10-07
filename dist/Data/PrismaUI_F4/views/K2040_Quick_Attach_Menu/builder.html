@@ -38,6 +38,7 @@
     }
     .weapon-setting { display: flex; align-items: center; gap: 8px; }
     .weapon-setting input { accent-color: var(--accent); }
+    .weapon-setting-warning { color: var(--hidden); }
     .choice-control { position: relative; min-width: 190px; color: var(--text); }
     .choice-trigger {
       width: 100%; min-height: 31px; padding: 6px 9px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -167,6 +168,11 @@
           </div>
         </div>
       </div>
+      <label class="weapon-setting weapon-setting-warning" title="Only bypasses a dependency-cycle refusal. All other live safety checks remain active.">
+        <input id="forceUnsafeSwaps" type="checkbox" aria-describedby="forceUnsafeSwapsHelp">
+        <span>Force unsafe swaps</span>
+        <span id="forceUnsafeSwapsHelp">Dependency cycles only</span>
+      </label>
     </div>
     <main>
       <section class="pane">
@@ -361,6 +367,10 @@
       for (var i = 0; i < options.length; i += 1) {
         options[i].setAttribute("aria-selected", options[i].dataset.value === value ? "true" : "false");
       }
+    }
+    function updateForceUnsafeSwapsControl() {
+      var parser = payload && payload.parser ? payload.parser : {};
+      document.getElementById("forceUnsafeSwaps").checked = !!parser.forceUnsafeSwaps;
     }
     function setBracketedTextOpen(open, focusSelected) {
       var trigger = document.getElementById("bracketedTextTrigger");
@@ -608,6 +618,7 @@
       updateProfileStatus();
       updateMenuSourceControl();
       updateBracketedTextControl();
+      updateForceUnsafeSwapsControl();
       var host = document.getElementById("categories");
       host.innerHTML = "";
       var list = categories();
@@ -672,6 +683,12 @@
     document.getElementById("reset").addEventListener("click", function() { send("reset"); });
     document.getElementById("resetOrder").addEventListener("click", function() { send("reset-order"); });
     document.getElementById("resetNames").addEventListener("click", function() { send("reset-labels"); });
+    document.getElementById("forceUnsafeSwaps").addEventListener("change", function(event) {
+      if (!payload) payload = {};
+      if (!payload.parser) payload.parser = {};
+      payload.parser.forceUnsafeSwaps = !!event.target.checked;
+      send("force-unsafe-swaps:" + (event.target.checked ? "1" : "0"));
+    });
     document.getElementById("exportProfile").addEventListener("click", function() {
       document.getElementById("profileStatus").textContent = "Exporting weapon menu…";
       send("export-profile");

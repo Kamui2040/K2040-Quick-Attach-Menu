@@ -809,6 +809,7 @@ namespace k2040
         json << "\"authoredMenuOverride\":\"" << AuthoredMenuOverrideName(GetAuthoredMenuOverride(menu.weapon)) << "\",";
         json << "\"bracketedTextOverride\":\"" <<
             BracketedTextOverrideName(GetBracketedTextOverride(menu.weapon)) << "\",";
+        json << "\"forceUnsafeSwaps\":" << (GetForceUnsafeSwaps(menu.weapon) ? "true" : "false") << ",";
         json << "\"status\":\"" << JsonEscape(menu.status) << "\",";
 
         // Root and menu form refs
@@ -1805,6 +1806,29 @@ namespace k2040
             return;
         }
 
+        constexpr std::string_view forceUnsafeSwapsPrefix = "force-unsafe-swaps:";
+        if (command.rfind(forceUnsafeSwapsPrefix, 0) == 0) {
+            const auto value = command.substr(forceUnsafeSwapsPrefix.size());
+            if (value != "0" && value != "1") {
+                log::Warn("Menu-builder Force Unsafe Swaps preference was invalid.");
+                return;
+            }
+            const bool enabled = value == "1";
+            changed = SetForceUnsafeSwaps(currentMenu_.weapon, enabled);
+            const auto& diagnostics = GetUserSettingsDiagnostics();
+            const bool saved = !diagnostics.dirty || SaveUserPreferences();
+            if (changed && !saved) {
+                log::Warn("Menu-builder Force Unsafe Swaps preference could not be saved.");
+            }
+            RefreshBuilderPayload();
+            if (!changed) {
+                log::Info("Per-weapon Force Unsafe Swaps preference already matched the request.");
+            } else if (saved) {
+                log::Info(std::string("Per-weapon Force Unsafe Swaps ") + (enabled ? "enabled." : "disabled; safe swaps restored."));
+            }
+            return;
+        }
+
         if (!currentMenu_.valid) {
             log::Warn("Menu-builder change rejected because no editable menu is available.");
             return;
@@ -2328,6 +2352,7 @@ namespace k2040
         }
 
         request.expectedPreviousOmodFormId = preparation.previousOmodFormId;
+        request.unsafeOverrideUsed = preparation.unsafeOverrideUsed;
         request.dependentRemovalOmodFormIds = preparation.dependentRemovalOmodFormIds;
 
         for (const auto& plannedReturn : preparation.looseReturns) {

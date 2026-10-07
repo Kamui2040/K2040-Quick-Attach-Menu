@@ -1,15 +1,28 @@
 # Current Project State
 
-- Current public release: `0.5.197`
-- Previous public release: `0.5.192`
+- Current public release: `0.5.198`
+- Previous public release: `0.5.197`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
-- Current-release runtime validation: Fallout 4 `1.11.240` with matching F4SE and compatible PrismaUI_F4; the original-game path remains included but was not rerun for 0.5.197
+- Current-release runtime validation: focused external confirmation that the
+  reported Tactical Reload false safety block is resolved; the broader
+  attachment regression matrix was not independently repeated for 0.5.198
 - Release presentation: text-only; icons and weapon preview are not included
 
-## Current release
+Version `0.5.198` keeps the three
+known `TacticalReload_IngameSwitch.esp` infrastructure OMODs internal and out of
+dependency-removal planning, and adds a stable WEAP-keyed **Force unsafe swaps**
+override for dependency-cycle refusals only. The override defaults off and is
+not included in distributable weapon menu profiles. The clean Linux releasedbg
+build and static validation passed. Focused external testing confirmed that the
+reported Tactical Reload false **Attachment unable to swap safely** case is
+resolved; the broader attachment regression matrix was not independently
+repeated for this release.
 
-Version `0.5.197` adds a persistent diagnostic-logging toggle and a shared
+## Release history
+
+Version `0.5.197`, the previous public release, adds a persistent
+diagnostic-logging toggle and a shared
 0%-100% gameplay slowdown setting for the Quick Menu, Builder, and Settings
 pages. Zero keeps normal time, intermediate values slow proportionally, and 100
 fully pauses. The implementation preserves external time changes instead of

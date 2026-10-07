@@ -254,6 +254,7 @@ namespace k2040
         uint32_t targetOmodFormId = 0;
         uint32_t consumedAttachPointFormId = 0;
         uint32_t expectedPreviousOmodFormId = 0;
+        bool unsafeOverrideUsed = false;
         std::vector<uint32_t> dependentRemovalOmodFormIds;
         std::vector<AttachmentLooseReturn> preparedLooseReturns;
     };
@@ -265,6 +266,7 @@ namespace k2040
         std::string status;
         std::string message;
         uint32_t previousOmodFormId = 0;
+        bool unsafeOverrideUsed = false;
         std::vector<uint32_t> dependentRemovalOmodFormIds;
         std::vector<AttachmentLooseReturn> looseReturns;
     };

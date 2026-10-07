@@ -34,6 +34,13 @@ cannot be completely verified remain unavailable. Supported leaf and provider
 replacement paths continue to use live operation-level checks, exact inventory
 verification, post-change verification, and rollback.
 
+Version 0.5.198 recognizes the three known
+`TacticalReload_IngameSwitch.esp` infrastructure OMODs without relaxing normal
+dependency ordering. It also adds an off-by-default per-weapon override for
+dependency-cycle refusals. Focused external testing confirmed that the reported
+Tactical Reload false safety block is resolved; the broader attachment
+regression matrix was not independently repeated for this release.
+
 ## This release is text-only
 
 Inventory and workbench icon tags are not a reliable semantic source for every
