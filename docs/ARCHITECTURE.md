@@ -168,11 +168,12 @@ not provide a custom native action for opening the Builder or Quick Menu.
 
 ## Attachment transaction safety
 
-Runtime-validated leaf installs, one-for-one replacements, and provider changes
-with installed-child removal are available through the normal quick menu. There
-is no global mutation switch. Every operation is revalidated against the live
-weapon, exact equipped stack, inventory, and hypothetical post-change attachment
-graph before it can change anything.
+Runtime-validated leaf and provider installs into empty points, one-for-one
+replacements, and provider changes with installed-child removal are available
+through the normal quick menu. There is no global mutation switch. Every
+operation is revalidated against the live weapon, exact equipped stack,
+inventory, and hypothetical post-change attachment graph before it can change
+anything.
 
 An identity-keyed per-weapon Force Unsafe Swaps preference defaults off. When
 enabled, it bypasses only the final dependency-cycle ordering refusal after the
@@ -181,12 +182,16 @@ weapon, stack, inventory, form, attachment-point, stale-state, return, mutation,
 post-change, or rollback checks. Turning it off restores normal fail-closed
 dependency handling for that weapon.
 
-The transaction accepts either a one-for-one replacement or a first leaf install
+The transaction accepts either a one-for-one replacement or a first install
 into an empty, live-reachable attachment point on an exact equipped inventory
-stack. The consumed point may come from the base weapon or an unchanged installed
-provider. Installing a new provider into an empty point, ambiguous installed or
-inventory state, unresolved forms, dependency cycles, stale menu state, and any
-operation that cannot be completely verified remain blocked individually.
+stack. The consumed point may come from the base weapon or an unchanged
+installed provider. A first provider install is accepted only when its
+hypothetical graph does not make an existing unreachable attachment live. The
+operation must leave every unrelated installed OMOD identity unchanged and the
+refreshed menu must expose each attachment point declared by the provider.
+Ambiguous installed or inventory state, unresolved forms, dependency cycles,
+stale menu state, and any operation that cannot be completely verified remain
+blocked individually.
 
 For a provider replacement, the runtime constructs the hypothetical post-change graph from the base weapon, unchanged installed OMODs, and the selected provider. Installed descendants that were live before but would become unreachable are scheduled for removal deepest-first. Their linked loose mods and the replaced provider's loose mod are returned through temporary world references and Fallout's normal pickup path before any weapon change. Inventory-neutral authored toggles require `AllowNoLooseModOptions`. The weapon transaction removes children before changing the provider, verifies every removed and installed identity plus inventory count, and rebuilds the menu so dependent category visibility follows the new live graph. Rollback restores the previous provider before reinstalling children. Failed pickup references are disabled and marked for deletion. The path does not dispatch Papyrus or edit inventory-stack metadata directly.
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.199
+
+- Allow a validated provider attachment to be installed into an empty,
+  live-reachable attachment point.
+- Keep the operation fail-closed when it would activate an existing unreachable
+  attachment, change unrelated installed OMOD identities, or fail to expose the
+  provider's attachment points after installation.
+- Preserve the existing inventory, live revalidation, post-change verification,
+  rollback, and dependency-cycle safety checks. **Force unsafe swaps** remains
+  limited to diagnosed dependency cycles.
+
 ## 0.5.198
 
 - Keep Tactical Reload's `TRT_mod_EntryPoint1`, `TRT_mod_EntryPoint2`, and

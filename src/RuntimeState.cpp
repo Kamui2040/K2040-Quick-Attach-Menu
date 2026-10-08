@@ -2152,10 +2152,6 @@ namespace k2040
         const auto* previousOption = installedOptions.empty() ? nullptr : installedOptions.front();
         preparation.previousOmodFormId = previousOption ? previousOption->omod.formId : 0;
 
-        if (!previousOption && !targetIt->providesAttachParentSlots.empty()) {
-            return fail("provider-install-locked", "Installing a new attachment provider is not enabled in this build.");
-        }
-
         if (!weaponInfo.equippedInventoryStackFound || weaponInfo.equippedInventoryStackCount != 1) {
             return fail("equipped-stack-ambiguous", "The equipped weapon is not stored as one unambiguous inventory stack.");
         }
@@ -2204,6 +2200,37 @@ namespace k2040
                 AppendUniqueFormRefs(hypotheticalReachable, installed.providesAttachParentSlots);
                 expanded = expanded || hypotheticalReachable.size() != before;
             }
+        }
+
+        const bool installingProviderIntoEmptyPoint =
+            !previousOption && !targetIt->providesAttachParentSlots.empty();
+        if (installingProviderIntoEmptyPoint) {
+            for (const auto& installed : menu.installedOmodAttachmentInfo) {
+                const bool reachableNow = ContainsFormId(
+                    menu.liveReachableAttachPoints,
+                    installed.consumesAttachPoint.formId);
+                const bool reachableAfter = ContainsFormId(
+                    hypotheticalReachable,
+                    installed.consumesAttachPoint.formId);
+                if (!reachableNow && reachableAfter) {
+                    log::Warn(
+                        "Empty provider installation would activate an existing unreachable attachment: OMOD=" +
+                        ToHexFormId(installed.omod.formId) +
+                        ", editor=" +
+                        (installed.omod.editorId.empty() ? std::string("(empty)") : installed.omod.editorId) +
+                        ", consumes=" + ToHexFormId(installed.consumesAttachPoint.formId) + ".");
+                    return fail(
+                        "provider-child-state-ambiguous",
+                        "An existing attachment would become active under the new provider, so the change was "
+                        "blocked.");
+                }
+            }
+
+            log::Info(
+                "Validated empty provider installation: weapon=" + ToHexFormId(weaponInfo.weapon.formId) +
+                ", targetOMOD=" + ToHexFormId(targetIt->omod.formId) +
+                ", consumes=" + ToHexFormId(targetIt->consumesAttachPoint.formId) +
+                ", provides=" + JoinFormRefEditorIds(targetIt->providesAttachParentSlots) + ".");
         }
 
         std::vector<OmodAttachmentInfo> removals;
@@ -2410,6 +2437,7 @@ namespace k2040
             targetIt->isInstalled || !targetIt->isSelectable || !targetIt->isStructurallyValid) {
             return fail("option-changed", "The selected attachment is no longer available.");
         }
+        const auto targetProvidedAttachPoints = targetIt->providesAttachParentSlots;
 
         if (!ContainsFormId(result.menu.liveReachableAttachPoints, request.consumedAttachPointFormId)) {
             return fail(
@@ -2444,6 +2472,9 @@ namespace k2040
         }
 
         const std::uint32_t previousOmodFormId = request.expectedPreviousOmodFormId;
+        const bool installingProviderIntoEmptyPoint =
+            previousOmodFormId == 0 && !targetProvidedAttachPoints.empty();
+        const auto originalInstalledOmods = result.weaponInfo.installedObjectInstanceMods;
 
         auto* player = RE::PlayerCharacter::GetSingleton();
         auto* weaponForm = RE::TESForm::GetFormByID(request.expectedWeaponFormId);
@@ -2513,6 +2544,24 @@ namespace k2040
             return ContainsFormId(info.installedObjectInstanceMods, formId);
         };
 
+        const auto providerInstallPreservedInstalledState = [&](const EquippedWeaponInfo& info) {
+            const auto containsOriginal = [&](std::uint32_t formId) {
+                return ContainsFormId(originalInstalledOmods, formId);
+            };
+            for (const auto& original : originalInstalledOmods) {
+                if (original.formId != request.targetOmodFormId &&
+                    !ContainsFormId(info.installedObjectInstanceMods, original.formId)) {
+                    return false;
+                }
+            }
+            for (const auto& current : info.installedObjectInstanceMods) {
+                if (current.formId != request.targetOmodFormId && !containsOriginal(current.formId)) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
         const auto removeOne = [&](RE::TESBoundObject* object) {
             if (!object || inventoryCount(object) == 0) return false;
             const auto before = inventoryCount(object);
@@ -2561,6 +2610,9 @@ namespace k2040
                     [&](const OmodAttachmentInfo& installed) {
                         return installed.consumesAttachPoint.formId == request.consumedAttachPointFormId;
                     });
+                if (installingProviderIntoEmptyPoint) {
+                    attachmentRestored = attachmentRestored && providerInstallPreservedInstalledState(rollbackInfo);
+                }
             }
             const bool dependentsRestored = std::all_of(
                 request.dependentRemovalOmodFormIds.begin(),
@@ -2585,7 +2637,9 @@ namespace k2040
             request.dependentRemovalOmodFormIds.begin(),
             request.dependentRemovalOmodFormIds.end(),
             [&](std::uint32_t formId) { return containsInstalled(changedInfo, formId); });
-        if (!targetInstalled || !previousRemoved || !dependentsRemoved) {
+        const bool providerInstallStatePreserved =
+            !installingProviderIntoEmptyPoint || providerInstallPreservedInstalledState(changedInfo);
+        if (!targetInstalled || !previousRemoved || !dependentsRemoved || !providerInstallStatePreserved) {
             const bool rollbackPassed = rollback("post-change attachment identity did not match the requested replacement");
             return fail(
                 rollbackPassed ? "attachment-change-rejected" : "rollback-failed",
@@ -2645,6 +2699,8 @@ namespace k2040
             request.dependentRemovalOmodFormIds.end(),
             [&](std::uint32_t formId) { return containsInstalled(result.weaponInfo, formId); });
         const bool finalTargetInventory = !targetLoose || inventoryCount(targetLoose) == expectedTargetLoose;
+        const bool finalProviderInstallStatePreserved =
+            !installingProviderIntoEmptyPoint || providerInstallPreservedInstalledState(result.weaponInfo);
         const bool finalReturnedInventory = std::all_of(
             request.preparedLooseReturns.begin(),
             request.preparedLooseReturns.end(),
@@ -2655,7 +2711,7 @@ namespace k2040
             });
 
         if (!finalTargetInstalled || !finalPreviousRemoved || !finalDependentsRemoved ||
-            !finalTargetInventory || !finalReturnedInventory) {
+            !finalTargetInventory || !finalReturnedInventory || !finalProviderInstallStatePreserved) {
             const bool rollbackPassed = rollback("final attachment or inventory verification failed");
             return fail(
                 rollbackPassed ? "final-verification-failed" : "rollback-failed",
@@ -2673,6 +2729,22 @@ namespace k2040
                 rollbackPassed
                     ? "The refreshed menu could not be rebuilt and the original state was restored."
                     : "The refreshed menu failed and rollback could not be fully verified. Reload the test save before continuing.",
+                rollbackPassed);
+        }
+
+        if (installingProviderIntoEmptyPoint && !std::all_of(
+                targetProvidedAttachPoints.begin(),
+                targetProvidedAttachPoints.end(),
+                [&](const FormRef& provided) {
+                    return ContainsFormId(result.menu.liveReachableAttachPoints, provided.formId);
+                })) {
+            const bool rollbackPassed = rollback("the installed provider did not expose its attachment points");
+            return fail(
+                rollbackPassed ? "provider-install-verification-failed" : "rollback-failed",
+                rollbackPassed
+                    ? "The provider installation could not be verified and the original state was restored."
+                    : "The provider installation failed and rollback could not be fully verified. Reload the test "
+                      "save before continuing.",
                 rollbackPassed);
         }
 

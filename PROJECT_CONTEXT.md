@@ -9,6 +9,17 @@
   attachment regression matrix was not independently repeated for 0.5.198
 - Release presentation: text-only; icons and weapon preview are not included
 
+Version `0.5.199` is an unreleased compatibility candidate. It allows a
+provider attachment to be installed into an empty, live-reachable attachment
+point only when the hypothetical graph does not activate an existing unreachable
+attachment. The transaction requires the unrelated installed OMOD identities to
+remain unchanged, verifies the provider's attachment points after installation,
+and retains the existing inventory, rollback, and live revalidation checks.
+The clean Linux releasedbg build and static validation passed. Focused external
+testing confirmed the reported SREP barrel-to-empty-muzzle path succeeds without
+using **Force unsafe swaps**; the broader attachment regression matrix was not
+independently repeated for this candidate.
+
 Version `0.5.198` keeps the three
 known `TacticalReload_IngameSwitch.esp` infrastructure OMODs internal and out of
 dependency-removal planning, and adds a stable WEAP-keyed **Force unsafe swaps**

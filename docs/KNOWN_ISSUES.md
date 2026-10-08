@@ -28,11 +28,16 @@ candidate ignores disabled entries for installed identity.
 
 ## Unsupported attachment operations fail closed
 
-Provider installation into an empty point, ambiguous inventory stacks,
-unresolved forms, dependency cycles, stale menu state, and any operation that
-cannot be completely verified remain unavailable. Supported leaf and provider
-replacement paths continue to use live operation-level checks, exact inventory
-verification, post-change verification, and rollback.
+Ambiguous inventory stacks, unresolved forms, dependency cycles, stale menu
+state, and any operation that cannot be completely verified remain unavailable.
+Supported leaf, provider-install, and provider-replacement paths continue to use
+live operation-level checks, exact inventory verification, post-change
+verification, and rollback.
+
+The unreleased 0.5.199 candidate allows a provider attachment to be installed
+into an empty, live-reachable attachment point. It remains blocked if the
+hypothetical graph would activate an existing unreachable attachment or if the
+transaction changes unrelated installed OMOD identities.
 
 Version 0.5.198 recognizes the three known
 `TacticalReload_IngameSwitch.esp` infrastructure OMODs without relaxing normal
