@@ -1,15 +1,16 @@
 # Current Project State
 
-- Current public release: `0.5.198`
-- Previous public release: `0.5.197`
+- Current public release: `0.5.199`
+- Previous public release: `0.5.198`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
 - Current-release runtime validation: focused external confirmation that the
-  reported Tactical Reload false safety block is resolved; the broader
-  attachment regression matrix was not independently repeated for 0.5.198
+  reported Tactical Reload false safety block and SREP barrel-to-empty-muzzle
+  path are resolved; the broader attachment regression matrix was not
+  independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
-Version `0.5.199` is an unreleased compatibility candidate. It allows a
+Version `0.5.199` is the current public release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment
 point only when the hypothetical graph does not activate an existing unreachable
 attachment. The transaction requires the unrelated installed OMOD identities to
@@ -18,7 +19,7 @@ and retains the existing inventory, rollback, and live revalidation checks.
 The clean Linux releasedbg build and static validation passed. Focused external
 testing confirmed the reported SREP barrel-to-empty-muzzle path succeeds without
 using **Force unsafe swaps**; the broader attachment regression matrix was not
-independently repeated for this candidate.
+independently repeated for this release.
 
 Version `0.5.198` keeps the three
 known `TacticalReload_IngameSwitch.esp` infrastructure OMODs internal and out of
