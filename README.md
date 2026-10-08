@@ -105,11 +105,13 @@ inventory and mutation checks. See
 ## Compatibility and safety
 
 The plugin fails closed when an attachment operation cannot be fully resolved
-or verified. Supported changes include validated leaf installation,
-one-for-one replacement, and provider replacement with installed descendants
-removed in dependency order. Ambiguous inventory stacks, unresolved graphs,
-dependency cycles, stale selections, and unvalidated provider installation into
-an empty point remain blocked.
+or verified. Supported changes include validated leaf or provider installation
+into an empty live-reachable point, one-for-one replacement, and provider
+replacement with installed descendants removed in dependency order. An empty
+provider install is blocked if it would activate an existing unreachable
+attachment or change unrelated installed attachment identities. Ambiguous
+inventory stacks, unresolved graphs, dependency cycles, and stale selections
+remain blocked.
 
 See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) and
 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) for the release boundary.

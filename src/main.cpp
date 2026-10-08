@@ -18,7 +18,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500C6; // 0.5.198
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500C7; // 0.5.199
 
     void OnPluginLoaded()
     {

@@ -7,7 +7,7 @@
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.197` |
+| Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
 The release DLL is built with DCCStudios/CommonLibF4 revision
@@ -70,6 +70,14 @@ pause, and retained Cascade visibility after an attachment change. The exact
 0.5.197 was not runtime-tested on Fallout 4 `1.10.163`; the source
 and build retain the original-game path and its previously validated address,
 but that runtime family is unverified for this release.
+
+Version 0.5.198 received focused external confirmation that the reported
+Tactical Reload false safety block is resolved. The broader attachment
+regression matrix was not independently repeated for that release.
+
+The unreleased 0.5.199 candidate adds guarded provider installation into an
+empty, live-reachable attachment point. Target-runtime validation is required
+before this path can be considered successful.
 
 ## PrismaUI SDK provenance
 

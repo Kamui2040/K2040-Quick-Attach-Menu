@@ -32,6 +32,10 @@ Only durable product decisions belong here. Current release state belongs in
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
+- A provider may be installed into an empty, live-reachable attachment point
+  only when it activates no existing unreachable attachment, changes no
+  unrelated installed OMOD identity, and exposes its declared attachment points
+  after installation.
 - Force Unsafe Swaps is a stable-WEAP, per-weapon escape hatch that defaults
   off and bypasses only a diagnosed dependency-cycle ordering refusal. All
   other transaction checks remain active, and menu profiles cannot carry it.
