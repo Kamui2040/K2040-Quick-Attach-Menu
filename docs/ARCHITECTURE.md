@@ -137,6 +137,14 @@ closes it and the other opener switches menus without releasing gameplay
 isolation between views. Escape closes either menu. DialogueMenu blocks opener
 actions. There is no separate registered close binding.
 
+The PrismaUI V12 controller action bridge provides focus navigation while a
+menu is open. Separate single- or two-button XInput shortcuts can open/switch
+Quick Menu and Builder without modifying MCM keyboard bindings. These bindings
+start unassigned, persist in a mod-owned runtime settings file, are validated
+against a fixed button vocabulary, and queue actions on the F4SE game thread.
+Controller availability and Steam Input/Proton behavior still require runtime
+testing.
+
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,

@@ -10,6 +10,14 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.200 controller-only candidate starts from the proven
+0.5.199 attachment/inventory implementation. It adds PrismaUI V12 controller
+navigation and independent configurable XInput controller menu-opening
+shortcuts, including single buttons or two-button combinations. Controller
+shortcuts default to unassigned and do not change keyboard/MCM bindings.
+No cheat-mode capability or altered attachment transaction/refresh path is
+included. Build, packaging, and target-runtime controller testing are pending.
+
 Version `0.5.199` is the current public release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment
 point only when the hypothetical graph does not activate an existing unreachable

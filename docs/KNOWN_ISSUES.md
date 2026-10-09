@@ -26,6 +26,14 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased controller-only 0.5.200 candidate
+
+The controller-only candidate preserves 0.5.199 attachment mutation, inventory,
+and equipped-model refresh behavior. Unlike the discarded cheat-mode candidate,
+it does not permit inventory-free swaps. Controller navigation and independent
+single-/two-button XInput opener shortcuts are not yet in-game validated.
+Steam Input mappings and gamepad focus behavior require target-environment QA.
+
 ## Unsupported attachment operations fail closed
 
 Ambiguous inventory stacks, unresolved forms, dependency cycles, stale menu

@@ -43,6 +43,12 @@ Only durable product decisions belong here. Current release state belongs in
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,
   reapplies persisted presentation preferences before reaching the active view.
+- Focused Prisma panels use the existing V12 native controller action bridge.
+  Menu-opening controller shortcuts are separate from keyboard/MCM bindings.
+  XInput is polled on the existing input thread and sends actions through the
+  existing game-thread queue. Single buttons and two-button combinations are
+  optional and unassigned by default. Never let a controller shortcut bypass
+  normal menu-open safety or attachment transaction checks.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.

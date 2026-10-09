@@ -105,9 +105,17 @@
       }
 
       function enterKeyboardMode() {
+        renderer.options.controllerActive = false;
         if (keyboardActive) return;
         keyboardActive = true;
         renderer.options.keyboardActive = true;
+      }
+
+      function enterControllerMode() {
+        keyboardActive = true;
+        renderer.options.keyboardActive = true;
+        renderer.options.controllerActive = true;
+        renderer.render();
       }
 
       function forwardConfiguredHotkey(keycode, shift, ctrl, alt) {
@@ -164,10 +172,35 @@
         else renderer.activePane === "categories" ? renderer.moveCategory(1) : renderer.moveOption(1);
       });
 
+      window.addEventListener("prisma-controller-action", function(event) {
+        var detail = event && event.detail;
+        if (!detail || (detail.state !== "pressed" && detail.state !== "repeat")) return;
+        var button = String(detail.button || "");
+        var repeating = detail.state === "repeat";
+        if (repeating && ["DUp","DDown","DLeft","DRight"].indexOf(button) < 0) return;
+
+        enterControllerMode();
+        if (button === "A") renderer.activateFocusedOption();
+        else if (button === "B") {
+          if (typeof window.k2040CloseRequested === "function") window.k2040CloseRequested("controller");
+        } else if (button === "LB" || button === "RB") {
+          renderer.moveCategory(button === "LB" ? -1 : 1);
+          renderer.activePane = "options";
+          renderer.render();
+        } else if (button === "DLeft") renderer.switchPane(-1);
+        else if (button === "DRight") renderer.switchPane(1);
+        else if (button === "DUp") renderer.activePane === "categories" ? renderer.moveCategory(-1) : renderer.moveOption(-1);
+        else if (button === "DDown") renderer.activePane === "categories" ? renderer.moveCategory(1) : renderer.moveOption(1);
+        else return;
+
+        event.stopImmediatePropagation();
+      });
+
       document.addEventListener("mousemove", function() {
         if (!keyboardActive) return;
         keyboardActive = false;
         renderer.options.keyboardActive = false;
+        renderer.options.controllerActive = false;
         renderer.render();
       });
     })();

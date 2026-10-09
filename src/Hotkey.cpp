@@ -1,4 +1,5 @@
 #include "Hotkey.h"
+#include "ControllerShortcuts.h"
 
 #include <F4SE/F4SE.h>
 #include <Windows.h>
@@ -860,6 +861,7 @@ namespace k2040
     {
         ApplyConfiguredHotkeys(nullptr);
         RefreshMcmHotkeys(true);
+        InitializeControllerShortcuts();
 
         log::Info("Quick-menu toggle hotkey initialized. Default: Shift+K.");
         log::Info("Menu-builder toggle hotkey initialized. Default: Ctrl+Shift+K.");
@@ -872,6 +874,14 @@ namespace k2040
 
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
         const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
+        // Independent XInput shortcuts use the same game-thread action queue
+        // as keyboard and mouse. They do not read/write MCM key assignments.
+        bool controllerQuickEdge = false;
+        bool controllerBuilderEdge = false;
+        PollControllerShortcutEdges(
+            g_hotkeyCaptureActive.load() || g_hotkeyCaptureReleasePending.load() ||
+                g_menuHotkeyReleasePending.load(),
+            controllerQuickEdge, controllerBuilderEdge);
         const bool escapePressedNow = IsPhysicalKeyDown(VK_ESCAPE);
         const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
         const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
@@ -931,10 +941,10 @@ namespace k2040
         // All game/Prisma/menu/input-layer work is queued onto the F4SE game
         // thread because BSInputEnableManager notifications can synchronously
         // drive PlayerControls and the Havok animation graph.
-        if (builderPressedEdge) {
+        if (builderPressedEdge || controllerBuilderEdge) {
             log::Info("Native poller observed the menu-builder hotkey edge.");
             QueueHotkeyAction(HotkeyAction::ToggleBuilderMenu, HotkeyActionSource::NativePoller);
-        } else if (openPressedEdge) {
+        } else if (openPressedEdge || controllerQuickEdge) {
             log::Info("Native poller observed the quick-menu hotkey edge.");
             QueueHotkeyAction(HotkeyAction::ToggleQuickMenu, HotkeyActionSource::NativePoller);
         }

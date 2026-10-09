@@ -475,7 +475,9 @@
     (this.statusPortal || container).appendChild(status);
     var hints = document.createElement("div");
     hints.className = "qm-hints";
-    hints.textContent = "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+    hints.textContent = this.options.controllerActive
+      ? "D-pad to move and switch · A to apply · LB/RB category · B to close"
+      : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";

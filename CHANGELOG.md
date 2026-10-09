@@ -1,3 +1,12 @@
+## 0.5.200 (unreleased controller-only candidate)
+
+- Controller navigation in Quick Menu, Builder and Settings via PrismaUI V12.
+- Independent assignable controller shortcuts (single button or two-button
+  combination) for opening Quick Menu and Builder; defaults unassigned.
+- Preserves all 0.5.199 attachment/inventory checks and normal equipped-weapon
+  refresh. No cheat mode.
+- Build and in-game compatibility testing pending.
+
 # Changelog
 
 ## 0.5.199

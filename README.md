@@ -10,6 +10,8 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
+- Native controller navigation and configurable controller shortcuts for both
+  the Quick Menu and Builder; single buttons or two-button combinations.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
@@ -59,6 +61,15 @@ Default controls:
 Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
+
+Controller opener shortcuts are configured separately under Settings > Controls.
+Select a button and an optional modifier for Quick Menu or Builder, then Apply.
+For example, LB+Y and LB+X are accepted; both bindings initially default to
+unassigned to avoid taking over game actions. Use your Steam Input configuration
+to expose the controller through XInput under Proton. Keyboard/MCM assignments
+remain independent. Single-button shortcuts may conflict with normal gameplay
+buttons; choose combinations that do not conflict with your control layout.
+The shortcut path requires focused target-runtime testing.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.

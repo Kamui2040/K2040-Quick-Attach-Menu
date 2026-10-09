@@ -5,6 +5,7 @@
 
 #include "AttachmentRuntimeModel.h"
 #include "Hotkey.h"
+#include "ControllerShortcuts.h"
 #include "Logger.h"
 #include "Settings.h"
 #include "UserSettings.h"
@@ -15,6 +16,7 @@
 #include <cctype>
 #include <cmath>
 #include <functional>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <sstream>
@@ -584,9 +586,11 @@ namespace k2040
         // 2.1.1 contract first and retain raw ID 9 as the old V10 fallback.
         // The menu only uses the inherited V10 surface.
         if (auto* api12 = PRISMA_UI_API::RequestPluginAPI<PRISMA_UI_API::IVPrismaUI12>()) {
+            controllerApi_ = api12;
             api_ = api12;
-            log::Info("PrismaUI IVPrismaUI12 API acquired; using its inherited IVPrismaUI10 panel surface.");
+            log::Info("PrismaUI IVPrismaUI12 API acquired with native controller action support.");
         } else {
+            controllerApi_ = nullptr;
             api_ = PRISMA_UI_API::RequestPluginAPI<PRISMA_UI_API::IVPrismaUI10>();
             if (api_) {
                 log::Info("PrismaUI IVPrismaUI10 API acquired with the released 2.1.1 interface ID.");
@@ -719,8 +723,8 @@ namespace k2040
             << "\"menuSource\":\"" << (menu.runtimeGenerated ? "runtime-generated" : "ECO-authored") << "\","
             << "\"codeBatch\":\"CascadeMenu\","
             << "\"pluginVersion\":\"" K2040_QUICK_ATTACH_MENU_VERSION "\","
-            << "\"prismaApi\":\"IVPrismaUI10\","
-            << "\"prismaReview\":\"2.1.1 target-runtime validated\","
+            << "\"prismaApi\":\"" << (controllerApi_ ? "IVPrismaUI12" : "IVPrismaUI10") << "\","
+            << "\"prismaReview\":\"2.1.1 base runtime validated; controller path pending focused QA\","
             << "\"exporterReference\":\"v0.38 internal reference only; runtime does not depend on JSON\","
             << "\"weapon\":{"
                 << "\"hasWeapon\":" << (weaponInfo.hasWeapon ? "true" : "false") << ","
@@ -989,6 +993,9 @@ namespace k2040
                  << "\"openMenuBuilderHotkeyKeycode\":" << builderHotkey.keycode << ","
                  << "\"openMenuBuilderHotkeyModifiers\":" << builderHotkey.modifiers << ","
                  << "\"closeAfterApply\":" << (quickMenu.closeAfterApply ? "true" : "false") << ","
+                 << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
+                 << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
+                 << "\"controllerBuilderShortcut\":\"" << JsonEscape(GetControllerShortcut("builder")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
                  << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
@@ -1068,6 +1075,38 @@ namespace k2040
         api_->Hide(menuView_);
 
         log::Info("Prisma menu view created as an interactive panel with Escape ownership.");
+    }
+
+    void PrismaBridge::BindControllerActions()
+    {
+        if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
+            return;
+        }
+
+        controllerApi_->ClearControllerActions(menuView_);
+        constexpr std::pair<const char*, const char*> bindings[] = {
+            { "A", "accept" },
+            { "B", "cancel" },
+            { "LB", "previous" },
+            { "RB", "next" },
+            { "DUp", "up" },
+            { "DDown", "down" },
+            { "DLeft", "left" },
+            { "DRight", "right" }
+        };
+
+        std::size_t bound = 0;
+        for (const auto& [button, action] : bindings) {
+            if (controllerApi_->BindControllerAction(menuView_, button, action)) {
+                ++bound;
+            } else {
+                log::Warn(std::string("Prisma controller action could not be bound: ") + button + ".");
+            }
+        }
+
+        log::Info(
+            "Prisma controller actions bound for the active page: " +
+            std::to_string(bound) + "/" + std::to_string(std::size(bindings)) + ".");
     }
 
     void PrismaBridge::PushPayloadToView()
@@ -1362,6 +1401,7 @@ namespace k2040
                     api_->Unfocus(previousView);
                 }
 
+                if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
                 api_->Hide(previousView);
                 api_->Destroy(previousView);
                 log::Info("Closed Prisma menu view destroyed before reopen.");
@@ -1371,15 +1411,15 @@ namespace k2040
         viewMode_ = mode;
         currentWeaponInfo_ = weaponInfo;
         currentMenu_ = menu;
-        lastPayload_ = BuildMenuPayload(weaponInfo, menu);
         CaptureWeaponPresentationState();
-
-        log::Info("Prisma menu payload built.");
-        log::Info(std::string("Prisma menu payload size: ") + std::to_string(lastPayload_.size()) + " bytes.");
 
         if (!api_) {
             Initialize();
         }
+
+        lastPayload_ = BuildMenuPayload(weaponInfo, menu);
+        log::Info("Prisma menu payload built.");
+        log::Info(std::string("Prisma menu payload size: ") + std::to_string(lastPayload_.size()) + " bytes.");
 
         if (!api_) {
             log::Warn("PrismaUI API is not available. Payload logged only.");
@@ -1452,6 +1492,7 @@ namespace k2040
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }
+            if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
             api_->Hide(previousView);
             api_->Destroy(previousView);
         }
@@ -1580,6 +1621,7 @@ namespace k2040
                 api_->Unfocus(previousView);
             }
 
+            if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
             api_->Hide(previousView);
             api_->Destroy(previousView);
             log::Info("Prisma menu view destroyed for game transition.");
@@ -1613,6 +1655,7 @@ namespace k2040
         api_->BindUIEvent(menuView_, "k2040OptionPreviewRequested", OnMenuOptionPreviewRequested);
         api_->BindUIEvent(menuView_, "k2040BuilderChangeRequested", OnMenuBuilderChangeRequested);
         api_->BindUIEvent(menuView_, "k2040SettingsChangeRequested", OnMenuSettingsChangeRequested);
+        BindControllerActions();
         if (pendingPayload_ || !lastPayload_.empty()) {
             PushPayloadToView();
         }
@@ -2071,6 +2114,14 @@ namespace k2040
             return;
         }
 
+        if (parts.size() == 3 && parts[0] == "controller-shortcut") {
+            if (!SetControllerShortcut(parts[1], parts[2])) {
+                log::Warn("Controller shortcut rejected (invalid, duplicate, or could not be saved).");
+            }
+            RefreshBuilderPayload();
+            return;
+        }
+
         constexpr std::string_view prefix = "bracketed-text:";
         if (command.rfind(prefix, 0) == 0) {
             const auto value = command.substr(prefix.size());
@@ -2160,8 +2211,10 @@ namespace k2040
             if (parts[1] == "all") {
                 ResetAllUserPreferences();
                 ResetSharedHotkeyBindings();
+                if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
             } else if (parts[1] == "controls") {
                 ResetSharedHotkeyBindings();
+                if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
                 RefreshBuilderPayload();
                 return;
             } else {
