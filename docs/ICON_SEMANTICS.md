@@ -58,8 +58,8 @@ Category fallbacks reuse an existing broad icon class instead of requiring separ
 The 95 stable icon_class identifiers are **not** 95 mandatory SVG designs.
 The artwork manifest has a flat, single-hop artwork_reuse.class_aliases
 mapping: a class either owns its base illustration or points to another
-existing class's base asset. The current proposal is **65 distinct base
-illustrations** and **30 shared class aliases**. Original approved pilot
+existing class's base asset. The current proposal is **64 distinct base
+illustrations** and **31 shared class aliases**. Original approved pilot
 artwork is never aliased.
 
 Resolution for future presentation code:

@@ -1,7 +1,7 @@
 # Icon Artwork Direction
 
 The semantic library currently resolves 172 attachment subtypes to 95 stable visual icon classes.
-A separate artwork reuse plan groups those classes into 65 proposed base illustrations.
+A separate artwork reuse plan groups those classes into 64 proposed base illustrations.
 This document defines how the original icons should be authored and reviewed.
 
 ## Render contract
@@ -41,7 +41,7 @@ The icon should remain understandable without color. UI accent colors are presen
 ## Artwork reuse plan
 
 The classifier still produces 95 distinct icon_class values. The manifest
-artwork_reuse.class_aliases mapping proposes that 30 of them share one of 65
+artwork_reuse.class_aliases mapping proposes that 31 of them share one of 64
 base SVG illustrations. Every alias points directly to a base class; there
 are no chains. The original semantic label remains visible, so reusing a
 silhouette never erases a functional distinction in text or changes attachment
@@ -51,6 +51,7 @@ Examples:
 - receiver.fire_control uses receiver.generic.
 - sights.thermal and sights.night_vision use sights.scope.
 - magazine.extended and magazine.stick use magazine.generic.
+- stock.brace uses stock.collapsible, keeping the brace label separate.
 - Most ammunition-effect classes use ammo_caliber.generic.
 - special.generic uses the global attachment.generic fallback.
 
@@ -59,7 +60,7 @@ drum/cylinder/tube/box-belt magazines, scope vs reflex/magnifier optics,
 folding/collapsible stocks, bipod/underbarrel launcher, muzzle suppressor vs
 brake, modular handguard, and scope mounts.
 
-The 65-base count is a **proposed production scope**, not 65 completed SVGs.
+The 64-base count is a **proposed production scope**, not 65 completed SVGs.
 A reused class resolves to the base class's asset and review status. Historic
 rejected SVG drafts stay rejected and must not be shipped. A proposed base can
 still be refined or split later after visual review. No runtime UI changes

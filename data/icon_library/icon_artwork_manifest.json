@@ -1062,7 +1062,7 @@
     "resolution_rule": "If icon_class is in class_aliases, use its base_artwork_id filename/status. Otherwise use its own manifest entry. One hop only; no alias chains.",
     "content_rule": "Distinct textual semantic subtype/icon_class remains unchanged; shared silhouettes do not affect gameplay compatibility, sorting, or validity.",
     "review_rule": "Class status describes its own original SVG attempt. A shared class uses the base artwork review status; rejected old draft SVGs are not approved by sharing.",
-    "planned_base_count": 65,
+    "planned_base_count": 64,
     "class_aliases": {
       "ammo_caliber.armor_piercing": {
         "base_artwork_id": "ammo_caliber.generic",
@@ -1179,6 +1179,10 @@
       "special.generic": {
         "base_artwork_id": "attachment.generic",
         "reason": "Unknown special uses the global fallback; no unique shape warranted."
+      },
+      "stock.brace": {
+        "base_artwork_id": "stock.collapsible",
+        "reason": "Reuse the same collapsible-stock silhouette; the brace subtype remains in the attachment label."
       },
       "stock.lightweight_short": {
         "base_artwork_id": "stock.generic",
