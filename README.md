@@ -6,6 +6,12 @@ fast in-game menu instead of returning to a workbench.
 The menu can use an ECO-authored weapon menu when one is available, or build a
 compatible menu from the equipped weapon at runtime. ECO is optional.
 
+The unreleased generated-menu filter requires a matching weapon keyword,
+reachable attachment point, and a loaded crafting recipe creating each new
+attachment. This reduces exposure of internal/scripted options, but exact
+workbench conditions and unusual loose-mod-only entries are still being
+validated. Already-installed parts remain visible for recovery.
+
 ## Features
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.

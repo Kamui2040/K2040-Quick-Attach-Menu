@@ -43,6 +43,14 @@ Only durable product decisions belong here. Current release state belongs in
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,
   reapplies persisted presentation preferences before reaching the active view.
+- Generated uninstalled OMOD discovery requires a loaded COBJ recipe creating
+  the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
+  for recovery. Recipe presence is not the full workbench condition evaluator;
+  don't label the resulting list exact workbench parity until validated.
+- Controller navigation must move between the settings sidebar and the active
+  page controls, activate selections via focus, and preserve row focus when
+  Builder re-renders. The controller binding editor uses the existing
+  choice-trigger/choice-option style rather than native browser selects.
 - Focused Prisma panels use the existing V12 native controller action bridge.
   Menu-opening controller shortcuts are separate from keyboard/MCM bindings.
   XInput is polled on the existing input thread and sends actions through the

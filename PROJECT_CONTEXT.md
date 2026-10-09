@@ -10,6 +10,11 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.201 follow-up adds recipe-backed generated workbench
+discovery and fixes controller focus and binding-editor consistency. It does
+not change normal attachment mutation or equipped-weapon refresh behavior.
+Exact workbench parity and runtime QA remain unverified.
+
 The unreleased 0.5.200 controller-only candidate starts from the proven
 0.5.199 attachment/inventory implementation. It adds PrismaUI V12 controller
 navigation and independent configurable XInput controller menu-opening

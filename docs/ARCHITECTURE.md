@@ -58,17 +58,26 @@ for MNAM. Because CommonLibF4 does not expose MNAM structurally, the runtime
 reads MNAM from the winning loaded plugin record and resolves those keywords to
 the live form table.
 
-An uninstalled generated OMOD must consume an attachment point reachable from
-the weapon graph. If its winning OMOD record has MNAM targets, at least one must
-be a keyword on the equipped base WEAP. If the record has no MNAM targets, the
-OMOD is generic for that reachable attachment point. If MNAM metadata cannot be
-resolved safely, the uninstalled candidate fails closed. Installed OMODs remain
-visible from live object-instance identity. Source plugin is not a compatibility
-gate because patches and add-ons may validly extend a weapon from another
-plugin.
+The runtime-generated menu now requires **positive workbench evidence** for
+uninstalled choices: a loaded COBJ recipe whose created item is that exact OMOD,
+a consumed attachment point reachable from the weapon graph, and an explicit
+resolved OMOD MNAM keyword that matches the equipped base WEAP. A shared AP,
+weapon keyword alone, generic/no-target OMOD, loose-mod item, or source-plugin
+name cannot independently make an uninstalled OMOD a generated choice. Missing
+recipes or unresolved MNAM metadata fail closed. Installed OMODs remain visible
+from live object-instance identity so pre-existing or scripted state is not
+concealed. Source plugin is not a compatibility gate because patches and add-ons
+may validly extend a weapon from another plugin.
 
-Generated menus expose player-facing workbench choices, not every reachable
-OMOD record. Linked loose-mod items remain the normal generated path. When
+COBJ presence is a conservative initial workbench-discoverability gate, **not
+proof of exact workbench menu parity**. Bench-specific categories, crafting
+conditions, perks, and unusual loose-mod-only setups need additional review.
+Generated menus must not imply that recipe eligibility alone guarantees an
+installation, or alter live mutation authority to circumvent that review.
+
+Generated menus expose positively evidenced player-facing workbench choices,
+not every reachable OMOD record. Linked loose-mod items remain the normal
+inventory installation path after compatibility discovery. When
 `AllowNoLooseModOptions` is enabled, an uninstalled no-loose OMOD may also be
 exposed if it has an explicit resolved MNAM target matching the equipped weapon.
 Generic no-MNAM no-loose records stay out of generated discovery because they

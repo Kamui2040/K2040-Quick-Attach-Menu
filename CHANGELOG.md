@@ -1,3 +1,14 @@
+## 0.5.201 (unreleased follow-up)
+
+- Require a loaded crafting recipe creating the exact OMOD plus explicit
+  weapon MNAM compatibility before exposing new generated workbench choices.
+  Keep installed OMODs visible for recovery.
+- Improve Builder controller focus retention, Settings D-pad traversal and
+  page-control activation.
+- Match controller shortcut selectors to the existing Settings dropdown style.
+- No cheat mode and no attachment mutation/visual-refresh changes.
+- Build and target-runtime QA required; not exact workbench parity yet.
+
 ## 0.5.200 (unreleased controller-only candidate)
 
 - Controller navigation in Quick Menu, Builder and Settings via PrismaUI V12.

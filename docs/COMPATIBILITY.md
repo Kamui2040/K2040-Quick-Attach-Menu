@@ -79,6 +79,14 @@ The unreleased 0.5.199 candidate adds guarded provider installation into an
 empty, live-reachable attachment point. Target-runtime validation is required
 before this path can be considered successful.
 
+The unreleased 0.5.201 follow-up checks for a loaded COBJ recipe creating each
+new generated OMOD, in addition to explicit MNAM and reachable attachment
+point checks. It retains installed forms for recovery. This safety-first filter
+may suppress unusual loose-mod-only entries with no crafting recipe and does
+not yet replicate all of the workbench's per-recipe visibility conditions.
+It also revises controller focus traversal and its Settings binding editor.
+Target-runtime QA remains mandatory before release.
+
 ## PrismaUI SDK provenance
 
 The repository includes only the unchanged PrismaUI API header and its upstream

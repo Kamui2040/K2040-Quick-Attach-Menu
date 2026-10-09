@@ -612,6 +612,12 @@
       }
     }
     function render() {
+      // Persist focus across row re-renders so D-pad+A can select and edit
+      // categories/options without dropping focus back to the document body.
+      var focusedRow = document.activeElement && document.activeElement.closest(".row");
+      var focusedHost = focusedRow && focusedRow.parentElement && focusedRow.parentElement.id;
+      var focusedIndex = focusedRow && focusedHost &&
+        Array.prototype.indexOf.call(focusedRow.parentElement.querySelectorAll(".row"), focusedRow);
       var weapon = payload && payload.weapon ? payload.weapon : {};
       var parser = payload && payload.parser ? payload.parser : {};
       document.getElementById("weaponName").textContent = displayName(weapon.name) || "No equipped weapon menu found";
@@ -656,6 +662,11 @@
         })(list[j]);
       }
       renderOptions();
+      if (focusedHost === "categories" || focusedHost === "options") {
+        var replacement = document.querySelectorAll("#" + focusedHost + " .row");
+        var next = replacement[Math.min(focusedIndex, replacement.length - 1)];
+        if (next) next.focus();
+      }
     }
     window.k2040SetPayload = function(text) {
       try { payload = JSON.parse(text); } catch (error) { payload = null; }
@@ -802,18 +813,28 @@
       }
     }, true);
 
-    function controllerFocusables() {
+    function controllerFocusables(scope) {
       return Array.prototype.filter.call(
-        document.querySelectorAll('button:not([disabled]), input:not([disabled]), .row[tabindex], [tabindex]:not([tabindex="-1"])'),
+        (scope || document).querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'),
         function(node) { return !node.hidden && node.offsetParent !== null; }
       );
     }
 
+    function focusBuilderNode(node) {
+      if (!node) return;
+      node.focus();
+      if (typeof node.scrollIntoView === "function") node.scrollIntoView({ block:"nearest" });
+    }
+
     function moveControllerFocus(direction) {
-      var nodes = controllerFocusables();
+      var active = document.activeElement;
+      var dialog = document.getElementById("profileDialog");
+      var openList = active && active.closest(".choice-options:not([hidden])");
+      var region = !dialog.hidden ? dialog : openList || document;
+      var nodes = controllerFocusables(region);
       if (!nodes.length) return;
-      var index = nodes.indexOf(document.activeElement);
-      nodes[(index + direction + nodes.length) % nodes.length].focus();
+      var index = nodes.indexOf(active);
+      focusBuilderNode(nodes[(index + direction + nodes.length) % nodes.length]);
     }
 
     window.addEventListener("prisma-controller-action", function(event) {
@@ -827,18 +848,28 @@
       if (button === "B" && !repeating) {
         document.dispatchEvent(new KeyboardEvent("keydown", { key:"Escape", bubbles:true, cancelable:true }));
       } else if (button === "A" && !repeating) {
-        if (document.activeElement && typeof document.activeElement.click === "function") document.activeElement.click();
-      } else if (button === "LB" || button === "RB") {
+        var target = document.activeElement;
+        if (!target || !controllerFocusables().includes(target)) {
+          focusBuilderNode(document.querySelector("#categories .row") || document.getElementById("settings"));
+        } else if (typeof target.click === "function") {
+          target.click();
+        }
+      } else if ((button === "LB" || button === "RB") && !repeating) {
         var host = document.getElementById(button === "LB" ? "categories" : "options");
-        var row = host && host.querySelector(".row");
-        if (row) row.focus();
+        var row = host && host.querySelector(".row.selected, .row");
+        if (row) focusBuilderNode(row);
       } else if (button === "DUp" || button === "DDown") {
         moveControllerFocus(button === "DUp" ? -1 : 1);
       } else if (button === "DLeft" || button === "DRight") {
         var key = button === "DLeft" ? "ArrowLeft" : "ArrowRight";
         var target = document.activeElement || document.body;
-        var accepted = target.dispatchEvent(new KeyboardEvent("keydown", { key:key, bubbles:true, cancelable:true }));
-        if (accepted) moveControllerFocus(button === "DLeft" ? -1 : 1);
+        if (target.closest(".choice-options:not([hidden])")) {
+          moveControllerFocus(button === "DLeft" ? -1 : 1);
+        } else if (button === "DLeft") {
+          focusBuilderNode(document.querySelector("#categories .row.selected, #categories .row"));
+        } else {
+          focusBuilderNode(document.querySelector("#options .row") || document.getElementById("settings"));
+        }
       } else return;
 
       event.stopImmediatePropagation();

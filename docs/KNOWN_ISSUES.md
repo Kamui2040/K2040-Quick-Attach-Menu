@@ -26,6 +26,19 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.201 follow-up
+
+Static and build validation are required for the controller focus/navigation
+fixes and recipe-backed generated-OMOD filter. The filter preserves installed
+OMODs but requires a COBJ recipe, explicit matching MNAM, and reachable AP for
+new generated choices. This is deliberately stricter than previous behavior;
+mods that offer loose-only choices without a COBJ may need a separate
+workbench-compatibility path. Bench-specific recipe and perk/condition
+visibility are not yet modeled precisely. Controller interaction, attachment
+catalog accuracy and crash regression all require focused game testing.
+The previous equipped-weapon presentation refresh is not modified by this
+candidate; no cheat-mode code has been reintroduced.
+
 ## Unreleased controller-only 0.5.200 candidate
 
 The controller-only candidate preserves 0.5.199 attachment mutation, inventory,
