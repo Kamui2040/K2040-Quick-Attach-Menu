@@ -2470,13 +2470,21 @@ namespace k2040
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         PushPayloadToView();
 
-        auto* player = RE::PlayerCharacter::GetSingleton();
-        auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
-        if (player && weapon) {
-            RefreshModifiedEquippedItem(player, weapon);
-            log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+        if (request.cheatMode) {
+            // An inventory-free install is already reflected in the verified
+            // object-instance data. Fallout's synchronous post-modification
+            // presentation callback is unsafe for this path; let the normal
+            // weapon/menu lifecycle refresh presentation instead.
+            log::Info("Deferred the equipped weapon presentation refresh after the verified cheat-mode transaction.");
         } else {
-            log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");
+            auto* player = RE::PlayerCharacter::GetSingleton();
+            auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
+            if (player && weapon) {
+                RefreshModifiedEquippedItem(player, weapon);
+                log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            } else {
+                log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");
+            }
         }
 
         log::Info("Guarded attachment mutation completed and the cascade payload was refreshed.");

@@ -86,7 +86,9 @@ When cheat mode is enabled, the Quick Menu uses the Builder's compatible
 catalog but changes only inventory eligibility. The transaction freezes that
 mode in its request, revalidates it before mutation, preserves the selected
 loose-mod count exactly, and retains all graph, dependency, stack, identity,
-post-change, and rollback checks.
+post-change, and rollback checks. After a verified cheat-mode mutation, the
+normal weapon and menu lifecycle refreshes presentation; the path does not call
+Fallout's synchronous equipped-item presentation callback.
 
 Hidden, internal, and script-only OMODs remain internal even when graph traversal discovers them.
 The known Tactical Reload switcher records `TRT_mod_EntryPoint1`,
