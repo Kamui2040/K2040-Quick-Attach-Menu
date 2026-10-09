@@ -16,10 +16,16 @@ plus a global off-by-default cheat mode. Cheat mode bypasses only the target
 loose-mod requirement and consumption; compatible catalog filtering, exact
 equipped-stack identity, dependency ordering, stale-state checks, returned-item
 verification, final verification, and rollback remain active. Static checks and
-the clean Linux releasedbg build pass. The candidate now defers the synchronous
-equipped-item presentation callback for cheat-mode changes after runtime
-evidence showed that callback could crash immediately after a verified
-inventory-free install. Focused in-game retesting is pending.
+the clean Linux releasedbg build pass. The candidate now skips the synchronous
+equipped-item presentation callback for all verified attachment changes after
+runtime evidence showed crashes following both inventory-free installation and
+a normal-mode material reversion. Menu and object-instance verification remain
+active; the normal game lifecycle handles visual presentation. Focused
+in-game retesting is pending.
+A separate blocker remains: uninstalled, loosely targeted generic
+OMODs can leak into a generated weapon menu through shared attach points;
+the candidate is not release-ready until positive weapon compatibility is
+established and tested.
 
 Version `0.5.199` is the current public release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment

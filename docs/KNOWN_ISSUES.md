@@ -26,6 +26,24 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.200 generated-menu compatibility issue
+
+Shared weapon attachment-point keywords alone are not positive proof that an
+uninstalled OMOD belongs to the equipped weapon. Generic OMODs without an
+explicit MNAM weapon target can currently appear in the generated catalog
+when they have a loose-mod item, including in cheat mode. At least one unrelated
+weapon attachment passed this filter during runtime testing. This candidate
+must not be released until generated filtering rejects unproven cross-weapon
+choices without hiding legitimate default or explicitly targeted attachments.
+
+## Unreleased 0.5.200 equipped presentation crash
+
+A synchronous equipped-item presentation callback was associated with crashes
+following verified attachment changes, including a normal-mode material
+reversion. The candidate no longer invokes this callback. Build/static
+validation is not runtime proof; all inventory modes and material changes
+require focused target-game QA.
+
 ## Unsupported attachment operations fail closed
 
 Ambiguous inventory stacks, unresolved forms, dependency cycles, stale menu
