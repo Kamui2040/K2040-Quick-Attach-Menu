@@ -29,6 +29,11 @@ Only durable product decisions belong here. Current release state belongs in
   regardless of inventory. The Quick Menu shows installed attachments,
   compatible alternatives whose loose-mod items are currently in inventory, and
   validated no-loose choices that pass the explicit-target safety rule.
+- Cheat mode is a global, off-by-default inventory-policy override. It may
+  expose an already validated compatible catalog entry without requiring or
+  consuming its target loose mod, but it does not relax compatibility, graph,
+  stack, dependency, stale-state, post-change, or rollback checks. The target
+  loose-mod count must finish exactly where it started.
 - Attachment changes are authorized per operation after live revalidation.
   Unsupported or ambiguous operations fail closed rather than disabling already
   validated paths globally.
@@ -46,6 +51,9 @@ Only durable product decisions belong here. Current release state belongs in
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.
+- Focused pages bind controller actions through PrismaUI V12. The D-pad, face
+  buttons, and shoulder buttons drive the same page operations as keyboard and
+  mouse input; no separate controller framework is introduced.
 - Menu open/close/switch work is queued to the F4SE game thread. The two opener
   bindings are toggles; the other opener switches menus. Escape is the universal
   close action, and DialogueMenu blocks opener actions. There is no dedicated

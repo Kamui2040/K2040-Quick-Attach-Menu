@@ -10,6 +10,14 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Version `0.5.200` is an unreleased implementation candidate. It adds native
+PrismaUI V12 controller navigation for the Quick Menu, Builder, and Settings,
+plus a global off-by-default cheat mode. Cheat mode bypasses only the target
+loose-mod requirement and consumption; compatible catalog filtering, exact
+equipped-stack identity, dependency ordering, stale-state checks, returned-item
+verification, final verification, and rollback remain active. Static checks and
+the clean Linux releasedbg build pass; focused in-game validation is pending.
+
 Version `0.5.199` is the current public release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment
 point only when the hypothetical graph does not activate an existing unreachable

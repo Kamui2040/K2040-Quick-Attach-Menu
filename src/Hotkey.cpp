@@ -630,7 +630,11 @@ namespace
         }
 
         const auto weaponInfo = k2040::GetEquippedWeaponInfo();
-        auto menu = k2040::BuildEcoWeaponMenu_ReadOnly(weaponInfo, openBuilder);
+        const bool cheatMode = !openBuilder && k2040::GetQuickMenuPreferences().cheatMode;
+        auto menu = k2040::BuildEcoWeaponMenu_ReadOnly(
+            weaponInfo,
+            openBuilder || cheatMode,
+            cheatMode);
 
         if (menu.valid) {
             k2040::RegisterOrUpdateWeapon(menu);

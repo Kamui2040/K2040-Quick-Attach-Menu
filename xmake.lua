@@ -11,7 +11,7 @@
 
 set_xmakever("3.0.0")
 set_project("K2040_Quick_Attach_Menu")
-set_version("0.5.199")
+set_version("0.5.200")
 set_languages("c++23")
 
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
@@ -106,7 +106,7 @@ target("K2040_Quick_Attach_Menu")
     add_rules("commonlibf4.plugin", {
         name    = "K2040_Quick_Attach_Menu",
         author  = "K2040",
-        version = "0.5.199"
+        version = "0.5.200"
     })
 
     add_includedirs("include")
@@ -120,7 +120,7 @@ target("K2040_Quick_Attach_Menu")
         "WIN32_LEAN_AND_MEAN",
         "NOMINMAX",
         "COMMONLIB_RUNTIMECOUNT=3",
-        "K2040_QUICK_ATTACH_MENU_VERSION=\"0.5.199\""
+        "K2040_QUICK_ATTACH_MENU_VERSION=\"0.5.200\""
     )
 
     if is_plat("windows") then

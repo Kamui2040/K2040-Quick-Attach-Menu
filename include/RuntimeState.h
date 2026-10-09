@@ -254,6 +254,7 @@ namespace k2040
         uint32_t targetOmodFormId = 0;
         uint32_t consumedAttachPointFormId = 0;
         uint32_t expectedPreviousOmodFormId = 0;
+        bool cheatMode = false;
         bool unsafeOverrideUsed = false;
         std::vector<uint32_t> dependentRemovalOmodFormIds;
         std::vector<AttachmentLooseReturn> preparedLooseReturns;
@@ -283,7 +284,8 @@ namespace k2040
     EquippedWeaponInfo GetEquippedWeaponInfo();
     EcoWeaponMenu BuildEcoWeaponMenu_ReadOnly(
         const EquippedWeaponInfo& weaponInfo,
-        bool includeInventoryUnavailableGeneratedOptions = false);
+        bool includeInventoryUnavailableGeneratedOptions = false,
+        bool ignoreInventoryRequirements = false);
     bool ReturnLooseModThroughPickup(uint32_t looseModFormId);
     AttachmentReturnPreparation PrepareAttachmentReturn(const AttachmentMutationRequest& request);
     bool CancelPreparedAttachmentReturn(const AttachmentMutationRequest& request);

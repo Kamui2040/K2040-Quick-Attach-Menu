@@ -44,6 +44,7 @@ namespace k2040
         };
 
         PRISMA_UI_API::IVPrismaUI10* api_ = nullptr;
+        PRISMA_UI_API::IVPrismaUI12* controllerApi_ = nullptr;
         PrismaView menuView_ = 0;
 
         bool pendingPayload_ = false;
@@ -70,6 +71,7 @@ namespace k2040
         std::string BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const;
 
         void CreateMenuViewIfNeeded();
+        void BindControllerActions();
         void OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode);
         void RequestViewSwitch(ViewMode mode);
         void SwitchView(ViewMode mode);

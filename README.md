@@ -10,6 +10,9 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
+- Controller navigation for the Quick Menu, Builder, and Settings.
+- Optional cheat mode for installing compatible attachments without requiring
+  or consuming loose-mod items.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
@@ -24,7 +27,7 @@ compatible menu from the equipped weapon at runtime. ECO is optional.
 - An off-by-default, per-weapon Force unsafe swaps escape hatch for diagnosed
   dependency cycles.
 
-Version 0.5.198 is intentionally text-only. Attachment icons and weapon-preview
+Version 0.5.199 is intentionally text-only. Attachment icons and weapon-preview
 rendering are not included in this release.
 
 ## Requirements
@@ -56,12 +59,17 @@ Default controls:
 - `Ctrl+Shift+K`: open or close the Builder.
 - `Escape`: close the active mod menu.
 
+With a controller, use the D-pad to navigate, `A` to select, `B` to go back or
+close, and `LB`/`RB` to move between categories or sections.
+
 Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
 
-The Settings page controls gameplay slowdown while any mod menu is open. The
-range runs from normal game time at 0% slowdown to a full pause at 100%.
+The Settings page controls gameplay slowdown while any mod menu is open and the
+optional cheat mode. Cheat mode does not consume or require the selected loose
+mod, but all compatibility, dependency, stack, stale-state, verification, and
+rollback checks remain active.
 
 ## Builder and settings
 
@@ -82,8 +90,8 @@ Per-weapon controls can:
 - export or import that weapon's presentation profile.
 
 General settings include presentation, background opacity, layout scale and
-position, color palette, label cleanup, controls, gameplay slowdown, and
-diagnostic logging. Reset controls
+position, color palette, label cleanup, controls, gameplay slowdown, cheat
+mode, and diagnostic logging. Reset controls
 restore either a section, one presentation's position, or the complete
 fresh-install state.
 
@@ -112,6 +120,10 @@ provider install is blocked if it would activate an existing unreachable
 attachment or change unrelated installed attachment identities. Ambiguous
 inventory stacks, unresolved graphs, dependency cycles, and stale selections
 remain blocked.
+
+Cheat mode changes only the selected attachment's loose-mod requirement. It
+preserves the exact pre-change count of that item and still returns verified
+attachments removed from the weapon through the normal guarded path.
 
 See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) and
 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) for the release boundary.

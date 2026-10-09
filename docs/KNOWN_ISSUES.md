@@ -34,7 +34,7 @@ Supported leaf, provider-install, and provider-replacement paths continue to use
 live operation-level checks, exact inventory verification, post-change
 verification, and rollback.
 
-The unreleased 0.5.199 candidate allows a provider attachment to be installed
+Version 0.5.199 allows a provider attachment to be installed
 into an empty, live-reachable attachment point. It remains blocked if the
 hypothetical graph would activate an existing unreachable attachment or if the
 transaction changes unrelated installed OMOD identities.

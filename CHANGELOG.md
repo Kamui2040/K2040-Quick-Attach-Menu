@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.200 (unreleased)
+
+- Add controller navigation to the Quick Menu, Builder, and Settings through
+  PrismaUI's native controller-action bridge.
+- Add an optional, off-by-default cheat mode that exposes compatible
+  attachments without requiring or consuming their loose-mod items.
+- Keep live compatibility, equipped-stack, dependency ordering, stale-state,
+  post-change, inventory-count, and rollback checks active in cheat mode.
+
 ## 0.5.199
 
 - Allow a validated provider attachment to be installed into an empty,

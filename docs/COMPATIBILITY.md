@@ -7,7 +7,7 @@
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.198` |
+| Plugin | `0.5.199` |
 | Architecture | Windows x64 |
 
 The release DLL is built with DCCStudios/CommonLibF4 revision
@@ -75,9 +75,14 @@ Version 0.5.198 received focused external confirmation that the reported
 Tactical Reload false safety block is resolved. The broader attachment
 regression matrix was not independently repeated for that release.
 
-The unreleased 0.5.199 candidate adds guarded provider installation into an
-empty, live-reachable attachment point. Target-runtime validation is required
-before this path can be considered successful.
+Version 0.5.199 adds guarded provider installation into an empty,
+live-reachable attachment point. Focused external testing confirmed the
+reported SREP barrel-to-empty-muzzle path succeeds; the broader attachment
+regression matrix was not independently repeated.
+
+The unreleased 0.5.200 candidate adds PrismaUI V12 controller navigation and
+the optional cheat-mode inventory policy. Its build and static checks do not
+replace focused target-runtime validation.
 
 ## PrismaUI SDK provenance
 
