@@ -53,6 +53,29 @@ Category fallbacks reuse an existing broad icon class instead of requiring separ
 
 `scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` is the production manifest, and `docs/ICON_ART_DIRECTION.md` defines the 24x24 SVG style, three production batches, and the 12-icon pilot review gate.
 
+## Shared base artwork
+
+The 95 stable icon_class identifiers are **not** 95 mandatory SVG designs.
+The artwork manifest has a flat, single-hop artwork_reuse.class_aliases
+mapping: a class either owns its base illustration or points to another
+existing class's base asset. The current proposal is **65 distinct base
+illustrations** and **30 shared class aliases**. Original approved pilot
+artwork is never aliased.
+
+Resolution for future presentation code:
+
+1. Classify the attachment normally, producing the established icon_class.
+2. Look up artwork_reuse.class_aliases for that icon_class.
+3. If an alias exists, use its base_artwork_id; otherwise use icon_class.
+4. Render the base artwork only after that SVG is produced and approved;
+   until then retain a safe category or global fallback.
+5. Display the original semantic label, not the base artwork name.
+
+This is an authored presentation plan, not a shipped runtime resolver.
+Shared artwork never changes compatibility, installation, category, or
+subtype data. Older rejected class-specific draft SVGs do not become
+acceptable when that class is mapped to a different base icon.
+
 ## Data files
 
 - data/icon_library/attachment_taxonomy.json: categories/subcategories.

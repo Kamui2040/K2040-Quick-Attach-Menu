@@ -175,6 +175,54 @@ for batch_id, batch in artwork_manifest.get("batches", {}).items():
             f"{batch_counts.get(batch_id, 0)} != {batch.get('count')}"
         )
 
+# Artwork sharing is a static presentation layer only: class IDs and semantic mappings
+# stay unchanged, while several class IDs may resolve to one original SVG.
+reuse = artwork_manifest.get("artwork_reuse")
+if not isinstance(reuse, dict) or reuse.get("schema") != 1:
+    errors.append("missing/unsupported artwork reuse plan")
+    aliases = {}
+else:
+    aliases = reuse.get("class_aliases")
+    if not isinstance(aliases, dict):
+        errors.append("artwork reuse aliases must be an object")
+        aliases = {}
+
+for class_id, meta in aliases.items():
+    if class_id not in art_entries:
+        errors.append(f"artwork alias has unknown class: {class_id}")
+        continue
+    if not isinstance(meta, dict):
+        errors.append(f"artwork alias metadata invalid: {class_id}")
+        continue
+    base = meta.get("base_artwork_id")
+    if not isinstance(base, str) or base not in art_entries:
+        errors.append(f"artwork alias has unknown base: {class_id} -> {base}")
+        continue
+    if base == class_id:
+        errors.append(f"artwork class cannot alias itself: {class_id}")
+    if base in aliases:
+        errors.append(f"artwork alias chain forbidden: {class_id} -> {base}")
+    if art_entries[class_id].get("status") == "approved":
+        errors.append(f"approved original artwork must not be aliased: {class_id}")
+    if not isinstance(meta.get("reason"), str) or not meta["reason"].strip():
+        errors.append(f"artwork sharing lacks rationale: {class_id}")
+    if art_entries[class_id].get("category") != art_entries[base].get("category"):
+        if not (class_id == "special.generic" and base == generic_fallback):
+            errors.append(f"artwork sharing across unrelated categories: {class_id} -> {base}")
+
+if reuse is not None:
+    bases = set(art_entries) - set(aliases)
+    if reuse.get("planned_base_count") != len(bases):
+        errors.append(
+            f"artwork base count mismatch: {reuse.get('planned_base_count')} != {len(bases)}"
+        )
+    if not set(artwork_manifest.get("pilot_set", [])).issubset(bases):
+        errors.append("pilot base artwork was aliased")
+    for class_id in art_entries:
+        base = aliases.get(class_id, {}).get("base_artwork_id", class_id) if isinstance(aliases.get(class_id, {}), dict) else class_id
+        if base not in art_entries:
+            errors.append(f"artwork resolution failed: {class_id} -> {base}")
+
 pilot = artwork_manifest.get("pilot_set", [])
 if len(pilot) != len(set(pilot)):
     errors.append("duplicate icon class in artwork pilot set")
@@ -291,3 +339,4 @@ print(f"PASS: {len(canonical.get('entries', []))} canonical attach points")
 print(f"PASS: {len(community.get('entries', []))} community attach points")
 print(f"PASS: {len(class_defs)} visual icon classes")
 print(f"PASS: {len(art_entries)} artwork manifest entries / {len(pilot)} pilot icons")
+print(f"PASS: {len(art_entries) - len(aliases)} proposed base illustrations / {len(aliases)} class aliases")

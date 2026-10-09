@@ -15,7 +15,7 @@
     "detail_rule": "one dominant silhouette and at most two secondary details; must remain readable at 22x22",
     "brand_rule": "generic shapes only; no logos, text, trademarks, or exact branded product geometry",
     "source_rule": "original authored artwork only; do not trace or redistribute third-party icon assets",
-    "style_reference": "Established FallUI/FIS visual language, using Extra Icons for FIS as the primary shape-language reference for broad silhouette proportions, contour vocabulary, negative space, and small-size readability. Original artwork only; do not trace, extract, convert, or reproduce individual third-party assets."
+    "style_reference": "The 12 individually approved original SVGs and approved detailed icon concepts are the primary style reference. FallUI/FIS/Extra Icons are broad visual inspiration only; do not extract, trace, convert, copy, or redistribute third-party assets."
   },
   "batches": {
     "1": {
@@ -1028,7 +1028,7 @@
   ],
   "review_rule": "Artwork is not finished until its manifest status is approved after visual review.",
   "pilot_style_status": "approved",
-  "pilot_style_note": "FallUI/FIS-inspired monochrome silhouette language approved for production. Individual SVG assets remain planned until authored and reviewed.",
+  "pilot_style_note": "The 12 pilot SVGs are individually approved and remain the primary visual baseline. Generated concept approvals are separate from authored SVG approval.",
   "asset_root": "assets/icon_library/svg",
   "pilot_assets_status": "approved",
   "pilot_assets_note": "All 12 pilot SVG assets were visually reviewed and approved as the production baseline.",
@@ -1055,5 +1055,135 @@
     ],
     "batch_1a_receiver_barrel_muzzle_status": "rejected",
     "batch_1a_receiver_barrel_muzzle_note": "Rejected as a whole after visual review. Do not iterate from this geometry; replace with fresh reference-grounded silhouettes."
+  },
+  "artwork_reuse": {
+    "schema": 1,
+    "purpose": "Optional static artwork sharing after semantic icon_class resolution. This is a production plan, not runtime integration.",
+    "resolution_rule": "If icon_class is in class_aliases, use its base_artwork_id filename/status. Otherwise use its own manifest entry. One hop only; no alias chains.",
+    "content_rule": "Distinct textual semantic subtype/icon_class remains unchanged; shared silhouettes do not affect gameplay compatibility, sorting, or validity.",
+    "review_rule": "Class status describes its own original SVG attempt. A shared class uses the base artwork review status; rejected old draft SVGs are not approved by sharing.",
+    "planned_base_count": 65,
+    "class_aliases": {
+      "ammo_caliber.armor_piercing": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; AP effect remains text."
+      },
+      "ammo_caliber.conversion": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; caliber conversion remains text."
+      },
+      "ammo_caliber.elemental": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; elemental/energy effect remains text."
+      },
+      "ammo_caliber.explosive": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; explosive effect remains text."
+      },
+      "ammo_caliber.hollow_point": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; HP effect remains text."
+      },
+      "ammo_caliber.incendiary": {
+        "base_artwork_id": "ammo_caliber.generic",
+        "reason": "Cartridge base; incendiary effect remains text."
+      },
+      "barrel.energy": {
+        "base_artwork_id": "barrel.generic",
+        "reason": "Barrel family silhouette; energy context remains in the label."
+      },
+      "barrel.heavy": {
+        "base_artwork_id": "barrel.long_precision",
+        "reason": "Substantial barrel profile; weight and precision remain in the label."
+      },
+      "barrel.short": {
+        "base_artwork_id": "barrel.generic",
+        "reason": "Standard barrel silhouette; length remains in the label."
+      },
+      "cosmetic.detail": {
+        "base_artwork_id": "cosmetic.generic",
+        "reason": "Same generic cosmetic family; detail is textual."
+      },
+      "handguard.cover": {
+        "base_artwork_id": "handguard.generic",
+        "reason": "Same fore-end/handguard family shape."
+      },
+      "internal.controls": {
+        "base_artwork_id": "internal.generic",
+        "reason": "Internal mechanism family; controls subtype remains text."
+      },
+      "internal.energy": {
+        "base_artwork_id": "internal.generic",
+        "reason": "Internal mechanism family; energy subtype remains text."
+      },
+      "internal.motor": {
+        "base_artwork_id": "internal.generic",
+        "reason": "Internal mechanism family; motor subtype remains text."
+      },
+      "magazine.extended": {
+        "base_artwork_id": "magazine.generic",
+        "reason": "Same detachable magazine family; size remains in label."
+      },
+      "magazine.multi": {
+        "base_artwork_id": "magazine.generic",
+        "reason": "Paired magazine configuration; text identifies paired variant."
+      },
+      "magazine.stick": {
+        "base_artwork_id": "magazine.generic",
+        "reason": "Conventional detachable box/stick magazine silhouette."
+      },
+      "mount.rail": {
+        "base_artwork_id": "mount.generic",
+        "reason": "Simple mount and rail share the mounting hardware family."
+      },
+      "mount.riser_offset": {
+        "base_artwork_id": "mount.generic",
+        "reason": "Mounting hardware family; offset/riser described by text."
+      },
+      "muzzle.blast_device": {
+        "base_artwork_id": "muzzle.generic",
+        "reason": "Muzzle housing family; blast function remains in the label."
+      },
+      "muzzle.choke": {
+        "base_artwork_id": "muzzle.generic",
+        "reason": "Same small muzzle attachment silhouette; choke identified by label."
+      },
+      "muzzle.energy": {
+        "base_artwork_id": "muzzle.generic",
+        "reason": "Generic muzzle body; energy type remains in the label."
+      },
+      "pistol_grip.ergonomic_precision": {
+        "base_artwork_id": "pistol_grip.generic",
+        "reason": "Same pistol-grip family; ergonomic differences remain in label."
+      },
+      "receiver.energy": {
+        "base_artwork_id": "receiver.generic",
+        "reason": "Receiver family silhouette; energy type remains in the label."
+      },
+      "receiver.fire_control": {
+        "base_artwork_id": "receiver.generic",
+        "reason": "Use the same receiver body; fire-control detail remains in the label."
+      },
+      "sights.night_vision": {
+        "base_artwork_id": "sights.scope",
+        "reason": "Scope housing; night-vision function is text, not separate base geometry."
+      },
+      "sights.targeting": {
+        "base_artwork_id": "sights.scope",
+        "reason": "Scope/recon housing; targeting function remains in label."
+      },
+      "sights.thermal": {
+        "base_artwork_id": "sights.scope",
+        "reason": "Scope housing; thermal function is text, not separate base geometry."
+      },
+      "special.generic": {
+        "base_artwork_id": "attachment.generic",
+        "reason": "Unknown special uses the global fallback; no unique shape warranted."
+      },
+      "stock.lightweight_short": {
+        "base_artwork_id": "stock.generic",
+        "reason": "Compact stock remains the stock family silhouette."
+      }
+    }
   }
 }

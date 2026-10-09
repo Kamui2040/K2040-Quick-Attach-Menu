@@ -1,7 +1,8 @@
 # Icon Artwork Direction
 
-The semantic library currently resolves 172 attachment subtypes to 95 reusable visual icon classes.
-This document defines how those 95 icons should be authored and reviewed.
+The semantic library currently resolves 172 attachment subtypes to 95 stable visual icon classes.
+A separate artwork reuse plan groups those classes into 65 proposed base illustrations.
+This document defines how the original icons should be authored and reviewed.
 
 ## Render contract
 
@@ -21,7 +22,7 @@ This document defines how those 95 icons should be authored and reviewed.
 
 ## Visual language
 
-The visual reference is the established FallUI/FIS icon-library language: compact monochrome UI symbols with strong silhouettes, restrained internal detail, and clean readability at inventory-icon sizes. **Extra Icons for FIS is the primary reference for shape language and silhouette treatment** because it extends the same ecosystem with additional weapon and item icon variants. Use it to guide broad proportions, contour vocabulary, negative-space treatment, and small-size readability. Do not trace, extract, convert, or reproduce individual Extra Icons assets. All project icons remain original authored SVGs.
+The approved 12-icon pilot SVGs and the approved detailed mechanical-illustration concepts are the primary visual reference. Broad FallUI/FIS conventions may inform readability and monochrome presentation, but do not trace, extract, convert, or redistribute third-party artwork. All production icons must be original authored SVGs.
 
 The set should look like one technical inventory system rather than 95 separate illustrations.
 
@@ -37,11 +38,43 @@ The set should look like one technical inventory system rather than 95 separate 
 
 The icon should remain understandable without color. UI accent colors are presentation state, not part of the artwork.
 
+## Artwork reuse plan
+
+The classifier still produces 95 distinct icon_class values. The manifest
+artwork_reuse.class_aliases mapping proposes that 30 of them share one of 65
+base SVG illustrations. Every alias points directly to a base class; there
+are no chains. The original semantic label remains visible, so reusing a
+silhouette never erases a functional distinction in text or changes attachment
+compatibility.
+
+Examples:
+- receiver.fire_control uses receiver.generic.
+- sights.thermal and sights.night_vision use sights.scope.
+- magazine.extended and magazine.stick use magazine.generic.
+- Most ammunition-effect classes use ammo_caliber.generic.
+- special.generic uses the global attachment.generic fallback.
+
+Distinct forms remain separate where shape carries useful information:
+drum/cylinder/tube/box-belt magazines, scope vs reflex/magnifier optics,
+folding/collapsible stocks, bipod/underbarrel launcher, muzzle suppressor vs
+brake, modular handguard, and scope mounts.
+
+The 65-base count is a **proposed production scope**, not 65 completed SVGs.
+A reused class resolves to the base class's asset and review status. Historic
+rejected SVG drafts stay rejected and must not be shipped. A proposed base can
+still be refined or split later after visual review. No runtime UI changes
+have been made. Concept-sheet approvals do not automatically approve authored
+SVG files.
+
+The existing 50/23/22 batch counts remain the counts of *icon classes*, not
+new base illustrations. Use scripts/list-icon-artwork.py to see each class's
+resolved base artwork.
+
 ## Review order
 
 ### Pilot — 12 icons
 
-Approve these before producing the complete set:
+Individually approved before expanding production:
 
 1. `attachment.generic`
 2. `receiver.generic`
