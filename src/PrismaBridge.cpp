@@ -2507,16 +2507,22 @@ namespace k2040
             return;
         }
 
+        log::Info("Post-mutation stage: begin read-only UI rebuild.");
         currentWeaponInfo_ = result.weaponInfo;
         currentMenu_ = result.menu;
         ApplyVisibilityPreferences(currentMenu_);
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
+        log::Info("Post-mutation stage: menu payload built; beginning Prisma update.");
         PushPayloadToView();
+        log::Info("Post-mutation stage: Prisma update returned.");
 
         auto* player = RE::PlayerCharacter::GetSingleton();
         auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
+        log::Info("Post-mutation stage: engine refresh prerequisites resolved.");
         if (player && weapon) {
+            log::Info("Post-mutation stage: entering equipped weapon refresh.");
             RefreshModifiedEquippedItem(player, weapon);
+            log::Info("Post-mutation stage: equipped weapon refresh returned.");
             log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
         } else {
             log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");

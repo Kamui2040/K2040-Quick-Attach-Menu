@@ -78,6 +78,12 @@ defaults to unassigned, and leaves MCM/keyboard assignments alone. Choose a
 combination unlikely to conflict with gameplay. The Builder and Settings remain
 keyboard/mouse pages until controller-specific layouts are designed.
 
+The controller radial attachment ring displays up to six choices at once
+to keep labels readable. While viewing attachments, use LB/RB to switch
+pages and point with the stick to highlight an entry; the center caption
+shows the full selected name. The ring cannot apply an attachment until A
+is pressed.
+
 For the radial Quick Menu, use either thumbstick (left takes precedence).
 Point at a category, press A to open it, point at an attachment, and press A to
 confirm. B returns to the category ring, then closes. The D-pad still works as

@@ -55,6 +55,11 @@ Only durable product decisions belong here. Current release state belongs in
 - Controller-specific navigation and opener support are scoped to Quick Menu
   only. Builder/Settings remain keyboard/mouse pending proper layouts; the
   obsolete controller Builder shortcut is ignored without changing MCM keys.
+- Show at most six controller radial attachment entries per page;
+  LB/RB changes option pages, and the full selected name appears in the
+  center. Never remove available attachments merely to fit the wheel.
+- Flushed post-mutation stage markers may narrow a crash location,
+  but must not be misrepresented as a verified fix or a crash stack.
 - XInput radial direction is sampled on the native input thread only while a
   Quick Menu is active, then dispatched to Prisma via F4SE game-thread work.
   Never call PrismaUI from the poller thread. Use left stick preferentially,

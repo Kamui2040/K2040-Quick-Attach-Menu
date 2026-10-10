@@ -10,6 +10,15 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.204 diagnostic/layout tester follows a 10mm vanilla
+Advanced-to-Rapid-Automatic receiver swap that verified the actual OMOD
+transaction but crashed after the UI update. The exact crash instruction
+remains unknown. It adds flushed stage markers around the post-mutation
+UI and existing equipped refresh, without altering either operation.
+Controller radial option labels were overlapping; this tester uses a
+six-entry paged ring with LB/RB paging and a full-name caption.
+Build, runtime safety and presentation validation are pending.
+
 The unreleased 0.5.203 controller refinement keeps native controller
 navigation and its opener exclusive to the Quick Menu. Builder and Settings
 remain keyboard/mouse. Both analog sticks are supported for radial pointing,

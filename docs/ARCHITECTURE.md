@@ -97,6 +97,12 @@ The known Tactical Reload switcher records `TRT_mod_EntryPoint1`,
 `TacticalReload_IngameSwitch.esp` remain live graph inputs but are not generated
 player choices or dependency-removal candidates.
 
+Post-mutation diagnostics bracket read-only menu payload construction, Prisma
+payload submission, equipped-refresh prerequisite resolution, and the
+existing synchronous equipped-weapon refresh with flushed stage markers.
+These markers narrow crashes but do not by themselves provide a stack trace
+or prove which callee faulted. The runtime does not skip normal refresh.
+
 A successful attachment transaction rebuilds the live menu and then reapplies
 the same persisted visibility, ordering, and label preferences used on initial
 open before sending the refreshed payload to the active view.
@@ -159,10 +165,13 @@ F4SE game thread. The game-thread Prisma bridge revalidates the live Quick
 Menu view before forwarding the direction into the browser. The radial
 controller UI is explicitly two-step: direction selects category -> A enters
 its full-circle outer attachment ring -> direction selects option -> A
-confirms; B backs out then closes. The sampled angle never authorizes a
-mutation without an explicit A. Other presentations retain D-pad button
-navigation. Mouse/keyboard radial geometry is unchanged. Steam Input/Proton
-and in-game analog behavior still require target-runtime testing.
+confirms; B backs out then closes. The outer controller ring shows a
+maximum of six options per page. LB/RB switches pages in the outer ring
+and switches categories when at the category ring; the full selected label
+is displayed in the center. The sampled angle and page changes never
+authorize mutation without an explicit A. Other presentations retain
+D-pad button navigation. Mouse/keyboard radial geometry is unchanged.
+Steam Input/Proton and in-game analog behavior require runtime testing.
 
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between

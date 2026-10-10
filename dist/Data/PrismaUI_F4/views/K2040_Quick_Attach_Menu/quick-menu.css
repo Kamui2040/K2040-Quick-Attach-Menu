@@ -303,6 +303,32 @@
   margin: 0;
 }
 
+/* Controller-only radial pages keep full attachment names outside the wheel.
+   The wheel SVG is unaffected so mouse/keyboard radial still behaves as before. */
+.qm-radial-controller-caption {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 184px;
+  max-width: 30%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.qm-radial-controller-selected {
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  max-height: 4.5em;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--qm-text);
+}
+.qm-radial-controller-pager {
+  margin-top: 4px;
+  color: var(--qm-muted);
+  font-size: 12px;
+}
+
 /* Shared SVG wheel styling. */
 .qm-wheel {
   display: block;

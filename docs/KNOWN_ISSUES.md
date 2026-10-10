@@ -26,6 +26,22 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.204 receiver crash and dense radial
+
+Version 0.5.203 logged a successful and verified vanilla 10mm receiver
+transition from Advanced Receiver to Rapid Automatic Receiver before the
+game crashed after submitting the updated Prisma payload. Without a crash
+call stack, the exact failing instruction remains unknown. Version
+0.5.204 adds flushed markers before and after the existing payload
+submission and equipped-item refresh, without changing either operation.
+It is a diagnostic candidate, not a crash fix.
+
+With many receivers, controller radial option labels overlapped. The
+option ring now shows at most six choices per page, preserves all choices
+across pages via LB/RB, shortens wedge labels, and displays the full
+selected label in the wheel center. The mouse layout remains unchanged.
+In-game presentation and control tests are still required.
+
 ## Unreleased 0.5.203 Quick Menu controller refinement
 
 Previous controller navigation in Builder and Settings was not intuitive

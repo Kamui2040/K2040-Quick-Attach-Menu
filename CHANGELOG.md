@@ -1,3 +1,15 @@
+## 0.5.204 (unreleased dense radial and crash diagnostics)
+
+- Limit controller radial attachments to six wedges per page and use LB/RB
+  to page through all choices, keeping analog direction selection per page.
+- Shorten controller radial wedge labels and show the full selected
+  attachment name and page counter in the wheel center.
+- Add flushed post-transaction stage markers surrounding the menu
+  payload update and equipped-weapon refresh; do not change either call
+  or the underlying attachment mutation.
+- Receiver crash remains unresolved without a crash call stack and runtime
+  confirmation. This is a diagnostic/layout tester, not a crash fix.
+
 ## 0.5.203 (unreleased Quick Menu controller refinement)
 
 - Limit controller-specific actions/navigation to the Quick Menu; Builder and
