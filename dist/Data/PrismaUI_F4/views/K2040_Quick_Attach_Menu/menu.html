@@ -172,6 +172,13 @@
           if (!event.repeat) renderer.activateFocusedOption();
           return;
         }
+        if (renderer.settings().presentation === "radial" &&
+            (key === "PageUp" || key === "PageDown")) {
+          consumeKey(event);
+          enterKeyboardMode();
+          if (!event.repeat) renderer.changeRadialPage(key === "PageUp" ? -1 : 1);
+          return;
+        }
         var navigation = key === "ArrowLeft" || key === "a" || key === "ArrowRight" || key === "d" ||
           key === "ArrowUp" || key === "w" || key === "ArrowDown" || key === "s";
         if (!navigation) return;

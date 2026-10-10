@@ -10,6 +10,12 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.205 radial presentation follow-up extends the
+six-option page limit to keyboard/mouse mode, adds center pager buttons,
+mouse wheel/Page Up/Page Down navigation, and shows the full hovered
+attachment name. The earlier 0.5.204 paging applied only to controller.
+In-game UI QA is pending; the receiver crash remains unresolved.
+
 The unreleased 0.5.204 diagnostic/layout tester follows a 10mm vanilla
 Advanced-to-Rapid-Automatic receiver swap that verified the actual OMOD
 transaction but crashed after the UI update. The exact crash instruction

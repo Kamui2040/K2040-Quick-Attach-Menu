@@ -26,6 +26,17 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.205 ordinary radial label overlap
+
+A screenshot from 0.5.203 showed overlapping receiver labels in
+keyboard/mouse radial mode. The 0.5.204 pagination only covered
+controller radial, not the ordinary mouse interface. The 0.5.205
+candidate extends the six-entry page cap to mouse radial with
+center paging arrows, wheel/Page Up/Page Down controls, short
+wedge labels and a full-name hover caption. All options remain
+reachable without changing their install behavior. Target
+in-game visual QA is pending; the receiver crash remains unresolved.
+
 ## Unreleased 0.5.204 receiver crash and dense radial
 
 Version 0.5.203 logged a successful and verified vanilla 10mm receiver

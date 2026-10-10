@@ -1,3 +1,14 @@
+## 0.5.205 (unreleased keyboard/mouse radial pagination)
+
+- Apply the six-attachment radial page limit to keyboard-and-mouse mode,
+  not just controller mode. Never omit attachments from the selectable list.
+- Add center paging arrows, mouse-wheel and Page Up/Page Down navigation,
+  while retaining the existing mouse category-centered attachment arc.
+- Keep wedge labels short and show the full name of the hovered attachment
+  in the wheel center, without installing it until the user clicks.
+- Retain the unmodified attachment mutation/refresh code and the 0.5.204
+  crash-stage diagnostics. Vanilla receiver crash remains unresolved.
+
 ## 0.5.204 (unreleased dense radial and crash diagnostics)
 
 - Limit controller radial attachments to six wedges per page and use LB/RB

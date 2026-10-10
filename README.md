@@ -78,6 +78,11 @@ defaults to unassigned, and leaves MCM/keyboard assignments alone. Choose a
 combination unlikely to conflict with gameplay. The Builder and Settings remain
 keyboard/mouse pages until controller-specific layouts are designed.
 
+Keyboard-and-mouse radial mode also displays at most six attachments
+per page. Use the arrows in the wheel center, scroll the mouse wheel,
+or press Page Up/Page Down to see every choice. Hovering shows the full
+attachment name in the center; only clicking it attempts to apply it.
+
 The controller radial attachment ring displays up to six choices at once
 to keep labels readable. While viewing attachments, use LB/RB to switch
 pages and point with the stick to highlight an entry; the center caption

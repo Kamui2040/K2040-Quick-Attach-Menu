@@ -315,6 +315,9 @@
   text-align: center;
   pointer-events: none;
 }
+.qm-radial-controller-pager button {
+  pointer-events: auto;
+}
 .qm-radial-controller-selected {
   overflow: hidden;
   overflow-wrap: anywhere;
@@ -324,9 +327,29 @@
   color: var(--qm-text);
 }
 .qm-radial-controller-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
   margin-top: 4px;
   color: var(--qm-muted);
   font-size: 12px;
+}
+.qm-radial-page-button {
+  border: 1px solid var(--qm-line);
+  border-radius: 5px;
+  background: var(--qm-row);
+  color: var(--qm-text);
+  min-width: 30px;
+  min-height: 28px;
+  cursor: pointer;
+  font-size: 19px;
+  line-height: 1;
+}
+.qm-radial-page-button:hover,
+.qm-radial-page-button:focus-visible {
+  outline: 1px solid var(--qm-accent);
+  background: var(--qm-active);
 }
 
 /* Shared SVG wheel styling. */

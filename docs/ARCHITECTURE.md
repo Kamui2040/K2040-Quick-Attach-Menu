@@ -170,8 +170,11 @@ maximum of six options per page. LB/RB switches pages in the outer ring
 and switches categories when at the category ring; the full selected label
 is displayed in the center. The sampled angle and page changes never
 authorize mutation without an explicit A. Other presentations retain
-D-pad button navigation. Mouse/keyboard radial geometry is unchanged.
-Steam Input/Proton and in-game analog behavior require runtime testing.
+D-pad button navigation. Keyboard/mouse radial mode retains the
+category-centered attachment arc but uses the same six-entry paging cap.
+Center arrow buttons, mouse wheel, and Page Up/Down move between pages,
+while hovering updates the full-name caption without a mutation.
+Steam Input/Proton and in-game UI behavior require runtime testing.
 
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between

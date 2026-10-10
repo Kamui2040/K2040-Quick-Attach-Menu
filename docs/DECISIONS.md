@@ -55,6 +55,9 @@ Only durable product decisions belong here. Current release state belongs in
 - Controller-specific navigation and opener support are scoped to Quick Menu
   only. Builder/Settings remain keyboard/mouse pending proper layouts; the
   obsolete controller Builder shortcut is ignored without changing MCM keys.
+- Apply the radial six-entry page limit to keyboard/mouse too. Provide
+  center paging arrows, mouse-wheel and Page Up/Page Down navigation, and
+  a full-name hover caption. Never remove entries to fit the wheel.
 - Show at most six controller radial attachment entries per page;
   LB/RB changes option pages, and the full selected name appears in the
   center. Never remove available attachments merely to fit the wheel.
