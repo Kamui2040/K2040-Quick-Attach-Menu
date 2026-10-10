@@ -1,5 +1,13 @@
 # Third-party notices
 
+## zlib (optional installed FIS reader)
+
+The optional installed-FIS SWF reader uses zlib for decompression, statically
+linked by the project build. zlib is copyright (C) 1995–2024
+Jean-loup Gailly and Mark Adler and is licensed under the zlib License.
+Source and license: https://github.com/madler/zlib .
+The bridge does not distribute FIS/FallUI artwork or icon libraries.
+
 ## BaseNPCSwapper MNAM resolver
 
 The OMOD record-walking approach in `src/OmodTargetResolver.cpp` is adapted

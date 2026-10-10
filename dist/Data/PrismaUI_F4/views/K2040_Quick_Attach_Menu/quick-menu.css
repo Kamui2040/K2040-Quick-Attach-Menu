@@ -93,6 +93,49 @@
   border-color: var(--qm-line-soft);
 }
 
+/* Optional icon assets affect list rows only when the native payload supplies
+   a valid image and icon-class mapping. Text-only menus retain their layout. */
+.qm-category-button.qm-has-icon {
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+}
+
+.qm-option-button.qm-has-icon {
+  grid-template-columns: 32px minmax(0, 1fr);
+}
+
+.qm-asset-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  overflow: hidden;
+  color: var(--qm-text);
+}
+
+.qm-asset-icon-mask {
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.qm-asset-icon-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.qm-asset-icon-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .qm-category-button:hover,
 .qm-category-button.active,
 .qm-category-button.pane-focus,

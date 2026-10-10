@@ -1,4 +1,8 @@
-﻿# Build outputs
+﻿# Python test bytecode
+__pycache__/
+*.py[cod]
+
+# Build outputs
 build/
 .xmake/
 .vs/

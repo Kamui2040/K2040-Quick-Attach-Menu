@@ -384,6 +384,12 @@
     this.applyTheme();
   };
 
+  Renderer.prototype.makeIcon = function(iconClass) {
+    return global.K2040IconResources ?
+      global.K2040IconResources.createIcon(this.payload && this.payload.iconAssets,
+        iconClass, this.payload && this.payload.iconVectors) : null;
+  };
+
   Renderer.prototype.makeCategoryButton = function(category) {
     var self = this;
     var label = this.displayName(category.label) || "Unnamed category";
@@ -393,6 +399,11 @@
       (category.categoryIndex === this.activeCategoryIndex ? " active" : "") +
       (category.categoryIndex === this.activeCategoryIndex && this.activePane === "categories" ? " pane-focus" : "");
     button.dataset.categoryIndex = String(category.categoryIndex);
+    var icon = this.makeIcon(category.iconClass);
+    if (icon) {
+      button.className += " qm-has-icon";
+      button.appendChild(icon);
+    }
     var name = document.createElement("span");
     name.className = "qm-category-name";
     name.textContent = label;
@@ -419,6 +430,11 @@
     button.className = "qm-option-button" + (option.isInstalled ? " installed" : "") +
       (!ready && !option.isInstalled ? " blocked" : "") + (focused ? " focused-option" : "");
     button.dataset.optionIndex = String(option.optionIndex);
+    var icon = this.makeIcon(option.iconClass);
+    if (icon) {
+      button.className += " qm-has-icon";
+      button.appendChild(icon);
+    }
     var name = document.createElement("span");
     name.className = "qm-option-name";
     name.textContent = label;
