@@ -16,7 +16,9 @@ Compact Hybrid category wheel. Left/Right consistently change between
 category and attachment focus, while Cancel backs out before closing.
 LB/RB switch categories or page radial attachments. Directional movement
 cannot install attachments. Automated browser/renderer checks pass;
-this navigation change is not yet confirmed under Proton/XInput.
+initial user testing on the target setup reports this revision working.
+The result is provisional; not every layout, custom input mapping,
+repeat pattern or Steam Input/Proton configuration has been verified.
 
 Unreleased 0.5.210 adds native thumbstick navigation in every Quick
 Menu presentation and explicit game-mapped confirmation. Steam Input

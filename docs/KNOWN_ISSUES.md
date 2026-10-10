@@ -37,7 +37,10 @@ traversal, maps both thumbsticks and D-pad through the same direction
 router, and gives Left/Right, Cancel and shoulder buttons consistent
 pane/category/page behavior in every presentation. No movement triggers
 attachment installation. Browser events and the real renderer have
-automated tests; real-controller visual and input QA is pending.
+automated tests; initial user in-game testing reports the navigation
+working as far as tested. This is a focused provisional result, not a
+complete verification of every presentation, controller mapping or
+repeat/transition case.
 
 ## Unreleased 0.5.210 controller input refinement
 

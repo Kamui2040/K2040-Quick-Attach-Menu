@@ -16,7 +16,9 @@ category wheel is drawn bottom-to-top, so Up/Down now reverse only the
 underlying category-index step to match screen direction. Sticks, D-pad,
 and keyboard share directional behavior; Cancel first returns from options
 before closing. Input never installs a mod without explicit mapped Confirm.
-Renderer/browser tests pass; in-game confirmation is still required.
+Renderer/browser tests pass; initial user in-game testing reports
+this revision working as far as tested. The result is provisional;
+full layout/remapping and cross-controller QA remain outstanding.
 
 Unreleased 0.5.210 expands Quick Menu controller navigation to both
 thumbsticks and the D-pad in radial, cascade, hybrid and horizontal

@@ -14,7 +14,9 @@
 - Movement is selection-only: installing still requires a distinct mapped
   Activate/Confirm press. Preserve the tested AE deferred re-equip behavior.
 - Browser and renderer-level navigation tests cover every presentation.
-  Real-controller runtime QA of the 0.5.211 changes remains outstanding.
+  Initial in-game controller testing reports the 0.5.211 changes working.
+  This is a provisional, focused result, not a complete layout/remapping
+  or controller compatibility regression.
 
 ## 0.5.210 (unreleased controller navigation tester)
 
