@@ -1,3 +1,19 @@
+## 0.5.203 (unreleased Quick Menu controller refinement)
+
+- Limit controller-specific actions/navigation to the Quick Menu; Builder and
+  Settings remain keyboard/mouse only pending their own controller layouts.
+- Retire the controller Builder opener. Existing controller shortcut files may
+  retain an old Builder entry, but the runtime ignores it; the Quick shortcut
+  remains separate from the keyboard/MCM bindings.
+- Read left thumbstick (or right when left is neutral) through XInput on the
+  existing poller, and queue sampled radial directions on the F4SE game thread.
+- In controller radial mode, stick angle selects a category, A enters its
+  attachments, stick angle selects an attachment on a full outer wheel, A
+  confirms and B returns to categories or closes. D-right no longer enters
+  the radial outer ring. D-pad remains a fallback.
+- Preserve existing mouse/keyboard radial layout and the 0.5.202
+  empty-material default guard. In-game analog QA is still required.
+
 ## 0.5.202 (unreleased default-material safety tester)
 
 - Treat a unique, no-effect, unloaded material-reset OMOD as the effective

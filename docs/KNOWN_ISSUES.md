@@ -26,6 +26,23 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.203 Quick Menu controller refinement
+
+Previous controller navigation in Builder and Settings was not intuitive
+enough for those complex panels. They now remain keyboard/mouse-only until
+their layouts are deliberately redesigned. The retired controller Builder
+opener is ignored without altering keyboard/MCM shortcuts. Quick Menu uses
+the Prisma V12 controller button bridge, plus sampled XInput left/right
+stick angle for radial selection. A enters a category and then confirms an
+attachment; B backs out and then closes. The controller radial outer
+options occupy a full ring, independent of category direction, and D-right
+no longer enters the outer ring.
+
+Static direction/activation tests and the cross-build do not establish
+behavior on a real Steam Input/Proton controller. Specifically validate
+dead-zone stability, A/B stage transitions, stick priority, button mapping,
+mouse coexistence, and ordinary Cascade navigation before merging.
+
 ## Unreleased 0.5.202 default material safety
 
 A 0.5.201 game session on a 10mm confirmed no previously installed material

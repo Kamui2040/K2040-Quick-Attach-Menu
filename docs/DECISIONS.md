@@ -52,16 +52,17 @@ Only durable product decisions belong here. Current release state belongs in
   the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
   for recovery. Recipe presence is not the full workbench condition evaluator;
   don't label the resulting list exact workbench parity until validated.
-- Controller navigation must move between the settings sidebar and the active
-  page controls, activate selections via focus, and preserve row focus when
-  Builder re-renders. The controller binding editor uses the existing
-  choice-trigger/choice-option style rather than native browser selects.
-- Focused Prisma panels use the existing V12 native controller action bridge.
-  Menu-opening controller shortcuts are separate from keyboard/MCM bindings.
-  XInput is polled on the existing input thread and sends actions through the
-  existing game-thread queue. Single buttons and two-button combinations are
-  optional and unassigned by default. Never let a controller shortcut bypass
-  normal menu-open safety or attachment transaction checks.
+- Controller-specific navigation and opener support are scoped to Quick Menu
+  only. Builder/Settings remain keyboard/mouse pending proper layouts; the
+  obsolete controller Builder shortcut is ignored without changing MCM keys.
+- XInput radial direction is sampled on the native input thread only while a
+  Quick Menu is active, then dispatched to Prisma via F4SE game-thread work.
+  Never call PrismaUI from the poller thread. Use left stick preferentially,
+  right as fallback, with a dead zone and angle-based selection; A alone
+  confirms, B backs out/closes. Avoid D-right as an entry action in radial UI.
+- Only the Quick Menu binds PrismaUI V12 controller actions. The optional
+  single/two-button Quick opener stays independent of keyboard/MCM bindings
+  and must never bypass menu-open or attachment mutation safety checks.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.

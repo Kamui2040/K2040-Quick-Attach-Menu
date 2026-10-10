@@ -665,6 +665,25 @@ namespace k2040
         return menuOpen_ && viewMode_ != ViewMode::QuickMenu;
     }
 
+    bool PrismaBridge::IsQuickControllerInputActive() const
+    {
+        return quickControllerInputActive_.load(std::memory_order_relaxed);
+    }
+
+    void PrismaBridge::OnControllerStickSector(int sector)
+    {
+        // Called only by a queued F4SE game-thread task. Never call PrismaUI
+        // from the physical controller polling thread.
+        if (sector < 0 || sector >= 72 ||
+            !quickControllerInputActive_.load(std::memory_order_relaxed) ||
+            !menuOpen_ || viewMode_ != ViewMode::QuickMenu ||
+            !viewDomReady_ || !api_ || !api_->IsValid(menuView_)) {
+            return;
+        }
+        const auto value = std::to_string(sector);
+        api_->InteropCall(menuView_, "k2040ControllerStickSector", value.c_str());
+    }
+
     bool PrismaBridge::CanOpenFromHotkey() const
     {
         if (const auto* ui = RE::UI::GetSingleton()) {
@@ -996,7 +1015,6 @@ namespace k2040
                  << "\"closeAfterApply\":" << (quickMenu.closeAfterApply ? "true" : "false") << ","
                  << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
                  << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
-                 << "\"controllerBuilderShortcut\":\"" << JsonEscape(GetControllerShortcut("builder")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
                  << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
@@ -1085,6 +1103,10 @@ namespace k2040
         }
 
         controllerApi_->ClearControllerActions(menuView_);
+        if (viewMode_ != ViewMode::QuickMenu) {
+            log::Info("Controller actions intentionally disabled for Builder/Settings.");
+            return;
+        }
         constexpr std::pair<const char*, const char*> bindings[] = {
             { "A", "accept" },
             { "B", "cancel" },
@@ -1409,6 +1431,7 @@ namespace k2040
             }
         }
 
+        quickControllerInputActive_ = false;
         viewMode_ = mode;
         currentWeaponInfo_ = weaponInfo;
         currentMenu_ = menu;
@@ -1502,6 +1525,7 @@ namespace k2040
         // Builder <-> Settings switches can acquire a new owner.
         UnregisterMenuCursorFallback();
 
+        quickControllerInputActive_ = false;
         viewMode_ = mode;
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         CreateMenuViewIfNeeded();
@@ -1534,6 +1558,7 @@ namespace k2040
     {
         SetHotkeyCaptureActive(false);
         SetMenuHotkeyUiForwardingActive(false);
+        quickControllerInputActive_ = false;
         menuOpen_ = false;
         pendingFocus_ = false;
         log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
@@ -1593,6 +1618,7 @@ namespace k2040
 
     void PrismaBridge::ResetForGameTransition(const char* reason)
     {
+        quickControllerInputActive_ = false;
         const PrismaView previousView = menuView_;
 
         SetMenuHotkeyUiForwardingActive(false);
@@ -1647,6 +1673,7 @@ namespace k2040
         }
 
         viewDomReady_ = true;
+        quickControllerInputActive_ = menuOpen_ && viewMode_ == ViewMode::QuickMenu && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
         // Page-facing listeners are safest once the JavaScript context exists.

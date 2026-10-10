@@ -479,7 +479,11 @@
     var hints = document.createElement("div");
     hints.className = "qm-hints";
     hints.textContent = this.options.controllerActive
-      ? "D-pad to move and switch · A to apply · LB/RB category · B to close"
+      ? ((this.settings().presentation === "radial")
+          ? (this.activePane === "categories"
+              ? "Stick: Point at category · A: Open · B: Close"
+              : "Stick: Point at attachment · A: Confirm · B: Back")
+          : "D-pad: Navigate · A: Confirm · LB/RB: Category · B: Close")
       : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
@@ -639,12 +643,15 @@
       this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 300, 300, 108, 190);
     }
     var options = this.visibleOptions(category);
-    if (category && options.length) {
+    // Controller mode uses the entire outer ring after A opens the category.
+    // Every option maps directly to its thumbstick angle, regardless of which
+    // side of the wheel the category occupies. Mouse layout stays unchanged.
+    if (category && options.length && (this.activePane === "options" || !this.options.controllerActive)) {
       var categoryPosition = categories.indexOf(category);
       var categoryMiddle = -90 + (categoryPosition + .5) * categorySweep;
-      var optionSweep = Math.min(250, Math.max(72, options.length * 38));
+      var optionSweep = this.options.controllerActive ? 360 : Math.min(250, Math.max(72, options.length * 38));
       var optionSize = optionSweep / options.length;
-      var optionStart = categoryMiddle - optionSweep / 2;
+      var optionStart = this.options.controllerActive ? -90 : categoryMiddle - optionSweep / 2;
       for (var j = 0; j < options.length; j += 1) {
         this.makeOptionSegment(svg, labelLayer, category, options[j], optionStart + j * optionSize + 1.2,
           optionStart + (j + 1) * optionSize - 1.2, 300, 300, 202, 286);
@@ -720,6 +727,29 @@
     this.statusClass = "";
     this.render();
     if (this.options.onCategoryChanged) this.options.onCategoryChanged(category);
+  };
+
+  Renderer.prototype.selectRadialSector = function(sector) {
+    if ((this.settings().presentation || "cascade") !== "radial" ||
+        !this.options.controllerActive || !Number.isInteger(sector) ||
+        sector < 0 || sector >= 72) return;
+    if (this.activePane === "categories") {
+      var categories = this.visibleCategories();
+      if (!categories.length) return;
+      var selectedCategory = categories[Math.floor((sector + .5) * categories.length / 72) % categories.length];
+      if (selectedCategory.categoryIndex !== this.activeCategoryIndex) {
+        this.selectCategory(selectedCategory.categoryIndex);
+      }
+    } else {
+      var category = this.findCategory(this.activeCategoryIndex);
+      var options = this.visibleOptions(category);
+      if (!options.length) return;
+      var selectedOption = options[Math.floor((sector + .5) * options.length / 72) % options.length];
+      if (selectedOption.optionIndex !== this.lastFocusedOptionIndex) {
+        this.lastFocusedOptionIndex = selectedOption.optionIndex;
+        this.render();
+      }
+    }
   };
 
   Renderer.prototype.moveCategory = function(delta) {

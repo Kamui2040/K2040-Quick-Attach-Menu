@@ -20,8 +20,8 @@ validated. Already-installed parts remain visible for recovery.
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
-- Native controller navigation and configurable controller shortcuts for both
-  the Quick Menu and Builder; single buttons or two-button combinations.
+- Native controller navigation for the Quick Menu only, including radial
+  thumbstick direction selection and a configurable Quick Menu opener.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
@@ -72,14 +72,18 @@ Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
 
-Controller opener shortcuts are configured separately under Settings > Controls.
-Select a button and an optional modifier for Quick Menu or Builder, then Apply.
-For example, LB+Y and LB+X are accepted; both bindings initially default to
-unassigned to avoid taking over game actions. Use your Steam Input configuration
-to expose the controller through XInput under Proton. Keyboard/MCM assignments
-remain independent. Single-button shortcuts may conflict with normal gameplay
-buttons; choose combinations that do not conflict with your control layout.
-The shortcut path requires focused target-runtime testing.
+Only the **Quick Menu** has a controller shortcut under Settings > Controls.
+Select a button and optional modifier, then Apply with keyboard/mouse. It
+defaults to unassigned, and leaves MCM/keyboard assignments alone. Choose a
+combination unlikely to conflict with gameplay. The Builder and Settings remain
+keyboard/mouse pages until controller-specific layouts are designed.
+
+For the radial Quick Menu, use either thumbstick (left takes precedence).
+Point at a category, press A to open it, point at an attachment, and press A to
+confirm. B returns to the category ring, then closes. The D-pad still works as
+a fallback; D-right no longer acts as the radial entry key. Steam Input under
+Proton must expose the controller through XInput. This analog path still
+requires focused target-runtime testing.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.

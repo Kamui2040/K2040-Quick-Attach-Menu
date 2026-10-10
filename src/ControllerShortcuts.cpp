@@ -8,6 +8,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -38,9 +39,7 @@ namespace
     }};
 
     std::string g_quickBinding = "None";
-    std::string g_builderBinding = "None";
     std::atomic<std::uint32_t> g_quickMask{ 0 };
-    std::atomic<std::uint32_t> g_builderMask{ 0 };
     std::atomic_bool g_requireControllerRelease{ true };
 
     std::optional<std::uint32_t> ParseBinding(std::string_view value)
@@ -70,7 +69,7 @@ namespace
         return a | b;
     }
 
-    bool PersistBindings(std::string_view quick, std::string_view builder)
+    bool PersistBindings(std::string_view quick)
     {
         const std::filesystem::path target(kSettingsFile);
         const auto temporary = std::filesystem::path(target.string() + ".tmp");
@@ -81,7 +80,7 @@ namespace
         {
             std::ofstream output(temporary, std::ios::trunc | std::ios::binary);
             if (!output) return false;
-            output << "[ControllerShortcuts]\nQuick=" << quick << "\nBuilder=" << builder << "\n";
+            output << "[ControllerShortcuts]\nQuick=" << quick << "\n";
             output.flush();
             if (!output.good()) return false;
         }
@@ -94,9 +93,10 @@ namespace
         return true;
     }
 
-    std::uint32_t ReadControllerButtons()
+    using XInputStateFn = DWORD (WINAPI*)(DWORD, XINPUT_STATE*);
+
+    XInputStateFn ResolveXInputState()
     {
-        using XInputStateFn = DWORD (WINAPI*)(DWORD, XINPUT_STATE*);
         static XInputStateFn getState = [] {
             for (const wchar_t* library : { L"xinput1_4.dll", L"xinput1_3.dll", L"xinput9_1_0.dll" }) {
                 auto* module = LoadLibraryW(library);
@@ -108,6 +108,12 @@ namespace
             }
             return static_cast<XInputStateFn>(nullptr);
         }();
+        return getState;
+    }
+
+    std::uint32_t ReadControllerButtons()
+    {
+        auto getState = ResolveXInputState();
         if (!getState) return 0;
 
         // Read one physical/Steam Input virtual controller, never combine
@@ -129,49 +135,38 @@ namespace k2040
     void InitializeControllerShortcuts()
     {
         std::string quick = "None";
-        std::string builder = "None";
         std::ifstream source(kSettingsFile);
         if (source) {
             std::string line;
             while (std::getline(source, line)) {
                 if (!line.empty() && line.back() == '\r') line.pop_back();
                 if (line.starts_with("Quick=")) quick = line.substr(6);
-                else if (line.starts_with("Builder=")) builder = line.substr(8);
             }
         }
 
-        const auto quickMask = ParseBinding(quick);
-        const auto builderMask = ParseBinding(builder);
-        if (!quickMask || !builderMask || (*quickMask && *quickMask == *builderMask)) {
-            log::Warn("Invalid or duplicate controller shortcut; controller openers left unassigned.");
-            quick = builder = "None";
+        if (!ParseBinding(quick)) {
+            log::Warn("Invalid Quick Menu controller shortcut; left unassigned.");
+            quick = "None";
         }
+        // Older files may contain Builder=; it is deliberately ignored.
         g_quickBinding = quick;
-        g_builderBinding = builder;
         g_quickMask = ParseBinding(quick).value_or(0);
-        g_builderMask = ParseBinding(builder).value_or(0);
         g_requireControllerRelease = true;
     }
 
     std::string GetControllerShortcut(std::string_view action)
     {
         if (action == "quick") return g_quickBinding;
-        if (action == "builder") return g_builderBinding;
         return "None";
     }
 
     bool SetControllerShortcut(std::string_view action, std::string_view binding)
     {
         const auto mask = ParseBinding(binding);
-        if (!mask || (action != "quick" && action != "builder")) return false;
-        std::string quick = action == "quick" ? std::string(binding) : g_quickBinding;
-        std::string builder = action == "builder" ? std::string(binding) : g_builderBinding;
-        if (quick != "None" && quick == builder) return false;
-        if (!PersistBindings(quick, builder)) return false;
-        g_quickBinding = quick;
-        g_builderBinding = builder;
-        g_quickMask = ParseBinding(quick).value_or(0);
-        g_builderMask = ParseBinding(builder).value_or(0);
+        if (action != "quick" || !mask) return false;
+        if (!PersistBindings(binding)) return false;
+        g_quickBinding = binding;
+        g_quickMask = *mask;
         g_requireControllerRelease = true;
         return true;
     }
@@ -182,16 +177,40 @@ namespace k2040
         std::filesystem::remove(kSettingsFile, error);
         if (error) return false;
         g_quickBinding = "None";
-        g_builderBinding = "None";
         g_quickMask = 0;
-        g_builderMask = 0;
         g_requireControllerRelease = true;
         return true;
     }
 
-    void PollControllerShortcutEdges(bool suppressed, bool& quick, bool& builder)
+    int ReadControllerStickSector()
     {
-        quick = builder = false;
+        const auto getState = ResolveXInputState();
+        if (!getState) return -1;
+        for (DWORD player = 0; player < XUSER_MAX_COUNT; ++player) {
+            XINPUT_STATE state{};
+            if (getState(player, &state) != ERROR_SUCCESS) continue;
+            const auto& pad = state.Gamepad;
+            // Prefer the left stick, with right stick as a fallback.
+            // A generous dead zone prevents accidental selection drift.
+            const auto quantize = [](SHORT x, SHORT y) -> int {
+                const auto xx = static_cast<double>(x);
+                const auto yy = static_cast<double>(y);
+                if (xx * xx + yy * yy < 12500.0 * 12500.0) return -1;
+                constexpr double kPi = 3.14159265358979323846;
+                double angle = std::atan2(xx, yy);
+                if (angle < 0) angle += 2.0 * kPi;
+                return static_cast<int>(angle * 72.0 / (2.0 * kPi)) % 72;
+            };
+            const int left = quantize(pad.sThumbLX, pad.sThumbLY);
+            if (left >= 0) return left;
+            return quantize(pad.sThumbRX, pad.sThumbRY);
+        }
+        return -1;
+    }
+
+    void PollControllerShortcutEdges(bool suppressed, bool& quick)
+    {
+        quick = false;
         const auto down = ReadControllerButtons();
         static std::uint32_t previous = 0;
         const auto before = previous;
@@ -205,14 +224,8 @@ namespace k2040
         }
         if (suppressed || down == 0) return;
 
-        const auto builderMask = g_builderMask.load();
         const auto quickMask = g_quickMask.load();
-        const bool builderEdge = builderMask && (down & builderMask) == builderMask &&
-            (before & builderMask) != builderMask;
-        const bool quickEdge = quickMask && (down & quickMask) == quickMask &&
+        quick = quickMask && (down & quickMask) == quickMask &&
             (before & quickMask) != quickMask;
-        // Builder wins if two overlapping bindings complete at the same time.
-        builder = builderEdge;
-        quick = !builder && quickEdge;
     }
 }

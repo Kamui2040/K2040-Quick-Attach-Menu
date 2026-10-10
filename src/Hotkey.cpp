@@ -877,11 +877,32 @@ namespace k2040
         // Independent XInput shortcuts use the same game-thread action queue
         // as keyboard and mouse. They do not read/write MCM key assignments.
         bool controllerQuickEdge = false;
-        bool controllerBuilderEdge = false;
         PollControllerShortcutEdges(
             g_hotkeyCaptureActive.load() || g_hotkeyCaptureReleasePending.load() ||
                 g_menuHotkeyReleasePending.load(),
-            controllerQuickEdge, controllerBuilderEdge);
+            controllerQuickEdge);
+        // Angle samples are enqueued only while Quick Menu is active. Reading
+        // XInput on this background thread is safe; invoking PrismaUI is not.
+        static int previousStickSector = -1;
+        static auto previousStickDispatch = std::chrono::steady_clock::time_point{};
+        if (GetPrismaBridge().IsQuickControllerInputActive() &&
+            !g_hotkeyCaptureActive.load()) {
+            const int sector = ReadControllerStickSector();
+            if (sector < 0) {
+                previousStickSector = -1;
+            } else if (sector != previousStickSector &&
+                std::chrono::steady_clock::now() - previousStickDispatch >= std::chrono::milliseconds(70)) {
+                previousStickSector = sector;
+                previousStickDispatch = std::chrono::steady_clock::now();
+                if (const auto* tasks = F4SE::GetTaskInterface()) {
+                    tasks->AddTask([sector]() {
+                        GetPrismaBridge().OnControllerStickSector(sector);
+                    });
+                }
+            }
+        } else {
+            previousStickSector = -1;
+        }
         const bool escapePressedNow = IsPhysicalKeyDown(VK_ESCAPE);
         const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
         const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
@@ -941,7 +962,7 @@ namespace k2040
         // All game/Prisma/menu/input-layer work is queued onto the F4SE game
         // thread because BSInputEnableManager notifications can synchronously
         // drive PlayerControls and the Havok animation graph.
-        if (builderPressedEdge || controllerBuilderEdge) {
+        if (builderPressedEdge) {
             log::Info("Native poller observed the menu-builder hotkey edge.");
             QueueHotkeyAction(HotkeyAction::ToggleBuilderMenu, HotkeyActionSource::NativePoller);
         } else if (openPressedEdge || controllerQuickEdge) {

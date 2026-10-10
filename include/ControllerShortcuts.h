@@ -14,5 +14,7 @@ namespace k2040
 
     // Called by the existing 25 ms physical-input poller. Never invokes game
     // or Prisma APIs; the caller queues game-thread actions separately.
-    void PollControllerShortcutEdges(bool suppressed, bool& quick, bool& builder);
+    void PollControllerShortcutEdges(bool suppressed, bool& quick);
+    // -1 for neutral/disconnected, otherwise 0..71 clockwise from 12 o'clock.
+    int ReadControllerStickSector();
 }

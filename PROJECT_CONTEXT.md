@@ -10,6 +10,14 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.203 controller refinement keeps native controller
+navigation and its opener exclusive to the Quick Menu. Builder and Settings
+remain keyboard/mouse. Both analog sticks are supported for radial pointing,
+preferring left when active; A enters/accepts, B backs out/closes. Analog events
+are sampled on the native input thread and delivered to Prisma on the game
+thread. The 0.5.202 default material guard and 0.5.201 recipe discovery remain
+unchanged. Build and target-runtime analog QA are pending.
+
 The unreleased 0.5.202 tester addresses repeated in-game crashes after
 selecting vanilla "No Material" on a 10mm that already had no material OMOD.
 It adds UI-only effective-default classification for a unique zero-effect

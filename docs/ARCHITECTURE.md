@@ -146,13 +146,23 @@ closes it and the other opener switches menus without releasing gameplay
 isolation between views. Escape closes either menu. DialogueMenu blocks opener
 actions. There is no separate registered close binding.
 
-The PrismaUI V12 controller action bridge provides focus navigation while a
-menu is open. Separate single- or two-button XInput shortcuts can open/switch
-Quick Menu and Builder without modifying MCM keyboard bindings. These bindings
-start unassigned, persist in a mod-owned runtime settings file, are validated
-against a fixed button vocabulary, and queue actions on the F4SE game thread.
-Controller availability and Steam Input/Proton behavior still require runtime
-testing.
+The PrismaUI V12 controller action bridge binds button actions **only** to
+Quick Menu views. Builder and Settings use keyboard/mouse, pending custom
+controller-oriented layouts. One optional controller opener toggles Quick Menu;
+the legacy Builder controller binding is ignored. Keyboard/MCM binding
+behavior is unchanged.
+
+The native XInput input thread samples either analog stick (left priority,
+right fallback) only while a Quick Menu DOM is ready, applies a dead zone,
+quantizes the direction clockwise from 12 o'clock, and queues the angle on the
+F4SE game thread. The game-thread Prisma bridge revalidates the live Quick
+Menu view before forwarding the direction into the browser. The radial
+controller UI is explicitly two-step: direction selects category -> A enters
+its full-circle outer attachment ring -> direction selects option -> A
+confirms; B backs out then closes. The sampled angle never authorizes a
+mutation without an explicit A. Other presentations retain D-pad button
+navigation. Mouse/keyboard radial geometry is unchanged. Steam Input/Proton
+and in-game analog behavior still require target-runtime testing.
 
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between

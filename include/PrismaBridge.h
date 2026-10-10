@@ -20,6 +20,8 @@ namespace k2040
         bool BeginOpenFromHotkey();
         bool IsMenuFocused() const;
         bool IsMenuBuilderOpen() const;
+        bool IsQuickControllerInputActive() const;
+        void OnControllerStickSector(int sector);
 
         void OpenMenu(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
         void OpenMenuBuilder(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
@@ -51,6 +53,7 @@ namespace k2040
         bool pendingFocus_ = false;
         bool viewDomReady_ = false;
         bool menuOpen_ = false;
+        std::atomic_bool quickControllerInputActive_ = false;
         bool weaponDrawStateCaptured_ = false;
         bool weaponWasDrawnBeforeOpen_ = false;
         bool menuOpenedInFirstPerson_ = false;
