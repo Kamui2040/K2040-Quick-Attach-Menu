@@ -40,8 +40,20 @@ unresolved post-transaction AE crashes without assuming a bad save.
 The candidate intentionally skips this unsafe visual refresh on AE,
 while preserving the verified attachment operation. Its original
 1.10.163 path requires an executable target. Players may need to
-re-equip the weapon to see the new model. Runtime regression testing
-is still mandatory; the cross-build alone is not a runtime fix PASS.
+re-equip the weapon to see the new model. A focused in-game 1.11.240 test subsequently installed
+Double-Barrel Shotgun standard sights successfully, verified the new
+object-instance OMOD, and logged the incompatible visual refresh
+being skipped. The game did not crash. The visible shotgun only
+updated when switching weapons. This validates the crash avoidance
+for that test, not every weapon or the original-game runtime.
+
+A supported, low-impact immediate visual refresh remains unresolved.
+CommonLibF4 exposes AE relocation IDs for actor/equipment management
+and queued 3D updates, but these are not proven equivalent to a
+weapon-only refresh. Automatic re-equipping may alter ammo, animation,
+or equipped state; resetting an entire actor's 3D is too intrusive
+to apply speculatively. Do not replace the known-bad pointer with
+an untested or cross-runtime relocation.
 
 ## Unreleased 0.5.205 ordinary radial label overlap
 

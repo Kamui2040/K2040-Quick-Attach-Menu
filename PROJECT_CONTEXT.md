@@ -16,7 +16,11 @@ refresh call identified in an actual Addictol crash report. On Fallout 4
 resolves into non-executable data. The guarded candidate skips that
 instant visual refresh on AE while retaining normal OMOD transactions;
 the 1.10.163 path is gated by exact version and executable section.
-A re-equip may be required for visible model updates. In-game QA pending.
+Focused in-game QA on 1.11.240 now confirms the shotgun sight change is
+verified without crashing and the invalid refresh is safely skipped.
+Switching weapons updates the visible model. This is not proof of
+original-runtime compatibility or full attachment regression success.
+A native AE-safe automatic weapon model refresh remains unresolved.
 
 The unreleased 0.5.205 radial presentation follow-up extends the
 six-option page limit to keyboard/mouse mode, adds center pager buttons,
