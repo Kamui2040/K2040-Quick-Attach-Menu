@@ -10,6 +10,13 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.209 revises the AE-only experimental re-equip to
+coalesce multiple successful OMOD transactions and re-equip the
+last verified equipped stack only after the Quick Menu closes.
+Repeated changes inside a single session are not yet confirmed to
+render correctly; target-runtime testing is required. The flag is
+still opt-in, while OG 1.10.163 retains immediate legacy refresh.
+
 Unreleased 0.5.207 offers an experimental automatic re-equip
 fallback solely for Fallout 4 AE 1.11.240. Opt in on a disposable
 test save with AEAutoReequipAfterApply=true under Behavior in the

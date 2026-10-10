@@ -1,3 +1,18 @@
+## 0.5.209 (unreleased AE multi-change visual refresh experiment)
+
+- Coalesce multiple successfully verified attachment changes on AE
+  1.11.240 into a single exact-stack re-equip when the Quick Menu closes.
+  Stop cycling the weapon for each individual attachment while the menu
+  and its presentation refresh may still be active.
+- Run the final refresh through the existing F4SE game-thread post-close
+  path, after Prisma has released focus, then queue first-person
+  presentation recovery. Skip stale tasks after a menu reopening or
+  game transition; re-check weapon, stack and installed OMOD identities.
+- Keep the opt-in AE-only setting and safe loaded-ammo restoration.
+  OG 1.10.163 uses the original native refresh with no changes.
+- Focused game QA must confirm that several modifications made without
+  exiting the Quick Menu all become visible on close.
+
 ## 0.5.208 (unreleased AE re-equip follow-up and internal-slot filtering)
 
 - Fix a confirmed 0.5.207 failure mode: ActorEquipManager::UnequipObject

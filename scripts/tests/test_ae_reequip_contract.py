@@ -19,14 +19,17 @@ class AEReequipContract(unittest.TestCase):
         self.assertIn("REL::Version{ 1, 10, 163, 0 }", self.bridge)
         self.assertIn("REL::ID(1153963)",self.bridge)
         self.assertIn("if (RefreshModifiedEquippedItem(player, weapon))",self.bridge)
-        self.assertIn("if (TryAutoReequipModifiedWeaponAE(player, weapon, result.weaponInfo))",self.bridge)
+        self.assertIn("pendingAEReequipInfo_ = result.weaponInfo;",self.bridge)
+        self.assertIn("TryAutoReequipModifiedWeaponAE(player, weapon, *deferredAE)",self.bridge)
+        self.assertNotIn("TryAutoReequipModifiedWeaponAE(player, weapon, result.weaponInfo)",self.bridge)
     def test_guarded_stack_and_ammo(self):
         body=self.bridge.split("bool TryAutoReequipModifiedWeaponAE(",1)[1].split("bool ActivateQuickMenuGameplayIsolation(",1)[0]
         for needle in ("verified.equippedInventoryStackCount != 1",
             "verified.equippedInventoryStackIndex", "UnequipObject(", "EquipObject(",
             "RE::fallout_cast<RE::EquippedWeaponData*>",
             "loadedAmmo <= after.liveWeaponInstanceData.ammoCapacity",
-            "player->GetCurrentAmmo(index) == ammo","player->SetCurrentAmmoCount(index, loadedAmmo)"):
+            "player->GetCurrentAmmo(index) == ammo","player->SetCurrentAmmoCount(index, loadedAmmo)",
+            "installedIds(before) != installedIds(verified)"):
             self.assertIn(needle,body)
     def test_false_unequip_result_still_recovers_equipment(self):
         body=self.bridge.split("bool TryAutoReequipModifiedWeaponAE(",1)[1].split("bool ActivateQuickMenuGameplayIsolation(",1)[0]
@@ -41,9 +44,22 @@ class AEReequipContract(unittest.TestCase):
         self.assertIn('candidate.consumes.editorId == "ap_Gun_UniversalOffset_Range"',body)
         self.assertIn("Generated menu kept universal range offset internal",body)
         self.assertLess(body.index('candidate.consumes.editorId == "ap_Gun_UniversalOffset_Range"'), body.index("candidates.push_back(std::move(candidate))"))
+    def test_ae_requip_is_coalesced_and_deferred(self):
+        h=(ROOT/"include/PrismaBridge.h").read_text()
+        self.assertIn("std::optional<EquippedWeaponInfo> pendingAEReequipInfo_;",h)
+        self.assertIn("std::uint64_t menuGeneration_ = 0;",h)
+        self.assertIn("pendingAEReequipInfo_ = result.weaponInfo;",self.bridge)
+        self.assertIn("deferredAE = std::move(pendingAEReequipInfo_);",self.bridge)
+        self.assertIn("TryAutoReequipModifiedWeaponAE(player, weapon, *deferredAE)",self.bridge)
+        self.assertIn("taskInterface->AddTask([this, expectedGeneration, restoreFirstPerson,",self.bridge)
+        self.assertIn("menuGeneration_ != expectedGeneration || menuOpen_",self.bridge)
+        self.assertIn("pendingAEReequipInfo_.reset();",self.bridge)
+        self.assertIn("QueueShow1stPerson(true)",self.bridge)
+        self.assertLess(self.bridge.index("TryAutoReequipModifiedWeaponAE(player, weapon, *deferredAE)"),
+                        self.bridge.index("Queued first-person presentation refresh after post-close weapon work."))
     def test_version_sync(self):
 
-        self.assertIn("0x000500D0; // 0.5.208",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.208"),3)
+        self.assertIn("0x000500D1; // 0.5.209",(ROOT/"src/main.cpp").read_text())
+        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.209"),3)
 if __name__=="__main__":
     unittest.main()

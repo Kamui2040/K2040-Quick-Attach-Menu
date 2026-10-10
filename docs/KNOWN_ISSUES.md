@@ -26,6 +26,21 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.209 AE repeated-modification refresh
+
+A user report on 0.5.208 confirmed automatic re-equip works for
+individual attachment changes, but repeated modifications inside one
+Quick Menu session can leave the visible model reflecting an earlier
+change. The live game log recorded eleven successful guarded attachment
+transactions and eleven full AE re-equip completions; it does not prove
+that each visual model finished loading before the next action.
+
+The 0.5.209 experiment queues only one exact-stack re-equip for the
+latest successfully verified state, after Quick Menu close and Prisma
+focus release. It preserves ammo safeguards and rejects stale menu,
+game-transition or installed OMOD snapshots. Until focused game QA
+passes, the model-update issue remains unresolved.
+
 ## Unreleased 0.5.208 AE re-equip and hidden range offset
 
 Focused 0.5.207 in-game testing on AE 1.11.240 reported that the

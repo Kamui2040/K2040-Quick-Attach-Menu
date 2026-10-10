@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 #include "RuntimeState.h"
@@ -69,6 +70,10 @@ namespace k2040
         std::string builderProfileMessage_;
         std::string builderProfileFileName_;
         EquippedWeaponInfo currentWeaponInfo_;
+        // One latest verified stack per active session. AE re-equips only after
+        // the Quick Menu is closed and the engine returns to the game thread.
+        std::optional<EquippedWeaponInfo> pendingAEReequipInfo_;
+        std::uint64_t menuGeneration_ = 0;
         EcoWeaponMenu currentMenu_;
 
         std::string BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const;

@@ -106,6 +106,15 @@ that refresh after an exact-version and executable-section check.
 AE skips the visual refresh and logs this limitation, without
 affecting attachment transaction identity, inventory, or rollback.
 
+An optional unreleased AE 1.11.240 workaround records the latest verified
+attachment result for the open Quick Menu. When enabled in the plugin INI,
+it coalesces repeated changes into one exact-stack re-equip in a game-thread
+task after Prisma closes, then handles first-person presentation recovery.
+A fresh menu, game transition, changed weapon/stack or changed installed
+OMOD identity invalidates the pending refresh. Original-game 1.10.163
+continues using its separate legacy immediate refresh. In-game multi-swap
+visual behavior is not yet validated.
+
 Post-mutation diagnostics bracket read-only menu payload construction, Prisma
 payload submission, equipped-refresh prerequisite resolution, and the
 existing synchronous equipped-weapon refresh with flushed stage markers.

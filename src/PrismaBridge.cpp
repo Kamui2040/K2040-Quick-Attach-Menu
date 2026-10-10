@@ -235,6 +235,23 @@ namespace
             return false;
         }
 
+        // A script or another mod might have changed the same equipped stack
+        // after this menu's last successful OMOD transaction. Do not execute
+        // a delayed re-equip using stale attachment state.
+        const auto installedIds = [](const k2040::EquippedWeaponInfo& info) {
+            std::vector<std::uint32_t> ids;
+            ids.reserve(info.installedObjectInstanceMods.size());
+            for (const auto& installed : info.installedObjectInstanceMods) {
+                ids.push_back(installed.formId);
+            }
+            std::sort(ids.begin(), ids.end());
+            return ids;
+        };
+        if (installedIds(before) != installedIds(verified)) {
+            k2040::log::Warn("AE auto re-equip skipped: installed OMOD identities changed after the queued refresh.");
+            return false;
+        }
+
         auto* manager = RE::ActorEquipManager::GetSingleton();
         if (!manager) {
             k2040::log::Warn("AE auto re-equip skipped: actor equip manager unavailable.");
@@ -1455,20 +1472,55 @@ namespace k2040
 
     void PrismaBridge::CompleteFirstPersonPresentationRestore(const char* reason)
     {
-        if (!pendingFirstPersonPresentationRefresh_.exchange(false)) {
+        const bool restoreFirstPerson = pendingFirstPersonPresentationRefresh_.exchange(false);
+
+        // Coalesce all successful AE OMOD changes from the open Quick Menu
+        // into one latest-stack re-equip after menu/Prisma teardown. This avoids
+        // running an equip cycle for each rapid change while animations and
+        // model loads from prior changes may still be outstanding.
+        std::optional<EquippedWeaponInfo> deferredAE;
+        if (!menuOpen_ && pendingAEReequipInfo_) {
+            deferredAE = std::move(pendingAEReequipInfo_);
+            pendingAEReequipInfo_.reset();
+        }
+
+        if (!restoreFirstPerson && !deferredAE) {
             return;
         }
 
         const auto* taskInterface = F4SE::GetTaskInterface();
         if (!taskInterface) {
-            log::Warn("Could not schedule the post-close weapon presentation restore because the F4SE task interface is unavailable.");
+            log::Warn("Post-close weapon restore skipped because the F4SE task interface is unavailable.");
             return;
         }
 
-        taskInterface->AddTask([]() {
+        const bool hasDeferredAE = deferredAE.has_value();
+        const auto expectedGeneration = menuGeneration_;
+        taskInterface->AddTask([this, expectedGeneration, restoreFirstPerson,
+                                deferredAE = std::move(deferredAE)]() {
+            // A new menu or save transition invalidates both the stored exact
+            // stack and any queued post-close work. Never replay an old equip.
+            if (menuGeneration_ != expectedGeneration || menuOpen_) {
+                k2040::log::Info("Stale post-close weapon task skipped after menu/game transition.");
+                return;
+            }
+
             auto* player = RE::PlayerCharacter::GetSingleton();
             if (!player) {
-                k2040::log::Warn("Post-close weapon presentation restore skipped because the player is unavailable.");
+                k2040::log::Warn("Post-close weapon restore skipped because the player is unavailable.");
+                return;
+            }
+
+            if (deferredAE) {
+                auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(deferredAE->weapon.formId);
+                if (weapon && TryAutoReequipModifiedWeaponAE(player, weapon, *deferredAE)) {
+                    k2040::log::Info("One post-close AE re-equip completed for the latest modified weapon stack.");
+                } else {
+                    k2040::log::Warn("Post-close AE re-equip was skipped or could not verify the equipped stack.");
+                }
+            }
+
+            if (!restoreFirstPerson) {
                 return;
             }
 
@@ -1483,18 +1535,18 @@ namespace k2040
 
             if (auto* taskQueue = RE::TaskQueueInterface::GetSingleton()) {
                 taskQueue->QueueShow1stPerson(true);
-                k2040::log::Info("Queued first-person presentation refresh from the post-close game task.");
+                k2040::log::Info("Queued first-person presentation refresh after post-close weapon work.");
             } else {
                 k2040::log::Warn("First-person presentation refresh skipped because the game task queue is unavailable.");
             }
         });
 
-        std::string message = "Scheduled post-close weapon presentation restore";
+        std::string message = "Scheduled post-close weapon update";
         if (reason && reason[0] != '\0') {
             message += " ";
             message += reason;
         }
-        message += ".";
+        message += hasDeferredAE ? " with deferred AE re-equip." : " with presentation-only recovery.";
         log::Info(message);
     }
 
@@ -1555,6 +1607,9 @@ namespace k2040
 
     void PrismaBridge::OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode)
     {
+        // Invalidate any previous session's queued post-close refresh. Keep
+        // pending OMOD changes across Quick Menu -> Builder hotkey switches.
+        ++menuGeneration_;
         pendingFirstPersonPresentationRefresh_ = false;
 
         // A hidden Prisma 2.1 view can remain valid while its underlying render
@@ -1770,6 +1825,10 @@ namespace k2040
 
     void PrismaBridge::ResetForGameTransition(const char* reason)
     {
+        // A task queued for a prior save or game load must never re-equip
+        // a weapon after the player/inventory context has changed.
+        ++menuGeneration_;
+        pendingAEReequipInfo_.reset();
         quickControllerInputActive_ = false;
         const PrismaView previousView = menuView_;
 
@@ -2672,14 +2731,21 @@ namespace k2040
         auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
         log::Info("Post-mutation stage: engine refresh prerequisites resolved.");
         if (player && weapon) {
-            log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
-            if (RefreshModifiedEquippedItem(player, weapon)) {
-                log::Info("Post-mutation stage: equipped weapon refresh returned.");
-                log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            if (REX::FModule::GetExecutingModule().GetFileVersion() ==
+                    REL::Version{ 1, 11, 240, 0 } &&
+                GetSettings().aeAutoReequipAfterApply) {
+                // This remains a strictly opt-in AE-only workaround. Keep only
+                // the latest successfully verified stack until final menu
+                // close; no repeated equip cycles inside the focused menu.
+                pendingAEReequipInfo_ = result.weaponInfo;
+                log::Info("Post-mutation stage: coalesced AE weapon refresh for menu close.");
             } else {
-                log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
-                if (TryAutoReequipModifiedWeaponAE(player, weapon, result.weaponInfo)) {
-                    log::Info("Post-mutation stage: opt-in AE re-equip returned.");
+                log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
+                if (RefreshModifiedEquippedItem(player, weapon)) {
+                    log::Info("Post-mutation stage: equipped weapon refresh returned.");
+                    log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+                } else {
+                    log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
                 }
             }
         } else {

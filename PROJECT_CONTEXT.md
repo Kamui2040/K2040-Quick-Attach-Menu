@@ -10,6 +10,13 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.209 experiment addresses the 0.5.208 report
+that successive OMOD changes sometimes only visually show the first
+modification until manually swapping weapons. The AE-only workaround
+now coalesces successful changes and schedules a single re-equip
+after the Quick Menu closes, with stale-task and exact OMOD/stack
+checks. Its game behavior remains unverified; release/merge blocked.
+
 The unreleased 0.5.208 follow-up responds to focused AE 1.11.240
 testing: the 0.5.207 exact-stack unequip returned false and the user
 observed that the weapon was unequipped without automatic re-equipping.
