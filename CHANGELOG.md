@@ -1,3 +1,16 @@
+## 0.5.208 (unreleased AE re-equip follow-up and internal-slot filtering)
+
+- Fix a confirmed 0.5.207 failure mode: ActorEquipManager::UnequipObject
+  returned false in an AE test while the weapon became unequipped, and
+  the old fallback stopped without requesting the matching re-equip.
+- Attempt the exact-stack re-equip even when the unequip return value is
+  false, then verify the actual equipped state instead of trusting either
+  boolean as an equipment-state guarantee.
+- Keep vanilla universal range-offset configuration OMODs in the live
+  stack and AP graph, but suppress their internal AP in generated menus.
+- OG 1.10.163 remains on the pre-existing refresh path. AE workaround
+  remains opt-in and needs focused target-runtime testing.
+
 ## 0.5.207 (unreleased AE-only auto re-equip experiment)
 
 - Add an opt-in, exact-stack automatic re-equip alternative only for AE

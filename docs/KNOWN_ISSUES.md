@@ -26,6 +26,23 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.208 AE re-equip and hidden range offset
+
+Focused 0.5.207 in-game testing on AE 1.11.240 reported that the
+weapon became unequipped without automatic re-equip. The plugin log
+records UnequipObject returning false and immediately aborting the
+paired equip. That return value does not establish the final equipment
+state. The 0.5.208 experiment now attempts the matching exact-stack
+equip even when the initial return was false and rechecks live state.
+A fresh game test is required before claiming this actually restores
+the weapon or preserves ammo/animations. Do not use 0.5.207's enabled
+re-equip tester on a permanent save.
+
+The same session showed an internal universal shotgun range-offset
+OMOD exposed as a selectable generated-menu category despite being
+absent from the workbench. The generated catalog now hides that
+internal AP while leaving its installed identity and graph intact.
+
 ## Unreleased 0.5.207 AE re-equip experiment
 
 ECO Redux documents that its native weapon-model refresh can re-equip the

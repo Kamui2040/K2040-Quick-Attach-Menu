@@ -242,18 +242,26 @@ namespace
         }
         auto* ammo = player->GetCurrentAmmo(index);
         k2040::log::Info("AE auto re-equip: beginning exact-stack unequip.");
-        if (!manager->UnequipObject(
+        // The equip manager's boolean is not a reliable postcondition on AE:
+        // in the 0.5.207 live test the unequip returned false, while the
+        // weapon nevertheless became unequipped. Always attempt to restore
+        // the same instance/stack, then inspect the real equipped state.
+        const bool unequipReturned = manager->UnequipObject(
             player, std::addressof(instance), 1, slot,
-            verified.equippedInventoryStackIndex, false, false, false, true, nullptr)) {
-            k2040::log::Warn("AE auto re-equip: unequip refused; no further equip call.");
-            return false;
+            verified.equippedInventoryStackIndex, false, false, false, true, nullptr);
+        if (!unequipReturned) {
+            k2040::log::Warn(
+                "AE auto re-equip: unequip returned false; still issuing the "
+                "matching exact-stack equip to avoid stranding the weapon.");
         }
         k2040::log::Info("AE auto re-equip: beginning exact-stack re-equip.");
-        if (!manager->EquipObject(
+        const bool equipReturned = manager->EquipObject(
             player, instance, verified.equippedInventoryStackIndex, 1, slot,
-            false, false, false, true, false)) {
-            k2040::log::Warn("AE auto re-equip: re-equip refused; weapon may remain unequipped. Reload the test save.");
-            return false;
+            false, false, false, true, false);
+        if (!equipReturned) {
+            k2040::log::Warn(
+                "AE auto re-equip: equip returned false; checking live equipped state "
+                "rather than assuming it failed.");
         }
 
         const auto after = k2040::GetEquippedWeaponInfo();

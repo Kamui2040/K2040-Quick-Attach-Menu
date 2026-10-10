@@ -10,6 +10,15 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.208 follow-up responds to focused AE 1.11.240
+testing: the 0.5.207 exact-stack unequip returned false and the user
+observed that the weapon was unequipped without automatic re-equipping.
+The fallback now requests the matching equip even on a false unequip
+return and checks actual equipped state afterward. Generated menus hide
+the vanilla internal universal range offset category, preserving the
+underlying OMOD and graph. This revised tester has not passed in-game
+QA; leave the fallback opt-in and OG native refresh unchanged.
+
 The unreleased 0.5.207 experiment adds opt-in automatic re-equip
 after verified attachment changes only on AE 1.11.240; the OG refresh
 remains unchanged. The fallback targets the exact equipped stack and
