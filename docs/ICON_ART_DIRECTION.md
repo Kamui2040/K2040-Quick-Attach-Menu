@@ -2,27 +2,30 @@
 
 The semantic library currently resolves 172 attachment subtypes to 95 stable visual icon classes.
 A separate artwork reuse plan groups those classes into 64 proposed base illustrations.
-This document defines how the original icons should be authored and reviewed.
+This document defines artwork review and the current research-asset contract.
 
-## Render contract
+## Format and display direction
 
-- Master format: SVG.
-- ViewBox: `0 0 24 24`.
-- Expected UI display size: about `22x22` px.
-- Keep important geometry inside a roughly `20x20` optical footprint.
-- Default stroke: `1.6`.
-- Rounded line caps and joins.
-- Transparent background.
-- Monochrome and recolorable by the UI.
-- Silhouette-first. Prefer solid monochrome bodies with transparent negative-space cutouts; use strokes only for secondary detail when needed.
-- One dominant silhouette, with at most two secondary details.
-- Avoid details that disappear at 22 px.
-- No text, logos, trademarks, or exact branded product geometry.
-- Artwork must be original; do not trace or redistribute third-party icon assets.
+- SVG is **optional**, not the required production format. Support PNG and lossless WebP for detailed artwork; keep SVG for simple silhouettes and existing approved icons.
+- Do not reduce approved mechanical illustrations into different, simplified SVG designs merely to meet a 22 px size target. Visual fidelity and recognizability must be reviewed independently of file validity.
+- Compare real rendered output at 22, 32, and 48 px before choosing a menu icon size. Concept-sheet inset labels do not count as native-size renders. Screen-space scaling and layout must also be tested in PrismaUI before shipping.
+- Prefer transparent assets with monochrome shapes. Raster assets require an explicit HUD-color/tint check; SVG `currentColor` is not a raster recoloring mechanism.
+- Keep original semantic icon-class identifiers unchanged. Optional installed FIS/FallUI libraries may supply visual assets through a bridge; do not bundle, alter, or redistribute their artwork.
+- Use the existing approved pilot icons or text when an optional icon source is unavailable. An FIS bridge and raster loading are **not implemented** by this research document.
+
+The current artwork manifest and validator still describe the earlier **SVG-only research assets**. Their format checks must be updated and validated separately before PNG/WebP files can be accepted as production assets. No current production icon status changes with this decision.
+
+## Existing SVG pilot contract
+
+- SVG masters use `viewBox="0 0 24 24"` and were reviewed around `22x22` px.
+- Keep important geometry inside a roughly `20x20` optical footprint, with a `1.6` default stroke and rounded caps/joins.
+- Use a transparent background, monochrome `currentColor`, and clear cutouts.
+- These are the established rules for the 12 approved pilot SVGs, not a restriction on future raster artwork.
+- No text, logos, trademarks, or exact branded product geometry in new original icons.
 
 ## Visual language
 
-The approved 12-icon pilot SVGs and the approved detailed mechanical-illustration concepts are the primary visual reference. Broad FallUI/FIS conventions may inform readability and monochrome presentation, but do not trace, extract, convert, or redistribute third-party artwork. All production icons must be original authored SVGs.
+The approved 12-icon pilot SVGs remain valid originals. Approved detailed mechanical-illustration concepts remain visual references, not approved game assets. New standalone artwork may be original PNG, WebP, or SVG. An optional bridge may *reference* separately installed FIS/FallUI artwork at runtime, but may not package, reproduce, or distribute those third-party files.
 
 The set should look like one technical inventory system rather than 95 separate illustrations.
 
@@ -60,12 +63,12 @@ drum/cylinder/tube/box-belt magazines, scope vs reflex/magnifier optics,
 folding/collapsible stocks, bipod/underbarrel launcher, muzzle suppressor vs
 brake, modular handguard, and scope mounts.
 
-The 64-base count is a **proposed production scope**, not 65 completed SVGs.
+The 64-base count is a **proposed artwork scope**, not a count of finished icons.
 A reused class resolves to the base class's asset and review status. Historic
-rejected SVG drafts stay rejected and must not be shipped. A proposed base can
-still be refined or split later after visual review. No runtime UI changes
-have been made. Concept-sheet approvals do not automatically approve authored
-SVG files.
+rejected SVG drafts and rejected conversion reviews stay rejected and must not
+be shipped. A proposed base can still be refined or split after visual review.
+No runtime UI changes have been made. Concept-sheet approvals do not
+automatically approve raster images or SVG files.
 
 The existing 50/23/22 batch counts remain the counts of *icon classes*, not
 new base illustrations. Use scripts/list-icon-artwork.py to see each class's
@@ -93,7 +96,7 @@ Individually approved before expanding production:
 The pilot deliberately mixes simple and complex silhouettes. It is the style gate for stroke weight,
 negative space, optical centering, readability, and category consistency.
 
-Pilot visual style: **approved**. All 12 pilot SVG assets are also individually **approved** and now define the production baseline for the remaining icons.
+The 12 pilot SVGs are individually **approved** and remain valid fallback assets. Their vector-specific constraints do not govern future raster artwork, and their approval does not extend to new or converted icons.
 
 ### Batch 1 — Core weapon geometry
 
@@ -131,15 +134,13 @@ Pilot visual style: **approved**. All 12 pilot SVG assets are also individually 
 
 Every icon remains a draft until reviewed.
 
-For each batch verify:
+For each new artwork candidate verify:
 
-- readable at `22x22`;
-- no detached or accidental shapes;
-- optical centering is consistent;
-- stroke weight matches the rest of the set;
-- silhouette differs clearly from nearby classes;
-- no brand/logo leakage;
-- transparent background;
-- SVG viewBox and filename match the artwork manifest.
+- Readability at the actual proposed UI size (compare 22, 32, and 48 px); do not mistake an enlarged mock-up for pixel-accurate output.
+- Recognizability against the individually approved concept, consistent optical centering, and clear distinction from neighboring classes.
+- No detached or accidental shapes, unwanted background, text, or brand/logo leakage.
+- Actual transparency and HUD recoloring/tint in the target PrismaUI presentation.
+- SVG geometry/viewBox or raster image dimensions, media type, and filename pass format-specific validation.
+- Final acceptance requires visual review. Local rendering alone does not prove in-game compatibility.
 
-`data/icon_library/icon_artwork_manifest.json` is the authoritative production list.
+The current `data/icon_library/icon_artwork_manifest.json` remains authoritative for **existing SVG research assets**. PNG/WebP production and installed-library discovery require separately tested resolver and validator changes.

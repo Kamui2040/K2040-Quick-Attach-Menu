@@ -51,7 +51,7 @@ Examples:
 
 Category fallbacks reuse an existing broad icon class instead of requiring separate fallback-only artwork. Only `attachment.generic` exists solely as the last-resort global fallback.
 
-`scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` is the production manifest, and `docs/ICON_ART_DIRECTION.md` defines the 24x24 SVG style, three production batches, and the 12-icon pilot review gate.
+`scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` currently tracks the SVG-only research assets and approval status. `docs/ICON_ART_DIRECTION.md` defines the format-independent presentation direction, the existing 12-icon SVG pilot, and the artwork review gate. Raster loading and the optional bridge to player-installed FIS/FallUI assets are not yet wired into the runtime.
 
 ## Shared base artwork
 
@@ -67,14 +67,14 @@ Resolution for future presentation code:
 1. Classify the attachment normally, producing the established icon_class.
 2. Look up artwork_reuse.class_aliases for that icon_class.
 3. If an alias exists, use its base_artwork_id; otherwise use icon_class.
-4. Render the base artwork only after that SVG is produced and approved;
-   until then retain a safe category or global fallback.
+4. Resolve an approved display asset for the base class, regardless of supported image format. An optional installed icon bridge may provide a source-specific image without changing the semantic class. Until a compatible image is available, retain a safe category/global fallback or text.
 5. Display the original semantic label, not the base artwork name.
 
-This is an authored presentation plan, not a shipped runtime resolver.
-Shared artwork never changes compatibility, installation, category, or
-subtype data. Older rejected class-specific draft SVGs do not become
-acceptable when that class is mapped to a different base icon.
+This is a presentation plan, not a shipped runtime resolver.
+Shared artwork and optional external icon references never change compatibility,
+installation, category, or subtype data. Older rejected SVG drafts and raster
+conversion attempts do not become acceptable when a class is mapped to a
+different base icon.
 
 ## Data files
 
