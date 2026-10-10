@@ -10,6 +10,13 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+The unreleased 0.5.206 test build skips invalid post-modification
+equipped-weapon refresh on AE 1.11.240. Its old Address Library ID
+1153963 is absent and maps to non-executable data. Re-equipping
+may be necessary for the new visual weapon configuration.
+A tested AE-safe immediate refresh is still unavailable.
+The change needs in-game validation and is not released.
+
 The release DLL is built with DCCStudios/CommonLibF4 revision
 `12beba2a89fe117a14f1707b88c99ecb1b12f8c0` and commonlib-shared revision
 `f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to

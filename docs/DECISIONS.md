@@ -61,6 +61,13 @@ Only durable product decisions belong here. Current release state belongs in
 - Show at most six controller radial attachment entries per page;
   LB/RB changes option pages, and the full selected name appears in the
   center. Never remove available attachments merely to fit the wheel.
+- An Address Library relocation must be verified for the target
+  game runtime, not inferred from a nearby ID. The equipped refresh
+  ID 1153963 is absent on AE 1.11.240 and caused executable-data
+  access violations. Skip AE immediate visual refresh until a
+  verified implementation exists, while retaining normal OMOD
+  mutations. Keep 1.10.163 behind exact-version and executable
+  address checks; do not claim target-runtime PASS from a build.
 - Flushed post-mutation stage markers may narrow a crash location,
   but must not be misrepresented as a verified fix or a crash stack.
 - XInput radial direction is sampled on the native input thread only while a

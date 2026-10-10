@@ -1,3 +1,17 @@
+## 0.5.206 (unreleased post-attachment crash safety)
+
+- Prevent a confirmed access violation after a successful attachment change
+  on Fallout 4 1.11.240: post-modification refresh ID 1153963 is absent from
+  that runtime's address library and falls through to non-executable data.
+- On runtimes without a verified refresh address, leave the successful OMOD
+  transaction in place but skip the unsafe immediate visual refresh.
+  Re-equipping the weapon may be needed to update its visible model.
+- Restrict the original refresh helper to exactly Fallout 4 1.10.163
+  and require its relocation to point inside executable .text.
+- Preserve normal attachment/loose-mod transactions, Quick Menu display,
+  existing controller and mouse radial paging, and default-material checks.
+- In-game QA still required before calling the fix runtime-validated.
+
 ## 0.5.205 (unreleased keyboard/mouse radial pagination)
 
 - Apply the six-attachment radial page limit to keyboard-and-mouse mode,

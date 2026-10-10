@@ -26,6 +26,23 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.206 verified AE post-modification crash
+
+Addictol Crash Logger captured an access violation executing
+Fallout4.exe+24E2BE8 after a verified vanilla Double-Barrel Shotgun
+sight replacement. The old refresh call used Address Library ID
+1153963, which is absent on game version 1.11.240. Lookup reaches
+the adjacent 1153964 at exactly the non-executable crash address.
+The return address in the plugin disassembles immediately after
+the indirect equipped-refresh call. This explains the previously
+unresolved post-transaction AE crashes without assuming a bad save.
+
+The candidate intentionally skips this unsafe visual refresh on AE,
+while preserving the verified attachment operation. Its original
+1.10.163 path requires an executable target. Players may need to
+re-equip the weapon to see the new model. Runtime regression testing
+is still mandatory; the cross-build alone is not a runtime fix PASS.
+
 ## Unreleased 0.5.205 ordinary radial label overlap
 
 A screenshot from 0.5.203 showed overlapping receiver labels in

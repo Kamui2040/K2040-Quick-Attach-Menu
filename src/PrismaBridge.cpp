@@ -127,13 +127,45 @@ namespace
         return true;
     }
 
-    void RefreshModifiedEquippedItem(RE::TESObjectREFR* container, RE::TESBoundObject* item)
+    bool RefreshModifiedEquippedItem(RE::TESObjectREFR* container, RE::TESBoundObject* item)
     {
-        // Fallout 4's post-modification path rebuilds the affected equipped
-        // biped slot without resetting the player's complete third-person 3D.
+        if (!container || !item) {
+            return false;
+        }
+
+        // Address Library ID 1153963 is ABSENT on Fallout 4 1.11.240.
+        // Its unsuccessful lookup resolves to adjacent ID 1153964, RVA
+        // 0x24E2BE8 in non-executable .rdata, and crashes after a valid
+        // attachment transaction. Never use a guessed adjacent ID.
+        //
+        // The legacy path is limited to the supported original 1.10.163
+        // runtime until a real AE replacement is identified and validated.
+        const auto gameModule = REX::FModule::GetExecutingModule();
+        if (gameModule.GetFileVersion() != REL::Version{ 1, 10, 163, 0 }) {
+            k2040::log::Warn(
+                "Equipped-weapon immediate visual refresh skipped: relocation ID 1153963 "
+                "is not validated for this Fallout 4 runtime. The attachment "
+                "transaction succeeded; switch/re-equip weapons if the model "
+                "does not update immediately.");
+            return false;
+        }
+
+        // Even on the original runtime, reject relocation targets outside
+        // executable .text rather than invoking an unknown pointer.
+        const auto textSection = gameModule.GetSection(".text");
+        const auto address = REL::ID(1153963).address();
+        const auto textStart = textSection.GetAddress();
+        if (!textStart || address < textStart ||
+            address - textStart >= textSection.GetSize()) {
+            k2040::log::Warn(
+                "Equipped-weapon immediate visual refresh skipped: relocation "
+                "ID 1153963 does not resolve within Fallout 4 executable .text.");
+            return false;
+        }
+
         using func_t = void (*)(RE::TESObjectREFR*, RE::TESBoundObject*, bool);
-        static REL::Relocation<func_t> postModifyInventoryItemMod{ REL::ID(1153963) };
-        postModifyInventoryItemMod(container, item, true);
+        reinterpret_cast<func_t>(address)(container, item, true);
+        return true;
     }
 
     bool ActivateQuickMenuGameplayIsolation()
@@ -2520,10 +2552,13 @@ namespace k2040
         auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
         log::Info("Post-mutation stage: engine refresh prerequisites resolved.");
         if (player && weapon) {
-            log::Info("Post-mutation stage: entering equipped weapon refresh.");
-            RefreshModifiedEquippedItem(player, weapon);
-            log::Info("Post-mutation stage: equipped weapon refresh returned.");
-            log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
+            if (RefreshModifiedEquippedItem(player, weapon)) {
+                log::Info("Post-mutation stage: equipped weapon refresh returned.");
+                log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            } else {
+                log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
+            }
         } else {
             log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");
         }

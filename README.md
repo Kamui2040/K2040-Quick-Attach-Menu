@@ -6,6 +6,12 @@ fast in-game menu instead of returning to a workbench.
 The menu can use an ECO-authored weapon menu when one is available, or build a
 compatible menu from the equipped weapon at runtime. ECO is optional.
 
+The unreleased 0.5.206 safety candidate skips the invalid
+immediate weapon-model refresh on Fallout 4 1.11.240. Attachment
+transactions remain unchanged; manually re-equip the weapon if
+its visible model does not reflect a change immediately.
+The candidate still requires in-game validation.
+
 The unreleased default-material handling displays an empty material slot as
 already having the default material applied. A reset from a non-default
 material requires a workbench until a safe direct-removal path is validated.

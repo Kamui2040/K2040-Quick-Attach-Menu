@@ -10,6 +10,14 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.206 safety candidate fixes the invalid AE post-mod
+refresh call identified in an actual Addictol crash report. On Fallout 4
+1.11.240 the used Address Library ID 1153963 is absent and lookup
+resolves into non-executable data. The guarded candidate skips that
+instant visual refresh on AE while retaining normal OMOD transactions;
+the 1.10.163 path is gated by exact version and executable section.
+A re-equip may be required for visible model updates. In-game QA pending.
+
 The unreleased 0.5.205 radial presentation follow-up extends the
 six-option page limit to keyboard/mouse mode, adds center pager buttons,
 mouse wheel/Page Up/Page Down navigation, and shows the full hovered

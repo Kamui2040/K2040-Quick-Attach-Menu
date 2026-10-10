@@ -97,6 +97,15 @@ The known Tactical Reload switcher records `TRT_mod_EntryPoint1`,
 `TacticalReload_IngameSwitch.esp` remain live graph inputs but are not generated
 player choices or dependency-removal candidates.
 
+Equipped weapon visual refresh uses runtime-specific engine
+relocations. Never call a missing or non-executable relocation.
+A crash logger proved that the old ID 1153963 is missing from the
+1.11.240 database and resolves to game non-executable data.
+Until an AE-safe refresh path is verified, only 1.10.163 may use
+that refresh after an exact-version and executable-section check.
+AE skips the visual refresh and logs this limitation, without
+affecting attachment transaction identity, inventory, or rollback.
+
 Post-mutation diagnostics bracket read-only menu payload construction, Prisma
 payload submission, equipped-refresh prerequisite resolution, and the
 existing synchronous equipped-weapon refresh with flushed stage markers.
