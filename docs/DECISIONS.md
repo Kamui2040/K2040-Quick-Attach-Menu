@@ -61,6 +61,12 @@ Only durable product decisions belong here. Current release state belongs in
 - Show at most six controller radial attachment entries per page;
   LB/RB changes option pages, and the full selected name appears in the
   center. Never remove available attachments merely to fit the wheel.
+- On AE 1.11.240, coalesce attachment changes into one optional automatic
+  re-equip when the Quick Menu closes; keep OG 1.10.163 native refreshing
+  unchanged. A magazine-count reset during this AE re-equip is an accepted
+  usability trade-off. Do not introduce unverified low-level refresh calls
+  solely to avoid it. Genuine reserve-ammo loss/duplication, crashes, or
+  wrong-weapon equipment remain defects requiring separate validation.
 - An Address Library relocation must be verified for the target
   game runtime, not inferred from a nearby ID. The equipped refresh
   ID 1153963 is absent on AE 1.11.240 and caused executable-data

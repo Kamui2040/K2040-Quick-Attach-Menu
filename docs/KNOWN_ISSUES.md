@@ -41,8 +41,15 @@ focus release. It preserves ammo safeguards and rejects stale menu,
 game-transition or installed OMOD snapshots. Focused user testing of
 0.5.209 on AE 1.11.240 reports that repeated attachment changes now
 become visually current after closing the Quick Menu. This closes
-the reported multi-change visual symptom only; magazine integrity,
-animations, other weapons and broader regression remain unverified.
+the reported multi-change visual symptom only.
+
+The tester also reported that loaded ammunition can reset during
+automatic re-equip and explicitly accepts that magazine-state trade-off.
+The code retains its guarded attempt to restore the prior loaded count;
+that attempt is not a guarantee. The ordinary magazine reset is not
+itself a release blocker, but unintentional reserve ammunition loss or
+duplication, animation problems, crashes, and broader weapon compatibility
+remain unverified and are not accepted by that decision.
 
 ## Unreleased 0.5.208 AE re-equip and hidden range offset
 

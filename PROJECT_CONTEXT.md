@@ -15,7 +15,12 @@ that successive OMOD changes sometimes only visually show the first
 modification until manually swapping weapons. The AE-only workaround
 now coalesces successful changes and schedules a single re-equip
 after the Quick Menu closes, with stale-task and exact OMOD/stack
-checks. Focused user testing of 0.5.209 on AE 1.11.240 confirmed that the\npreviously reported multi-attachment visual-refresh problem is resolved\nwhen closing the Quick Menu. Ammunition preservation, animation behavior,\nother weapons, and a broader regression matrix remain unverified;\nrelease/merge remains blocked.
+checks. Focused user testing of 0.5.209 on AE 1.11.240 confirmed
+that the previously reported multi-attachment visual-refresh problem
+is resolved when closing the Quick Menu. The tester accepts the
+occasional magazine-count reset during AE re-equip. Total ammunition
+integrity, animation behavior, other weapons, and broader regression
+remain unverified; release/merge remains blocked.
 
 The unreleased 0.5.208 follow-up responds to focused AE 1.11.240
 testing: the 0.5.207 exact-stack unequip returned false and the user
