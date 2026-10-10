@@ -36,10 +36,12 @@ Cancel is read from the game's menu mapping where available. Thumbstick
 neutral input clears the remembered angle. D-pad use takes temporary
 priority over a held stick to avoid the old radial angle overriding it.
 
-This has native static checks and deterministic browser event tests, but
-requires focused testing under Proton/Steam Input, including remapped
-confirm, navigation across pages, controller repeat, and no unrequested
-attachment installation. The Builder and Settings remain mouse/keyboard.
+This passed native static checks and deterministic browser action tests.
+The user also confirmed the 0.5.210 controller behavior works in their
+in-game setup. This is focused confirmation, not exhaustive evidence
+for remapped confirmation buttons, navigation across every layout/page,
+all repeat behavior, or broader Steam Input/Proton configurations.
+The Builder and Settings remain mouse/keyboard.
 
 ## Unreleased 0.5.209 AE repeated-modification refresh
 

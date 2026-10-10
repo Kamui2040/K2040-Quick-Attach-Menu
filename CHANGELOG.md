@@ -10,8 +10,10 @@
   mapping when available; avoid duplicate confirm/navigation bindings.
 - Send stick-neutral state to clear stale angular selection, suppress
   repeated input drift, and retain game-thread-only Prisma callbacks.
-- Preserve the focused AE 0.5.209 post-close auto re-equip workaround. New
-  controller behavior requires Proton/XInput runtime validation.
+- Preserve the focused AE 0.5.209 post-close auto re-equip workaround.
+- Focused in-game tester feedback confirms the 0.5.210 controller update
+  works in the tested setup. Remapped-button combinations, all layouts,
+  and the full controller/weapon regression matrix remain unverified.
 
 ## 0.5.209 (unreleased AE multi-change visual refresh experiment)
 

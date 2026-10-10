@@ -16,8 +16,10 @@ presentations. Only an explicit mapped gamepad Activate/Confirm press
 can install a selected attachment; movement is highlight-only. It reads
 the current Fallout 4 control mapping, avoids button conflicts and
 retains the tested AE 0.5.209 deferred re-equip. Browser/controller
-simulations and Linux cross-build do not establish Proton/XInput runtime
-compatibility, which remains to be tested.
+simulations and Linux cross-build passed, and focused user testing
+confirmed the 0.5.210 controller behavior works in the tested setup.
+Remapped-button combinations, every layout, and broader Proton/XInput
+regression coverage remain unverified.
 
 The unreleased 0.5.209 experiment addresses the 0.5.208 report
 that successive OMOD changes sometimes only visually show the first
