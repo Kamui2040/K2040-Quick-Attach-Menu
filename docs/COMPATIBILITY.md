@@ -10,6 +10,13 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.207 offers an experimental automatic re-equip
+fallback solely for Fallout 4 AE 1.11.240. Opt in on a disposable
+test save with AEAutoReequipAfterApply=true under Behavior in the
+plugin INI. OG 1.10.163 keeps the original native refresh.
+This workaround has not passed runtime QA and may affect magazines
+or weapon animations.
+
 The unreleased 0.5.206 test build skips invalid post-modification
 equipped-weapon refresh on AE 1.11.240. Its old Address Library ID
 1153963 is absent and maps to non-executable data. Re-equipping

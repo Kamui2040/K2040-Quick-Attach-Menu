@@ -168,6 +168,118 @@ namespace
         return true;
     }
 
+    // Test-only alternative for exactly AE 1.11.240. Legacy OG refresh is intact.
+    // Called on the game thread after the real OMOD/inventory transaction.
+    bool TryAutoReequipModifiedWeaponAE(
+        RE::PlayerCharacter* player,
+        RE::TESObjectWEAP* weapon,
+        const k2040::EquippedWeaponInfo& verified)
+    {
+        if (REX::FModule::GetExecutingModule().GetFileVersion() != REL::Version{ 1, 11, 240, 0 } ||
+            !k2040::GetSettings().aeAutoReequipAfterApply) {
+            return false;
+        }
+        if (!player || !weapon || !player->inventoryList || !player->currentProcess ||
+            !player->currentProcess->middleHigh || !verified.hasWeapon ||
+            verified.weapon.formId != weapon->GetFormID() ||
+            !verified.equippedInventoryStackFound || verified.equippedInventoryStackCount != 1 ||
+            verified.equippedSlotIndex > 1) {
+            k2040::log::Warn("AE auto re-equip skipped: equipped stack is ambiguous or process state is unavailable.");
+            return false;
+        }
+
+        // Capture the actual instance; never select another weapon of the same base form.
+        RE::BGSEquipIndex index{};
+        index.index = verified.equippedSlotIndex;
+        RE::BGSObjectInstance instance(nullptr, nullptr);
+        auto* current = player->GetEquippedItem(std::addressof(instance), index);
+        if (!current || current->object != weapon || !current->instanceData) {
+            k2040::log::Warn("AE auto re-equip skipped: equipped instance changed.");
+            return false;
+        }
+
+        const RE::BGSEquipSlot* slot = nullptr;
+        std::uint32_t loadedAmmo = 0;
+        {
+            auto* state = player->currentProcess->middleHigh;
+            RE::BSAutoLock locker(state->equippedItemsLock);
+            for (const auto& entry : state->equippedItems) {
+                if (entry.equipIndex.index != index.index || entry.item.object != weapon) {
+                    continue;
+                }
+                if (!entry.data || !entry.equipSlot || slot) {
+                    k2040::log::Warn("AE auto re-equip skipped: duplicated or incomplete equipped weapon state.");
+                    return false;
+                }
+                auto* data = RE::fallout_cast<RE::EquippedWeaponData*>(entry.data.get());
+                if (!data) {
+                    k2040::log::Warn("AE auto re-equip skipped: equipped data does not identify a weapon.");
+                    return false;
+                }
+                slot = entry.equipSlot;
+                loadedAmmo = data->ammoCount;
+            }
+        }
+        if (!slot) {
+            k2040::log::Warn("AE auto re-equip skipped: no matching equipment slot.");
+            return false;
+        }
+
+        const auto before = k2040::GetEquippedWeaponInfo();
+        if (!before.hasWeapon || before.weapon.formId != verified.weapon.formId ||
+            before.equippedSlotIndex != verified.equippedSlotIndex ||
+            !before.equippedInventoryStackFound ||
+            before.equippedInventoryStackIndex != verified.equippedInventoryStackIndex ||
+            before.equippedInventoryStackCount != 1) {
+            k2040::log::Warn("AE auto re-equip skipped: inventory stack changed.");
+            return false;
+        }
+
+        auto* manager = RE::ActorEquipManager::GetSingleton();
+        if (!manager) {
+            k2040::log::Warn("AE auto re-equip skipped: actor equip manager unavailable.");
+            return false;
+        }
+        auto* ammo = player->GetCurrentAmmo(index);
+        k2040::log::Info("AE auto re-equip: beginning exact-stack unequip.");
+        if (!manager->UnequipObject(
+            player, std::addressof(instance), 1, slot,
+            verified.equippedInventoryStackIndex, false, false, false, true, nullptr)) {
+            k2040::log::Warn("AE auto re-equip: unequip refused; no further equip call.");
+            return false;
+        }
+        k2040::log::Info("AE auto re-equip: beginning exact-stack re-equip.");
+        if (!manager->EquipObject(
+            player, instance, verified.equippedInventoryStackIndex, 1, slot,
+            false, false, false, true, false)) {
+            k2040::log::Warn("AE auto re-equip: re-equip refused; weapon may remain unequipped. Reload the test save.");
+            return false;
+        }
+
+        const auto after = k2040::GetEquippedWeaponInfo();
+        if (!after.hasWeapon || after.weapon.formId != verified.weapon.formId ||
+            after.equippedSlotIndex != verified.equippedSlotIndex ||
+            !after.equippedInventoryStackFound ||
+            after.equippedInventoryStackIndex != verified.equippedInventoryStackIndex ||
+            after.equippedInventoryStackCount != 1) {
+            k2040::log::Warn("AE auto re-equip: stack changed; ammunition cannot be restored safely. Reload test save.");
+            return false;
+        }
+
+        // Re-equip can refill the magazine. Restore only if the same ammo type
+        // remains equipped and the previous load fits the new weapon capacity.
+        if (ammo && player->GetCurrentAmmo(index) == ammo &&
+            after.liveWeaponInstanceData.present &&
+            loadedAmmo <= after.liveWeaponInstanceData.ammoCapacity) {
+            player->SetCurrentAmmoCount(index, loadedAmmo);
+            k2040::log::Info("AE auto re-equip: original loaded ammunition count restored.");
+        } else if (ammo) {
+            k2040::log::Warn("AE auto re-equip: ammo type/capacity changed; restoration skipped.");
+        }
+        k2040::log::Info("AE auto re-equip completed; visual update requires runtime QA.");
+        return true;
+    }
+
     bool ActivateQuickMenuGameplayIsolation()
     {
         if (g_quickMenuInputLayer && g_quickMenuGameplayIsolationActive) {
@@ -2558,6 +2670,9 @@ namespace k2040
                 log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
             } else {
                 log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
+                if (TryAutoReequipModifiedWeaponAE(player, weapon, result.weaponInfo)) {
+                    log::Info("Post-mutation stage: opt-in AE re-equip returned.");
+                }
             }
         } else {
             log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");

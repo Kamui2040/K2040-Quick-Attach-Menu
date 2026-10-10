@@ -1,3 +1,12 @@
+## 0.5.207 (unreleased AE-only auto re-equip experiment)
+
+- Add an opt-in, exact-stack automatic re-equip alternative only for AE
+  1.11.240. OG 1.10.163 retains its original refresh logic.
+- The plugin INI switch AEAutoReequipAfterApply defaults to false.
+- Snapshot the loaded magazine and restore it only when the same ammunition
+  type and sufficient post-modification capacity can be verified.
+- No release or automatic deployment before focused game/animation/ammo QA.
+
 ## 0.5.206 (unreleased post-attachment crash safety)
 
 - Prevent a confirmed access violation after a successful attachment change

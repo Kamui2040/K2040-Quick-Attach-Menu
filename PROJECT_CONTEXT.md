@@ -10,6 +10,12 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.207 experiment adds opt-in automatic re-equip
+after verified attachment changes only on AE 1.11.240; the OG refresh
+remains unchanged. The fallback targets the exact equipped stack and
+guards loaded-ammo restoration. It is disabled by default and not
+in-game validated. No release or automatic game deployment is authorized.
+
 The unreleased 0.5.206 safety candidate fixes the invalid AE post-mod
 refresh call identified in an actual Addictol crash report. On Fallout 4
 1.11.240 the used Address Library ID 1153963 is absent and lookup

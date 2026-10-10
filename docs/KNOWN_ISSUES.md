@@ -26,6 +26,14 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.207 AE re-equip experiment
+
+ECO Redux documents that its native weapon-model refresh can re-equip the
+gun and refill the magazine. This optional AE-only tester applies the same
+general principle without copying ECO code. Exact-stack re-equip and loaded
+ammunition restoration use defensive checks, but animation and ammunition
+safety remain unverified in-game. The fallback is off by default.
+
 ## Unreleased 0.5.206 verified AE post-modification crash
 
 Addictol Crash Logger captured an access violation executing

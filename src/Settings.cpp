@@ -83,6 +83,8 @@ namespace
             << "\n"
             << "[Behavior]\n"
             << "CloseAfterApply=" << (defaults.closeAfterApply ? "true" : "false") << "\n"
+            << "; AE 1.11.240 experimental auto re-equip, opt-in only.\n"
+            << "AEAutoReequipAfterApply=" << (defaults.aeAutoReequipAfterApply ? "true" : "false") << "\n"
             << "\n"
             << "[Runtime]\n"
             << "HideInvalidOptions=" << (defaults.hideInvalidOptions ? "true" : "false") << "\n"
@@ -187,6 +189,8 @@ namespace k2040
                 settings.hideBracketedText = ParseBool(value, settings.hideBracketedText);
             } else if (currentSection == "Behavior" && key == "CloseAfterApply") {
                 settings.closeAfterApply = ParseBool(value, settings.closeAfterApply);
+            } else if (currentSection == "Behavior" && key == "AEAutoReequipAfterApply") {
+                settings.aeAutoReequipAfterApply = ParseBool(value, settings.aeAutoReequipAfterApply);
             } else if (currentSection == "Runtime" && key == "HideInvalidOptions") {
                 settings.hideInvalidOptions = ParseBool(value, settings.hideInvalidOptions);
             } else if (currentSection == "Runtime" && key == "MenuSource") {
