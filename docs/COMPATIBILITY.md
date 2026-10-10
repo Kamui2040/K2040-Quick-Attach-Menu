@@ -17,6 +17,22 @@ may be necessary for the new visual weapon configuration.
 A tested AE-safe immediate refresh is still unavailable.
 The change needs in-game validation and is not released.
 
+The read-only scripts/check-relocations.py validation helper accepts an
+installed Fallout 4 Windows x64 executable, an AE Address Library using
+the verified sorted (ID, RVA) binary format, and one or more exact IDs:
+
+~~~bash
+python3 scripts/check-relocations.py /path/to/Fallout4.exe \
+  /path/to/version-1-11-240-0.bin 2229234
+~~~
+
+It rejects missing IDs, non-executable targets, malformed files, and
+unsupported formats instead of following adjacent records. A successful
+mapping only proves the address exists in executable memory; it does
+not prove the function signature, its update behavior, or whether it
+is safe to call after modifying a weapon. No new automatic AE weapon
+refresh is enabled by this validation.
+
 The release DLL is built with DCCStudios/CommonLibF4 revision
 `12beba2a89fe117a14f1707b88c99ecb1b12f8c0` and commonlib-shared revision
 `f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to
