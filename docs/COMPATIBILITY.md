@@ -10,6 +10,29 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+The unreleased 0.5.206 test build skips invalid post-modification
+equipped-weapon refresh on AE 1.11.240. Its old Address Library ID
+1153963 is absent and maps to non-executable data. Re-equipping
+may be necessary for the new visual weapon configuration.
+A tested AE-safe immediate refresh is still unavailable.
+The change needs in-game validation and is not released.
+
+The read-only scripts/check-relocations.py validation helper accepts an
+installed Fallout 4 Windows x64 executable, an AE Address Library using
+the verified sorted (ID, RVA) binary format, and one or more exact IDs:
+
+~~~bash
+python3 scripts/check-relocations.py /path/to/Fallout4.exe \
+  /path/to/version-1-11-240-0.bin 2229234
+~~~
+
+It rejects missing IDs, non-executable targets, malformed files, and
+unsupported formats instead of following adjacent records. A successful
+mapping only proves the address exists in executable memory; it does
+not prove the function signature, its update behavior, or whether it
+is safe to call after modifying a weapon. No new automatic AE weapon
+refresh is enabled by this validation.
+
 The release DLL is built with DCCStudios/CommonLibF4 revision
 `12beba2a89fe117a14f1707b88c99ecb1b12f8c0` and commonlib-shared revision
 `f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to
@@ -78,6 +101,14 @@ regression matrix was not independently repeated for that release.
 The unreleased 0.5.199 candidate adds guarded provider installation into an
 empty, live-reachable attachment point. Target-runtime validation is required
 before this path can be considered successful.
+
+The unreleased 0.5.201 follow-up checks for a loaded COBJ recipe creating each
+new generated OMOD, in addition to explicit MNAM and reachable attachment
+point checks. It retains installed forms for recovery. This safety-first filter
+may suppress unusual loose-mod-only entries with no crafting recipe and does
+not yet replicate all of the workbench's per-recipe visibility conditions.
+It also revises controller focus traversal and its Settings binding editor.
+Target-runtime QA remains mandatory before release.
 
 ## PrismaUI SDK provenance
 

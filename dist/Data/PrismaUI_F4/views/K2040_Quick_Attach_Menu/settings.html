@@ -49,6 +49,10 @@
     output { width:40px;color:var(--accent);text-align:right;font-size:12px; }
     .keybind { min-width:160px;padding:8px 10px;color:var(--accent);text-align:center; }
     .keybind.capturing { border-color:var(--installed);color:var(--installed); }
+    .controller-binding-controls { display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:7px; }
+    .controller-choice-control { min-width:125px;width:125px; }
+    .controller-choice-control .choice-options { max-height:240px;overflow-y:auto; }
+    .controller-binding-controls .action { min-height:34px;color:var(--accent); }
     .reset-button { padding:8px 11px; }
     .reset-button.danger { color:#ffaaaa;border-color:rgba(255,130,130,.34); }
 
@@ -116,6 +120,23 @@
           <p class="intro">These are the same bindings shown in MCM and Hotkey Manager. Changing one here updates the shared binding.</p>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open quick menu</span><span class="setting-help">Press it again to close the quick menu.</span></span><button id="quickKey" class="keybind" data-id="openQuickMenu" type="button">Loading…</button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open menu builder</span><span class="setting-help">Opens or closes the builder; switches from the quick menu when needed.</span></span><button id="builderKey" class="keybind" data-id="openMenuBuilder" type="button">Loading…</button></div>
+          <h3 class="group-title">Quick Menu controller shortcut</h3>
+          <p class="intro">Only the Quick Menu uses controller navigation. Set its opening shortcut here using keyboard or mouse. Builder and Settings remain keyboard-and-mouse interfaces.</p>
+          <div class="setting-row">
+            <span class="setting-copy"><span class="setting-name">Controller: Open quick menu</span><span class="setting-help" id="controllerQuickCurrent">Unassigned</span></span>
+            <span class="controller-binding-controls">
+              <span class="choice-control controller-choice-control">
+                <button id="controllerQuickModifierTrigger" class="choice-trigger" type="button" aria-label="Quick menu controller modifier" aria-haspopup="listbox" aria-expanded="false"><span id="controllerQuickModifierValue">No modifier</span><span class="choice-arrow" aria-hidden="true">▼</span></button>
+                <span id="controllerQuickModifierOptions" class="choice-options" role="listbox" hidden></span>
+              </span>
+              <span class="choice-control controller-choice-control">
+                <button id="controllerQuickButtonTrigger" class="choice-trigger" type="button" aria-label="Quick menu controller button" aria-haspopup="listbox" aria-expanded="false"><span id="controllerQuickButtonValue">Not assigned</span><span class="choice-arrow" aria-hidden="true">▼</span></button>
+                <span id="controllerQuickButtonOptions" class="choice-options" role="listbox" hidden></span>
+              </span>
+              <button id="controllerQuickApply" class="action" type="button">Apply</button>
+            </span>
+          </div>
+          <p class="intro" id="controllerShortcutNotice" role="status">Controller shortcuts are initially unassigned to avoid interfering with Fallout's gamepad controls.</p>
           <button class="reset-button" data-reset="controls" type="button">Reset controls</button>
         </section>
 
@@ -484,12 +505,103 @@
         renderPreview();
       }
 
+      var controllerModifiers = ["None", "LB", "RB", "LT", "RT", "Back"];
+      var controllerButtons = ["None", "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "Back", "Start", "LS", "RS", "DUp", "DDown", "DLeft", "DRight"];
+      var controllerDraft = { Quick:{ Modifier:"None", Button:"None" } };
+      function controllerChoiceLabel(kind, value) {
+        return value === "None" ? (kind === "Modifier" ? "No modifier" : "Not assigned") : value;
+      }
+      function closeControllerChoices(except) {
+        ["Quick"].forEach(function(action) {
+          ["Modifier", "Button"].forEach(function(kind) {
+            var id = "controller" + action + kind;
+            if (id === except) return;
+            document.getElementById(id + "Options").hidden = true;
+            document.getElementById(id + "Trigger").setAttribute("aria-expanded", "false");
+          });
+        });
+      }
+      function setControllerDraft(action, kind, value) {
+        controllerDraft[action][kind] = value;
+        var id = "controller" + action + kind;
+        document.getElementById(id + "Value").textContent = controllerChoiceLabel(kind, value);
+        Array.prototype.forEach.call(document.querySelectorAll("#" + id + "Options .choice-option"), function(option) {
+          option.setAttribute("aria-selected", String(option.dataset.value === value));
+        });
+      }
+      function openControllerChoices(action, kind) {
+        var id = "controller" + action + kind;
+        var panel = document.getElementById(id + "Options");
+        var open = panel.hidden;
+        closeControllerChoices(open ? id : "");
+        panel.hidden = !open;
+        document.getElementById(id + "Trigger").setAttribute("aria-expanded", String(open));
+        if (open) {
+          var selected = panel.querySelector('[aria-selected="true"]') || panel.querySelector(".choice-option");
+          if (selected) selected.focus();
+        }
+      }
+      function buildControllerChoices() {
+        ["Quick"].forEach(function(action) {
+          [{ kind:"Modifier", values:controllerModifiers }, { kind:"Button", values:controllerButtons }].forEach(function(group) {
+            var id = "controller" + action + group.kind;
+            var trigger = document.getElementById(id + "Trigger");
+            var panel = document.getElementById(id + "Options");
+            trigger.addEventListener("click", function() { openControllerChoices(action, group.kind); });
+            group.values.forEach(function(value) {
+              var option = document.createElement("button");
+              option.type = "button";
+              option.className = "choice-option";
+              option.dataset.value = value;
+              option.setAttribute("role", "option");
+              option.textContent = controllerChoiceLabel(group.kind, value);
+              option.addEventListener("click", function() {
+                setControllerDraft(action, group.kind, value);
+                closeControllerChoices("");
+                trigger.focus();
+              });
+              panel.appendChild(option);
+            });
+          });
+        });
+      }
+      function renderControllerShortcut(action, binding) {
+        var parts = (binding || "None").split("+");
+        setControllerDraft(action, "Modifier", parts.length === 2 ? parts[0] : "None");
+        setControllerDraft(action, "Button", parts.length === 2 ? parts[1] : parts[0]);
+        document.getElementById("controller" + action + "Current").textContent =
+          "Current: " + (binding && binding !== "None" ? binding.replace("+", " + ") : "Not assigned");
+      }
+      function saveControllerShortcut(action) {
+        var modifier = controllerDraft[action].Modifier;
+        var button = controllerDraft[action].Button;
+        var notice = document.getElementById("controllerShortcutNotice");
+        if (button === "None" && modifier !== "None") {
+          notice.textContent = "Choose a button as well as a modifier.";
+          return;
+        }
+        if (modifier !== "None" && modifier === button) {
+          notice.textContent = "The two controller buttons must be different.";
+          return;
+        }
+        var value = button === "None" ? "None" : modifier === "None" ? button : modifier + "+" + button;
+        notice.textContent = "Saving controller shortcut...";
+        send("controller-shortcut:" + action.toLowerCase() + ":" + value);
+      }
+      buildControllerChoices();
+      document.addEventListener("mousedown", function(event) {
+        if (!event.target.closest(".controller-choice-control")) closeControllerChoices("");
+      });
+      document.getElementById("controllerQuickApply").addEventListener("click", function() { saveControllerShortcut("Quick"); });
+
       function render() {
         settings = payload && payload.settings ? payload.settings : {};
         if (!settings.layouts) settings.layouts = {};
         applySettingsPanelSize();
         document.getElementById("quickKey").textContent = settings.openMenuHotkey || "Not assigned";
         document.getElementById("builderKey").textContent = settings.openMenuBuilderHotkey || "Not assigned";
+        renderControllerShortcut("Quick", settings.controllerQuickShortcut);
+        document.getElementById("controllerShortcutNotice").textContent = "Controller buttons are read from the connected XInput/Steam Input device.";
         document.getElementById("opacity").value = Math.round((Number(settings.backgroundOpacity) || .92) * 100);
         document.getElementById("opacityValue").value = document.getElementById("opacity").value + "%";
         setToggle("useAuthored", settings.useAuthoredMenus !== false);

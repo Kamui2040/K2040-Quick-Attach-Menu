@@ -6,10 +6,28 @@ fast in-game menu instead of returning to a workbench.
 The menu can use an ECO-authored weapon menu when one is available, or build a
 compatible menu from the equipped weapon at runtime. ECO is optional.
 
+The unreleased 0.5.206 safety candidate skips the invalid
+immediate weapon-model refresh on Fallout 4 1.11.240. Attachment
+transactions remain unchanged; manually re-equip the weapon if
+its visible model does not reflect a change immediately.
+The candidate still requires in-game validation.
+
+The unreleased default-material handling displays an empty material slot as
+already having the default material applied. A reset from a non-default
+material requires a workbench until a safe direct-removal path is validated.
+
+The unreleased generated-menu filter requires a matching weapon keyword,
+reachable attachment point, and a loaded crafting recipe creating each new
+attachment. This reduces exposure of internal/scripted options, but exact
+workbench conditions and unusual loose-mod-only entries are still being
+validated. Already-installed parts remain visible for recovery.
+
 ## Features
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
+- Native controller navigation for the Quick Menu only, including radial
+  thumbstick direction selection and a configurable Quick Menu opener.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
@@ -59,6 +77,30 @@ Default controls:
 Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
+
+Only the **Quick Menu** has a controller shortcut under Settings > Controls.
+Select a button and optional modifier, then Apply with keyboard/mouse. It
+defaults to unassigned, and leaves MCM/keyboard assignments alone. Choose a
+combination unlikely to conflict with gameplay. The Builder and Settings remain
+keyboard/mouse pages until controller-specific layouts are designed.
+
+Keyboard-and-mouse radial mode also displays at most six attachments
+per page. Use the arrows in the wheel center, scroll the mouse wheel,
+or press Page Up/Page Down to see every choice. Hovering shows the full
+attachment name in the center; only clicking it attempts to apply it.
+
+The controller radial attachment ring displays up to six choices at once
+to keep labels readable. While viewing attachments, use LB/RB to switch
+pages and point with the stick to highlight an entry; the center caption
+shows the full selected name. The ring cannot apply an attachment until A
+is pressed.
+
+For the radial Quick Menu, use either thumbstick (left takes precedence).
+Point at a category, press A to open it, point at an attachment, and press A to
+confirm. B returns to the category ring, then closes. The D-pad still works as
+a fallback; D-right no longer acts as the radial entry key. Steam Input under
+Proton must expose the controller through XInput. This analog path still
+requires focused target-runtime testing.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.

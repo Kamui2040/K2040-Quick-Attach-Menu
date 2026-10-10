@@ -612,6 +612,12 @@
       }
     }
     function render() {
+      // Persist focus across row re-renders so D-pad+A can select and edit
+      // categories/options without dropping focus back to the document body.
+      var focusedRow = document.activeElement && document.activeElement.closest(".row");
+      var focusedHost = focusedRow && focusedRow.parentElement && focusedRow.parentElement.id;
+      var focusedIndex = focusedRow && focusedHost &&
+        Array.prototype.indexOf.call(focusedRow.parentElement.querySelectorAll(".row"), focusedRow);
       var weapon = payload && payload.weapon ? payload.weapon : {};
       var parser = payload && payload.parser ? payload.parser : {};
       document.getElementById("weaponName").textContent = displayName(weapon.name) || "No equipped weapon menu found";
@@ -656,6 +662,11 @@
         })(list[j]);
       }
       renderOptions();
+      if (focusedHost === "categories" || focusedHost === "options") {
+        var replacement = document.querySelectorAll("#" + focusedHost + " .row");
+        var next = replacement[Math.min(focusedIndex, replacement.length - 1)];
+        if (next) next.focus();
+      }
     }
     window.k2040SetPayload = function(text) {
       try { payload = JSON.parse(text); } catch (error) { payload = null; }
@@ -801,6 +812,7 @@
         closeBuilder();
       }
     }, true);
+
   </script>
 </body>
 </html>

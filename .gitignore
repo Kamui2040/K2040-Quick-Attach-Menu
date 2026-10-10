@@ -51,3 +51,7 @@ external/prismaui_f4/*.7z
 # Local API probes / investigation zips
 *_api_probe*/
 *_api_probe*.zip
+
+# Python validation tool caches
+__pycache__/
+*.pyc

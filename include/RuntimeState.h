@@ -157,7 +157,11 @@ namespace k2040
 
         bool hasLooseMod = false;
         bool looseModRequired = true;
+        // UI-only effective default: an absent material OMOD is the unmodified
+        // material state, not an installed object-instance OMOD. Never use this
+        // flag as installed identity in graph, inventory, or rollback checks.
         bool isInstalled = false;
+        bool isDefaultApplied = false;
         bool isAvailableInInventory = false;
 
         // Structural and UI state derived from live APs and providers

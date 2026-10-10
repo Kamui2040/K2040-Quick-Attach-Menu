@@ -5,6 +5,7 @@
 
 #include "AttachmentRuntimeModel.h"
 #include "Hotkey.h"
+#include "ControllerShortcuts.h"
 #include "Logger.h"
 #include "Settings.h"
 #include "UserSettings.h"
@@ -15,6 +16,7 @@
 #include <cctype>
 #include <cmath>
 #include <functional>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <sstream>
@@ -125,13 +127,45 @@ namespace
         return true;
     }
 
-    void RefreshModifiedEquippedItem(RE::TESObjectREFR* container, RE::TESBoundObject* item)
+    bool RefreshModifiedEquippedItem(RE::TESObjectREFR* container, RE::TESBoundObject* item)
     {
-        // Fallout 4's post-modification path rebuilds the affected equipped
-        // biped slot without resetting the player's complete third-person 3D.
+        if (!container || !item) {
+            return false;
+        }
+
+        // Address Library ID 1153963 is ABSENT on Fallout 4 1.11.240.
+        // Its unsuccessful lookup resolves to adjacent ID 1153964, RVA
+        // 0x24E2BE8 in non-executable .rdata, and crashes after a valid
+        // attachment transaction. Never use a guessed adjacent ID.
+        //
+        // The legacy path is limited to the supported original 1.10.163
+        // runtime until a real AE replacement is identified and validated.
+        const auto gameModule = REX::FModule::GetExecutingModule();
+        if (gameModule.GetFileVersion() != REL::Version{ 1, 10, 163, 0 }) {
+            k2040::log::Warn(
+                "Equipped-weapon immediate visual refresh skipped: relocation ID 1153963 "
+                "is not validated for this Fallout 4 runtime. The attachment "
+                "transaction succeeded; switch/re-equip weapons if the model "
+                "does not update immediately.");
+            return false;
+        }
+
+        // Even on the original runtime, reject relocation targets outside
+        // executable .text rather than invoking an unknown pointer.
+        const auto textSection = gameModule.GetSection(".text");
+        const auto address = REL::ID(1153963).address();
+        const auto textStart = textSection.GetAddress();
+        if (!textStart || address < textStart ||
+            address - textStart >= textSection.GetSize()) {
+            k2040::log::Warn(
+                "Equipped-weapon immediate visual refresh skipped: relocation "
+                "ID 1153963 does not resolve within Fallout 4 executable .text.");
+            return false;
+        }
+
         using func_t = void (*)(RE::TESObjectREFR*, RE::TESBoundObject*, bool);
-        static REL::Relocation<func_t> postModifyInventoryItemMod{ REL::ID(1153963) };
-        postModifyInventoryItemMod(container, item, true);
+        reinterpret_cast<func_t>(address)(container, item, true);
+        return true;
     }
 
     bool ActivateQuickMenuGameplayIsolation()
@@ -584,9 +618,11 @@ namespace k2040
         // 2.1.1 contract first and retain raw ID 9 as the old V10 fallback.
         // The menu only uses the inherited V10 surface.
         if (auto* api12 = PRISMA_UI_API::RequestPluginAPI<PRISMA_UI_API::IVPrismaUI12>()) {
+            controllerApi_ = api12;
             api_ = api12;
-            log::Info("PrismaUI IVPrismaUI12 API acquired; using its inherited IVPrismaUI10 panel surface.");
+            log::Info("PrismaUI IVPrismaUI12 API acquired with native controller action support.");
         } else {
+            controllerApi_ = nullptr;
             api_ = PRISMA_UI_API::RequestPluginAPI<PRISMA_UI_API::IVPrismaUI10>();
             if (api_) {
                 log::Info("PrismaUI IVPrismaUI10 API acquired with the released 2.1.1 interface ID.");
@@ -661,6 +697,25 @@ namespace k2040
         return menuOpen_ && viewMode_ != ViewMode::QuickMenu;
     }
 
+    bool PrismaBridge::IsQuickControllerInputActive() const
+    {
+        return quickControllerInputActive_.load(std::memory_order_relaxed);
+    }
+
+    void PrismaBridge::OnControllerStickSector(int sector)
+    {
+        // Called only by a queued F4SE game-thread task. Never call PrismaUI
+        // from the physical controller polling thread.
+        if (sector < 0 || sector >= 72 ||
+            !quickControllerInputActive_.load(std::memory_order_relaxed) ||
+            !menuOpen_ || viewMode_ != ViewMode::QuickMenu ||
+            !viewDomReady_ || !api_ || !api_->IsValid(menuView_)) {
+            return;
+        }
+        const auto value = std::to_string(sector);
+        api_->InteropCall(menuView_, "k2040ControllerStickSector", value.c_str());
+    }
+
     bool PrismaBridge::CanOpenFromHotkey() const
     {
         if (const auto* ui = RE::UI::GetSingleton()) {
@@ -719,8 +774,8 @@ namespace k2040
             << "\"menuSource\":\"" << (menu.runtimeGenerated ? "runtime-generated" : "ECO-authored") << "\","
             << "\"codeBatch\":\"CascadeMenu\","
             << "\"pluginVersion\":\"" K2040_QUICK_ATTACH_MENU_VERSION "\","
-            << "\"prismaApi\":\"IVPrismaUI10\","
-            << "\"prismaReview\":\"2.1.1 target-runtime validated\","
+            << "\"prismaApi\":\"" << (controllerApi_ ? "IVPrismaUI12" : "IVPrismaUI10") << "\","
+            << "\"prismaReview\":\"2.1.1 base runtime validated; controller path pending focused QA\","
             << "\"exporterReference\":\"v0.38 internal reference only; runtime does not depend on JSON\","
             << "\"weapon\":{"
                 << "\"hasWeapon\":" << (weaponInfo.hasWeapon ? "true" : "false") << ","
@@ -895,7 +950,8 @@ namespace k2040
                 json << ",\"hasLooseMod\":" << (opt.hasLooseMod ? "true" : "false");
                 json << ",\"looseModRequired\":" << (opt.looseModRequired ? "true" : "false");
                 json << ",\"isAvailableInInventory\":" << (opt.isAvailableInInventory ? "true" : "false");
-                json << ",\"isInstalled\":" << (opt.isInstalled ? "true" : "false");
+                json << ",\"isInstalled\":" << ((opt.isInstalled || opt.isDefaultApplied) ? "true" : "false");
+                json << ",\"isDefaultApplied\":" << (opt.isDefaultApplied ? "true" : "false");
                 json << ",\"isStructurallyValid\":" << (opt.isStructurallyValid ? "true" : "false");
                 json << ",\"isVisible\":" << (opt.isVisible ? "true" : "false");
                 json << ",\"isSelectable\":" << (opt.isSelectable ? "true" : "false");
@@ -989,6 +1045,8 @@ namespace k2040
                  << "\"openMenuBuilderHotkeyKeycode\":" << builderHotkey.keycode << ","
                  << "\"openMenuBuilderHotkeyModifiers\":" << builderHotkey.modifiers << ","
                  << "\"closeAfterApply\":" << (quickMenu.closeAfterApply ? "true" : "false") << ","
+                 << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
+                 << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
                  << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
@@ -1068,6 +1126,42 @@ namespace k2040
         api_->Hide(menuView_);
 
         log::Info("Prisma menu view created as an interactive panel with Escape ownership.");
+    }
+
+    void PrismaBridge::BindControllerActions()
+    {
+        if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
+            return;
+        }
+
+        controllerApi_->ClearControllerActions(menuView_);
+        if (viewMode_ != ViewMode::QuickMenu) {
+            log::Info("Controller actions intentionally disabled for Builder/Settings.");
+            return;
+        }
+        constexpr std::pair<const char*, const char*> bindings[] = {
+            { "A", "accept" },
+            { "B", "cancel" },
+            { "LB", "previous" },
+            { "RB", "next" },
+            { "DUp", "up" },
+            { "DDown", "down" },
+            { "DLeft", "left" },
+            { "DRight", "right" }
+        };
+
+        std::size_t bound = 0;
+        for (const auto& [button, action] : bindings) {
+            if (controllerApi_->BindControllerAction(menuView_, button, action)) {
+                ++bound;
+            } else {
+                log::Warn(std::string("Prisma controller action could not be bound: ") + button + ".");
+            }
+        }
+
+        log::Info(
+            "Prisma controller actions bound for the active page: " +
+            std::to_string(bound) + "/" + std::to_string(std::size(bindings)) + ".");
     }
 
     void PrismaBridge::PushPayloadToView()
@@ -1362,24 +1456,26 @@ namespace k2040
                     api_->Unfocus(previousView);
                 }
 
+                if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
                 api_->Hide(previousView);
                 api_->Destroy(previousView);
                 log::Info("Closed Prisma menu view destroyed before reopen.");
             }
         }
 
+        quickControllerInputActive_ = false;
         viewMode_ = mode;
         currentWeaponInfo_ = weaponInfo;
         currentMenu_ = menu;
-        lastPayload_ = BuildMenuPayload(weaponInfo, menu);
         CaptureWeaponPresentationState();
-
-        log::Info("Prisma menu payload built.");
-        log::Info(std::string("Prisma menu payload size: ") + std::to_string(lastPayload_.size()) + " bytes.");
 
         if (!api_) {
             Initialize();
         }
+
+        lastPayload_ = BuildMenuPayload(weaponInfo, menu);
+        log::Info("Prisma menu payload built.");
+        log::Info(std::string("Prisma menu payload size: ") + std::to_string(lastPayload_.size()) + " bytes.");
 
         if (!api_) {
             log::Warn("PrismaUI API is not available. Payload logged only.");
@@ -1452,6 +1548,7 @@ namespace k2040
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }
+            if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
             api_->Hide(previousView);
             api_->Destroy(previousView);
         }
@@ -1460,6 +1557,7 @@ namespace k2040
         // Builder <-> Settings switches can acquire a new owner.
         UnregisterMenuCursorFallback();
 
+        quickControllerInputActive_ = false;
         viewMode_ = mode;
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         CreateMenuViewIfNeeded();
@@ -1492,6 +1590,7 @@ namespace k2040
     {
         SetHotkeyCaptureActive(false);
         SetMenuHotkeyUiForwardingActive(false);
+        quickControllerInputActive_ = false;
         menuOpen_ = false;
         pendingFocus_ = false;
         log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
@@ -1551,6 +1650,7 @@ namespace k2040
 
     void PrismaBridge::ResetForGameTransition(const char* reason)
     {
+        quickControllerInputActive_ = false;
         const PrismaView previousView = menuView_;
 
         SetMenuHotkeyUiForwardingActive(false);
@@ -1580,6 +1680,7 @@ namespace k2040
                 api_->Unfocus(previousView);
             }
 
+            if (controllerApi_) controllerApi_->ClearControllerActions(previousView);
             api_->Hide(previousView);
             api_->Destroy(previousView);
             log::Info("Prisma menu view destroyed for game transition.");
@@ -1604,6 +1705,7 @@ namespace k2040
         }
 
         viewDomReady_ = true;
+        quickControllerInputActive_ = menuOpen_ && viewMode_ == ViewMode::QuickMenu && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
         // Page-facing listeners are safest once the JavaScript context exists.
@@ -1613,6 +1715,7 @@ namespace k2040
         api_->BindUIEvent(menuView_, "k2040OptionPreviewRequested", OnMenuOptionPreviewRequested);
         api_->BindUIEvent(menuView_, "k2040BuilderChangeRequested", OnMenuBuilderChangeRequested);
         api_->BindUIEvent(menuView_, "k2040SettingsChangeRequested", OnMenuSettingsChangeRequested);
+        BindControllerActions();
         if (pendingPayload_ || !lastPayload_.empty()) {
             PushPayloadToView();
         }
@@ -2071,6 +2174,14 @@ namespace k2040
             return;
         }
 
+        if (parts.size() == 3 && parts[0] == "controller-shortcut") {
+            if (!SetControllerShortcut(parts[1], parts[2])) {
+                log::Warn("Controller shortcut rejected (invalid, duplicate, or could not be saved).");
+            }
+            RefreshBuilderPayload();
+            return;
+        }
+
         constexpr std::string_view prefix = "bracketed-text:";
         if (command.rfind(prefix, 0) == 0) {
             const auto value = command.substr(prefix.size());
@@ -2160,8 +2271,10 @@ namespace k2040
             if (parts[1] == "all") {
                 ResetAllUserPreferences();
                 ResetSharedHotkeyBindings();
+                if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
             } else if (parts[1] == "controls") {
                 ResetSharedHotkeyBindings();
+                if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
                 RefreshBuilderPayload();
                 return;
             } else {
@@ -2286,6 +2399,15 @@ namespace k2040
         if (optionIt == categoryIt->options.end() || optionIt->userHidden || !optionIt->isVisible) {
             log::Warn("Cascade selection rejected because its option is unavailable.");
             SendSelectionResult(argument, false, false, "option-unavailable", "That option is unavailable.");
+            return;
+        }
+
+        if (optionIt->isDefaultApplied) {
+            log::Info(
+                "Cascade default selection already effective; no OMOD install or weapon refresh: OMOD=" +
+                ToHexFormId(optionIt->omod.formId) + ".");
+            SendSelectionResult(argument, false, true, "default-applied",
+                "The default material is already applied. No change was made.");
             return;
         }
 
@@ -2417,17 +2539,26 @@ namespace k2040
             return;
         }
 
+        log::Info("Post-mutation stage: begin read-only UI rebuild.");
         currentWeaponInfo_ = result.weaponInfo;
         currentMenu_ = result.menu;
         ApplyVisibilityPreferences(currentMenu_);
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
+        log::Info("Post-mutation stage: menu payload built; beginning Prisma update.");
         PushPayloadToView();
+        log::Info("Post-mutation stage: Prisma update returned.");
 
         auto* player = RE::PlayerCharacter::GetSingleton();
         auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
+        log::Info("Post-mutation stage: engine refresh prerequisites resolved.");
         if (player && weapon) {
-            RefreshModifiedEquippedItem(player, weapon);
-            log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
+            if (RefreshModifiedEquippedItem(player, weapon)) {
+                log::Info("Post-mutation stage: equipped weapon refresh returned.");
+                log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            } else {
+                log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
+            }
         } else {
             log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");
         }
