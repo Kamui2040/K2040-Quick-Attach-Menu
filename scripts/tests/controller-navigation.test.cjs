@@ -19,11 +19,27 @@ function setup(presentation) {
     activePane: 'categories',
     render() {},
     settings: () => ({ presentation }),
-    moveCategory: delta => actions.push(['category', delta]),
-    moveOption: delta => actions.push(['option', delta]),
-    switchPane: delta => {
-      actions.push(['pane', delta]);
-      renderer.activePane = delta > 0 ? 'options' : 'categories';
+    navigateDirection: direction => {
+      if (direction === 'left' || direction === 'right') {
+        const delta = direction === 'left' ? -1 : 1;
+        actions.push(['pane', delta]);
+        renderer.activePane = delta > 0 ? 'options' : 'categories';
+      } else {
+        let delta = direction === 'up' ? -1 : 1;
+        if (renderer.activePane === 'categories' && presentation === 'hybrid') delta *= -1;
+        actions.push(renderer.activePane === 'categories'
+          ? ['category', delta] : ['option', delta]);
+      }
+    },
+    navigateShoulder: delta => {
+      actions.push(presentation === 'radial' && renderer.activePane === 'options'
+        ? ['page', delta] : ['category', delta]);
+    },
+    navigateBack: () => {
+      if (renderer.activePane !== 'options') return false;
+      renderer.activePane = 'categories';
+      actions.push(['pane', -1]);
+      return true;
     },
     selectRadialSector: sector => actions.push(['sector', sector]),
     changeRadialPage: delta => actions.push(['page', delta]),
@@ -55,10 +71,12 @@ function setup(presentation) {
 for (const layout of ['cascade', 'hybrid', 'horizontal']) {
   const c = setup(layout);
   c.win.k2040ControllerStickSector('0');
-  assert.deepEqual(c.actions.at(-1), ['category', -1], layout + ': stick up');
+  assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? 1 : -1],
+    layout + ': stick up follows visual category order');
   c.time(10300);
   c.win.k2040ControllerStickSector('36');
-  assert.deepEqual(c.actions.at(-1), ['category', 1], layout + ': stick down');
+  assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? -1 : 1],
+    layout + ': stick down follows visual category order');
   c.time(10600);
   c.win.k2040ControllerStickSector('18');
   assert.deepEqual(c.actions.at(-1), ['pane', 1], layout + ': stick right enters options');
@@ -66,8 +84,20 @@ for (const layout of ['cascade', 'hybrid', 'horizontal']) {
   c.win.k2040ControllerStickSector('36');
   assert.deepEqual(c.actions.at(-1), ['option', 1], layout + ': stick down moves option');
   c.win.k2040ControllerStickSector('-1');
+  c.button('DLeft');
+  assert.deepEqual(c.actions.at(-1), ['pane', -1], layout + ': D-left returns to categories');
+  c.button('DUp');
+  assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? 1 : -1],
+    layout + ': D-pad up matches stick up');
+  c.button('DRight');
+  assert.deepEqual(c.actions.at(-1), ['pane', 1], layout + ': D-right enters options');
   c.button('DDown');
   assert.deepEqual(c.actions.at(-1), ['option', 1], layout + ': D-pad down still navigates');
+  c.button('LB');
+  assert.deepEqual(c.actions.at(-1), ['category', -1], layout + ': shoulder changes category');
+  assert.equal(c.renderer.activePane, 'options', layout + ': shoulder keeps active pane');
+  c.button('B');
+  assert.equal(c.renderer.activePane, 'categories', layout + ': B first returns to category level');
   assert.equal(c.actions.filter(([name]) => name === 'confirm').length, 0,
     layout + ': movement should never apply an OMOD');
 
@@ -90,6 +120,10 @@ for (const layout of ['cascade', 'hybrid', 'horizontal']) {
   r.win.k2040ControllerStickSector('-1');
   r.button('DDown');
   assert.deepEqual(r.actions.at(-1), ['category', 1], 'radial D-pad navigates categories');
+  r.button('DRight');
+  assert.equal(r.renderer.activePane, 'options', 'radial right now enters option pane like other layouts');
+  r.button('DLeft');
+  assert.equal(r.renderer.activePane, 'categories', 'radial left backs out like other layouts');
   r.renderer.activePane = 'options';
   r.button('LB');
   assert.deepEqual(r.actions.at(-1), ['page', -1], 'radial LB changes page');

@@ -479,12 +479,13 @@
     (this.statusPortal || container).appendChild(status);
     var hints = document.createElement("div");
     hints.className = "qm-hints";
+    var confirm = this.options.controllerConfirmButton || "Confirm";
+    var cancel = this.options.controllerCancelButton || "Back";
     hints.textContent = this.options.controllerActive
-      ? ((this.settings().presentation === "radial")
-          ? (this.activePane === "categories"
-              ? "Stick: Point at category · A: Open · B: Close"
-              : "Stick: Point at attachment · A: Confirm · LB/RB: Page · B: Back")
-          : "D-pad: Navigate · A: Confirm · LB/RB: Category · B: Close")
+      ? (this.activePane === "categories"
+          ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
+          : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
+            (this.settings().presentation === "radial" ? "Page" : "Category"))
       : this.settings().presentation === "radial"
         ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
         : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
@@ -894,6 +895,42 @@
       this.activePane = "categories";
     }
     this.render();
+  };
+
+  // Shared input model for keyboard, D-pad and analog sticks. Layouts
+  // differ in geometry, not in whether Back/Confirm can change an OMOD.
+  Renderer.prototype.navigateDirection = function(direction) {
+    if (direction === "left") {
+      this.switchPane(-1);
+    } else if (direction === "right") {
+      this.switchPane(1);
+    } else if (direction === "up" || direction === "down") {
+      var delta = direction === "up" ? -1 : 1;
+      if (this.activePane === "categories") {
+        // Compact Hybrid draws category 0 at the bottom of its left
+        // semicircle and later categories higher up. Reverse just the
+        // visual category traversal, not the data/category ordering.
+        if (this.settings().presentation === "hybrid") delta = -delta;
+        this.moveCategory(delta);
+      } else {
+        this.moveOption(delta);
+      }
+    }
+  };
+
+  Renderer.prototype.navigateShoulder = function(delta) {
+    if (this.settings().presentation === "radial" && this.activePane === "options") {
+      this.changeRadialPage(delta);
+    } else {
+      // Preserves the current pane across non-radial category changes.
+      this.moveCategory(delta);
+    }
+  };
+
+  Renderer.prototype.navigateBack = function() {
+    if (this.activePane !== "options") return false;
+    this.switchPane(-1);
+    return true;
   };
 
   Renderer.prototype.activateOption = function(category, option) {

@@ -10,6 +10,14 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.211 consolidates input movement/Back/shoulder navigation
+across all four Quick Menu presentations. In Compact Hybrid the semicircular
+category wheel is drawn bottom-to-top, so Up/Down now reverse only the
+underlying category-index step to match screen direction. Sticks, D-pad,
+and keyboard share directional behavior; Cancel first returns from options
+before closing. Input never installs a mod without explicit mapped Confirm.
+Renderer/browser tests pass; in-game confirmation is still required.
+
 Unreleased 0.5.210 expands Quick Menu controller navigation to both
 thumbsticks and the D-pad in radial, cascade, hybrid and horizontal
 presentations. Only an explicit mapped gamepad Activate/Confirm press

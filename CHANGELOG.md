@@ -1,3 +1,21 @@
+## 0.5.211 (unreleased unified Quick Menu navigation tester)
+
+- Use one controller navigation model across Cascade, Radial, Compact
+  Hybrid and Horizontal. Up/Down move through visible categories or
+  attachment choices; Right enters the attachments pane and Left returns.
+- In Compact Hybrid, invert the category-index step only while traversing
+  its bottom-to-top semicircle, so D-pad and joystick Up actually move
+  upward on screen, and Down actually moves downward.
+- Make Cancel back out of attachments in every layout before closing the
+  menu. LB/RB change categories without forcing pane focus; Radial
+  attachment mode keeps LB/RB paging.
+- Share the same directional handling between keyboard, D-pad and sticks.
+  D-pad takes precedence until the held stick returns to neutral.
+- Movement is selection-only: installing still requires a distinct mapped
+  Activate/Confirm press. Preserve the tested AE deferred re-equip behavior.
+- Browser and renderer-level navigation tests cover every presentation.
+  Real-controller runtime QA of the 0.5.211 changes remains outstanding.
+
 ## 0.5.210 (unreleased controller navigation tester)
 
 - Support either thumbstick for highlight-only navigation in all Quick Menu

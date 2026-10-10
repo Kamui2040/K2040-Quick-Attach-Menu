@@ -33,11 +33,24 @@ class ControllerInputContract(unittest.TestCase):
         self.assertIn('if (sector < -1 || sector >= 72 ||', self.bridge)
         self.assertIn('if (sector < 0) {', self.html)
         self.assertIn('var direction = Math.floor((sector + 9) / 18) % 4;', self.html)
+        self.assertIn('stickRequiresNeutral = true;', self.html)
+        self.assertIn('renderer.navigateDirection(["up", "right", "down", "left"][direction]);', self.html)
         self.assertIn('renderer.selectRadialSector(sector)', self.html)
 
+    def test_shared_keyboard_and_controller_navigation(self):
+        renderer = (ROOT / "dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-renderer.js").read_text()
+        self.assertIn('Renderer.prototype.navigateDirection = function(direction)', renderer)
+        self.assertIn('if (this.settings().presentation === "hybrid") delta = -delta;', renderer)
+        self.assertIn('Renderer.prototype.navigateBack = function()', renderer)
+        self.assertIn('Renderer.prototype.navigateShoulder = function(delta)', renderer)
+        self.assertIn('renderer.navigateShoulder(button === "LB" ? -1 : 1);', self.html)
+        self.assertIn('if (!renderer.navigateBack() &&', self.html)
+        self.assertIn('renderer.navigateDirection(', self.html)
+        self.assertNotIn('if (!radial) renderer.switchPane(1);', self.html)
+
     def test_versions_in_sync(self):
-        self.assertIn('0x000500D2; // 0.5.210', (ROOT / "src/main.cpp").read_text())
-        self.assertEqual((ROOT / "xmake.lua").read_text().count('0.5.210'), 3)
+        self.assertIn('0x000500D3; // 0.5.211', (ROOT / "src/main.cpp").read_text())
+        self.assertEqual((ROOT / "xmake.lua").read_text().count('0.5.211'), 3)
 
 if __name__ == "__main__":
     unittest.main()

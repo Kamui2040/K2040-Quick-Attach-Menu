@@ -112,6 +112,16 @@ category/attachment navigation and LB/RB paging. These updates are
 not yet validated under Proton/Steam Input; only the Quick Menu
 receives controller actions.
 
+Unreleased 0.5.211 navigation tester: controller and keyboard movement use
+the same rules in each Quick Menu presentation. Up/Down move visually through
+the current category/attachment choices, Right enters attachments, Left
+returns to categories, and Back/Cancel returns before closing. In Compact
+Hybrid the category wheel follows its visible bottom-to-top ordering.
+LB/RB change categories except in Radial attachment mode, where they
+change attachment pages. Pointing/moving never installs an attachment;
+press the mapped Activate/Confirm button separately. This revision still
+needs in-game confirmation.
+
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
 

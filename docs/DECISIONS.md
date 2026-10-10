@@ -76,6 +76,14 @@ Only durable product decisions belong here. Current release state belongs in
   address checks; do not claim target-runtime PASS from a build.
 - Flushed post-mutation stage markers may narrow a crash location,
   but must not be misrepresented as a verified fix or a crash stack.
+- Treat Quick Menu controller navigation as presentation-independent:
+  Up/Down move focus visually through categories/attachments, Right enters
+  options, Left returns to categories, Cancel returns before closing, and
+  LB/RB move categories or page radial attachments. Compact Hybrid's
+  bottom-to-top semicircle reverses the category-index delta only, so
+  physical Up/Down follows on-screen movement. Shared direction dispatch
+  is used for keyboard, D-pad and sticks; input never installs without
+  separate mapped confirmation.
 - In the Quick Menu, both sticks and the D-pad may highlight categories
   or attachments, but no navigation input installs an attachment. Require
   a separate game-mapped Activate/Confirm press; never assume A if Fallout 4

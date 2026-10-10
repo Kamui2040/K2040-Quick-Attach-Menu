@@ -10,6 +10,14 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.211 unifies directional/controller navigation across
+all four Quick Menu presentations and corrects the previously inverted
+Compact Hybrid category wheel. Left/Right consistently change between
+category and attachment focus, while Cancel backs out before closing.
+LB/RB switch categories or page radial attachments. Directional movement
+cannot install attachments. Automated browser/renderer checks pass;
+this navigation change is not yet confirmed under Proton/XInput.
+
 Unreleased 0.5.210 adds native thumbstick navigation in every Quick
 Menu presentation and explicit game-mapped confirmation. Steam Input
 and XInput must expose a gamepad to Fallout 4. The gamepad mapping is

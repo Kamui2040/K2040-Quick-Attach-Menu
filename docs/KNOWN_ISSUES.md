@@ -26,6 +26,19 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.211 unified navigation and Compact Hybrid
+
+A user reported that controller navigation in Compact Hybrid felt
+inconsistent and its D-pad Up/Down actions moved focus in the opposite
+visual direction around the category semicircle. The wheel draws
+categories from the bottom toward the top, unlike list layouts.
+The shared 0.5.211 navigation model reverses only hybrid category
+traversal, maps both thumbsticks and D-pad through the same direction
+router, and gives Left/Right, Cancel and shoulder buttons consistent
+pane/category/page behavior in every presentation. No movement triggers
+attachment installation. Browser events and the real renderer have
+automated tests; real-controller visual and input QA is pending.
+
 ## Unreleased 0.5.210 controller input refinement
 
 Controller movement now highlights Quick Menu categories/options using
