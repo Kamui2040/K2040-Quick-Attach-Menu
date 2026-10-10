@@ -10,8 +10,10 @@
   game transition; re-check weapon, stack and installed OMOD identities.
 - Keep the opt-in AE-only setting and safe loaded-ammo restoration.
   OG 1.10.163 uses the original native refresh with no changes.
-- Focused game QA must confirm that several modifications made without
-  exiting the Quick Menu all become visible on close.
+- Focused user testing on AE 1.11.240 confirmed that several
+  modifications made without exiting Quick Menu now become visually
+  current on close. Ammunition, animations and other weapon coverage
+  still require separate verification.
 
 ## 0.5.208 (unreleased AE re-equip follow-up and internal-slot filtering)
 

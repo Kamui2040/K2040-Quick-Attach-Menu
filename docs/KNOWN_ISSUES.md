@@ -38,8 +38,11 @@ that each visual model finished loading before the next action.
 The 0.5.209 experiment queues only one exact-stack re-equip for the
 latest successfully verified state, after Quick Menu close and Prisma
 focus release. It preserves ammo safeguards and rejects stale menu,
-game-transition or installed OMOD snapshots. Until focused game QA
-passes, the model-update issue remains unresolved.
+game-transition or installed OMOD snapshots. Focused user testing of
+0.5.209 on AE 1.11.240 reports that repeated attachment changes now
+become visually current after closing the Quick Menu. This closes
+the reported multi-change visual symptom only; magazine integrity,
+animations, other weapons and broader regression remain unverified.
 
 ## Unreleased 0.5.208 AE re-equip and hidden range offset
 
