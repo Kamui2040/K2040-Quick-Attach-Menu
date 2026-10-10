@@ -181,14 +181,20 @@ right fallback) only while a Quick Menu DOM is ready, applies a dead zone,
 quantizes the direction clockwise from 12 o'clock, and queues the angle on the
 F4SE game thread. The game-thread Prisma bridge revalidates the live Quick
 Menu view before forwarding the direction into the browser. The radial
-controller UI is explicitly two-step: direction selects category -> A enters
-its full-circle outer attachment ring -> direction selects option -> A
-confirms; B backs out then closes. The outer controller ring shows a
+controller UI is explicitly two-step: direction selects category ->
+the current Fallout 4 mapped Activate/Confirm button enters the full-circle
+outer attachment ring -> direction selects option -> that same button
+confirms the actual installation. Cancel returns then closes. The
+live gamepad ControlMap is consulted on the game thread, with menu Accept
+and default A fallbacks. Neither stick nor D-pad motion ever authorizes
+an attachment operation. The outer controller ring shows a
 maximum of six options per page. LB/RB switches pages in the outer ring
 and switches categories when at the category ring; the full selected label
 is displayed in the center. The sampled angle and page changes never
-authorize mutation without an explicit A. Other presentations retain
-D-pad button navigation. Keyboard/mouse radial mode retains the
+authorize mutation without an explicit A. All other Quick Menu presentations
+accept either analog stick as directional navigation alongside D-pad.
+A neutral-release signal clears stale stick angle; held repeats are
+rate limited, and a recent D-pad input takes precedence. Keyboard/mouse radial mode retains the
 category-centered attachment arc but uses the same six-entry paging cap.
 Center arrow buttons, mouse wheel, and Page Up/Down move between pages,
 while hovering updates the full-name caption without a mutation.

@@ -102,6 +102,16 @@ a fallback; D-right no longer acts as the radial entry key. Steam Input under
 Proton must expose the controller through XInput. This analog path still
 requires focused target-runtime testing.
 
+Unreleased 0.5.210 controller tester: both sticks and the D-pad navigate
+every Quick Menu layout. Moving a stick only highlights an entry;
+installing an attachment still requires a separate Confirm press.
+The tester reads the current Fallout 4 gamepad Activate binding
+and uses menu Accept or A if that cannot be resolved. Cancel similarly
+uses the mapped menu button where available. Radial keeps its two-step
+category/attachment navigation and LB/RB paging. These updates are
+not yet validated under Proton/Steam Input; only the Quick Menu
+receives controller actions.
+
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
 

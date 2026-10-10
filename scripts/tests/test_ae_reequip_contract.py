@@ -59,7 +59,7 @@ class AEReequipContract(unittest.TestCase):
                         self.bridge.index("Queued first-person presentation refresh after post-close weapon work."))
     def test_version_sync(self):
 
-        self.assertIn("0x000500D1; // 0.5.209",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.209"),3)
+        self.assertIn("0x000500D2; // 0.5.210",(ROOT/"src/main.cpp").read_text())
+        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.210"),3)
 if __name__=="__main__":
     unittest.main()

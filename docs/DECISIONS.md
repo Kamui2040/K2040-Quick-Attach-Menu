@@ -76,6 +76,11 @@ Only durable product decisions belong here. Current release state belongs in
   address checks; do not claim target-runtime PASS from a build.
 - Flushed post-mutation stage markers may narrow a crash location,
   but must not be misrepresented as a verified fix or a crash stack.
+- In the Quick Menu, both sticks and the D-pad may highlight categories
+  or attachments, but no navigation input installs an attachment. Require
+  a separate game-mapped Activate/Confirm press; never assume A if Fallout 4
+  supplies a supported remapped gamepad button. Avoid assigning that same
+  physical button to a menu navigation action.
 - XInput radial direction is sampled on the native input thread only while a
   Quick Menu is active, then dispatched to Prisma via F4SE game-thread work.
   Never call PrismaUI from the poller thread. Use left stick preferentially,

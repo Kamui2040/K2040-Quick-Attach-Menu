@@ -888,12 +888,17 @@ namespace k2040
         if (GetPrismaBridge().IsQuickControllerInputActive() &&
             !g_hotkeyCaptureActive.load()) {
             const int sector = ReadControllerStickSector();
-            if (sector < 0) {
-                previousStickSector = -1;
-            } else if (sector != previousStickSector &&
-                std::chrono::steady_clock::now() - previousStickDispatch >= std::chrono::milliseconds(70)) {
+            const auto now = std::chrono::steady_clock::now();
+            // Forward neutral exactly once so the browser drops stale angles
+            // before an A/Confirm press. Continuous input is navigation only.
+            const bool released = sector < 0 && previousStickSector >= 0;
+            const bool newAngle = sector >= 0 && sector != previousStickSector &&
+                now - previousStickDispatch >= std::chrono::milliseconds(70);
+            const bool heldRepeat = sector >= 0 && sector == previousStickSector &&
+                now - previousStickDispatch >= std::chrono::milliseconds(190);
+            if (released || newAngle || heldRepeat) {
                 previousStickSector = sector;
-                previousStickDispatch = std::chrono::steady_clock::now();
+                previousStickDispatch = now;
                 if (const auto* tasks = F4SE::GetTaskInterface()) {
                     tasks->AddTask([sector]() {
                         GetPrismaBridge().OnControllerStickSector(sector);

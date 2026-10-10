@@ -1,3 +1,18 @@
+## 0.5.210 (unreleased controller navigation tester)
+
+- Support either thumbstick for highlight-only navigation in all Quick Menu
+  presentations, alongside the existing D-pad. Radial retains angle-based
+  highlighting; cascade, hybrid and horizontal use directional steps.
+- Keep analog navigation and D-pad actions distinct from attachment
+  installation. A separate, non-repeating confirmation press is required.
+- Read Fallout 4's current mapped gamepad Activate button for confirmation,
+  falling back to menu Accept then A when unavailable. Use the menu Cancel
+  mapping when available; avoid duplicate confirm/navigation bindings.
+- Send stick-neutral state to clear stale angular selection, suppress
+  repeated input drift, and retain game-thread-only Prisma callbacks.
+- Preserve the focused AE 0.5.209 post-close auto re-equip workaround. New
+  controller behavior requires Proton/XInput runtime validation.
+
 ## 0.5.209 (unreleased AE multi-change visual refresh experiment)
 
 - Coalesce multiple successfully verified attachment changes on AE

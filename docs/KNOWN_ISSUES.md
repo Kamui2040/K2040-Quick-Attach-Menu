@@ -26,6 +26,21 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.210 controller input refinement
+
+Controller movement now highlights Quick Menu categories/options using
+either analog stick or D-pad in every presentation. The browser never
+installs an OMOD from movement: the player must separately press the
+game-mapped Activate/Confirm button; fallback is menu Accept, then A.
+Cancel is read from the game's menu mapping where available. Thumbstick
+neutral input clears the remembered angle. D-pad use takes temporary
+priority over a held stick to avoid the old radial angle overriding it.
+
+This has native static checks and deterministic browser event tests, but
+requires focused testing under Proton/Steam Input, including remapped
+confirm, navigation across pages, controller repeat, and no unrequested
+attachment installation. The Builder and Settings remain mouse/keyboard.
+
 ## Unreleased 0.5.209 AE repeated-modification refresh
 
 A user report on 0.5.208 confirmed automatic re-equip works for

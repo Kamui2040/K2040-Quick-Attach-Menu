@@ -10,6 +10,14 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.210 adds native thumbstick navigation in every Quick
+Menu presentation and explicit game-mapped confirmation. Steam Input
+and XInput must expose a gamepad to Fallout 4. The gamepad mapping is
+read from the live ControlMap on the game thread, falling back to
+menu Accept and default A where needed. The mapping and UI behavior
+require in-game testing before claiming compatibility. Builder and
+Settings remain keyboard/mouse only.
+
 Unreleased 0.5.209 revises the AE-only experimental re-equip to
 coalesce multiple successful OMOD transactions and re-equip the
 last verified equipped stack only after the Quick Menu closes.

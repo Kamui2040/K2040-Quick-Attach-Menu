@@ -26,6 +26,10 @@
 #include <utility>
 #include <vector>
 
+// Include Windows macros only after all CommonLib/RE headers have parsed.
+#include <Windows.h>
+#include <Xinput.h>
+
 namespace
 {
     constexpr const char* kMenuViewPath = "K2040_Quick_Attach_Menu/menu.html";
@@ -843,12 +847,13 @@ namespace k2040
     {
         // Called only by a queued F4SE game-thread task. Never call PrismaUI
         // from the physical controller polling thread.
-        if (sector < 0 || sector >= 72 ||
+        if (sector < -1 || sector >= 72 ||
             !quickControllerInputActive_.load(std::memory_order_relaxed) ||
             !menuOpen_ || viewMode_ != ViewMode::QuickMenu ||
             !viewDomReady_ || !api_ || !api_->IsValid(menuView_)) {
             return;
         }
+        // -1 is a neutral-release signal, not an input or confirmation.
         const auto value = std::to_string(sector);
         api_->InteropCall(menuView_, "k2040ControllerStickSector", value.c_str());
     }
@@ -1265,6 +1270,41 @@ namespace k2040
         log::Info("Prisma menu view created as an interactive panel with Escape ownership.");
     }
 
+    // Fallout 4 stores gamepad mappings as XInput button bits. Read the
+    // currently loaded control map rather than assuming A is always Activate.
+    // This is game-thread only, and does not change any user input settings.
+    const char* CanonicalGamepadButton(std::uint32_t code)
+    {
+        switch (code) {
+        case XINPUT_GAMEPAD_A: return "A";
+        case XINPUT_GAMEPAD_B: return "B";
+        case XINPUT_GAMEPAD_X: return "X";
+        case XINPUT_GAMEPAD_Y: return "Y";
+        case XINPUT_GAMEPAD_DPAD_UP: return "DUp";
+        case XINPUT_GAMEPAD_DPAD_DOWN: return "DDown";
+        case XINPUT_GAMEPAD_DPAD_LEFT: return "DLeft";
+        case XINPUT_GAMEPAD_DPAD_RIGHT: return "DRight";
+        case XINPUT_GAMEPAD_LEFT_SHOULDER: return "LB";
+        case XINPUT_GAMEPAD_RIGHT_SHOULDER: return "RB";
+        case XINPUT_GAMEPAD_BACK: return "Back";
+        case XINPUT_GAMEPAD_START: return "Start";
+        case XINPUT_GAMEPAD_LEFT_THUMB: return "LS";
+        case XINPUT_GAMEPAD_RIGHT_THUMB: return "RS";
+        default: return nullptr;
+        }
+    }
+
+    const char* ReadMappedControllerButton(
+        std::string_view event,
+        RE::UserEvents::INPUT_CONTEXT_ID context)
+    {
+        if (const auto* controls = RE::ControlMap::GetSingleton()) {
+            return CanonicalGamepadButton(
+                controls->GetMappedKey(event, RE::INPUT_DEVICE::kGamepad, context));
+        }
+        return nullptr;
+    }
+
     void PrismaBridge::BindControllerActions()
     {
         if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
@@ -1276,9 +1316,30 @@ namespace k2040
             log::Info("Controller actions intentionally disabled for Builder/Settings.");
             return;
         }
-        constexpr std::pair<const char*, const char*> bindings[] = {
-            { "A", "accept" },
-            { "B", "cancel" },
+        // Remapped gameplay Activate takes priority. Menu Accept is the
+        // fallback for installs that do not expose a usable gameplay binding.
+        const char* confirm = ReadMappedControllerButton(
+            "Activate", RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay);
+        if (!confirm) {
+            confirm = ReadMappedControllerButton(
+                "Accept", RE::UserEvents::INPUT_CONTEXT_ID::kBasicMenuNav);
+        }
+        if (!confirm) {
+            confirm = "A";
+            log::Warn("Could not resolve a supported mapped controller confirmation; using default A.");
+        }
+
+        const char* cancel = ReadMappedControllerButton(
+            "Cancel", RE::UserEvents::INPUT_CONTEXT_ID::kBasicMenuNav);
+        if (!cancel) cancel = "B";
+        if (std::string_view(cancel) == confirm) {
+            cancel = std::string_view(confirm) == "A" ? "B" : "A";
+            log::Warn("Controller accept/cancel mappings overlapped; selected the other face button for cancel.");
+        }
+
+        const std::pair<const char*, const char*> bindings[] = {
+            { confirm, "accept" },
+            { cancel, "cancel" },
             { "LB", "previous" },
             { "RB", "next" },
             { "DUp", "up" },
@@ -1289,6 +1350,13 @@ namespace k2040
 
         std::size_t bound = 0;
         for (const auto& [button, action] : bindings) {
+            // A remapped confirm/cancel button must never also navigate.
+            if (std::string_view(action) != "accept" &&
+                std::string_view(action) != "cancel" &&
+                (std::string_view(button) == confirm || std::string_view(button) == cancel)) {
+                log::Warn(std::string("Controller navigation binding skipped because it overlaps confirmation/cancel: ") + button + ".");
+                continue;
+            }
             if (controllerApi_->BindControllerAction(menuView_, button, action)) {
                 ++bound;
             } else {
@@ -1296,9 +1364,13 @@ namespace k2040
             }
         }
 
+        // Keep browser-side dispatch tied to the exact buttons bound above.
+        // A stick or D-pad navigation event can never submit an attachment.
+        api_->InteropCall(menuView_, "k2040ControllerConfirmButton", confirm);
+        api_->InteropCall(menuView_, "k2040ControllerCancelButton", cancel);
         log::Info(
-            "Prisma controller actions bound for the active page: " +
-            std::to_string(bound) + "/" + std::to_string(std::size(bindings)) + ".");
+            "Prisma controller actions bound: " + std::to_string(bound) +
+            " (confirm=" + confirm + ", cancel=" + cancel + ").");
     }
 
     void PrismaBridge::PushPayloadToView()
