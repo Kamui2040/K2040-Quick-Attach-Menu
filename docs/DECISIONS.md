@@ -39,8 +39,11 @@ Only durable product decisions belong here. Current release state belongs in
   bindings are toggles; the other opener switches menus. Escape is the universal
   close action, and DialogueMenu blocks opener actions. There is no dedicated
   close binding.
-- The release is text-only. Future icons require a mod-owned semantic mapping
-  layer and explicit library adapters. Weapon preview remains removed until a
-  renderer lifecycle can pass performance, cleanup, and Alt-Tab testing.
+- The release remains text-only. A separate research-branch icon adapter reads
+  player-installed FallUI symbols in memory and supplies optional PrismaUI
+  list-row vectors. Only reviewed, conservative semantic mappings are allowed;
+  artwork availability never authorizes attachment operations. Icons remain
+  unreleased pending target-environment QA. Weapon preview remains removed until
+  a renderer lifecycle passes performance, cleanup, and Alt-Tab testing.
 - Build staging and deployment remain separate. A normal build never writes to
   a game or mod-manager directory.

@@ -386,7 +386,8 @@
 
   Renderer.prototype.makeIcon = function(iconClass) {
     return global.K2040IconResources ?
-      global.K2040IconResources.createIcon(this.payload && this.payload.iconAssets, iconClass) : null;
+      global.K2040IconResources.createIcon(this.payload && this.payload.iconAssets,
+        iconClass, this.payload && this.payload.iconVectors) : null;
   };
 
   Renderer.prototype.makeCategoryButton = function(category) {

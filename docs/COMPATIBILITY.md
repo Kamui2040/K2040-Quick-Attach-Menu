@@ -21,6 +21,7 @@ points, and the winning OMOD records' MNAM Target OMOD keywords.
 
 ## Not validated by this release
 
+- Research-branch FIS/FallUI icon bridge in an actual PrismaUI/Proton game session
 - Fallout 4 `1.10.980` through `1.10.984`
 - Fallout 4 VR
 - mismatched F4SE releases

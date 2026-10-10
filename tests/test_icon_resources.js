@@ -90,6 +90,35 @@ for (const mask of [true, false]) {
   renderer.payload.iconAssets = assets;
   delete option.iconClass;
   assert.equal(renderer.makeOptionButton(category, option).children.length, 1);
+
+  const vectors = { "receiver.generic": {
+    bounds: [0, 0, 300, 300],
+    parts: [{ d: "M0 0 L300 0 L300 300 L0 300", matrix: [1, 0, 0, 1, 0, 0] }]
+  }};
+  assert.equal(resources.vectorFor(vectors, "receiver.generic"), vectors["receiver.generic"]);
+  assert.equal(resources.vectorFor(vectors, "../receiver.generic"), null);
+  assert.equal(resources.vectorFor({
+    "receiver.generic": { bounds: [0, 0, 300, 300],
+      parts: [{ d: "M0 0 <script>", matrix: [1, 0, 0, 1, 0, 0] }] }
+  }, "receiver.generic"), null);
+  assert.equal(resources.vectorFor({
+    "receiver.generic": { bounds: [0, 0, 0, 300],
+      parts: [{ d: "M0 0 L10 10", matrix: [1, 0, 0, 1, 0, 0] }] }
+  }, "receiver.generic"), null);
+  const converted = resources.createIcon(null, "receiver.generic", vectors);
+  assert.equal(converted.children[0].tagName, "SVG");
+  assert.equal(converted.children[0].children[0].children[0].getAttribute("d"), "M0 0 L300 0 L300 300 L0 300");
+  assert.equal(converted.children[0].children[0].getAttribute("transform"), "matrix(1 0 0 1 0 0)");
+  assert.equal(converted.children[0].children[0].children[0].getAttribute("fill"), "currentColor");
+
+  renderer.payload = { iconVectors: vectors, settings: {}, parser: {} };
+  option.iconClass = "receiver.generic";
+  assert.equal(renderer.makeCategoryButton(category).children[0].children[0].tagName, "SVG");
+  assert.ok(renderer.makeOptionButton(category, option).className.includes("qm-has-icon"));
+
+  renderer.payload = { settings: {}, parser: {} };
+  assert.equal(renderer.makeCategoryButton(category).children.length, 2);
+  assert.equal(renderer.makeOptionButton(category, option).children.length, 1);
 }
 
-console.log("PASS: icon URI safety, PNG assets, optional UI slots and text-only fallback (masked/plain)");
+console.log("PASS: PNG/WebP icons, safe installed-SWF vectors and text-only fallback (masked/plain)");

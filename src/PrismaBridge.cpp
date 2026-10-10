@@ -5,6 +5,7 @@
 
 #include "AttachmentRuntimeModel.h"
 #include "Hotkey.h"
+#include "InstalledIconBridge.h"
 #include "Logger.h"
 #include "Settings.h"
 #include "UserSettings.h"
@@ -722,6 +723,7 @@ namespace k2040
 
         json
             << "},"
+            << "\"iconVectors\":" << InstalledIconVectorsJson() << ","
             << "\"parser\":{";
 
         json << "\"ecoRootFound\":" << (menu.rootFormList.formId != 0 ? "true" : "false") << ",";
@@ -765,6 +767,10 @@ namespace k2040
         for (std::size_t ci = 0; ci < menu.categories.size(); ++ci) {
             if (ci > 0) json << ",";
             const auto& cat = menu.categories[ci];
+            const char* iconClass = nullptr;
+            if (cat.sourceLabel == "Caliber" || cat.sourceLabel == "Ammo" ||
+                cat.sourceLabel == "Ammunition") iconClass = "ammo_caliber.generic";
+            else if (cat.sourceLabel == "Attachments") iconClass = "attachment.generic";
 
             json << "{"
                  << "\"categoryIndex\":" << cat.categoryIndex
@@ -774,6 +780,7 @@ namespace k2040
                  << ",\"categoryMessage\":";
 
             WriteFormRefJson(json, cat.categoryMessage);
+            if (iconClass) json << ",\"iconClass\":\"" << iconClass << "\"";
 
             json << ",\"messageButtonIndex\":" << cat.messageButtonIndex
                  << ",\"optionFormList\":";
@@ -824,6 +831,7 @@ namespace k2040
                 json << ",\"userHidden\":" << (opt.userHidden ? "true" : "false");
                 json << ",\"preferenceHidden\":" << (IsOptionHidden(menu.weapon, opt.omod) ? "true" : "false");
                 json << ",\"status\":\"" << JsonEscape(opt.status) << "\"";
+                if (iconClass) json << ",\"iconClass\":\"" << iconClass << "\"";
 
                 json << "}";
             }

@@ -122,6 +122,13 @@
   mask-size: contain;
 }
 
+.qm-asset-icon-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
 .qm-asset-icon-img {
   display: block;
   width: 100%;

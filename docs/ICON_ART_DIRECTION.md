@@ -11,7 +11,7 @@ This document defines artwork review and the current research-asset contract.
 - Compare real rendered output at 22, 32, and 48 px before choosing a menu icon size. Concept-sheet inset labels do not count as native-size renders. Screen-space scaling and layout must also be tested in PrismaUI before shipping.
 - Prefer transparent assets with monochrome shapes. Raster assets require an explicit HUD-color/tint check; SVG `currentColor` is not a raster recoloring mechanism.
 - Keep original semantic icon-class identifiers unchanged. Optional installed FIS/FallUI libraries may supply visual assets through a bridge; do not bundle, alter, or redistribute their artwork.
-- Use existing approved pilot icons or text when an optional icon source is unavailable. PrismaUI list rows now accept optional PNG/WebP icon data; reading and rendering installed FIS symbols automatically is **not implemented**. See `docs/ICON_FIS_BRIDGE.md` for the tested browser contract and remaining runtime work.
+- Use existing approved pilot icons or text when an optional icon source is unavailable. PrismaUI list rows accept optional PNG/WebP data and an experimental native installed-FIS vector bridge. That bridge is not yet game-tested or released. See `docs/ICON_FIS_BRIDGE.md` for the tested browser contract and remaining runtime work.
 
 The current artwork manifest and validator still describe the earlier **SVG-only research assets**. Their format checks must be updated and validated separately before PNG/WebP files can be accepted as production assets. No current production icon status changes with this decision.
 
