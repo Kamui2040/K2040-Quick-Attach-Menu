@@ -52,10 +52,39 @@ player-facing setup procedure. It deliberately rejects composite symbols
 instead of silently exporting incomplete artwork. Generated PNG/WebP files
 are third-party derived assets and remain outside Git.
 
+## Browser-side image contract
+
+The PrismaUI quick-menu renderer has an optional image slot in **cascade and
+horizontal list rows**. No icon is shown unless a trusted native payload
+supplies both a class ID and matching image bytes. The image property has no
+relationship to attachment validity, installation, or menu ordering.
+
+- `parser.categories[n].iconClass`: an optional semantic class for a category.
+- `parser.categories[n].options[m].iconClass`: an optional class for an option.
+- `iconAssets`: an optional top-level object mapping exact class IDs to
+  `data:image/png;base64,...` or `data:image/webp;base64,...` strings.
+- Keys must match the existing dot-separated `icon_class` vocabulary.
+- Only self-contained PNG/WebP base64 sources are accepted; file paths,
+  URLs, SVG and scriptable schemes are rejected by the browser helper.
+- Where browser image masks work, the alpha channel takes the theme's text
+  color. Otherwise the original PNG/WebP image is displayed.
+- Missing symbols/assets leave original text-only rows intact.
+- Radial and hybrid labels remain text-only for now.
+
+This is an integration seam only. The current native payload does **not** yet
+populate `iconClass` or `iconAssets`. A future native SWF renderer must
+read the player's deployed file, resolve reviewed source-neutral icon-class
+mappings, render a bounded set of selected icons, and supply the resulting
+images without external services or runtime installation tools. Do not
+mistake sample browser-data-URI tests for proof that target PrismaUI can
+decode both formats.
+
 ## Validation boundary
 
-The tools validate installed SWF structure and local raster-image output.
-They do not test target PrismaUI image loading, HUD tint, deployment detection,
-or in-game rendering. There is no runtime FIS integration in this research
-branch, and neither tool is a required dependency of the released mod.
-The existing presentation fallback and semantic classifier are unchanged.
+The research tools validate installed SWF structure and local raster output.
+The browser helper has deterministic tests for safe URL filtering, masks,
+raster fallback, and missing-image behavior. The native bridge and its
+real-world PrismaUI rendering, HUD tint, deployment detection, and game
+lifecycle have **not** been validated in game. Neither FFDec nor Java nor
+ImageMagick is a required dependency of the released mod. No FIS-derived
+assets may be committed to Git or packed with the plugin.

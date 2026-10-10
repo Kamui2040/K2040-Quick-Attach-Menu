@@ -51,7 +51,7 @@ Examples:
 
 Category fallbacks reuse an existing broad icon class instead of requiring separate fallback-only artwork. Only `attachment.generic` exists solely as the last-resort global fallback.
 
-`scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` currently tracks the SVG-only research assets and approval status. `docs/ICON_ART_DIRECTION.md` defines the format-independent presentation direction, the existing 12-icon SVG pilot, and the artwork review gate. Raster loading and the optional bridge to player-installed FIS/FallUI assets are not yet wired into the runtime.
+`scripts/list-icon-classes.py` prints the semantic visual classes grouped by category. `data/icon_library/icon_artwork_manifest.json` currently tracks the SVG-only research assets and approval status. `docs/ICON_ART_DIRECTION.md` defines the format-independent presentation direction, the existing 12-icon SVG pilot, and the artwork review gate. The PrismaUI list renderer can accept optional raster icon data, but no native source yet supplies semantic class IDs or images from player-installed FIS/FallUI assets.
 
 ## Shared base artwork
 
