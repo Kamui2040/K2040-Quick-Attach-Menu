@@ -49,6 +49,10 @@ namespace k2040
         PRISMA_UI_API::IVPrismaUI10* api_ = nullptr;
         PRISMA_UI_API::IVPrismaUI12* controllerApi_ = nullptr;
         PrismaView menuView_ = 0;
+        // Captured from Fallout 4 controls on the game thread at menu open,
+        // never queried from Prisma's asynchronous DOM-ready callback.
+        std::string controllerConfirmButton_ = "A";
+        std::string controllerCancelButton_ = "B";
 
         bool pendingPayload_ = false;
         bool pendingFocus_ = false;
@@ -80,6 +84,7 @@ namespace k2040
 
         void CreateMenuViewIfNeeded();
         void BindControllerActions();
+        void CaptureControllerButtonMapping();
         void OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode);
         void RequestViewSwitch(ViewMode mode);
         void SwitchView(ViewMode mode);

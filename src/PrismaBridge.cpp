@@ -1305,19 +1305,14 @@ namespace k2040
         return nullptr;
     }
 
-    void PrismaBridge::BindControllerActions()
+    void PrismaBridge::CaptureControllerButtonMapping()
     {
-        if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
-            return;
-        }
+        // OpenView is dispatched by the existing hotkey/game-thread task.
+        // Keep ControlMap access out of Prisma's asynchronous DOM callback.
+        controllerConfirmButton_ = "A";
+        controllerCancelButton_ = "B";
+        if (viewMode_ != ViewMode::QuickMenu) return;
 
-        controllerApi_->ClearControllerActions(menuView_);
-        if (viewMode_ != ViewMode::QuickMenu) {
-            log::Info("Controller actions intentionally disabled for Builder/Settings.");
-            return;
-        }
-        // Remapped gameplay Activate takes priority. Menu Accept is the
-        // fallback for installs that do not expose a usable gameplay binding.
         const char* confirm = ReadMappedControllerButton(
             "Activate", RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay);
         if (!confirm) {
@@ -1336,6 +1331,23 @@ namespace k2040
             cancel = std::string_view(confirm) == "A" ? "B" : "A";
             log::Warn("Controller accept/cancel mappings overlapped; selected the other face button for cancel.");
         }
+        controllerConfirmButton_ = confirm;
+        controllerCancelButton_ = cancel;
+    }
+
+    void PrismaBridge::BindControllerActions()
+    {
+        if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
+            return;
+        }
+
+        controllerApi_->ClearControllerActions(menuView_);
+        if (viewMode_ != ViewMode::QuickMenu) {
+            log::Info("Controller actions intentionally disabled for Builder/Settings.");
+            return;
+        }
+        const char* confirm = controllerConfirmButton_.c_str();
+        const char* cancel = controllerCancelButton_.c_str();
 
         const std::pair<const char*, const char*> bindings[] = {
             { confirm, "accept" },
@@ -1712,6 +1724,7 @@ namespace k2040
 
         quickControllerInputActive_ = false;
         viewMode_ = mode;
+        CaptureControllerButtonMapping();
         currentWeaponInfo_ = weaponInfo;
         currentMenu_ = menu;
         CaptureWeaponPresentationState();

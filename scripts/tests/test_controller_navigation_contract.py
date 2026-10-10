@@ -16,6 +16,10 @@ class ControllerInputContract(unittest.TestCase):
         self.assertIn('ReadMappedControllerButton(\n                "Accept", RE::UserEvents::INPUT_CONTEXT_ID::kBasicMenuNav)', self.bridge)
         self.assertIn('controls->GetMappedKey(event, RE::INPUT_DEVICE::kGamepad, context)', self.bridge)
         self.assertIn('api_->InteropCall(menuView_, "k2040ControllerConfirmButton", confirm)', self.bridge)
+        self.assertIn('CaptureControllerButtonMapping();', self.bridge)
+        self.assertIn('void PrismaBridge::CaptureControllerButtonMapping()', self.bridge)
+        bind_block = self.bridge.split('void PrismaBridge::BindControllerActions()', 1)[1].split('void PrismaBridge::PushPayloadToView()',1)[0]
+        self.assertNotIn('GetMappedKey(', bind_block)
         self.assertIn('if (button === controllerConfirmButton && !repeating)', self.html)
         self.assertNotIn('if (button === "A" && !repeating)', self.html)
 
