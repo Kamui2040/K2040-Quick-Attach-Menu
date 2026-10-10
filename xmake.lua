@@ -14,6 +14,9 @@ set_project("K2040_Quick_Attach_Menu")
 set_version("0.5.199")
 set_languages("c++23")
 
+-- Inflate player-installed FIS CWS icon data using a statically linked library.
+add_requires("zlib", { configs = { shared = false } })
+
 add_rules("mode.release", "mode.releasedbg", "mode.debug")
 
 local commonlibf4 = os.getenv("K2040_COMMONLIBF4_ROOT")
@@ -80,6 +83,7 @@ target("K2040_Quick_Attach_Menu")
     set_languages("c++23")
     set_filename("K2040_Quick_Attach_Menu.dll")
     set_symbols("debug")
+    add_packages("zlib")
 
     on_load(function(_)
         local git = import("devel.git")
