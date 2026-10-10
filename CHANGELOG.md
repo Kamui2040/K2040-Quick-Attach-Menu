@@ -1,3 +1,16 @@
+## 0.5.202 (unreleased default-material safety tester)
+
+- Treat a unique, no-effect, unloaded material-reset OMOD as the effective
+  default when the equipped weapon has no installed material OMOD.
+- Display the default as already applied without adding an OMOD to the
+  equipped weapon or calling the weapon refresh.
+- Block material-reset actions over existing material mods until a safe
+  workbench-equivalent removal operation is verified, and reject ambiguous
+  default records rather than choosing one.
+- Keep exact installed object-instance OMOD identity, normal attachment
+  mutations, and controller behavior unchanged.
+- Target-runtime validation still required.
+
 ## 0.5.201 (unreleased follow-up)
 
 - Require a loaded crafting recipe creating the exact OMOD plus explicit

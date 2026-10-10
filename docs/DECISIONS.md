@@ -43,6 +43,11 @@ Only durable product decisions belong here. Current release state belongs in
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,
   reapplies persisted presentation preferences before reaching the active view.
+- An empty material AP is already the default state: classify one unique
+  zero-effect material OMOD as UI-only effective default when the exact live
+  stack has no material OMOD. Never misrepresent it as actually installed for
+  provider/dependency/rollback checks. Reject unproven material resets and
+  ambiguous default records without engine mutation.
 - Generated uninstalled OMOD discovery requires a loaded COBJ recipe creating
   the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
   for recovery. Recipe presence is not the full workbench condition evaluator;

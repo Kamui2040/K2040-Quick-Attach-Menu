@@ -6,6 +6,10 @@ fast in-game menu instead of returning to a workbench.
 The menu can use an ECO-authored weapon menu when one is available, or build a
 compatible menu from the equipped weapon at runtime. ECO is optional.
 
+The unreleased default-material handling displays an empty material slot as
+already having the default material applied. A reset from a non-default
+material requires a workbench until a safe direct-removal path is validated.
+
 The unreleased generated-menu filter requires a matching weapon keyword,
 reachable attachment point, and a loaded crafting recipe creating each new
 attachment. This reduces exposure of internal/scripted options, but exact

@@ -183,6 +183,19 @@ changes or bypass the normal hotkey/open safety path. The existing Dock
 metadata remains informational under PrismaUI `2.1.1`; the Dock contract does
 not provide a custom native action for opening the Builder or Quick Menu.
 
+### Empty material attachment point
+
+A material slot can be the default state with **no installed OMOD**. When the
+equipped stack's object-instance OMOD probe is complete, a single unloaded
+material OMOD with no material swap, nested attachments, attach parents, linked
+loose mod, or property modifications is marked as **effective default applied**
+for UI purposes only. The engine's installed OMOD identity and graph must not
+be faked; in particular, the attachment-return preparation must still see the
+actual empty material slot. Selecting the already-effective default is a no-op
+without an engine modification or synchronous visual refresh. An ambiguous
+default or a reset when a different material is actually installed is blocked
+until a workbench-equivalent reset implementation is validated.
+
 ## Attachment transaction safety
 
 Runtime-validated leaf and provider installs into empty points, one-for-one

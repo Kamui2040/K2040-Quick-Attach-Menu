@@ -10,6 +10,15 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.202 tester addresses repeated in-game crashes after
+selecting vanilla "No Material" on a 10mm that already had no material OMOD.
+It adds UI-only effective-default classification for a unique zero-effect
+material default and rejects replacing existing material paint with such a
+record until the proper workbench operation can be validated. No synthetic
+installed identity, ordinary attachment mutation, or equipped-slot refresh
+change is made. The controller/recipe improvements from 0.5.201 remain.
+Build and in-game validation are still required.
+
 The unreleased 0.5.201 follow-up adds recipe-backed generated workbench
 discovery and fixes controller focus and binding-editor consistency. It does
 not change normal attachment mutation or equipped-weapon refresh behavior.

@@ -26,6 +26,19 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.202 default material safety
+
+A 0.5.201 game session on a 10mm confirmed no previously installed material
+OMOD, yet selecting the vanilla No Material OMOD 0024A0D9 attached it to the
+object-instance stack and the game crashed after the transaction verified and
+the UI payload was sent. The engine refresh remains a probable but unproven
+crash site; no crash stack is available. A unique unloaded, zero-effect
+material default is now presentation-only "already applied" when the installed
+material point is empty, and the selection is rejected before mutation.
+Attempts to replace a different installed material with a no-effect reset
+OMOD remain disabled pending verification of a safe workbench-equivalent
+removal path. This does not prove the overall crash is fixed.
+
 ## Unreleased 0.5.201 follow-up
 
 Static and build validation are required for the controller focus/navigation

@@ -899,7 +899,8 @@ namespace k2040
                 json << ",\"hasLooseMod\":" << (opt.hasLooseMod ? "true" : "false");
                 json << ",\"looseModRequired\":" << (opt.looseModRequired ? "true" : "false");
                 json << ",\"isAvailableInInventory\":" << (opt.isAvailableInInventory ? "true" : "false");
-                json << ",\"isInstalled\":" << (opt.isInstalled ? "true" : "false");
+                json << ",\"isInstalled\":" << ((opt.isInstalled || opt.isDefaultApplied) ? "true" : "false");
+                json << ",\"isDefaultApplied\":" << (opt.isDefaultApplied ? "true" : "false");
                 json << ",\"isStructurallyValid\":" << (opt.isStructurallyValid ? "true" : "false");
                 json << ",\"isVisible\":" << (opt.isVisible ? "true" : "false");
                 json << ",\"isSelectable\":" << (opt.isSelectable ? "true" : "false");
@@ -2339,6 +2340,15 @@ namespace k2040
         if (optionIt == categoryIt->options.end() || optionIt->userHidden || !optionIt->isVisible) {
             log::Warn("Cascade selection rejected because its option is unavailable.");
             SendSelectionResult(argument, false, false, "option-unavailable", "That option is unavailable.");
+            return;
+        }
+
+        if (optionIt->isDefaultApplied) {
+            log::Info(
+                "Cascade default selection already effective; no OMOD install or weapon refresh: OMOD=" +
+                ToHexFormId(optionIt->omod.formId) + ".");
+            SendSelectionResult(argument, false, true, "default-applied",
+                "The default material is already applied. No change was made.");
             return;
         }
 

@@ -147,7 +147,10 @@
 
   Renderer.prototype.optionReason = function(option) {
     if (!option) return "Choose an attachment.";
+    if (option.isDefaultApplied) return "Default material already applied.";
     if (option.isInstalled) return "Currently installed.";
+    if (option.status === "material-reset-needs-workbench") return "Use a weapon workbench to remove the current material.";
+    if (option.status === "ambiguous-material-default") return "Default material cannot be identified safely.";
     if (option.isSelectable && option.isStructurallyValid) {
       return "Ready to equip.";
     }
