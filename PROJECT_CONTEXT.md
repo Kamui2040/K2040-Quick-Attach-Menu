@@ -17,11 +17,11 @@ rows, while vertical categories and attachments retain Up/Down. Settings
 two-column grids and side-by-side header/confirmation controls follow
 their physical arrangement. LT remains an optional Quick Menu opener
 button/modifier, not a built-in navigation key. Browser tests pass and
-focused in-game testing confirms the orientation fix works. The tester
-also reports LT appears to cycle choices. This is not a configured
-Quick Attach Menu navigation action; the controlling input layer and
-affected page remain undetermined. Broader controller validation and
-release publication are still outstanding.
+focused in-game testing confirms the orientation fix works. LT was observed behaving like Tab/focus-next in Builder and Settings
+while remaining Aim in gameplay. The user accepts that behavior and
+does not require a fix. Quick Attach Menu does not explicitly bind
+LT to menu navigation; the input translation's source is unverified.
+Broader controller regression and release publication remain separate.
 
 Unreleased 0.5.212 introduces shared controller navigation for Builder
 and Settings, using the live game-mapped Confirm/Cancel buttons. Dropdown
