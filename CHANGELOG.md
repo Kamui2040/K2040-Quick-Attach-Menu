@@ -12,8 +12,14 @@
 - The option is separate from Force unsafe swaps and ECO menu selection.
   The Builder still displays compatible entries regardless of inventory.
 - Built for original Fallout 4 and AE from Linux. Static tests pass.
-  Initial user testing on AE reports Cheat mode working for the tested
-  attachments; broader inventory and original-runtime checks remain.
+  Focused in-game AE testing reports Cheat mode working, and confirms
+  that switching it off restores the normal item requirements.
+- If a part was installed for free with Cheat mode on, replacing it
+  after turning Cheat mode off can return its loose mod to inventory.
+  The mod treats it as a normal installed attachment once cheats
+  are disabled. This is an accepted side effect, not a crafting bypass
+  that occurs while Cheat mode is off. Broader weapon and original-game
+  testing remains incomplete.
 - On AE, the automatic refresh can show a new attachment model before its
   gameplay effect is active. A 10mm recon scope still used ordinary
   sights until switching weapons manually; a suppressor showed a

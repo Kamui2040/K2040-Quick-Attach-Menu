@@ -49,9 +49,30 @@ unresolved counts fail with a rollback attempt. This needs dedicated
 in-game tests for empty inventory, available loose mods, providers and
 dependents, material defaults, both supported runtimes, and normal-mode
 behavior. Build/static tests are not runtime proof. Focused user
-testing on AE reports Cheat mode working in the tested setup, but does
-not establish full loose-mod inventory invariance, original-runtime
-compatibility, or the complete dependency/material regression matrix.
+testing on AE reports Cheat mode working in the tested setup and
+confirms the normal loose-mod requirement returns when disabled.
+This does not establish full inventory invariance across all weapons,
+original-runtime compatibility, or the complete dependency/material
+regression matrix.
+
+### Cheat-installed attachments removed after disabling cheats
+
+An attachment installed free while Cheat mode is enabled becomes a
+normal equipped OMOD. If the player then disables Cheat mode and
+replaces that attachment, the normal return-item path can add its
+associated loose mod to inventory, even though the player never
+owned that item. Focused in-game testing confirms this sequence.
+
+This is an accepted, non-blocking Cheat mode side effect. When Cheat
+mode is enabled, its own attachment changes continue to avoid loose
+mod consumption and returns. To avoid receiving the free returned
+item, remove or replace the cheat-installed attachment while Cheat
+mode is still enabled, or discard the returned loose mod afterward.
+The runtime currently does not persist whether each installed weapon
+attachment was acquired using Cheat mode. Preventing this across
+mode changes and saves would require per-weapon-instance provenance
+and more invasive return handling, with separate migration/runtime
+testing. No such behavior change is part of this tester.
 
 ### AE visual refresh versus attachment effects
 

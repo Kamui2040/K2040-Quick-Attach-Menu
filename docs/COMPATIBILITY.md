@@ -18,9 +18,15 @@ generating removed attachment items. The original weapon/OMOD/AP
 compatibility checks, material-default safeguards, generated recipe
 and target association tests, dependency ordering, exact equipped
 stack and rollback protections still apply. This candidate has passed
-Linux builds and deterministic source checks. Initial user tests
-on AE report Cheat mode works with the tested attachments; broader
-inventory, dependency and original-runtime checks remain incomplete.
+Linux builds and deterministic source checks. Focused AE user
+testing reports successful Cheat mode installs and the return of
+ordinary loose-mod requirements when it is disabled. If a free
+cheat-installed attachment is removed only after the option is
+turned off, ordinary return handling may award its loose mod.
+This accepted cross-mode side effect is documented in Known Issues;
+it is not a failure of Cheat mode's inventory-neutral transactions
+while the option remains enabled. Broader dependency and original-
+runtime checks remain incomplete.
 
 A known AE 1.11.240 limitation affects gameplay state after changing
 attachments: automatic re-equip can update the weapon model without

@@ -30,8 +30,13 @@ inventory rules return when it is disabled. This does not bypass
 attachment compatibility, provider ordering, default-material safety,
 or other guarded operations. Generated attachments still require
 a loaded crafting recipe and matching weapon association to appear.
-It is not the same as per-weapon Force unsafe swaps. In-game tests of
-cheat-mode attachment changes are still required before release.
+It is not the same as per-weapon Force unsafe swaps. Focused AE
+in-game tests confirm Cheat mode works and that normal item requirements
+return when the switch is disabled. One accepted side effect: if you
+install a part for free, turn Cheat mode off, then replace that part,
+normal attachment-return rules can give you its loose mod. To avoid
+that, replace it while Cheat mode is still on or discard the returned
+item. Broader runtime and mod compatibility tests remain incomplete.
 
 ## Features
 
