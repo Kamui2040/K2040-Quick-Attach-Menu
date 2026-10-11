@@ -17,8 +17,15 @@ compatible OMODs. It neither consumes nor generates loose inventory items,
 while keeping loaded crafting-recipe existence, explicit weapon-target,
 AP reachability, default-material, provider/child order, exact-stack,
 rollback and hidden/internal OMOD protections. Profiles cannot enable it;
-Force unsafe swaps remains separate. Build/static tests pass; in-game
-mutation/inventory QA is still required.
+Force unsafe swaps remains separate. Build/static tests pass, and
+focused AE user testing reports the Cheat mode changes working.
+Inventory-count neutrality and other weapon/runtime combinations
+remain incompletely tested. On AE 1.11.240 the user also observed a
+separate post-attachment refresh limitation: automatic re-equip updates
+the visible model, but a 10mm recon scope continues aiming as if it
+had ordinary sights until a manual swap away and back. The tester
+reports a comparable suppressor effect. The manual weapon switch is
+an accepted workaround, not a proven cause or comprehensive fix.
 
 Unreleased 0.5.213 corrects orientation mismatches in the 0.5.212
 Builder and Settings controller focus layer. Builder header and weapon

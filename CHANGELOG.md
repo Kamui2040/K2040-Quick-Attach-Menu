@@ -12,8 +12,14 @@
 - The option is separate from Force unsafe swaps and ECO menu selection.
   The Builder still displays compatible entries regardless of inventory.
 - Built for original Fallout 4 and AE from Linux. Static tests pass.
-  Cheat-mode attachment changes still need direct in-game validation
-  before release or merge.
+  Initial user testing on AE reports Cheat mode working for the tested
+  attachments; broader inventory and original-runtime checks remain.
+- On AE, the automatic refresh can show a new attachment model before its
+  gameplay effect is active. A 10mm recon scope still used ordinary
+  sights until switching weapons manually; a suppressor showed a
+  similar delay. Switching away and back activates the effect.
+  This is an accepted workaround for the tester, not a confirmed
+  explanation of the underlying engine behavior.
 
 ## 0.5.213 (unreleased orientation-aware Builder/Settings navigation tester)
 

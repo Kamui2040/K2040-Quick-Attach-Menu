@@ -48,8 +48,30 @@ only for an exact single item, followed by live count verification;
 unresolved counts fail with a rollback attempt. This needs dedicated
 in-game tests for empty inventory, available loose mods, providers and
 dependents, material defaults, both supported runtimes, and normal-mode
-behavior. Build/static tests are not runtime proof. Do not release or
-merge until focused mutation tests pass.
+behavior. Build/static tests are not runtime proof. Focused user
+testing on AE reports Cheat mode working in the tested setup, but does
+not establish full loose-mod inventory invariance, original-runtime
+compatibility, or the complete dependency/material regression matrix.
+
+### AE visual refresh versus attachment effects
+
+On Fallout 4 AE 1.11.240, the optional post-close automatic re-equip
+can update the visible attachment model without immediately activating
+the attachment's gameplay behavior. The reported example is a recon
+scope on the 10mm pistol: its model appears but aiming still uses
+ordinary sights until the player switches to another weapon and back.
+The user reports similar behavior with a suppressor.
+
+**Workaround:** switch to another weapon and back after installing
+an attachment if its effect has not taken hold. The tester accepts
+this limitation for release. The AE refresh path is a likely area
+to investigate, but the exact cause has not been established.
+Do not claim that the visible model proves scope or suppressor
+functionality was refreshed. The existing automatic re-equip only
+addresses the presentation of changes; it does not reliably refresh
+every dependent gameplay state. Future fixes require separate AE
+runtime evidence, and must not reintroduce the known invalid
+immediate-refresh call.
 
 ## Unreleased 0.5.213 orientation-aware controller focus
 

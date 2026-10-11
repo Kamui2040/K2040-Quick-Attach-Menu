@@ -18,8 +18,17 @@ generating removed attachment items. The original weapon/OMOD/AP
 compatibility checks, material-default safeguards, generated recipe
 and target association tests, dependency ordering, exact equipped
 stack and rollback protections still apply. This candidate has passed
-Linux builds and deterministic source checks but has no successful
-cheat-mode in-game mutation evidence yet.
+Linux builds and deterministic source checks. Initial user tests
+on AE report Cheat mode works with the tested attachments; broader
+inventory, dependency and original-runtime checks remain incomplete.
+
+A known AE 1.11.240 limitation affects gameplay state after changing
+attachments: automatic re-equip can update the weapon model without
+updating aiming or other effects. A 10mm recon scope may aim through
+ordinary sights, and a suppressor may not take effect, until the
+player manually switches weapons away and back. The tester accepts
+this workaround for release. The specific cause is not yet proven,
+and OG 1.10.163 behavior is not implicated by this AE report.
 
 Unreleased 0.5.213 refines Builder and Settings controller focus so
 Left/Right follows horizontal rows, including the Builder top toolbar,
