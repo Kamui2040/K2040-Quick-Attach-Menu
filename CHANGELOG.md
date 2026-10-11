@@ -1,3 +1,25 @@
+## 0.5.215 (unreleased Hub and theme integration tester)
+
+- Cheat mode is now clearly marked Experimental, with a use-at-your-own-risk
+  warning. The accepted AE refresh and cross-mode loose-mod return limitations
+  remain documented.
+- Quick Attach now supplies its own MCM page under K2040 Mods when the
+  optional parent is installed. MCM hotkeys keep their existing IDs and
+  work from both MCM and the mod's PrismaUI Controls page.
+- Controller buttons and held-button combinations use Quick Attach's own
+  settings file, not the Hub's shared INI. Existing standalone and
+  experimental Hub controller assignments are carried across without
+  deleting the old settings. A separate standalone MCM layout is available.
+- MCM hotkey calls use the existing game-thread dispatcher and duplicate
+  suppression. Quick Attach's controller opener avoids collisions with
+  detected Minimap controller chords.
+- Improved the Classic Pip-Boy presentation with HUD-style frame details and
+  condensed font fallbacks, while retaining the live game HUD colour.
+- Added a Fallout 76-inspired theme using the shared Quest Journal/MAP76
+  amber, ivory and charcoal palette. No third-party assets are bundled.
+- Native hub integration and appearance need focused real-game testing
+  before merge or release.
+
 ## 0.5.214 (unreleased cheat-mode tester)
 
 - Added an optional Cheat mode switch under Settings > Behavior. It starts

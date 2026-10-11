@@ -26,6 +26,24 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.215 MCM child and theme tester
+
+- Native MCM supports ownerModName merging. Without K2040_Mods installed,
+  its original loader leaves Quick Attach's child page orphaned, so use
+  the separate standalone MCM layout if a standalone MCM page is needed.
+  Never install the child and standalone layouts simultaneously.
+- F4SE Menu Framework accepts standard MCM files but its translation
+  source has not demonstrated equivalent ownerModName grouping. Treat
+  its grouping and external-function dispatch as unverified until tested.
+- Before the Minimap is converted to its own child namespace, its old
+  experimental parent settings may exist. Quick Attach reads them only
+  to avoid known simultaneous controller chords; this is not a complete
+  cross-mod dispatcher for all future mods.
+- Native MCM, F4SE Menu Framework, OG and AE in-game integration remain
+  untested for this version. No game install has been changed.
+- Cheat mode remains Experimental. Use at your own risk, including the
+  accepted loose-mod return and AE gameplay-effect refresh limitations.
+
 ## Unreleased 0.5.214 cheat-mode tester
 
 The optional global Cheat mode allows otherwise-compatible attachments

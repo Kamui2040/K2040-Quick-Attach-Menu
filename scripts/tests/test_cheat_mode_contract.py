@@ -74,8 +74,8 @@ class CheatModeContract(unittest.TestCase):
         self.assertIn('Cheat mode active',self.renderer)
 
     def test_version(self):
-        self.assertIn('0x000500D6; // 0.5.214',(ROOT/'src/main.cpp').read_text())
-        self.assertEqual((ROOT/'xmake.lua').read_text().count('0.5.214'),3)
+        self.assertIn('0x000500D7; // 0.5.215',(ROOT/'src/main.cpp').read_text())
+        self.assertEqual((ROOT/'xmake.lua').read_text().count('0.5.215'),3)
 
 if __name__=="__main__":
     unittest.main()

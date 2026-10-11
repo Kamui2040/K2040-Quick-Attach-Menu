@@ -40,12 +40,32 @@ item. The maintainer reports the tested weapon, attachment and
 original-game compatibility behavior passes. Wider public testing is
 welcome; not every modded weapon combination has been verified.
 
+### 0.5.215 MCM and theme tester
+
+Quick Attach Menu now ships its own child MCM page for the optional
+K2040 Mods menu. The two hotkeys remain Shift+K and Ctrl+Shift+K by
+default. The Controls screen and MCM edit the same keyboard bindings.
+The controller shortcut is saved with this mod's settings and may use
+one button or a held-button combination such as LB+RB.
+
+If you do not use the K2040 Mods parent, use the separately packaged
+standalone MCM layout. Do not install both MCM layouts at once. Native
+hotkeys and PrismaUI do not require the Hub.
+
+Classic Pip-Boy uses the game's current HUD colour and condensed HUD-style
+font fallbacks. The new Fallout 76 theme uses amber, ivory and charcoal.
+No commercial game fonts are included. Cheat mode remains
+**Experimental — use at your own risk.**
+
+These changes still require actual MCM/Proton gameplay testing before
+release. F4SE Menu Framework grouping is not yet verified.
+
 ## Features
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
-- Native controller navigation for the Quick Menu only, including radial
-  thumbstick direction selection and a configurable Quick Menu opener.
+- Controller navigation across Quick Menu, Builder and Settings, including
+  thumbstick and D-pad focus and a configurable Quick Menu opener.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,

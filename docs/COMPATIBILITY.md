@@ -1,3 +1,26 @@
+## Optional K2040 Mods MCM grouping (0.5.215 tester)
+
+Quick Attach Menu owns its MCM hotkeys in K2040_Quick_Attach_Menu.
+Its regular config uses ownerModName=K2040_Mods to contribute one page
+to the optional Hub. Native MCM supports this from menu version code 3
+(MCM 1.11). When no owner exists the native loader does not show an
+orphan child page; the separately packaged standalone MCM layout omits
+ownerModName and should be used instead. Only one layout may be installed.
+
+Controller settings are stored in Data/MCM/Settings/
+K2040_Quick_Attach_Menu.ini. An existing experimental
+K2040_Mods.ini shortcut or standalone ControllerShortcuts.ini is
+copied to the child INI on first load when no child settings file is
+present. The original files remain unchanged. Keyboard registry IDs
+remain openQuickMenu and openMenuBuilder, with native settings fallback.
+
+F4SE Menu Framework has a separate MCM translation implementation;
+owner grouping and CallExternalFunction callbacks require separate
+runtime testing. Controller collisions are checked against the
+known Minimap buttons; independent plugins do not yet share a general
+conflict coordinator. No OG or AE gameplay QA is claimed for this
+integration.
+
 # Compatibility
 
 ## Supported release

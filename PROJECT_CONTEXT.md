@@ -10,6 +10,20 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.215 is an isolated ownerModName MCM child and appearance
+candidate. Quick Attach retains its native K2040_Quick_Attach_Menu
+keybind IDs and ships its own child page, keybinds.json, and controller
+settings.ini. The optional K2040_Mods repository supplies only a
+parent. Experimental parent controller preferences are copied once
+to the child INI if it is not already present; standalone shortcuts
+remain a fallback. The MCM Scaleform callbacks queue the existing
+game-thread dispatcher. A separate standalone MCM layout is supplied
+for no-parent installation, because native MCM hides orphan pages.
+Classic Pip-Boy has HUD-style chrome and font fallbacks, and Fallout 76
+uses the Quest Journal-inspired palette. Cheat mode is labelled
+Experimental and use-at-your-own-risk. Static/browser/native build
+tests are distinct from pending in-game MCM, UI and shortcut tests.
+
 Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
 based on the 0.5.213 controller and AE work. The off-by-default global
 Behavior toggle removes the loose-mod inventory requirement for installing

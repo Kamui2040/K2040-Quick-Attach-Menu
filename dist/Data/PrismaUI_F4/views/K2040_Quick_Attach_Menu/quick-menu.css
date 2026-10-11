@@ -567,3 +567,81 @@
 .preview-mode .qm-status {
   display: none !important;
 }
+
+/* Shared K2040 HUD-theme treatment. Live HUD color is supplied by the
+   renderer; fonts use installed fallbacks, not redistributed game files. */
+.theme-pipboy {
+  font-family: "Piboto", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", "Liberation Sans Narrow", Arial, sans-serif;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  text-shadow: 0 0 3px var(--qm-hud-shadow);
+}
+.theme-pipboy .qm-category-list,
+.theme-pipboy .qm-option-list,
+.theme-pipboy .qm-status {
+  border-radius: 0;
+  border: 1px solid var(--qm-hud-color);
+  box-shadow: inset 0 0 0 1px var(--qm-hud-shadow);
+  background: var(--qm-panel);
+}
+.theme-pipboy .qm-category-button,
+.theme-pipboy .qm-option-button {
+  border-radius: 0;
+  letter-spacing: inherit;
+}
+.theme-pipboy .qm-option-heading,
+.theme-pipboy .qm-weapon-name { font-weight: 700; letter-spacing: .065em; }
+
+/* Fallout 76: matte dark chrome, warm yellow highlights and narrow HUD type.
+   Colors mirror Quest Journal and MAP76 references, not copied assets. */
+.theme-fallout76 {
+  --qm-warning: #f5cb5b;
+  --qm-blocked: #ef9b82;
+  font-family: "PibotoCondensed", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", Arial, sans-serif;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  text-shadow: none;
+}
+.theme-fallout76 .qm-category-list,
+.theme-fallout76 .qm-option-list,
+.theme-fallout76 .qm-status {
+  background: var(--qm-panel);
+  border: 1px solid rgba(245,203,91,.45);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.20);
+}
+.theme-fallout76 .qm-category-button,
+.theme-fallout76 .qm-option-button {
+  border-radius: 0;
+  box-shadow: none;
+  border-color: rgba(245,203,91,.22);
+}
+.theme-fallout76 .qm-category-button:hover,
+.theme-fallout76 .qm-category-button.active,
+.theme-fallout76 .qm-category-button.pane-focus,
+.theme-fallout76 .qm-option-button:hover,
+.theme-fallout76 .qm-option-button.focused-option {
+  background: rgba(245,203,91,.15);
+  border-color: var(--qm-accent);
+  box-shadow: inset 3px 0 0 var(--qm-accent);
+  color: var(--qm-text);
+}
+.theme-fallout76 .qm-option-heading,
+.theme-fallout76 .qm-weapon-name {
+  color: var(--qm-accent);
+  font-weight: 750;
+  letter-spacing: .075em;
+}
+.theme-fallout76 .qm-wheel-path,
+.theme-fallout76 .qm-wheel-center {
+  fill: var(--qm-panel);
+  stroke: var(--qm-accent);
+}
+.theme-fallout76 .qm-wheel-segment:hover .qm-wheel-path,
+.theme-fallout76 .qm-wheel-segment.active .qm-wheel-path,
+.theme-fallout76 .qm-wheel-segment.pane-focus .qm-wheel-path {
+  fill: var(--qm-active);
+  stroke: var(--qm-accent);
+}

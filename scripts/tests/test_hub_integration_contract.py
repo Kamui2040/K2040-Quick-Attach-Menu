@@ -1,0 +1,83 @@
+"""Quick Attach child-owned MCM integration and standalone contracts."""
+from pathlib import Path
+import unittest
+import json
+
+ROOT=Path(__file__).resolve().parents[2]
+CONFIG=ROOT/"dist/Data/MCM/Config/K2040_Quick_Attach_Menu"
+
+class McmChildContract(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.hotkey=(ROOT/"src/Hotkey.cpp").read_text()
+        cls.controller=(ROOT/"src/ControllerShortcuts.cpp").read_text()
+        cls.main=(ROOT/"src/main.cpp").read_text()
+        cls.html=(ROOT/"dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html").read_text()
+        cls.user=(ROOT/"src/UserSettings.cpp").read_text()
+
+    def test_child_page_belongs_to_mod(self):
+        child=json.loads((CONFIG/"config.json").read_text())
+        assert child["modName"]=="K2040_Quick_Attach_Menu"
+        assert child["ownerModName"]=="K2040_Mods"
+        assert child["minMcmVersion"]>=3
+        self.assertEqual(len(child["pages"]),1)
+        self.assertEqual(child["pages"][0]["pageDisplayName"],"Quick Attach Menu")
+        content=child["pages"][0]["content"]
+        self.assertEqual([x["id"] for x in content if x["type"]=="hotkey"],[
+            "openQuickMenu","openMenuBuilder"])
+        self.assertEqual([x["id"] for x in content if x["type"]=="dropdown"],[
+            "iQuickAttachPadPrimary:Controller","iQuickAttachPadModifier:Controller"])
+        for x in content:
+            if x["type"]=="hotkey":
+                self.assertEqual(x["valueOptions"]["allowModifierKeys"],1)
+            if x["type"]=="dropdown":
+                self.assertEqual(x["valueOptions"]["sourceType"],"ModSettingInt")
+                self.assertEqual(len(x["valueOptions"]["options"]),17)
+
+    def test_standalone_variant_is_exclusive_layout_only(self):
+        child=json.loads((CONFIG/"config.json").read_text())
+        standalone=json.loads((ROOT/"packaging/mcm-standalone/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json").read_text())
+        assert "ownerModName" not in standalone
+        assert "pages" not in standalone
+        self.assertEqual(standalone["content"],child["pages"][0]["content"])
+        self.assertEqual(standalone["modName"],child["modName"])
+
+    def test_keybind_handlers_are_real_and_child_owned(self):
+        kb=json.loads((CONFIG/"keybinds.json").read_text())
+        self.assertEqual(kb["modName"],"K2040_Quick_Attach_Menu")
+        self.assertEqual({x["id"]:x["action"] for x in kb["keybinds"]},{
+            "openQuickMenu":{"type":"CallExternalFunction","plugin":"K2040_Quick_Attach_Menu","function":"ToggleQuickMenu"},
+            "openMenuBuilder":{"type":"CallExternalFunction","plugin":"K2040_Quick_Attach_Menu","function":"ToggleBuilder"}})
+        self.assertIn('RegisterChildMcmScaleform',self.main)
+        self.assertIn('QueueMenuHotkeyActionFromMcm',self.main)
+        self.assertIn('HotkeyActionSource::McmChild',self.hotkey)
+
+    def test_mature_keyboard_path_stays_active(self):
+        self.assertIn('kMcmModName = "K2040_Quick_Attach_Menu"',self.hotkey)
+        self.assertIn('IsHotkeyPressedNow(g_openMenuHotkey)',self.hotkey)
+        self.assertIn('IsHotkeyPressedNow(g_openMenuBuilderHotkey)',self.hotkey)
+        self.assertIn('g_lastQuickActionTick',self.hotkey)
+        self.assertIn('g_menuHotkeyReleasePending',self.hotkey)
+        self.assertIn('QueueMenuHotkeyActionFromUi',self.hotkey)
+        self.assertIn('WriteSharedHotkeyBindings',self.hotkey)
+        self.assertNotIn('kHubMenuActionId',self.hotkey)
+        self.assertNotIn('quickAttachOpen',self.hotkey)
+
+    def test_controller_storage_and_migration(self):
+        ini=(CONFIG/"settings.ini").read_text()
+        self.assertEqual(ini,"[Controller]\niQuickAttachPadPrimary=0\niQuickAttachPadModifier=0\n")
+        self.assertIn('"K2040_Quick_Attach_Menu.ini"',self.controller)
+        self.assertIn('"K2040_Mods.ini"',self.controller) # read-only migration
+        self.assertIn('"K2040_Prisma_Minimap.ini"',self.controller)
+        self.assertIn('!std::filesystem::exists(kHubUserFile',self.controller)
+        self.assertIn('ReadIniBinding(kOldHubUserFile',self.controller)
+        self.assertIn('hub_chord::QuickShouldFire',self.controller)
+        self.assertIn('MOVEFILE_REPLACE_EXISTING',self.controller)
+
+    def test_themes_and_experimental_warning(self):
+        self.assertIn('value == "fallout76"',self.user)
+        self.assertIn('data-value="fallout76"',self.html)
+        self.assertIn('Cheat mode (Experimental)',self.html)
+        self.assertIn('Use at your own risk',self.html)
+
+if __name__=="__main__":unittest.main()
