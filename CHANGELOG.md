@@ -1,3 +1,21 @@
+## 0.5.213 (unreleased orientation-aware Builder/Settings navigation tester)
+
+- Follow the visible direction of controls rather than treating every
+  collection as a vertical list. In the Builder header toolbar and
+  weapon-settings row, Left/Right move between controls and Up/Down
+  move between horizontal rows and the category list.
+- Preserve Up/Down for vertical category, attachment and dropdown lists,
+  and Left/Right for switching between category and attachment panes.
+- In Settings, Left/Right traverse each row of the two-column theme and
+  presentation grids; Up/Down move between grid rows. The header Back/Close
+  actions and Reset confirmation buttons also follow their horizontal order.
+- LT has no default menu-navigation action. It remains a selectable
+  Quick Menu opener button or modifier (such as LT + another button).
+- Keep mapped confirmation, safe dropdown cancel, settings edit mode,
+  Quick Menu navigation and AE post-close refresh unchanged.
+- Automated interaction and source checks pass; focused in-game controller
+  verification of these directional changes remains pending.
+
 ## 0.5.212 (unreleased Builder/Settings controller navigation tester)
 
 - Extend the working controller bindings, including the user's mapped

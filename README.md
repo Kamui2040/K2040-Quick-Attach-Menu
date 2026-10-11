@@ -124,6 +124,13 @@ change attachment pages. Pointing/moving never installs an attachment;
 press the mapped Activate/Confirm button separately. This revision still
 needs in-game confirmation.
 
+Unreleased 0.5.213 controller refinement: Left/Right moves across
+horizontally arranged Builder toolbar and weapon controls, Settings
+choice grids and confirmation rows; Up/Down moves through vertical
+lists and between control rows. LT has no default navigation role.
+It can be configured as the Quick Menu opener or held as a modifier
+for a combination shortcut.
+
 Unreleased 0.5.212 tester: Builder and Settings now support controller
 focus navigation with sticks/D-pad, mapped Confirm/Cancel, and LB/RB.
 Custom dropdowns use Confirm to open/choose and Back to close without

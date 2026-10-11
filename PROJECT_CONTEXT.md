@@ -10,6 +10,15 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.213 corrects orientation mismatches in the 0.5.212
+Builder and Settings controller focus layer. Builder header and weapon
+controls now use Left/Right within horizontal rows and Up/Down between
+rows, while vertical categories and attachments retain Up/Down. Settings
+two-column grids and side-by-side header/confirmation controls follow
+their physical arrangement. LT remains an optional Quick Menu opener
+button/modifier, not a built-in navigation key. Browser tests pass;
+target-environment validation is still required.
+
 Unreleased 0.5.212 introduces shared controller navigation for Builder
 and Settings, using the live game-mapped Confirm/Cancel buttons. Dropdown
 lists and modal dialogs have explicit navigation and cancel semantics;

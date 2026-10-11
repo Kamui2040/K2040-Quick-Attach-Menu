@@ -10,6 +10,13 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.213 refines Builder and Settings controller focus so
+Left/Right follows horizontal rows, including the Builder top toolbar,
+weapon controls, Settings theme/presentation choice grids and side-by-side
+reset confirmation buttons. Up/Down remains for vertical lists and between
+rows. LT alone does not navigate; it is an optional Quick Menu opening
+binding or modifier. These changes need focused in-game controller QA.
+
 Unreleased 0.5.212 enables controller actions in Builder and Settings
 using the same game-mapped confirm/cancel buttons as Quick Menu, plus a
 shared DOM focus layer. Modal/dialog/dropdown navigation is explicit.

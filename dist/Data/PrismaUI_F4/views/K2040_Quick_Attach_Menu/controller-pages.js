@@ -178,11 +178,67 @@
       }
       return true;
     }
+    function settingsHeader() {
+      return selectable("#shell > header button");
+    }
+    function settingsGridDirection(node, direction) {
+      // Theme/presentation choices form a two-column grid. Use axes as
+      // displayed rather than moving focus sequentially down the DOM.
+      var grid = node && node.closest && node.closest(".choice-grid");
+      if (!grid) return false;
+      var choices = selectable(".choice", grid);
+      var index = choices.indexOf(node);
+      if (index < 0) return false;
+      var columns = 2; // Matches the settings .choice-grid CSS.
+      var col = index % columns;
+      var target = -1;
+      if (direction === "left" && col > 0) target = index - 1;
+      else if (direction === "right" && col < columns - 1) target = index + 1;
+      else if (direction === "up") target = index - columns;
+      else if (direction === "down") target = index + columns;
+      if (target >= 0 && target < choices.length) {
+        focus(choices[target]);
+        return true;
+      }
+      // Do not wrap the right edge into the next row. Left from the
+      // first column may return to the Settings section navigation.
+      return direction === "right";
+    }
+    function settingsRowDirection(node, direction) {
+      // Several Settings controls share one horizontal row, e.g. the
+      // controller shortcut Modifier / Button / Apply controls and
+      // Reset Builder / Reset Settings. Follow their physical axis.
+      if (direction !== "left" && direction !== "right") return false;
+      var row = node && node.closest && node.closest(".setting-row");
+      if (!row) return false;
+      var siblings = selectable("button, input[type=range]", row);
+      if (siblings.length < 2) return false;
+      var index = siblings.indexOf(node);
+      if (index < 0) return false;
+      var next = index + (direction === "left" ? -1 : 1);
+      if (next >= 0 && next < siblings.length) {
+        focus(siblings[next]);
+        return true;
+      }
+      // Left from the first setting control returns to the side nav.
+      return direction === "right";
+    }
     function settingsDirection(direction) {
       var nav = pageNav();
+      var header = settingsHeader();
       var node = current();
+      if (header.indexOf(node) >= 0) {
+        if (direction === "left" || direction === "right") {
+          moveIn(header, direction === "left" ? -1 : 1);
+        } else if (direction === "down") {
+          focus(primary(".workspace nav .nav-button.active") || nav[0]);
+        }
+        return;
+      }
       if (nav.indexOf(node) >= 0) {
-        if (direction === "right") {
+        if (direction === "left") {
+          focus(header[0]);
+        } else if (direction === "right") {
           focus(pageControls()[0] || node);
         } else if (direction === "up" || direction === "down") {
           moveIn(nav, direction === "up" ? -1 : 1);
@@ -191,6 +247,8 @@
       }
       if ((direction === "left" || direction === "right") &&
           adjustSlider(direction === "left" ? -1 : 1)) return;
+      if (settingsGridDirection(node, direction)) return;
+      if (settingsRowDirection(node, direction)) return;
       if (direction === "left") {
         focus(primary(".workspace nav .nav-button.active") || nav[0]);
       } else if (direction === "up" || direction === "down") {
@@ -201,14 +259,26 @@
       var groups = builderGroups();
       var index = groupOf(groups, current());
       if (index < 0) index = 2;
+      if (index <= 1) {
+        // Header actions and weapon controls are horizontal. Left/Right
+        // should follow the row, not require the vertical list controls.
+        if (direction === "left" || direction === "right") {
+          moveIn(groups[index], direction === "left" ? -1 : 1);
+        } else if (direction === "up" && index === 1) {
+          focus(groups[0][0]);
+        } else if (direction === "down") {
+          focus(groups[index + 1][0]);
+        }
+        return;
+      }
       if (direction === "left" && index === 3) {
         focus(primary("#categories .row"));
       } else if (direction === "right" && index === 2) {
         focus(primary("#options .row"));
       } else if (direction === "up" || direction === "down") {
         moveIn(groups[index], direction === "up" ? -1 : 1);
-        // Browsing category rows updates their option list but does not
-        // change visibility or persist a preference.
+        // Browsing category rows changes the visible option pane, not
+        // category visibility or any persistent preference.
         var row = current();
         if (index === 2 && row) row.click();
       }
@@ -216,8 +286,14 @@
     function direction(name) {
       var dialog = modal();
       if (dialog) {
-        if (name === "up" || name === "down")
+        // Settings Reset confirmation buttons are side-by-side. Builder
+        // profile import choices, by contrast, are vertically stacked.
+        var horizontal = mode === "settings";
+        if (horizontal && (name === "left" || name === "right")) {
+          moveIn(selectable("button", dialog), name === "left" ? -1 : 1);
+        } else if (!horizontal && (name === "up" || name === "down")) {
           moveIn(selectable("button", dialog), name === "up" ? -1 : 1);
+        }
         return;
       }
       var open = expandedDropdown();

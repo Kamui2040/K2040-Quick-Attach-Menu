@@ -58,8 +58,19 @@ class ControllerPagesContract(unittest.TestCase):
         self.assertIn('if (value !== Number(e.value))',self.helper)
         self.assertIn('if (!sliderEditing || !e || e.type !== "range") return false;',self.helper)
 
+    def test_horizontal_geometry_contract(self):
+        self.assertIn('if (index <= 1) {', self.helper)
+        self.assertIn('moveIn(groups[index], direction === "left" ? -1 : 1)', self.helper)
+        self.assertIn('focus(groups[index + 1][0]);', self.helper)
+        self.assertIn('function settingsGridDirection(node, direction)', self.helper)
+        self.assertIn('var columns = 2;', self.helper)
+        self.assertIn('function settingsHeader()', self.helper)
+        self.assertIn('function settingsRowDirection(node, direction)', self.helper)
+        self.assertIn('settingsRowDirection(node, direction)', self.helper)
+        self.assertIn('var horizontal = mode === "settings";', self.helper)
+
     def test_build_version_sync(self):
-        self.assertIn("0x000500D4; // 0.5.212",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.212"),3)
+        self.assertIn("0x000500D5; // 0.5.213",(ROOT/"src/main.cpp").read_text())
+        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.213"),3)
 
 if __name__=="__main__":unittest.main()

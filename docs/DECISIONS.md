@@ -52,6 +52,12 @@ Only durable product decisions belong here. Current release state belongs in
   the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
   for recovery. Recipe presence is not the full workbench condition evaluator;
   don't label the resulting list exact workbench parity until validated.
+- Builder and Settings directional movement follows the visible geometry:
+  Left/Right traverse horizontal toolbars, settings rows, two-column
+  choice grids, and side-by-side confirmation controls; Up/Down traverse
+  vertical lists or move between visual rows. Dropdowns remain vertical
+  and only a separate Confirm applies a selection. LT is a supported
+  optional Quick Menu opener binding, not a default navigation command.
 - Controller navigation extends to Quick Menu, Builder and Settings with
   separate focus handling appropriate to each presentation. A mapped
   Activate/Confirm press alone triggers an action; navigating a Builder

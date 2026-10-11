@@ -2,6 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const source=fs.readFileSync(path.join(__dirname,'../../dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/controller-pages.js'),'utf8');
 function setup(mode){
  const maps={},ids={},events={},log=[];
+ let now=10000;
  const doc={activeElement:null,head:{appendChild(){}},getElementById:id=>ids[id]||null,
  querySelectorAll:s=>maps[s]||[],createElement:tag=>({tagName:tag.toUpperCase(),textContent:''}),
  addEventListener:(n,f)=>{events[n]=f}};
@@ -16,10 +17,10 @@ function setup(mode){
    dispatchEvent:ev=>log.push('event:'+id+':'+ev.type)};
   ids[id]=x;return x;
  }
- vm.runInNewContext(source,{window:win,document:doc,Date:{now:()=>10000},Event:function(t){this.type=t},Number,Math,String,Array});
+ vm.runInNewContext(source,{window:win,document:doc,Date:{now:()=>now},Event:function(t){this.type=t},Number,Math,String,Array});
  const api=win.K2040ControllerPages.create(mode);
  function button(v,state='pressed'){events['prisma-controller-action']({detail:{button:v,state},stopImmediatePropagation(){}})}
- return {doc,win,api,button,e,ids,log,bind:(s,l)=>{maps[s]=l}};
+ return {doc,win,api,button,e,ids,log,bind:(s,l)=>{maps[s]=l},time:value=>{now=value}};
 }
 {
  const h=setup('builder'),a=h.e('categoryA'),b=h.e('categoryB'),opt=h.e('option'),
@@ -86,4 +87,86 @@ function setup(mode){
  assert.equal(resets,0,'reset dialog must require explicit focused confirm');
  h.button('B');assert.equal(resets,0,'Back cannot reset everything');assert.equal(modal.hidden,true);
 }
-console.log('PASS: Builder/Settings controller focus, dropdown selection/cancel, slider edit and reset safety');
+
+{
+ const h=setup('builder');
+ const toolbar=[h.e('showAll'),h.e('resetOrder'),h.e('resetNames'),h.e('exportMenu'),h.e('importMenu'),h.e('settings'),h.e('close')];
+ const weapon=[h.e('menuSource'),h.e('bracketedText'),h.e('forceUnsafe','INPUT')];
+ const cats=[h.e('cat0'),h.e('cat1')],options=[h.e('opt0')];
+ let mutations=0;
+ toolbar.forEach(x=>x.onClick=()=>mutations++);
+ weapon.forEach(x=>x.onClick=()=>mutations++);
+ cats.forEach(x=>x.onClick=()=>{});
+ h.bind('#builder > header button',toolbar);
+ h.bind('#builder .weapon-settings button, #builder .weapon-settings input[type=checkbox]',weapon);
+ h.bind('#categories .row',cats);h.bind('#options .row',options);
+ h.doc.activeElement=toolbar[0];
+ h.button('DRight');assert.equal(h.doc.activeElement,toolbar[1],'Builder header DRight follows horizontal row');
+ h.button('DLeft');assert.equal(h.doc.activeElement,toolbar[0],'Builder header DLeft goes back');
+ h.button('DDown');assert.equal(h.doc.activeElement,weapon[0],'Builder header Down enters next row');
+ h.button('DRight');assert.equal(h.doc.activeElement,weapon[1],'Builder weapon dropdowns use left/right');
+ h.button('DLeft');assert.equal(h.doc.activeElement,weapon[0]);
+ h.button('DUp');assert.equal(h.doc.activeElement,toolbar[0],'Up from weapon row reaches header');
+ h.button('DDown');h.button('DDown');
+ assert.equal(h.doc.activeElement,cats[0],'Down reaches vertical categories from horizontal row');
+ h.button('DDown');assert.equal(h.doc.activeElement,cats[1],'Vertical categories still use Down');
+ h.button('DRight');assert.equal(h.doc.activeElement,options[0],'Right still enters entries');
+ assert.equal(mutations,0,'Directional navigation must not click Reset/Import/Settings or preferences');
+ h.button('LB');assert.equal(h.doc.activeElement,cats[0],'LB retains group navigation');
+ h.win.k2040ControllerStickSector('-1');
+ h.time(10300);
+ h.win.k2040ControllerStickSector('18');assert.equal(h.doc.activeElement,options[0],
+   'Right stick angle follows same horizontal category-entry navigation');
+}
+{
+ const h=setup('settings');
+ const toolbar=[h.e('back'),h.e('close')],nav=[h.e('controls')],page=[h.e('opacity'),h.e('choiceA'),h.e('choiceB'),h.e('choiceC'),h.e('choiceD'),h.e('reset')];
+ const grid={};
+ const choices=page.slice(1,5);
+ choices.forEach(x=>x.closest=selector=>selector==='.choice-grid'?grid:null);
+ grid.querySelectorAll=selector=>selector==='.choice'?choices:[];
+ h.bind('#shell > header button',toolbar);
+ h.bind('.workspace nav .nav-button',nav);h.bind('.workspace nav .nav-button.active',nav);
+ h.bind('#pages .page:not([hidden]) button:not(.keybind), #pages .page:not([hidden]) input[type=range]',page);
+ h.doc.activeElement=nav[0];
+ h.button('DLeft');assert.equal(h.doc.activeElement,toolbar[0],'Settings top header reachable from navigation');
+ h.button('DRight');assert.equal(h.doc.activeElement,toolbar[1],'Settings header Left/Right moves horizontally');
+ h.button('DDown');assert.equal(h.doc.activeElement,nav[0],'Settings header Down returns to section list');
+ h.button('DRight');assert.equal(h.doc.activeElement,page[0],'Settings Right enters current page');
+ h.doc.activeElement=choices[0];
+ h.button('DRight');assert.equal(h.doc.activeElement,choices[1],'Two-column choice-grid Right moves within a row');
+ h.button('DDown');assert.equal(h.doc.activeElement,choices[3],'Choice-grid Down moves to same column on next row');
+ h.button('DLeft');assert.equal(h.doc.activeElement,choices[2],'Choice-grid Left moves to adjacent option');
+ h.button('DUp');assert.equal(h.doc.activeElement,choices[0],'Choice-grid Up moves to same column above');
+ h.button('DLeft');assert.equal(h.doc.activeElement,nav[0],'Choice-grid Left edge returns to nav');
+ const settingRow={};
+ const controlRow=[h.e('shortcutModifier'),h.e('shortcutButton'),h.e('shortcutApply')];
+ controlRow.forEach(node=>node.closest=selector=>selector==='.setting-row'?settingRow:null);
+ settingRow.querySelectorAll=selector=>selector==='button, input[type=range]'?controlRow:[];
+ let applied=0;
+ controlRow[2].onClick=()=>applied++;
+ h.doc.activeElement=controlRow[0];
+ h.button('DRight');assert.equal(h.doc.activeElement,controlRow[1],
+   'Settings shortcut Modifier -> Button follows horizontal Right');
+ h.button('DRight');assert.equal(h.doc.activeElement,controlRow[2],
+   'Settings shortcut Button -> Apply follows horizontal Right');
+ h.button('DLeft');assert.equal(h.doc.activeElement,controlRow[1],
+   'Settings shortcut Left traverses row');
+ assert.equal(applied,0,'Navigating toward Apply does not activate it');
+ h.doc.activeElement=controlRow[0];h.button('DLeft');
+ assert.equal(h.doc.activeElement,nav[0],'Left from first setting-row control returns to Settings nav');
+}
+{
+ const h=setup('settings');
+ const modal=h.e('confirmOverlay','DIV'),cancel=h.e('cancelReset'),confirm=h.e('confirmReset');
+ modal.hidden=false;cancel.parentElement=modal;confirm.parentElement=modal;
+ modal.querySelectorAll=()=>[cancel,confirm];
+ let changes=0;confirm.onClick=()=>changes++;
+ h.doc.activeElement=cancel;
+ h.button('DRight');assert.equal(h.doc.activeElement,confirm,'Settings Reset modal uses horizontal DRight');
+ h.button('DLeft');assert.equal(h.doc.activeElement,cancel,'Settings Reset modal uses horizontal DLeft');
+ h.button('DDown');assert.equal(h.doc.activeElement,cancel,'Settings Reset modal ignores vertical movement');
+ assert.equal(changes,0,'Moving in a dangerous dialog never confirms');
+}
+
+console.log('PASS: Builder/Settings controller focus, orientation, dropdown selection/cancel, slider edit and reset safety');

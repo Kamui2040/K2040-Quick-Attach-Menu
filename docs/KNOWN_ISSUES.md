@@ -26,6 +26,21 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.213 orientation-aware controller focus
+
+A tester reports Builder's horizontally arranged top actions must be
+navigated using Up/Down in the initial 0.5.212 tester. The revised
+shared focus helper uses Left/Right within the Builder header and
+weapon-setting row, with Up/Down moving between rows. Vertical
+categories, entries and dropdowns retain Up/Down; Settings two-column
+theme/presentation choices and horizontal confirmation controls use
+their displayed axes. LT is a configurable Quick Menu opener button
+or modifier only; it is not mapped to menu navigation.
+
+Automated input simulation confirms the directional model without
+triggering changes merely from focus movement. The new behavior
+remains unverified with an actual controller under Proton/Prisma.
+
 ## Unreleased 0.5.212 Builder and Settings controller focus
 
 Both pages now use a shared controller focus helper with mapped
