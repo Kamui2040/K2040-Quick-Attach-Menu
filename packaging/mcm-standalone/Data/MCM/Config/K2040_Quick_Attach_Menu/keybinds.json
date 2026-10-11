@@ -1,0 +1,21 @@
+{
+  "modName": "K2040_Quick_Attach_Menu",
+  "keybinds": [
+    {
+      "id": "openQuickMenu",
+      "desc": "Open / close quick menu",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": ""
+      }
+    },
+    {
+      "id": "openMenuBuilder",
+      "desc": "Open / close menu builder",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": ""
+      }
+    }
+  ]
+}
