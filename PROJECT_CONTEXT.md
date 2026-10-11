@@ -28,8 +28,13 @@ Experimental and use-at-your-own-risk. The maintainer tested the
 bundled 0.5.215 MCM integration in-game and reports that it works for
 Quick Attach Menu in their setup. This is focused user acceptance,
 not independent confirmation of every key/controller combination.
-Combined Quick Attach + Prisma Minimap grouping, F4SE Menu Framework
-and other mod combinations have not been verified in this test.
+The maintainer later confirmed that Quick Attach, Prisma Minimap and
+Quest Journal all register as child entries under the unified K2040
+Mods MCM parent in their game. Combined page registration therefore
+passes in the tested setup. The other two mods still need separate
+bug fixes; those issues were not reported to affect Quick Attach.
+This does not establish that their own controls work, or that F4SE
+Menu Framework and all input combinations behave identically.
 
 Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
 based on the 0.5.213 controller and AE work. The off-by-default global

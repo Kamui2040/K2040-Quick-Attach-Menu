@@ -44,8 +44,12 @@ candidate ignores disabled entries for installed identity.
   for Quick Attach Menu in their tested setup. This confirms focused
   module-level acceptance, not exhaustive keyboard/controller remapping
   or compatibility across all runtime and input configurations.
-  Quick Attach + Prisma Minimap combined grouping and F4SE Menu
-  Framework behavior have not been confirmed by this test.
+  A later in-game report confirms Quick Attach, Prisma Minimap and
+  Quest Journal all register under the single K2040 Mods parent.
+  Page registration passes for this combination. The Minimap and
+  Quest Journal still need separate bug fixes; no Quick Attach
+  regression was reported. F4SE Menu Framework compatibility and
+  other modules' actual hotkey behavior remain unverified.
 - Cheat mode remains Experimental. Use at your own risk, including the
   accepted loose-mod return and AE gameplay-effect refresh limitations.
 

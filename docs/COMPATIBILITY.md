@@ -24,10 +24,13 @@ remain openQuickMenu and openMenuBuilder, with native settings fallback.
 F4SE Menu Framework has a separate MCM translation implementation;
 owner grouping and CallExternalFunction callbacks require separate
 runtime testing. The maintainer reports the bundled Quick Attach MCM
-integration working in-game in the tested setup. That does not
-establish F4SE Menu Framework parity, every input combination, or
-combined Quick Attach + Prisma Minimap grouping. The combined case
-still needs a game check before claiming one parent and two pages.
+integration working in-game in the tested setup. The maintainer
+subsequently confirmed that Quick Attach, Prisma Minimap and Quest
+Journal all register as child entries under one K2040 Mods parent.
+Combined page registration is therefore accepted for that setup.
+The other two mods have separate bugs not reported to affect Quick
+Attach. This does not establish F4SE Menu Framework parity, all
+controller/keyboard combinations or the other mods' action behavior.
 Controller collisions are checked against known Minimap shortcuts,
 but independent plugins do not yet share a general conflict
 coordinator. The specific game runtime and complete tested input
