@@ -5,16 +5,18 @@
       "id": "openQuickMenu",
       "desc": "Open / close quick menu",
       "action": {
-        "type": "RunConsoleCommand",
-        "command": ""
+        "type": "CallExternalFunction",
+        "plugin": "K2040_Quick_Attach_Menu",
+        "function": "ToggleQuickMenu"
       }
     },
     {
       "id": "openMenuBuilder",
       "desc": "Open / close menu builder",
       "action": {
-        "type": "RunConsoleCommand",
-        "command": ""
+        "type": "CallExternalFunction",
+        "plugin": "K2040_Quick_Attach_Menu",
+        "function": "ToggleBuilder"
       }
     }
   ]

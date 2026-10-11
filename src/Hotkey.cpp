@@ -618,7 +618,8 @@ namespace
     enum class HotkeyActionSource : std::uint8_t
     {
         NativePoller = 1,
-        FocusedView = 2
+        FocusedView = 2,
+        McmChild = 3
     };
 
     bool OpenRequestedMenu(k2040::PrismaBridge& prisma, bool openBuilder)
@@ -857,6 +858,16 @@ namespace k2040
         QueueHotkeyAction(
             openBuilder ? HotkeyAction::ToggleBuilderMenu : HotkeyAction::ToggleQuickMenu,
             HotkeyActionSource::FocusedView);
+    }
+
+    void QueueMenuHotkeyActionFromMcm(bool openBuilder)
+    {
+        // Both child MCM and the native physical poller may observe one
+        // press. Queue through the shared cross-source deduplication gate;
+        // do not bypass focus or game-thread safety.
+        QueueHotkeyAction(openBuilder ? HotkeyAction::ToggleBuilderMenu
+                                     : HotkeyAction::ToggleQuickMenu,
+                          HotkeyActionSource::McmChild);
     }
 
     void InitializeHotkey()

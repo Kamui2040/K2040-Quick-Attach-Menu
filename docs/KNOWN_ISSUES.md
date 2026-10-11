@@ -26,6 +26,33 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.215 MCM child and theme tester
+
+- Native MCM supports ownerModName merging. Quick Attach now bundles
+  the canonical shared K2040_Mods parent with its child MCM configuration.
+  No separately downloaded Hub or alternate MCM layout is needed.
+  Amethyst may warn about the same parent file supplied by another
+  K2040 mod; this is expected only while the files are byte-identical.
+- F4SE Menu Framework accepts standard MCM files but its translation
+  source has not demonstrated equivalent ownerModName grouping. Treat
+  its grouping and external-function dispatch as unverified until tested.
+- Before the Minimap is converted to its own child namespace, its old
+  experimental parent settings may exist. Quick Attach reads them only
+  to avoid known simultaneous controller chords; this is not a complete
+  cross-mod dispatcher for all future mods.
+- The maintainer reports the bundled MCM integration working in-game
+  for Quick Attach Menu in their tested setup. This confirms focused
+  module-level acceptance, not exhaustive keyboard/controller remapping
+  or compatibility across all runtime and input configurations.
+  A later in-game report confirms Quick Attach, Prisma Minimap and
+  Quest Journal all register under the single K2040 Mods parent.
+  Page registration passes for this combination. The Minimap and
+  Quest Journal still need separate bug fixes; no Quick Attach
+  regression was reported. F4SE Menu Framework compatibility and
+  other modules' actual hotkey behavior remain unverified.
+- Cheat mode remains Experimental. Use at your own risk, including the
+  accepted loose-mod return and AE gameplay-effect refresh limitations.
+
 ## Unreleased 0.5.214 cheat-mode tester
 
 The optional global Cheat mode allows otherwise-compatible attachments

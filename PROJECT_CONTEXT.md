@@ -10,6 +10,32 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.215 is an isolated MCM packaging and appearance
+candidate. Each Quick Attach installer now bundles the unchanged
+K2040_Mods parent (SHA-256
+8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb)
+alongside its child page, keybinds.json and child-owned controller
+settings.ini. The separate MCM Hub download and obsolete alternate
+standalone-MCM package are unnecessary. Other K2040 mods may supply
+the same byte-identical parent. Existing keyboard action IDs and
+Shift+K / Ctrl+Shift+K defaults remain unchanged. Experimental parent
+controller preferences are copied once to the child INI if it is not
+already present; native shortcuts remain a fallback without MCM.
+MCM Scaleform callbacks use the existing game-thread dispatcher.
+Classic Pip-Boy has HUD-style chrome and font fallbacks, and Fallout 76
+uses the Quest Journal-inspired palette. Cheat mode is labelled
+Experimental and use-at-your-own-risk. The maintainer tested the
+bundled 0.5.215 MCM integration in-game and reports that it works for
+Quick Attach Menu in their setup. This is focused user acceptance,
+not independent confirmation of every key/controller combination.
+The maintainer later confirmed that Quick Attach, Prisma Minimap and
+Quest Journal all register as child entries under the unified K2040
+Mods MCM parent in their game. Combined page registration therefore
+passes in the tested setup. The other two mods still need separate
+bug fixes; those issues were not reported to affect Quick Attach.
+This does not establish that their own controls work, or that F4SE
+Menu Framework and all input combinations behave identically.
+
 Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
 based on the 0.5.213 controller and AE work. The off-by-default global
 Behavior toggle removes the loose-mod inventory requirement for installing

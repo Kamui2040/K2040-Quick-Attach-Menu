@@ -810,7 +810,7 @@ namespace
 
     bool IsThemeName(const std::string& value)
     {
-        return value == "default" || value == "pipboy" || value == "high-contrast" || value == "custom";
+        return value == "default" || value == "pipboy" || value == "high-contrast" || value == "fallout76" || value == "custom";
     }
 
     bool IsControlHintsMode(const std::string& value)

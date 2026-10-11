@@ -150,6 +150,7 @@
               <button class="choice" data-value="default" type="button">Commonwealth Blue<small>Current quick-menu palette</small></button>
               <button class="choice" data-value="pipboy" type="button">Classic Pip-Boy<small>Uses the player’s current HUD colour</small></button>
               <button class="choice" data-value="high-contrast" type="button">High Contrast<small>Bright text and strong outlines</small></button>
+              <button class="choice" data-value="fallout76" type="button">Fallout 76<small>Warm amber and charcoal, inspired by MAP76</small></button>
               <button class="choice" data-value="custom" type="button">Custom<small>Use the colours below</small></button>
             </div>
           </div>
@@ -191,7 +192,7 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Use ECO-authored menus globally</span><span class="setting-help">When off, generated menus are used unless a weapon forces its ECO patch.</span></span><button id="useAuthored" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Control hints</span></span><div id="controlHintsControl" class="choice-control"><button id="controlHintsTrigger" class="choice-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="controlHintsValue">Contextual</span><span class="choice-arrow" aria-hidden="true">▼</span></button><div id="controlHintsOptions" class="choice-options" role="listbox" hidden><button class="choice-option" type="button" role="option" data-value="off">Off</button><button class="choice-option" type="button" role="option" data-value="contextual">Contextual</button><button class="choice-option" type="button" role="option" data-value="always">Always</button></div></div></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Close after applying a mod</span></span><button id="closeAfterApply" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
-          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Cheat mode</span><span class="setting-help">Install compatible attachments without needing crafting materials or loose mods. Inventory stays unchanged. Weapon compatibility and safety checks still apply.</span></span><button id="cheatMode" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
+          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Cheat mode (Experimental)</span><span class="setting-help">Use at your own risk. Installs compatible attachments without crafting materials or loose mods. Removing a cheat-installed attachment after switching cheats off can return a free loose mod. Compatibility and safety checks still apply.</span></span><button id="cheatMode" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Gameplay slowdown while open</span><span class="setting-help">0% keeps normal time. 100% fully pauses gameplay.</span></span><span class="slider-wrap"><input id="menuSlowdown" type="range" min="0" max="100" step="1"><output id="menuSlowdownValue">100% · paused</output></span></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Diagnostic logging</span><span class="setting-help">Turn off plugin diagnostic log messages. Existing log files are kept.</span></span><button id="loggingEnabled" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <button class="reset-button" data-reset="behavior" type="button">Reset behavior</button>
@@ -398,6 +399,7 @@
         if (!validHex(value)) return false;
         settings[key] = value.toLowerCase();
         settings.theme = "custom";
+        document.body.classList.remove("theme-fallout76");
         markChoices("themeChoices", "custom");
         if (save) {
           send("set:" + command + ":" + settings[key]);
@@ -598,6 +600,7 @@
 
       function render() {
         settings = payload && payload.settings ? payload.settings : {};
+        document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76");
         if (!settings.layouts) settings.layouts = {};
         applySettingsPanelSize();
         document.getElementById("quickKey").textContent = settings.openMenuHotkey || "Not assigned";
@@ -636,7 +639,7 @@
       window.k2040FocusMenuInitial = function() { document.querySelector(".nav-button.active").focus(); };
 
       Array.prototype.forEach.call(document.querySelectorAll(".nav-button"), function(button) { button.addEventListener("click", function() { showPage(button.dataset.page); }); });
-      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
+      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76"); markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
       Array.prototype.forEach.call(document.querySelectorAll("#presentationChoices .choice"), function(button) { button.addEventListener("click", function() { settings.presentation = button.dataset.value; markChoices("presentationChoices", settings.presentation); send("set:presentation:" + settings.presentation); document.getElementById("scale").value = Math.round((Number(activeLayout().scale) || 1) * 100); renderPreview(); }); });
 
       document.getElementById("opacity").addEventListener("input", function(event) { settings.backgroundOpacity = Number(event.target.value) / 100; document.getElementById("opacityValue").value = event.target.value + "%"; renderPreview(); });

@@ -567,3 +567,185 @@
 .preview-mode .qm-status {
   display: none !important;
 }
+
+/* Shared K2040 HUD-theme treatment. Live HUD color is supplied by the
+   renderer; fonts use installed fallbacks, not redistributed game files. */
+.theme-pipboy {
+  font-family: "Piboto", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", "Liberation Sans Narrow", Arial, sans-serif;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+  text-shadow: 0 0 3px var(--qm-hud-shadow);
+}
+.theme-pipboy .qm-category-list,
+.theme-pipboy .qm-option-list,
+.theme-pipboy .qm-status {
+  border-radius: 0;
+  border: 1px solid var(--qm-hud-color);
+  box-shadow: inset 0 0 0 1px var(--qm-hud-shadow);
+  background: var(--qm-panel);
+}
+.theme-pipboy .qm-category-button,
+.theme-pipboy .qm-option-button {
+  border-radius: 0;
+  letter-spacing: inherit;
+}
+.theme-pipboy .qm-option-heading,
+.theme-pipboy .qm-weapon-name { font-weight: 700; letter-spacing: .065em; }
+
+/* Fallout 76: match Quest Journal's matte panels, angular dividers and
+   selected-row treatment. No game fonts or artwork are bundled. */
+.theme-fallout76 {
+  --qm-warning: #f5cb5b;
+  --qm-blocked: #ef9b82;
+  font-family: "PibotoCondensed", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", Arial, sans-serif;
+  font-stretch: condensed;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 1px #000;
+}
+.theme-fallout76 .qm-category-list,
+.theme-fallout76 .qm-option-list,
+.theme-fallout76 .qm-status {
+  background: var(--qm-panel);
+  border: 1px solid var(--qm-line);
+  border-radius: 0;
+  box-shadow: 0 3px 18px rgba(0,0,0,.35);
+}
+.theme-fallout76 .qm-category-button,
+.theme-fallout76 .qm-option-button {
+  border-radius: 0;
+  box-shadow: none;
+  border-color: var(--qm-line-soft);
+  background: rgba(0,0,0,.22);
+}
+.theme-fallout76 .qm-category-button:hover,
+.theme-fallout76 .qm-category-button.active,
+.theme-fallout76 .qm-category-button.pane-focus,
+.theme-fallout76 .qm-option-button:hover,
+.theme-fallout76 .qm-option-button.focused-option {
+  background: var(--qm-active);
+  border-color: var(--qm-accent);
+  box-shadow: inset 3px 0 0 var(--qm-accent);
+  color: var(--qm-text);
+}
+.theme-fallout76 .qm-option-button.installed {
+  border-color: var(--qm-installed);
+  box-shadow: inset 0 0 0 1px var(--qm-installed);
+}
+.theme-fallout76 .qm-option-button.installed:hover,
+.theme-fallout76 .qm-option-button.installed.focused-option {
+  border-color: var(--qm-accent);
+  box-shadow: inset 3px 0 0 var(--qm-accent), inset 0 0 0 1px var(--qm-installed);
+}
+.theme-fallout76 .qm-option-heading,
+.theme-fallout76 .qm-weapon-name {
+  color: var(--qm-accent);
+  background: rgba(0,0,0,.42);
+  border-bottom: 1px solid var(--qm-line);
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+.theme-fallout76 .qm-wheel-html-label,
+.theme-fallout76 .qm-status {
+  font-family: "PibotoCondensed", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", Arial, sans-serif;
+  font-stretch: condensed;
+  text-transform: uppercase;
+}
+.theme-fallout76 .qm-wheel-html-label {
+  text-shadow: 1px 1px 1px #000;
+}
+.theme-fallout76 .qm-radial-page-button {
+  border-radius: 0;
+  border-color: var(--qm-line);
+  background: var(--qm-panel);
+}
+.theme-fallout76 .qm-wheel-path,
+.theme-fallout76 .qm-wheel-center {
+  fill: var(--qm-panel);
+  stroke: var(--qm-line);
+}
+.theme-fallout76 .qm-wheel-segment:hover .qm-wheel-path,
+.theme-fallout76 .qm-wheel-segment.active .qm-wheel-path,
+.theme-fallout76 .qm-wheel-segment.pane-focus .qm-wheel-path {
+  fill: var(--qm-active);
+  stroke: var(--qm-accent);
+}
+
+/* Builder and Settings keep their layout and controls; only their chrome
+   follows the selected Fallout 76 preset. Other themes use their own CSS. */
+body.theme-fallout76 {
+  --accent: #f5cb5b;
+  --text: #ffffcb;
+  --muted: #e0c870;
+  --panel: rgba(24,28,29,.98);
+  --row: rgba(0,0,0,.22);
+  --line: rgba(245,203,91,.48);
+  --installed: #e0c870;
+  --hidden: #ef9b82;
+  font-family: "PibotoCondensed", "Roboto Condensed", "Arial Narrow",
+    "Noto Sans Condensed", Arial, sans-serif;
+  font-stretch: condensed;
+  text-shadow: 1px 1px 1px #000;
+}
+body.theme-fallout76 #builder,
+body.theme-fallout76 #shell {
+  background: var(--panel);
+  border-color: var(--line);
+}
+body.theme-fallout76 #builder > header,
+body.theme-fallout76 #shell > header,
+body.theme-fallout76 #shell > .workspace > nav,
+body.theme-fallout76 #builder > .weapon-settings {
+  background: rgba(0,0,0,.42);
+}
+body.theme-fallout76 .row,
+body.theme-fallout76 .setting-row,
+body.theme-fallout76 .colour-editor,
+body.theme-fallout76 .choice,
+body.theme-fallout76 .action,
+body.theme-fallout76 .nav-button,
+body.theme-fallout76 .profile-row {
+  background: var(--row);
+  border-color: rgba(245,203,91,.26);
+  border-radius: 0;
+}
+body.theme-fallout76 .row:hover,
+body.theme-fallout76 .row:focus,
+body.theme-fallout76 .row.selected,
+body.theme-fallout76 .nav-button.active,
+body.theme-fallout76 .choice.active {
+  background: rgba(245,203,91,.14);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+body.theme-fallout76 .reset-button.danger {
+  color: var(--hidden);
+}
+body.theme-fallout76 .choice-option[aria-selected="true"] {
+  color: var(--accent);
+  background: rgba(245,203,91,.14);
+}
+body.theme-fallout76 .choice-trigger,
+body.theme-fallout76 .choice-options,
+body.theme-fallout76 .choice-option:hover,
+body.theme-fallout76 .choice-option:focus,
+body.theme-fallout76 .colour-hex,
+body.theme-fallout76 .rename-input,
+body.theme-fallout76 .profile-card,
+body.theme-fallout76 .confirm-box {
+  background: #181c1d;
+  border-radius: 0;
+}
+body.theme-fallout76 .choice-option:hover,
+body.theme-fallout76 .choice-option:focus {
+  background: rgba(245,203,91,.14);
+}
+body.theme-fallout76 .choice.active {
+  color: var(--accent);
+}
+body.theme-fallout76 #previewStage {
+  background: radial-gradient(circle at center,rgba(245,203,91,.06),transparent 56%),rgba(0,0,0,.26);
+}

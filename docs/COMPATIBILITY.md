@@ -1,3 +1,41 @@
+## Optional K2040 Mods MCM grouping (0.5.215 tester)
+
+Quick Attach Menu bundles the canonical K2040_Mods parent in every
+installer, along with its own MCM child configuration. The shared
+parent must remain byte-for-byte identical to the template at
+https://github.com/Kamui2040/K2040-MCM-Hub
+(SHA-256:
+8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb).
+Other K2040 mods can supply the same parent; conflicts are harmless
+only when its bytes match. No separate Hub download, alternate MCM
+layout or centralized child action registration is needed. The child
+keeps modName=K2040_Quick_Attach_Menu and ownerModName=K2040_Mods.
+Native MCM supports grouped child pages from version code 3 (MCM 1.11).
+Quick Attach still operates without MCM using native hotkeys and
+PrismaUI, even though MCM pages themselves are unavailable.
+
+Controller settings are stored in Data/MCM/Settings/
+K2040_Quick_Attach_Menu.ini. An existing experimental
+K2040_Mods.ini shortcut or standalone ControllerShortcuts.ini is
+copied to the child INI on first load when no child settings file is
+present. The original files remain unchanged. Keyboard registry IDs
+remain openQuickMenu and openMenuBuilder, with native settings fallback.
+
+F4SE Menu Framework has a separate MCM translation implementation;
+owner grouping and CallExternalFunction callbacks require separate
+runtime testing. The maintainer reports the bundled Quick Attach MCM
+integration working in-game in the tested setup. The maintainer
+subsequently confirmed that Quick Attach, Prisma Minimap and Quest
+Journal all register as child entries under one K2040 Mods parent.
+Combined page registration is therefore accepted for that setup.
+The other two mods have separate bugs not reported to affect Quick
+Attach. This does not establish F4SE Menu Framework parity, all
+controller/keyboard combinations or the other mods' action behavior.
+Controller collisions are checked against known Minimap shortcuts,
+but independent plugins do not yet share a general conflict
+coordinator. The specific game runtime and complete tested input
+matrix were not reported for this 0.5.215 check.
+
 # Compatibility
 
 ## Supported release

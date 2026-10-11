@@ -40,12 +40,43 @@ item. The maintainer reports the tested weapon, attachment and
 original-game compatibility behavior passes. Wider public testing is
 welcome; not every modded weapon combination has been verified.
 
+### 0.5.215 MCM and theme tester
+
+Quick Attach Menu ships the shared K2040 Mods MCM parent and its own
+Quick Attach Menu child page **in the same archive**. No separate MCM
+Hub download is needed. With native MCM installed, its settings appear
+under **MCM > K2040 Mods > Quick Attach Menu**.
+
+The two hotkeys remain Shift+K and Ctrl+Shift+K by default. MCM and the
+mod's PrismaUI Controls page edit the same keyboard bindings. The
+controller shortcut is saved under Quick Attach's own settings and
+supports one button or a held-button combination such as LB+RB.
+
+Every K2040 mod distributes the identical shared parent
+`Data/MCM/Config/K2040_Mods/config.json`. Amethyst may flag that
+shared file as a conflict when Quick Attach and Prisma Minimap are
+installed together. Either copy is safe to win **only when its SHA-256
+is** `8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb`.
+Do not install an older separate Hub package with centralized pages
+or hotkey actions.
+
+MCM itself remains optional. Without MCM, native hotkeys, controller
+shortcuts and the PrismaUI Settings page continue to work.
+
+Classic Pip-Boy uses the game's current HUD colour and condensed HUD-style
+font fallbacks. The new Fallout 76 theme uses amber, ivory and charcoal.
+No commercial game fonts are included. Cheat mode remains
+**Experimental — use at your own risk.**
+
+These changes still require actual MCM/Proton gameplay testing before
+release. F4SE Menu Framework grouping is not yet verified.
+
 ## Features
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
 - Inventory-aware choices in the gameplay menu.
-- Native controller navigation for the Quick Menu only, including radial
-  thumbstick direction selection and a configurable Quick Menu opener.
+- Controller navigation across Quick Menu, Builder and Settings, including
+  thumbstick and D-pad focus and a configurable Quick Menu opener.
 - Per-weapon Builder for visibility, order, labels, menu source, and bracketed
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
@@ -83,8 +114,9 @@ compatibility path remains included but was not rerun on `1.10.163`.
 
 ## Installation
 
-Install the release archive with a mod manager. Its `Data` folder must merge
-with the game's `Data` folder. Start Fallout 4 through F4SE.
+Install the archive with a mod manager. The archive already contains
+the shared K2040 Mods parent, so do not download the Hub separately.
+Start Fallout 4 through F4SE. Native MCM is optional.
 
 Default controls:
 
