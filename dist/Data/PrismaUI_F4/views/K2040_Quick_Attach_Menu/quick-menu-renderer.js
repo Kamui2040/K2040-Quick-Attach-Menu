@@ -334,9 +334,12 @@
       target.style.setProperty("--qm-panel", rgba(panel, opacity));
       target.style.setProperty("--qm-panel-strong", rgba(panel, Math.min(1, opacity + .05)));
       target.style.setProperty("--qm-row", theme === "pipboy" ? "transparent" : rgba(panel, opacity));
-      target.style.setProperty("--qm-active", theme === "pipboy" ? accent : rgba(accent, Math.min(.48, .19 + opacity * .22)));
-      target.style.setProperty("--qm-line", theme === "pipboy" ? rgba(accent, .84) : rgba(text, .20));
-      target.style.setProperty("--qm-line-soft", theme === "pipboy" ? rgba(accent, .28) : rgba(text, .10));
+      target.style.setProperty("--qm-active", theme === "pipboy" ? accent :
+        theme === "fallout76" ? rgba(accent, .14) : rgba(accent, Math.min(.48, .19 + opacity * .22)));
+      target.style.setProperty("--qm-line", theme === "pipboy" ? rgba(accent, .84) :
+        theme === "fallout76" ? rgba(accent, .48) : rgba(text, .20));
+      target.style.setProperty("--qm-line-soft", theme === "pipboy" ? rgba(accent, .28) :
+        theme === "fallout76" ? rgba(accent, .26) : rgba(text, .10));
       target.style.setProperty("--qm-muted", theme === "pipboy" ? rgba(accent, .72) :
         theme === "fallout76" ? "#e0c870" : rgba(text, .68));
       target.style.setProperty("--qm-accent-faint", rgba(accent, .12));

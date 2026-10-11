@@ -399,6 +399,7 @@
         if (!validHex(value)) return false;
         settings[key] = value.toLowerCase();
         settings.theme = "custom";
+        document.body.classList.remove("theme-fallout76");
         markChoices("themeChoices", "custom");
         if (save) {
           send("set:" + command + ":" + settings[key]);
@@ -599,6 +600,7 @@
 
       function render() {
         settings = payload && payload.settings ? payload.settings : {};
+        document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76");
         if (!settings.layouts) settings.layouts = {};
         applySettingsPanelSize();
         document.getElementById("quickKey").textContent = settings.openMenuHotkey || "Not assigned";
@@ -637,7 +639,7 @@
       window.k2040FocusMenuInitial = function() { document.querySelector(".nav-button.active").focus(); };
 
       Array.prototype.forEach.call(document.querySelectorAll(".nav-button"), function(button) { button.addEventListener("click", function() { showPage(button.dataset.page); }); });
-      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
+      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76"); markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
       Array.prototype.forEach.call(document.querySelectorAll("#presentationChoices .choice"), function(button) { button.addEventListener("click", function() { settings.presentation = button.dataset.value; markChoices("presentationChoices", settings.presentation); send("set:presentation:" + settings.presentation); document.getElementById("scale").value = Math.round((Number(activeLayout().scale) || 1) * 100); renderPreview(); }); });
 
       document.getElementById("opacity").addEventListener("input", function(event) { settings.backgroundOpacity = Number(event.target.value) / 100; document.getElementById("opacityValue").value = event.target.value + "%"; renderPreview(); });
