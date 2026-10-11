@@ -10,6 +10,15 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.212 introduces shared controller navigation for Builder
+and Settings, using the live game-mapped Confirm/Cancel buttons. Dropdown
+lists and modal dialogs have explicit navigation and cancel semantics;
+Builder category browsing never changes visibility without a separate
+button action. Settings sliders require Confirm to enter editing.
+This is tested with simulated browser events and native build checks but
+needs targeted Proton/Prisma in-game QA. Text entry and drag reordering
+still require keyboard/mouse controls.
+
 Unreleased 0.5.211 consolidates input movement/Back/shoulder navigation
 across all four Quick Menu presentations. In Compact Hybrid the semicircular
 category wheel is drawn bottom-to-top, so Up/Down now reverse only the

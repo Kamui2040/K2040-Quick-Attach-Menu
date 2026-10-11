@@ -10,6 +10,14 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.212 enables controller actions in Builder and Settings
+using the same game-mapped confirm/cancel buttons as Quick Menu, plus a
+shared DOM focus layer. Modal/dialog/dropdown navigation is explicit.
+Sliders require Confirm to enter editing, and Builder category navigation
+is selection-only. Text and hotkey capture, colour-hex entry and drag
+reordering still require keyboard/mouse. This build requires focused
+Prisma/Proton controller runtime testing before compatibility acceptance.
+
 Unreleased 0.5.211 unifies directional/controller navigation across
 all four Quick Menu presentations and corrects the previously inverted
 Compact Hybrid category wheel. Left/Right consistently change between
@@ -27,7 +35,8 @@ read from the live ControlMap on the game thread, falling back to
 menu Accept and default A where needed. Focused in-game tester feedback confirms the 0.5.210 controller behavior
 works in the tested configuration. Remapped buttons, all layouts, repeat
 behavior and the broader Steam Input/Proton matrix are not yet fully
-validated. Builder and Settings remain keyboard/mouse only.
+validated. That earlier 0.5.210 build kept Builder and Settings
+keyboard/mouse-only; 0.5.212 adds first-pass controller support.
 
 Unreleased 0.5.209 revises the AE-only experimental re-equip to
 coalesce multiple successful OMOD transactions and re-equip the

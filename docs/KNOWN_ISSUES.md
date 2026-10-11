@@ -26,6 +26,22 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.212 Builder and Settings controller focus
+
+Both pages now use a shared controller focus helper with mapped
+Confirm/Cancel, sticks and D-pad, pane/tab movement, and dedicated
+dropdown and dialog interaction. No dropdown value is committed by
+highlight movement; Back closes the open dropdown without saving.
+The Builder's visibility commands require an explicit Confirm/secondary
+face-button action. Reset Everything stays confirmation-gated.
+Settings slider edits are entered using Confirm.
+
+Node event simulations and static contracts are available, but focused
+in-game Prisma input and modal/dropdown testing is still required.
+Keyboard hotkey capture, rename, hex colour text, and mouse drag-based
+Builder reordering are not fully controller-operable in this iteration.
+Do not claim complete controller-only editing or release readiness.
+
 ## Unreleased 0.5.211 unified navigation and Compact Hybrid
 
 A user reported that controller navigation in Compact Hybrid felt
@@ -57,7 +73,8 @@ The user also confirmed the 0.5.210 controller behavior works in their
 in-game setup. This is focused confirmation, not exhaustive evidence
 for remapped confirmation buttons, navigation across every layout/page,
 all repeat behavior, or broader Steam Input/Proton configurations.
-The Builder and Settings remain mouse/keyboard.
+This describes the 0.5.210 state; 0.5.212 adds Builder/Settings
+navigation while keeping text editing and drag operations mouse/keyboard.
 
 ## Unreleased 0.5.209 AE repeated-modification refresh
 

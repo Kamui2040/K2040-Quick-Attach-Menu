@@ -885,7 +885,7 @@ namespace k2040
         // XInput on this background thread is safe; invoking PrismaUI is not.
         static int previousStickSector = -1;
         static auto previousStickDispatch = std::chrono::steady_clock::time_point{};
-        if (GetPrismaBridge().IsQuickControllerInputActive() &&
+        if (GetPrismaBridge().IsControllerInputActive() &&
             !g_hotkeyCaptureActive.load()) {
             const int sector = ReadControllerStickSector();
             const auto now = std::chrono::steady_clock::now();

@@ -838,9 +838,9 @@ namespace k2040
         return menuOpen_ && viewMode_ != ViewMode::QuickMenu;
     }
 
-    bool PrismaBridge::IsQuickControllerInputActive() const
+    bool PrismaBridge::IsControllerInputActive() const
     {
-        return quickControllerInputActive_.load(std::memory_order_relaxed);
+        return controllerInputActive_.load(std::memory_order_relaxed);
     }
 
     void PrismaBridge::OnControllerStickSector(int sector)
@@ -848,8 +848,8 @@ namespace k2040
         // Called only by a queued F4SE game-thread task. Never call PrismaUI
         // from the physical controller polling thread.
         if (sector < -1 || sector >= 72 ||
-            !quickControllerInputActive_.load(std::memory_order_relaxed) ||
-            !menuOpen_ || viewMode_ != ViewMode::QuickMenu ||
+            !controllerInputActive_.load(std::memory_order_relaxed) ||
+            !menuOpen_ ||
             !viewDomReady_ || !api_ || !api_->IsValid(menuView_)) {
             return;
         }
@@ -1311,8 +1311,6 @@ namespace k2040
         // Keep ControlMap access out of Prisma's asynchronous DOM callback.
         controllerConfirmButton_ = "A";
         controllerCancelButton_ = "B";
-        if (viewMode_ != ViewMode::QuickMenu) return;
-
         const char* confirm = ReadMappedControllerButton(
             "Activate", RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay);
         if (!confirm) {
@@ -1342,10 +1340,8 @@ namespace k2040
         }
 
         controllerApi_->ClearControllerActions(menuView_);
-        if (viewMode_ != ViewMode::QuickMenu) {
-            log::Info("Controller actions intentionally disabled for Builder/Settings.");
-            return;
-        }
+        // Focused Builder and Settings share mapped gamepad confirmation,
+        // back, D-pad and shoulder bindings with Quick Menu.
         const char* confirm = controllerConfirmButton_.c_str();
         const char* cancel = controllerCancelButton_.c_str();
 
@@ -1376,8 +1372,25 @@ namespace k2040
             }
         }
 
+        // Builder uses a separate explicit show/hide command, never a focus
+        // change. Choose a face button that cannot conflict with the mapped
+        // Confirm or Cancel; when neither is free, disable this shortcut.
+        if (viewMode_ == ViewMode::MenuBuilder) {
+            const char* secondary = nullptr;
+            for (const char* button : { "X", "Y" }) {
+                if (std::string_view(button) != confirm && std::string_view(button) != cancel) {
+                    secondary = button;
+                    break;
+                }
+            }
+            if (secondary && controllerApi_->BindControllerAction(menuView_, secondary, "toggle")) {
+                api_->InteropCall(menuView_, "k2040ControllerSecondaryButton", secondary);
+                ++bound;
+            }
+        }
+
         // Keep browser-side dispatch tied to the exact buttons bound above.
-        // A stick or D-pad navigation event can never submit an attachment.
+        // Navigation is never an implicit attachment or preference action.
         api_->InteropCall(menuView_, "k2040ControllerConfirmButton", confirm);
         api_->InteropCall(menuView_, "k2040ControllerCancelButton", cancel);
         log::Info(
@@ -1722,7 +1735,7 @@ namespace k2040
             }
         }
 
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         viewMode_ = mode;
         CaptureControllerButtonMapping();
         currentWeaponInfo_ = weaponInfo;
@@ -1817,8 +1830,9 @@ namespace k2040
         // Builder <-> Settings switches can acquire a new owner.
         UnregisterMenuCursorFallback();
 
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         viewMode_ = mode;
+        CaptureControllerButtonMapping();
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         CreateMenuViewIfNeeded();
         if (menuView_ == 0) {
@@ -1850,7 +1864,7 @@ namespace k2040
     {
         SetHotkeyCaptureActive(false);
         SetMenuHotkeyUiForwardingActive(false);
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         menuOpen_ = false;
         pendingFocus_ = false;
         log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
@@ -1914,7 +1928,7 @@ namespace k2040
         // a weapon after the player/inventory context has changed.
         ++menuGeneration_;
         pendingAEReequipInfo_.reset();
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         const PrismaView previousView = menuView_;
 
         SetMenuHotkeyUiForwardingActive(false);
@@ -1969,7 +1983,7 @@ namespace k2040
         }
 
         viewDomReady_ = true;
-        quickControllerInputActive_ = menuOpen_ && viewMode_ == ViewMode::QuickMenu && controllerApi_;
+        controllerInputActive_ = menuOpen_ && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
         // Page-facing listeners are safest once the JavaScript context exists.

@@ -1,3 +1,27 @@
+## 0.5.212 (unreleased Builder/Settings controller navigation tester)
+
+- Extend the working controller bindings, including the user's mapped
+  Activate/Confirm and Cancel buttons, to the Builder and Settings views.
+- Use one shared page-focus controller helper for both. Sticks and the
+  D-pad move focus; LB/RB change Builder groups or Settings tabs; Confirm
+  activates the focused control, and Back returns to the preceding level.
+- Dropdown lists have a separate navigation state: movement only highlights
+  an option; Confirm selects, and Back closes without changing the value.
+  Profile import and Reset Everything dialogs likewise require explicit
+  confirmation, with Back cancelling safely.
+- Builder navigation selects categories without changing their visibility.
+  A separate unassigned X/Y face-button action toggles category/entry
+  visibility deliberately. A on a selected entry uses the existing
+  explicit show/hide action.
+- Settings sliders require an explicit Confirm press to enter editing;
+  then Left/Right adjusts them, and Back exits edit mode. Existing
+  keyboard and mouse interaction remains available.
+- Text editing, colour hex input, and keyboard hotkey capture still need
+  a keyboard. Other Builder operations such as drag reordering have not
+  been converted to controller-only workflows.
+- Automated interaction and source tests pass. In-game Proton/Prisma
+  runtime behavior is not yet verified; no release is implied.
+
 ## 0.5.211 (unreleased unified Quick Menu navigation tester)
 
 - Use one controller navigation model across Cascade, Radial, Compact
