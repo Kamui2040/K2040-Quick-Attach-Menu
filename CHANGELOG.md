@@ -1,3 +1,20 @@
+## 0.5.214 (unreleased cheat-mode tester)
+
+- Added an optional Cheat mode switch under Settings > Behavior. It starts
+  off and remembers the player's choice.
+- Cheat mode lets you install a compatible attachment without having a loose
+  mod or the parts needed to craft one. Loose-mod inventory stays unchanged;
+  turning the switch off restores ordinary inventory rules.
+- The existing weapon compatibility, live attachment-point, dependency,
+  default-material, and rollback checks still apply. Hidden or internal
+  OMODs remain unavailable, and the feature does not invent missing
+  attachments or bypass unsupported workbench operations.
+- The option is separate from Force unsafe swaps and ECO menu selection.
+  The Builder still displays compatible entries regardless of inventory.
+- Built for original Fallout 4 and AE from Linux. Static tests pass.
+  Cheat-mode attachment changes still need direct in-game validation
+  before release or merge.
+
 ## 0.5.213 (unreleased orientation-aware Builder/Settings navigation tester)
 
 - Follow the visible direction of controls rather than treating every

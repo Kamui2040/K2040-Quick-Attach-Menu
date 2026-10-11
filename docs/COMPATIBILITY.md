@@ -10,6 +10,17 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.214 introduces an opt-in Cheat mode that bypasses
+loose-mod inventory requirements for otherwise-valid attachments.
+No workbench crafting components are used by the Quick Menu even
+without it. Cheat mode also preserves loose-mod inventory rather than
+generating removed attachment items. The original weapon/OMOD/AP
+compatibility checks, material-default safeguards, generated recipe
+and target association tests, dependency ordering, exact equipped
+stack and rollback protections still apply. This candidate has passed
+Linux builds and deterministic source checks but has no successful
+cheat-mode in-game mutation evidence yet.
+
 Unreleased 0.5.213 refines Builder and Settings controller focus so
 Left/Right follows horizontal rows, including the Builder top toolbar,
 weapon controls, Settings theme/presentation choice grids and side-by-side
