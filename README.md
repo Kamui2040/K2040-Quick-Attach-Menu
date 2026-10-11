@@ -36,7 +36,9 @@ return when the switch is disabled. One accepted side effect: if you
 install a part for free, turn Cheat mode off, then replace that part,
 normal attachment-return rules can give you its loose mod. To avoid
 that, replace it while Cheat mode is still on or discard the returned
-item. Broader runtime and mod compatibility tests remain incomplete.
+item. The maintainer reports the tested weapon, attachment and
+original-game compatibility behavior passes. Wider public testing is
+welcome; not every modded weapon combination has been verified.
 
 ## Features
 

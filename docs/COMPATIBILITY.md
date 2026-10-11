@@ -25,8 +25,10 @@ cheat-installed attachment is removed only after the option is
 turned off, ordinary return handling may award its loose mod.
 This accepted cross-mode side effect is documented in Known Issues;
 it is not a failure of Cheat mode's inventory-neutral transactions
-while the option remains enabled. Broader dependency and original-
-runtime checks remain incomplete.
+while the option remains enabled. The maintainer reports the broader
+weapon, dependency and original-game checks they performed passed.
+Public testing is the remaining step for wider compatibility
+confidence; exact coverage has not been independently established.
 
 A known AE 1.11.240 limitation affects gameplay state after changing
 attachments: automatic re-equip can update the weapon model without

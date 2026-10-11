@@ -45,15 +45,18 @@ normal mode either.
 
 Automatic inventory consumption during engine mutation is compensated
 only for an exact single item, followed by live count verification;
-unresolved counts fail with a rollback attempt. This needs dedicated
-in-game tests for empty inventory, available loose mods, providers and
-dependents, material defaults, both supported runtimes, and normal-mode
-behavior. Build/static tests are not runtime proof. Focused user
-testing on AE reports Cheat mode working in the tested setup and
-confirms the normal loose-mod requirement returns when disabled.
-This does not establish full inventory invariance across all weapons,
-original-runtime compatibility, or the complete dependency/material
-regression matrix.
+unresolved counts fail with a rollback attempt. Build/static checks
+cannot by themselves establish runtime success. Focused user testing
+on AE confirms Cheat mode works for the tested weapons and the normal
+loose-mod requirement returns when disabled. Compatibility across
+additional weapons, provider/dependent relationships, material defaults,
+inventory states and game configurations can benefit from public tests.
+The maintainer subsequently reported that the broader weapon,
+attachment and original-game compatibility checks they performed
+also passed. Treat this as maintainer acceptance of the tested scope,
+not exhaustive confirmation for all weapons, dependencies, inventory
+states or installed mod combinations. Broader public testing remains
+the next compatibility confidence step.
 
 ### Cheat-installed attachments removed after disabling cheats
 

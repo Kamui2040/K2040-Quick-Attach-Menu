@@ -26,8 +26,11 @@ after Cheat mode is disabled. This is consistent with normal return
 handling for installed attachments: the runtime does not remember
 whether an individual part was originally acquired for free. No
 separate provenance tracking or inventory rewrite is planned for this
-accepted limitation. Wider weapon, inventory and OG compatibility
-testing remains incomplete. On AE 1.11.240 the user also observed a
+accepted limitation. The maintainer now reports that their broader
+weapon/attachment and original-game compatibility checks pass as far
+as they can tell. This is focused user acceptance, not independently
+audited exhaustive test coverage; the remaining confidence step is
+broader public testing. On AE 1.11.240 the user also observed a
 separate post-attachment refresh limitation: automatic re-equip updates
 the visible model, but a 10mm recon scope continues aiming as if it
 had ordinary sights until a manual swap away and back. The tester

@@ -18,8 +18,10 @@
   after turning Cheat mode off can return its loose mod to inventory.
   The mod treats it as a normal installed attachment once cheats
   are disabled. This is an accepted side effect, not a crafting bypass
-  that occurs while Cheat mode is off. Broader weapon and original-game
-  testing remains incomplete.
+  that occurs while Cheat mode is off. The maintainer reports the
+  weapon/attachment and original-runtime checks they performed passed.
+  Wider public testing is the remaining compatibility confidence step;
+  these reports are not proof of exhaustive coverage.
 - On AE, the automatic refresh can show a new attachment model before its
   gameplay effect is active. A 10mm recon scope still used ordinary
   sights until switching weapons manually; a suppressor showed a
