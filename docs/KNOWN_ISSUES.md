@@ -38,8 +38,16 @@ their displayed axes. LT is a configurable Quick Menu opener button
 or modifier only; it is not mapped to menu navigation.
 
 Automated input simulation confirms the directional model without
-triggering changes merely from focus movement. The new behavior
-remains unverified with an actual controller under Proton/Prisma.
+triggering changes merely from focus movement. Focused in-game testing
+reports the 0.5.213 orientation fix works on the tested controller.
+
+The same tester reports that LT appears to cycle menu choices. Quick
+Attach Menu binds no focused-view navigation action to LT; only the
+optional controller Quick Menu opener supports it as a button or
+modifier. The affected page and external/native input mapping remain
+unresolved. Do not attribute this behavior to the mod or to Steam Input
+without direct input observations. Broader controller regression and
+release publication remain outstanding.
 
 ## Unreleased 0.5.212 Builder and Settings controller focus
 

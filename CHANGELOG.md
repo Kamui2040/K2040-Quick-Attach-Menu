@@ -13,8 +13,9 @@
   Quick Menu opener button or modifier (such as LT + another button).
 - Keep mapped confirmation, safe dropdown cancel, settings edit mode,
   Quick Menu navigation and AE post-close refresh unchanged.
-- Automated interaction and source checks pass; focused in-game controller
-  verification of these directional changes remains pending.
+- Automated interaction and source checks passed. Focused in-game testing
+  confirms the horizontal navigation fix in 0.5.213 works in the tested
+  setup; broader mappings and controller configurations remain unverified.
 
 ## 0.5.212 (unreleased Builder/Settings controller navigation tester)
 
