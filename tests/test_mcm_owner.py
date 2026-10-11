@@ -48,6 +48,22 @@ class McmOwnerContract(unittest.TestCase):
   self.assertIn('SetControllerShortcut', (ROOT/"src/PrismaBridge.cpp").read_text())
   self.assertIn('SetSharedHotkeyBinding', (ROOT/"src/PrismaBridge.cpp").read_text())
   self.assertEqual(len(re.findall('set_version\\("0.5.214"\\)',(ROOT/"xmake.lua").read_text())),1)
+ def test_first_keyboard_assignment_and_standalone_fallback(self):
+  hotkey=(ROOT/"src/Hotkey.cpp").read_text()
+  self.assertIn("void SeedDefaultMcmBindings()",hotkey)
+  self.assertIn("SeedDefaultMcmBindings();",hotkey)
+  self.assertIn("kOpenMenuKeybindId,'K',1u",hotkey)
+  self.assertIn("kOpenMenuBuilderKeybindId,'K',3u",hotkey)
+  self.assertIn("hotkeys-initialized",hotkey)
+  self.assertIn("if (FindMcmKeybindObject(json,id)) continue;",hotkey)
+  self.assertIn("initialized?0:key",hotkey)
+  self.assertIn("GetModuleHandleW(L\"mcm.dll\")",hotkey)
+  self.assertIn("GetModuleHandleW(L\"F4SEMenuFramework.dll\")",hotkey)
+  self.assertIn("g_loadedMcmRegistryExists = false;",hotkey)
+  self.assertIn("McmProviderActive()",hotkey)
+  self.assertIn("overrides.openMenu=k2040::HotkeyState{}",hotkey)
+  self.assertIn("overrides.openMenuBuilder=k2040::HotkeyState{}",hotkey)
+
  def test_build_and_packaging_stage_parent_with_child(self):
   xmake=(ROOT/"xmake.lua").read_text()
   self.assertIn('os.cp(path.join(parent_source,"*"),parent_target)',xmake)

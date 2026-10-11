@@ -277,3 +277,22 @@ live validation. See `docs/KNOWN_ISSUES.md` for the current boundary.
   worktree is **superseded and must NOT replace the 0.5.214 branch**.
 - Native MCM parent merge and F4SE Menu Framework behavior still need
   target runtime QA. Never deploy into the main Amethyst profile.
+
+
+## 2026-10-11 — native MCM keyboard default-registration fix
+
+- Discovered the original MCM AS3 `OptionsList.as` dereferences a
+  `GetKeybind` result without checking null when the action has no
+  registered record. No default action meant MCM displayed Unbound
+  and could fail first rebind.
+- Added startup initialization of *missing* child-owned keyboard records
+  (Quest Journal F8/F10; Quick Attach Shift+K/Ctrl+Shift+K).
+  Never overwrite existing global `Keybinds.json` entries.
+- Per-mod `*.hotkeys-initialized` marker prevents explicitly cleared
+  assignments from reverting to factory defaults. Existing custom
+  mouse/keyboard user assignments are preserved. Unbound disables
+  assigned actions while the MCM provider is active; standalone native
+  fallback remains available without an MCM provider.
+- Added source regression checks; actual MCM click/rebind and live
+  cross-UI sync remain isolated runtime QA, especially when both
+  native MCM and F4SE Menu Framework are installed.

@@ -72,3 +72,27 @@ All in-game behavior (native MCM merging with minimap, F4SE Menu
 Framework, keyboard/controller binding round trips, OG and AE) still
 requires an isolated Amethyst profile. No production deployment or
 claim of runtime success is made here.
+
+
+## Keyboard default-registration fix (October 2026)
+
+Classic MCM may fail to assign a previously unregistered hotkey,
+because its AS3 remap handler reads `GetKeybind(...).keycode` without
+checking whether the result is null. Quick Attach now initializes
+missing records in the global registry at plugin startup, using
+`openQuickMenu = Shift+K` and
+`openMenuBuilder = Ctrl+Shift+K` **only on first registration**.
+
+Previously saved bindings (including Mouse 4 / Mouse 5) remain
+untouched. A persistent child-specific initialization marker
+distinguishes first-install defaults from user-cleared bindings;
+cleared keys stay Unbound, not silently restored. Registry updates
+are scoped to the child's action IDs and written atomically.
+The plugin's own F4SE INI shortcuts remain operational when the
+MCM runtime provider is absent. Neither the package nor the test
+archive contains a replacement user Keybinds.json.
+
+Native MCM hotkey capture and in-memory persistence, especially after
+clearing/rebinding a shortcut in the *same session*, must be checked in
+the isolated Amethyst profile. A menu close/reopen or game restart
+may be required on original MCM builds.
