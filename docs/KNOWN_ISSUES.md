@@ -40,10 +40,12 @@ candidate ignores disabled entries for installed identity.
   experimental parent settings may exist. Quick Attach reads them only
   to avoid known simultaneous controller chords; this is not a complete
   cross-mod dispatcher for all future mods.
-- Native MCM (including Quick Attach + Minimap combined grouping), F4SE
-  Menu Framework, OG and AE in-game integration remain untested for this
-  version. Compiling and checking package contents cannot confirm
-  in-game grouping or hotkey behavior.
+- The maintainer reports the bundled MCM integration working in-game
+  for Quick Attach Menu in their tested setup. This confirms focused
+  module-level acceptance, not exhaustive keyboard/controller remapping
+  or compatibility across all runtime and input configurations.
+  Quick Attach + Prisma Minimap combined grouping and F4SE Menu
+  Framework behavior have not been confirmed by this test.
 - Cheat mode remains Experimental. Use at your own risk, including the
   accepted loose-mod return and AE gameplay-effect refresh limitations.
 

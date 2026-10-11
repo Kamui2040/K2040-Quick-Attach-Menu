@@ -18,8 +18,10 @@
   condensed font fallbacks, while retaining the live game HUD colour.
 - Added a Fallout 76-inspired theme using the shared Quest Journal/MAP76
   amber, ivory and charcoal palette. No third-party assets are bundled.
-- Native hub integration and appearance need focused real-game testing
-  before merge or release.
+- The maintainer tested 0.5.215 in-game and reports the bundled MCM
+  integration works for Quick Attach Menu. Combined grouping with
+  Prisma Minimap and F4SE Menu Framework behavior remain to be tested
+  separately; broader public compatibility testing is still useful.
 
 ## 0.5.214 (unreleased cheat-mode tester)
 

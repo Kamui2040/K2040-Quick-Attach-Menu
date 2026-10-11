@@ -23,11 +23,15 @@ remain openQuickMenu and openMenuBuilder, with native settings fallback.
 
 F4SE Menu Framework has a separate MCM translation implementation;
 owner grouping and CallExternalFunction callbacks require separate
-runtime testing. Native MCM also needs a combined Quick Attach +
-Prisma Minimap game check before claiming one parent and two pages. Controller collisions are checked against the
-known Minimap buttons; independent plugins do not yet share a general
-conflict coordinator. No OG or AE gameplay QA is claimed for this
-integration.
+runtime testing. The maintainer reports the bundled Quick Attach MCM
+integration working in-game in the tested setup. That does not
+establish F4SE Menu Framework parity, every input combination, or
+combined Quick Attach + Prisma Minimap grouping. The combined case
+still needs a game check before claiming one parent and two pages.
+Controller collisions are checked against known Minimap shortcuts,
+but independent plugins do not yet share a general conflict
+coordinator. The specific game runtime and complete tested input
+matrix were not reported for this 0.5.215 check.
 
 # Compatibility
 
