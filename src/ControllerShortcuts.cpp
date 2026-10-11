@@ -6,9 +6,14 @@
 #include <Xinput.h>
 
 #include <array>
+#include <charconv>
+#include <mutex>
+#include <sstream>
+#include <algorithm>
 #include <atomic>
 #include <cstdint>
 #include <cmath>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -19,7 +24,23 @@ namespace
 {
     constexpr std::uint32_t kLeftTrigger = 0x10000u;
     constexpr std::uint32_t kRightTrigger = 0x20000u;
+    // This legacy file is read once to migrate a pre-MCM user preference.
+    // All subsequent edits use the child-owned ModSettingInt MCM user INI.
     constexpr auto kSettingsFile = "Data/F4SE/Plugins/K2040_Quick_Attach_Menu/ControllerShortcuts.ini";
+    const auto kMcmUser=std::filesystem::path("Data/MCM/Settings/K2040_Quick_Attach_Menu.ini");
+    const auto kMcmDefaults=std::filesystem::path("Data/MCM/Config/K2040_Quick_Attach_Menu/settings.ini");
+    const auto kMinimapUser=std::filesystem::path("Data/MCM/Settings/K2040_Prisma_Minimap.ini");
+    const auto kJournalUser=std::filesystem::path("Data/MCM/Settings/K2040_Quest_Journal.ini");
+    const auto kMinimapConfig=std::filesystem::path("Data/MCM/Config/K2040_Prisma_Minimap/config.json");
+    const auto kJournalConfig=std::filesystem::path("Data/MCM/Config/K2040_Quest_Journal/config.json");
+    constexpr std::size_t kMaxMcmIni=128*1024;
+    std::mutex g_bindingLock;
+    std::atomic_bool g_conflict{false};
+    std::chrono::steady_clock::time_point g_nextMcmRefresh{};
+    constexpr std::array<std::string_view,17> kDropNames={
+        "None","A","B","X","Y","DUp","DDown","DLeft","DRight",
+        "LB","RB","LT","RT","Start","Back","LS","RS"
+    };
 
     struct Button
     {
@@ -69,25 +90,160 @@ namespace
         return a | b;
     }
 
+    std::optional<std::string> BoundedIni(const std::filesystem::path& path) {
+        std::error_code ec;
+        if(!std::filesystem::is_regular_file(path,ec)||ec||
+           std::filesystem::file_size(path,ec)>kMaxMcmIni||ec) return std::nullopt;
+        std::ifstream file(path,std::ios::binary);
+        if(!file)return std::nullopt;
+        std::string out((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+        if(out.size()>kMaxMcmIni || (!file.good()&&!file.eof()))return std::nullopt;
+        return out;
+    }
+    std::string Trim(std::string t){
+        const auto good=[](unsigned char c){return c!=' '&&c!='\r'&&c!='\n'&&c!='\t';};
+        auto first=std::find_if(t.begin(),t.end(),good);
+        auto last=std::find_if(t.rbegin(),t.rend(),good).base();
+        return first<last?std::string(first,last):std::string{};
+    }
+    unsigned IniValue(const std::string& text,std::string_view key){
+        std::istringstream input(text);
+        std::string line;
+        bool controller=false;
+        while(std::getline(input,line)){
+            const auto v=Trim(line);
+            if(v.starts_with("[")&&v.ends_with("]")){controller=v=="[Controller]";continue;}
+            if(!controller || v.starts_with(";") || v.starts_with("#"))continue;
+            const auto pos=v.find('=');
+            if(pos==v.npos || Trim(v.substr(0,pos))!=key)continue;
+            const auto str=Trim(v.substr(pos+1));
+            unsigned result{};
+            const auto parsed=std::from_chars(str.data(),str.data()+str.size(),result);
+            return parsed.ec==std::errc{}&&parsed.ptr==str.data()+str.size()&&result<17?result:0;
+        }
+        return 0;
+    }
+    std::optional<std::pair<unsigned,unsigned>> Indices(std::string_view binding){
+        if(binding=="None")return std::pair{0u,0u};
+        const auto plus=binding.find('+');
+        const auto first=binding.substr(0,plus);
+        const auto second=plus==binding.npos ? std::string_view{} : binding.substr(plus+1);
+        auto find=[](std::string_view name)->unsigned{
+            for(unsigned i=1;i<kDropNames.size();++i)if(kDropNames[i]==name)return i;
+            return 0;
+        };
+        const auto held=plus==binding.npos?0:find(first);
+        const auto primary=find(plus==binding.npos?first:second);
+        if(!primary || (plus!=binding.npos&&!held) || primary==held)return std::nullopt;
+        return std::pair{primary,held};
+    }
+    std::string BindingName(unsigned primary,unsigned held){
+        if(primary>=kDropNames.size()||held>=kDropNames.size()||(!primary&&held)||primary==held)
+            return "None";
+        if(!primary)return "None";
+        return held ? std::string(kDropNames[held])+"+"+std::string(kDropNames[primary])
+                    : std::string(kDropNames[primary]);
+    }
+    std::optional<std::string> McmBinding(){
+        const auto ini=BoundedIni(kMcmUser);
+        if(!ini)return std::nullopt;
+        return BindingName(IniValue(*ini,"iQuickAttachPadPrimary"),
+                           IniValue(*ini,"iQuickAttachPadModifier"));
+    }
+    bool ConflictsWithOtherMods(unsigned primary,unsigned held=0){
+        if(!primary)return false;
+        // Fail closed for overlapping physical buttons, not just exact chords:
+        // LB+RB cannot coexist safely with RB, RB+LB, or another LB+RB.
+        const auto collides=[&](const std::string& ini,
+                                std::string_view primaryName,std::string_view heldName){
+            const auto otherPrimary=IniValue(ini,primaryName);
+            const auto otherHeld=IniValue(ini,heldName);
+            if(!otherPrimary)return false;
+            return primary==otherPrimary || (held && held==otherPrimary) ||
+                (otherHeld && (primary==otherHeld || (held&&held==otherHeld)));
+        };
+        std::error_code ec;
+        if(std::filesystem::is_regular_file(kMinimapConfig,ec)&&!ec) {
+            if(const auto ini=BoundedIni(kMinimapUser))
+                if(collides(*ini,"iMinimapPadPrimary","iMinimapPadModifier"))return true;
+        }
+        if(std::filesystem::is_regular_file(kJournalConfig,ec)&&!ec) {
+            if(const auto ini=BoundedIni(kJournalUser))
+                if(collides(*ini,"iQuestJournalPadPrimary","iQuestJournalPadModifier")||
+                   collides(*ini,"iQuestTrackerPadPrimary","iQuestTrackerPadModifier"))return true;
+        }
+        return false;
+    }
+    void Assign(std::string binding){
+        auto mask=ParseBinding(binding).value_or(0);
+        const auto indices=Indices(binding);
+        g_conflict.store(indices && ConflictsWithOtherMods(indices->first,indices->second));
+        if(g_conflict)mask=0;
+        std::lock_guard guard(g_bindingLock);
+        g_quickBinding=std::move(binding);
+        g_quickMask.store(mask);
+        g_requireControllerRelease.store(true);
+    }
+    void RefreshFromMcm(){
+        const auto next=std::chrono::steady_clock::now();
+        if(next<g_nextMcmRefresh)return;
+        g_nextMcmRefresh=next+std::chrono::milliseconds(750);
+        if(auto assigned=McmBinding()){
+            bool changed=false;
+            {std::lock_guard guard(g_bindingLock);changed=*assigned!=g_quickBinding;}
+            const auto index=Indices(*assigned);
+            if(changed || g_conflict.load() ||
+               (index && ConflictsWithOtherMods(index->first,index->second)))
+                Assign(*assigned);
+        }
+    }
+
     bool PersistBindings(std::string_view quick)
     {
-        const std::filesystem::path target(kSettingsFile);
-        const auto temporary = std::filesystem::path(target.string() + ".tmp");
-        std::error_code error;
-        std::filesystem::create_directories(target.parent_path(), error);
-        if (error) return false;
+        if(!std::filesystem::is_regular_file(kMcmDefaults))return false;
+        const auto selection=Indices(quick);
+        if(!selection)return false;
+        if(ConflictsWithOtherMods(selection->first,selection->second))return false;
+        const auto existing=BoundedIni(kMcmUser);
+        if(!existing && std::filesystem::exists(kMcmUser))return false;
 
-        {
-            std::ofstream output(temporary, std::ios::trunc | std::ios::binary);
-            if (!output) return false;
-            output << "[ControllerShortcuts]\nQuick=" << quick << "\n";
-            output.flush();
-            if (!output.good()) return false;
+        std::string data;
+        std::istringstream input(existing.value_or(""));
+        std::string line;
+        bool controller=false,found=false,donePrimary=false,doneHeld=false;
+        const auto appendMissing=[&](){
+            if(!donePrimary)data+="iQuickAttachPadPrimary="+std::to_string(selection->first)+"\r\n";
+            if(!doneHeld)data+="iQuickAttachPadModifier="+std::to_string(selection->second)+"\r\n";
+        };
+        while(std::getline(input,line)){
+            const auto t=Trim(line);
+            if(t.starts_with("[")&&t.ends_with("]")){
+                if(controller)appendMissing();
+                controller=t=="[Controller]";if(controller)found=true;
+            }
+            const auto key=t.substr(0,t.find('='));
+            if(controller&&key=="iQuickAttachPadPrimary"){
+                if(!donePrimary)data+="iQuickAttachPadPrimary="+std::to_string(selection->first)+"\r\n";
+                donePrimary=true;
+            }else if(controller&&key=="iQuickAttachPadModifier"){
+                if(!doneHeld)data+="iQuickAttachPadModifier="+std::to_string(selection->second)+"\r\n";
+                doneHeld=true;
+            }else data+=line+"\r\n";
         }
-
-        if (!MoveFileExA(temporary.string().c_str(), target.string().c_str(),
-                MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-            std::filesystem::remove(temporary, error);
+        if(controller)appendMissing();
+        if(!found){data+="[Controller]\r\n";appendMissing();}
+        if(data.size()>kMaxMcmIni)return false;
+        std::error_code ec;
+        std::filesystem::create_directories(kMcmUser.parent_path(),ec);
+        if(ec)return false;
+        auto temporary=kMcmUser;
+        temporary+=".k2040.tmp";
+        {std::ofstream output(temporary,std::ios::trunc|std::ios::binary);
+         if(!output)return false;
+         output<<data;output.flush();if(!output.good())return false;}
+        if(!MoveFileExW(temporary.wstring().c_str(),kMcmUser.wstring().c_str(),
+                      MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){
+            std::filesystem::remove(temporary,ec);
             return false;
         }
         return true;
@@ -148,15 +304,21 @@ namespace k2040
             log::Warn("Invalid Quick Menu controller shortcut; left unassigned.");
             quick = "None";
         }
+        // Do not delete the existing user file. Import only if the new
+        // child-owned MCM preferences have not already been saved.
+        if(const auto native=McmBinding())quick=*native;
+        else if(quick!="None" && std::filesystem::is_regular_file(kMcmDefaults))
+            PersistBindings(quick);
         // Older files may contain Builder=; it is deliberately ignored.
-        g_quickBinding = quick;
-        g_quickMask = ParseBinding(quick).value_or(0);
-        g_requireControllerRelease = true;
+        Assign(quick);
     }
 
     std::string GetControllerShortcut(std::string_view action)
     {
-        if (action == "quick") return g_quickBinding;
+        if (action == "quick") {
+            std::lock_guard guard(g_bindingLock);
+            return g_quickBinding;
+        }
         return "None";
     }
 
@@ -165,20 +327,16 @@ namespace k2040
         const auto mask = ParseBinding(binding);
         if (action != "quick" || !mask) return false;
         if (!PersistBindings(binding)) return false;
-        g_quickBinding = binding;
-        g_quickMask = *mask;
-        g_requireControllerRelease = true;
+        Assign(std::string(binding));
         return true;
     }
 
     bool ResetControllerShortcuts()
     {
-        std::error_code error;
-        std::filesystem::remove(kSettingsFile, error);
-        if (error) return false;
-        g_quickBinding = "None";
-        g_quickMask = 0;
-        g_requireControllerRelease = true;
+        // New child preferences explicitly become Unbound, so an old
+        // legacy shortcut is never silently restored after resetting.
+        if(!PersistBindings("None"))return false;
+        Assign("None");
         return true;
     }
 
@@ -211,6 +369,7 @@ namespace k2040
     void PollControllerShortcutEdges(bool suppressed, bool& quick)
     {
         quick = false;
+        RefreshFromMcm(); // MCM dropdown changes become effective without restart
         const auto down = ReadControllerButtons();
         static std::uint32_t previous = 0;
         const auto before = previous;

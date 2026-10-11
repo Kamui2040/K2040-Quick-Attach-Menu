@@ -134,6 +134,12 @@ target("K2040_Quick_Attach_Menu")
         os.mkdir(staged_plugins)
         os.cp(target:targetfile(), staged_plugins)
 
+        -- The shared parent is distributed byte-for-byte with every K2040 mod.
+        local parent_source=path.join(os.scriptdir(),"Data","MCM","Config","K2040_Mods")
+        local parent_target=path.join(os.scriptdir(),"dist","Data","MCM","Config","K2040_Mods")
+        os.mkdir(parent_target)
+        os.cp(path.join(parent_source,"*"),parent_target)
+
         print("Built DLL staged to:")
         print("  " .. path.join(staged_plugins, "K2040_Quick_Attach_Menu.dll"))
     end)

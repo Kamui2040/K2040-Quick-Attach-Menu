@@ -231,3 +231,16 @@ source revision, checksum, and license are recorded under
 Project-owned code is licensed under the GNU General Public License v3.0 only.
 See [`LICENSE`](LICENSE). The unchanged PrismaUI API header remains covered by
 the separate license stored beside it.
+
+
+### Shared K2040 Mods MCM page (0.5.214 development)
+
+Quick Attach now bundles the **canonical K2040 Mods parent** MCM
+configuration itself, alongside a Quick Attach child page. No separate
+Hub download is needed. Controller shortcut settings remain owned by
+`K2040_Quick_Attach_Menu`, shared with the existing PrismaUI Controls
+interface. Keyboard Shift+K / Ctrl+Shift+K defaults, the full controller
+navigation system, AE attachment refresh behavior, and Cheat mode
+remain unchanged. See [MCM owner integration](docs/MCM_OWNER_GROUPING.md)
+for the exact parent hash and the non-destructive legacy migration.
+Grouping and input dispatch still require isolated in-game QA.

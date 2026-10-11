@@ -250,3 +250,30 @@ provider-child paths, close/reopen, Alt-Tab, save/load, and normal exit.
 
 Unsupported or ambiguous attachment operations remain individually blocked by
 live validation. See `docs/KNOWN_ISSUES.md` for the current boundary.
+
+
+## 2026-10-11 — self-contained native MCM owner page (0.5.214 worktree)
+
+- Basing this integration on 0.5.214 `feature/cheat-mode-inventory-safe`
+  rather than the outdated 0.5.199-derived `development/mcm-ownermodname`.
+  No cheat mode, AE refresh, controller navigation or weapon attachment
+  behavior is intentionally removed or reset.
+- Bundled **exact canonical** `K2040_Mods/config.json` in both source
+  and built `dist/Data`: SHA-256
+  `8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb`.
+  The child `K2040_Quick_Attach_Menu` config uses
+  `ownerModName=K2040_Mods`, own keyboard IDs and own controller dropdown
+  and INI defaults. No separate hub installer, runtime DLL or cross-mod
+  parent binding registry needed.
+- Existing 0.5.214 controller Quick Menu opener is kept and synchronizes
+  PrismaUI's shortcut selector and MCM's child-owned
+  `Data/MCM/Settings/K2040_Quick_Attach_Menu.ini`.
+  Earlier `ControllerShortcuts.ini` is read only for safe first migration
+  when a child user value has not been set. Native reader polls MCM user
+  changes and disables overlapping Minimap/Quest Journal shortcuts.
+- A dedicated Builder *controller opener* was not added; existing Quick
+  Menu, Builder and Settings controller navigation is preserved.
+- The first earlier 0.5.200 experimental tester built from the older
+  worktree is **superseded and must NOT replace the 0.5.214 branch**.
+- Native MCM parent merge and F4SE Menu Framework behavior still need
+  target runtime QA. Never deploy into the main Amethyst profile.

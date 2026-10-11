@@ -379,3 +379,14 @@ unverified.
 
 Version 0.5.197 has focused runtime coverage on Fallout 4 `1.11.240` for the
 new settings, Cascade refresh, cursor ownership, and all three views.
+
+
+- The shared K2040 Mods parent/child grouping is source-verified for
+  native MCM but not yet verified in game, especially alongside
+  Prisma Minimap's identical parent and when removing one of the mods.
+  F4SE Menu Framework compatibility requires separate testing.
+- Cross-mod controller collision checks conservatively suppress overlapping
+  buttons in known child INIs. There is no universal cross-DLL runtime
+  arbiter. The Builder has no dedicated controller *opener* shortcut.
+- Older controller preferences are migrated only if no child-owned
+  MCM user INI exists. The legacy file is preserved for rollback.
