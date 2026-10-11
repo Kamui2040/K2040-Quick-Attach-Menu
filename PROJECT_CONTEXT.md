@@ -10,6 +10,72 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.213 corrects orientation mismatches in the 0.5.212
+Builder and Settings controller focus layer. Builder header and weapon
+controls now use Left/Right within horizontal rows and Up/Down between
+rows, while vertical categories and attachments retain Up/Down. Settings
+two-column grids and side-by-side header/confirmation controls follow
+their physical arrangement. LT remains an optional Quick Menu opener
+button/modifier, not a built-in navigation key. Browser tests pass;
+target-environment validation is still required.
+
+Unreleased 0.5.212 introduces shared controller navigation for Builder
+and Settings, using the live game-mapped Confirm/Cancel buttons. Dropdown
+lists and modal dialogs have explicit navigation and cancel semantics;
+Builder category browsing never changes visibility without a separate
+button action. Settings sliders require Confirm to enter editing.
+This is tested with simulated browser events and native build checks but
+needs targeted Proton/Prisma in-game QA. Text entry and drag reordering
+still require keyboard/mouse controls.
+
+Unreleased 0.5.211 consolidates input movement/Back/shoulder navigation
+across all four Quick Menu presentations. In Compact Hybrid the semicircular
+category wheel is drawn bottom-to-top, so Up/Down now reverse only the
+underlying category-index step to match screen direction. Sticks, D-pad,
+and keyboard share directional behavior; Cancel first returns from options
+before closing. Input never installs a mod without explicit mapped Confirm.
+Renderer/browser tests pass; initial user in-game testing reports
+this revision working as far as tested. The result is provisional;
+full layout/remapping and cross-controller QA remain outstanding.
+
+Unreleased 0.5.210 expands Quick Menu controller navigation to both
+thumbsticks and the D-pad in radial, cascade, hybrid and horizontal
+presentations. Only an explicit mapped gamepad Activate/Confirm press
+can install a selected attachment; movement is highlight-only. It reads
+the current Fallout 4 control mapping, avoids button conflicts and
+retains the tested AE 0.5.209 deferred re-equip. Browser/controller
+simulations and Linux cross-build passed, and focused user testing
+confirmed the 0.5.210 controller behavior works in the tested setup.
+Remapped-button combinations, every layout, and broader Proton/XInput
+regression coverage remain unverified.
+
+The unreleased 0.5.209 experiment addresses the 0.5.208 report
+that successive OMOD changes sometimes only visually show the first
+modification until manually swapping weapons. The AE-only workaround
+now coalesces successful changes and schedules a single re-equip
+after the Quick Menu closes, with stale-task and exact OMOD/stack
+checks. Focused user testing of 0.5.209 on AE 1.11.240 confirmed
+that the previously reported multi-attachment visual-refresh problem
+is resolved when closing the Quick Menu. The tester accepts the
+occasional magazine-count reset during AE re-equip. Total ammunition
+integrity, animation behavior, other weapons, and broader regression
+remain unverified; release/merge remains blocked.
+
+The unreleased 0.5.208 follow-up responds to focused AE 1.11.240
+testing: the 0.5.207 exact-stack unequip returned false and the user
+observed that the weapon was unequipped without automatic re-equipping.
+The fallback now requests the matching equip even on a false unequip
+return and checks actual equipped state afterward. Generated menus hide
+the vanilla internal universal range offset category, preserving the
+underlying OMOD and graph. This revised tester has not passed in-game
+QA; leave the fallback opt-in and OG native refresh unchanged.
+
+The unreleased 0.5.207 experiment adds opt-in automatic re-equip
+after verified attachment changes only on AE 1.11.240; the OG refresh
+remains unchanged. The fallback targets the exact equipped stack and
+guards loaded-ammo restoration. It is disabled by default and not
+in-game validated. No release or automatic game deployment is authorized.
+
 The unreleased 0.5.206 safety candidate fixes the invalid AE post-mod
 refresh call identified in an actual Addictol crash report. On Fallout 4
 1.11.240 the used Address Library ID 1153963 is absent and lookup

@@ -10,6 +10,57 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.213 refines Builder and Settings controller focus so
+Left/Right follows horizontal rows, including the Builder top toolbar,
+weapon controls, Settings theme/presentation choice grids and side-by-side
+reset confirmation buttons. Up/Down remains for vertical lists and between
+rows. LT alone does not navigate; it is an optional Quick Menu opening
+binding or modifier. These changes need focused in-game controller QA.
+
+Unreleased 0.5.212 enables controller actions in Builder and Settings
+using the same game-mapped confirm/cancel buttons as Quick Menu, plus a
+shared DOM focus layer. Modal/dialog/dropdown navigation is explicit.
+Sliders require Confirm to enter editing, and Builder category navigation
+is selection-only. Text and hotkey capture, colour-hex entry and drag
+reordering still require keyboard/mouse. This build requires focused
+Prisma/Proton controller runtime testing before compatibility acceptance.
+
+Unreleased 0.5.211 unifies directional/controller navigation across
+all four Quick Menu presentations and corrects the previously inverted
+Compact Hybrid category wheel. Left/Right consistently change between
+category and attachment focus, while Cancel backs out before closing.
+LB/RB switch categories or page radial attachments. Directional movement
+cannot install attachments. Automated browser/renderer checks pass;
+initial user testing on the target setup reports this revision working.
+The result is provisional; not every layout, custom input mapping,
+repeat pattern or Steam Input/Proton configuration has been verified.
+
+Unreleased 0.5.210 adds native thumbstick navigation in every Quick
+Menu presentation and explicit game-mapped confirmation. Steam Input
+and XInput must expose a gamepad to Fallout 4. The gamepad mapping is
+read from the live ControlMap on the game thread, falling back to
+menu Accept and default A where needed. Focused in-game tester feedback confirms the 0.5.210 controller behavior
+works in the tested configuration. Remapped buttons, all layouts, repeat
+behavior and the broader Steam Input/Proton matrix are not yet fully
+validated. That earlier 0.5.210 build kept Builder and Settings
+keyboard/mouse-only; 0.5.212 adds first-pass controller support.
+
+Unreleased 0.5.209 revises the AE-only experimental re-equip to
+coalesce multiple successful OMOD transactions and re-equip the
+last verified equipped stack only after the Quick Menu closes.
+Focused user testing on AE 1.11.240 confirms the previously reported
+repeated-change visual refresh issue is resolved when closing the
+Quick Menu. This is not full ammunition, animation or multi-weapon
+regression coverage. The flag remains opt-in, while OG 1.10.163
+retains its immediate legacy refresh.
+
+Unreleased 0.5.207 offers an experimental automatic re-equip
+fallback solely for Fallout 4 AE 1.11.240. Opt in on a disposable
+test save with AEAutoReequipAfterApply=true under Behavior in the
+plugin INI. OG 1.10.163 keeps the original native refresh.
+This workaround has not passed runtime QA and may affect magazines
+or weapon animations.
+
 The unreleased 0.5.206 test build skips invalid post-modification
 equipped-weapon refresh on AE 1.11.240. Its old Address Library ID
 1153963 is absent and maps to non-executable data. Re-equipping

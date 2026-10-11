@@ -1,3 +1,121 @@
+## 0.5.213 (unreleased orientation-aware Builder/Settings navigation tester)
+
+- Follow the visible direction of controls rather than treating every
+  collection as a vertical list. In the Builder header toolbar and
+  weapon-settings row, Left/Right move between controls and Up/Down
+  move between horizontal rows and the category list.
+- Preserve Up/Down for vertical category, attachment and dropdown lists,
+  and Left/Right for switching between category and attachment panes.
+- In Settings, Left/Right traverse each row of the two-column theme and
+  presentation grids; Up/Down move between grid rows. The header Back/Close
+  actions and Reset confirmation buttons also follow their horizontal order.
+- LT has no default menu-navigation action. It remains a selectable
+  Quick Menu opener button or modifier (such as LT + another button).
+- Keep mapped confirmation, safe dropdown cancel, settings edit mode,
+  Quick Menu navigation and AE post-close refresh unchanged.
+- Automated interaction and source checks pass; focused in-game controller
+  verification of these directional changes remains pending.
+
+## 0.5.212 (unreleased Builder/Settings controller navigation tester)
+
+- Extend the working controller bindings, including the user's mapped
+  Activate/Confirm and Cancel buttons, to the Builder and Settings views.
+- Use one shared page-focus controller helper for both. Sticks and the
+  D-pad move focus; LB/RB change Builder groups or Settings tabs; Confirm
+  activates the focused control, and Back returns to the preceding level.
+- Dropdown lists have a separate navigation state: movement only highlights
+  an option; Confirm selects, and Back closes without changing the value.
+  Profile import and Reset Everything dialogs likewise require explicit
+  confirmation, with Back cancelling safely.
+- Builder navigation selects categories without changing their visibility.
+  A separate unassigned X/Y face-button action toggles category/entry
+  visibility deliberately. A on a selected entry uses the existing
+  explicit show/hide action.
+- Settings sliders require an explicit Confirm press to enter editing;
+  then Left/Right adjusts them, and Back exits edit mode. Existing
+  keyboard and mouse interaction remains available.
+- Text editing, colour hex input, and keyboard hotkey capture still need
+  a keyboard. Other Builder operations such as drag reordering have not
+  been converted to controller-only workflows.
+- Automated interaction and source tests pass. In-game Proton/Prisma
+  runtime behavior is not yet verified; no release is implied.
+
+## 0.5.211 (unreleased unified Quick Menu navigation tester)
+
+- Use one controller navigation model across Cascade, Radial, Compact
+  Hybrid and Horizontal. Up/Down move through visible categories or
+  attachment choices; Right enters the attachments pane and Left returns.
+- In Compact Hybrid, invert the category-index step only while traversing
+  its bottom-to-top semicircle, so D-pad and joystick Up actually move
+  upward on screen, and Down actually moves downward.
+- Make Cancel back out of attachments in every layout before closing the
+  menu. LB/RB change categories without forcing pane focus; Radial
+  attachment mode keeps LB/RB paging.
+- Share the same directional handling between keyboard, D-pad and sticks.
+  D-pad takes precedence until the held stick returns to neutral.
+- Movement is selection-only: installing still requires a distinct mapped
+  Activate/Confirm press. Preserve the tested AE deferred re-equip behavior.
+- Browser and renderer-level navigation tests cover every presentation.
+  Initial in-game controller testing reports the 0.5.211 changes working.
+  This is a provisional, focused result, not a complete layout/remapping
+  or controller compatibility regression.
+
+## 0.5.210 (unreleased controller navigation tester)
+
+- Support either thumbstick for highlight-only navigation in all Quick Menu
+  presentations, alongside the existing D-pad. Radial retains angle-based
+  highlighting; cascade, hybrid and horizontal use directional steps.
+- Keep analog navigation and D-pad actions distinct from attachment
+  installation. A separate, non-repeating confirmation press is required.
+- Read Fallout 4's current mapped gamepad Activate button for confirmation,
+  falling back to menu Accept then A when unavailable. Use the menu Cancel
+  mapping when available; avoid duplicate confirm/navigation bindings.
+- Send stick-neutral state to clear stale angular selection, suppress
+  repeated input drift, and retain game-thread-only Prisma callbacks.
+- Preserve the focused AE 0.5.209 post-close auto re-equip workaround.
+- Focused in-game tester feedback confirms the 0.5.210 controller update
+  works in the tested setup. Remapped-button combinations, all layouts,
+  and the full controller/weapon regression matrix remain unverified.
+
+## 0.5.209 (unreleased AE multi-change visual refresh experiment)
+
+- Coalesce multiple successfully verified attachment changes on AE
+  1.11.240 into a single exact-stack re-equip when the Quick Menu closes.
+  Stop cycling the weapon for each individual attachment while the menu
+  and its presentation refresh may still be active.
+- Run the final refresh through the existing F4SE game-thread post-close
+  path, after Prisma has released focus, then queue first-person
+  presentation recovery. Skip stale tasks after a menu reopening or
+  game transition; re-check weapon, stack and installed OMOD identities.
+- Keep the opt-in AE-only setting and safe loaded-ammo restoration.
+  OG 1.10.163 uses the original native refresh with no changes.
+- Focused user testing on AE 1.11.240 confirmed that several
+  modifications made without exiting Quick Menu now become visually
+  current on close. Ammunition, animations and other weapon coverage
+  still require separate verification.
+
+## 0.5.208 (unreleased AE re-equip follow-up and internal-slot filtering)
+
+- Fix a confirmed 0.5.207 failure mode: ActorEquipManager::UnequipObject
+  returned false in an AE test while the weapon became unequipped, and
+  the old fallback stopped without requesting the matching re-equip.
+- Attempt the exact-stack re-equip even when the unequip return value is
+  false, then verify the actual equipped state instead of trusting either
+  boolean as an equipment-state guarantee.
+- Keep vanilla universal range-offset configuration OMODs in the live
+  stack and AP graph, but suppress their internal AP in generated menus.
+- OG 1.10.163 remains on the pre-existing refresh path. AE workaround
+  remains opt-in and needs focused target-runtime testing.
+
+## 0.5.207 (unreleased AE-only auto re-equip experiment)
+
+- Add an opt-in, exact-stack automatic re-equip alternative only for AE
+  1.11.240. OG 1.10.163 retains its original refresh logic.
+- The plugin INI switch AEAutoReequipAfterApply defaults to false.
+- Snapshot the loaded magazine and restore it only when the same ammunition
+  type and sufficient post-modification capacity can be verified.
+- No release or automatic deployment before focused game/animation/ammo QA.
+
 ## 0.5.206 (unreleased post-attachment crash safety)
 
 - Prevent a confirmed access violation after a successful attachment change

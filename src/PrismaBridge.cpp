@@ -26,6 +26,10 @@
 #include <utility>
 #include <vector>
 
+// Include Windows macros only after all CommonLib/RE headers have parsed.
+#include <Windows.h>
+#include <Xinput.h>
+
 namespace
 {
     constexpr const char* kMenuViewPath = "K2040_Quick_Attach_Menu/menu.html";
@@ -165,6 +169,143 @@ namespace
 
         using func_t = void (*)(RE::TESObjectREFR*, RE::TESBoundObject*, bool);
         reinterpret_cast<func_t>(address)(container, item, true);
+        return true;
+    }
+
+    // Test-only alternative for exactly AE 1.11.240. Legacy OG refresh is intact.
+    // Called on the game thread after the real OMOD/inventory transaction.
+    bool TryAutoReequipModifiedWeaponAE(
+        RE::PlayerCharacter* player,
+        RE::TESObjectWEAP* weapon,
+        const k2040::EquippedWeaponInfo& verified)
+    {
+        if (REX::FModule::GetExecutingModule().GetFileVersion() != REL::Version{ 1, 11, 240, 0 } ||
+            !k2040::GetSettings().aeAutoReequipAfterApply) {
+            return false;
+        }
+        if (!player || !weapon || !player->inventoryList || !player->currentProcess ||
+            !player->currentProcess->middleHigh || !verified.hasWeapon ||
+            verified.weapon.formId != weapon->GetFormID() ||
+            !verified.equippedInventoryStackFound || verified.equippedInventoryStackCount != 1 ||
+            verified.equippedSlotIndex > 1) {
+            k2040::log::Warn("AE auto re-equip skipped: equipped stack is ambiguous or process state is unavailable.");
+            return false;
+        }
+
+        // Capture the actual instance; never select another weapon of the same base form.
+        RE::BGSEquipIndex index{};
+        index.index = verified.equippedSlotIndex;
+        RE::BGSObjectInstance instance(nullptr, nullptr);
+        auto* current = player->GetEquippedItem(std::addressof(instance), index);
+        if (!current || current->object != weapon || !current->instanceData) {
+            k2040::log::Warn("AE auto re-equip skipped: equipped instance changed.");
+            return false;
+        }
+
+        const RE::BGSEquipSlot* slot = nullptr;
+        std::uint32_t loadedAmmo = 0;
+        {
+            auto* state = player->currentProcess->middleHigh;
+            RE::BSAutoLock locker(state->equippedItemsLock);
+            for (const auto& entry : state->equippedItems) {
+                if (entry.equipIndex.index != index.index || entry.item.object != weapon) {
+                    continue;
+                }
+                if (!entry.data || !entry.equipSlot || slot) {
+                    k2040::log::Warn("AE auto re-equip skipped: duplicated or incomplete equipped weapon state.");
+                    return false;
+                }
+                auto* data = RE::fallout_cast<RE::EquippedWeaponData*>(entry.data.get());
+                if (!data) {
+                    k2040::log::Warn("AE auto re-equip skipped: equipped data does not identify a weapon.");
+                    return false;
+                }
+                slot = entry.equipSlot;
+                loadedAmmo = data->ammoCount;
+            }
+        }
+        if (!slot) {
+            k2040::log::Warn("AE auto re-equip skipped: no matching equipment slot.");
+            return false;
+        }
+
+        const auto before = k2040::GetEquippedWeaponInfo();
+        if (!before.hasWeapon || before.weapon.formId != verified.weapon.formId ||
+            before.equippedSlotIndex != verified.equippedSlotIndex ||
+            !before.equippedInventoryStackFound ||
+            before.equippedInventoryStackIndex != verified.equippedInventoryStackIndex ||
+            before.equippedInventoryStackCount != 1) {
+            k2040::log::Warn("AE auto re-equip skipped: inventory stack changed.");
+            return false;
+        }
+
+        // A script or another mod might have changed the same equipped stack
+        // after this menu's last successful OMOD transaction. Do not execute
+        // a delayed re-equip using stale attachment state.
+        const auto installedIds = [](const k2040::EquippedWeaponInfo& info) {
+            std::vector<std::uint32_t> ids;
+            ids.reserve(info.installedObjectInstanceMods.size());
+            for (const auto& installed : info.installedObjectInstanceMods) {
+                ids.push_back(installed.formId);
+            }
+            std::sort(ids.begin(), ids.end());
+            return ids;
+        };
+        if (installedIds(before) != installedIds(verified)) {
+            k2040::log::Warn("AE auto re-equip skipped: installed OMOD identities changed after the queued refresh.");
+            return false;
+        }
+
+        auto* manager = RE::ActorEquipManager::GetSingleton();
+        if (!manager) {
+            k2040::log::Warn("AE auto re-equip skipped: actor equip manager unavailable.");
+            return false;
+        }
+        auto* ammo = player->GetCurrentAmmo(index);
+        k2040::log::Info("AE auto re-equip: beginning exact-stack unequip.");
+        // The equip manager's boolean is not a reliable postcondition on AE:
+        // in the 0.5.207 live test the unequip returned false, while the
+        // weapon nevertheless became unequipped. Always attempt to restore
+        // the same instance/stack, then inspect the real equipped state.
+        const bool unequipReturned = manager->UnequipObject(
+            player, std::addressof(instance), 1, slot,
+            verified.equippedInventoryStackIndex, false, false, false, true, nullptr);
+        if (!unequipReturned) {
+            k2040::log::Warn(
+                "AE auto re-equip: unequip returned false; still issuing the "
+                "matching exact-stack equip to avoid stranding the weapon.");
+        }
+        k2040::log::Info("AE auto re-equip: beginning exact-stack re-equip.");
+        const bool equipReturned = manager->EquipObject(
+            player, instance, verified.equippedInventoryStackIndex, 1, slot,
+            false, false, false, true, false);
+        if (!equipReturned) {
+            k2040::log::Warn(
+                "AE auto re-equip: equip returned false; checking live equipped state "
+                "rather than assuming it failed.");
+        }
+
+        const auto after = k2040::GetEquippedWeaponInfo();
+        if (!after.hasWeapon || after.weapon.formId != verified.weapon.formId ||
+            after.equippedSlotIndex != verified.equippedSlotIndex ||
+            !after.equippedInventoryStackFound ||
+            after.equippedInventoryStackIndex != verified.equippedInventoryStackIndex ||
+            after.equippedInventoryStackCount != 1) {
+            k2040::log::Warn("AE auto re-equip: stack changed; ammunition cannot be restored safely. Reload test save.");
+            return false;
+        }
+
+        // Re-equip can refill the magazine. Restore only if the same ammo type
+        // remains equipped and the previous load fits the new weapon capacity.
+        if (ammo && player->GetCurrentAmmo(index) == ammo &&
+            after.liveWeaponInstanceData.present &&
+            loadedAmmo <= after.liveWeaponInstanceData.ammoCapacity) {
+            player->SetCurrentAmmoCount(index, loadedAmmo);
+            k2040::log::Info("AE auto re-equip: original loaded ammunition count restored.");
+        } else if (ammo) {
+            k2040::log::Warn("AE auto re-equip: ammo type/capacity changed; restoration skipped.");
+        }
+        k2040::log::Info("AE auto re-equip completed; visual update requires runtime QA.");
         return true;
     }
 
@@ -697,21 +838,22 @@ namespace k2040
         return menuOpen_ && viewMode_ != ViewMode::QuickMenu;
     }
 
-    bool PrismaBridge::IsQuickControllerInputActive() const
+    bool PrismaBridge::IsControllerInputActive() const
     {
-        return quickControllerInputActive_.load(std::memory_order_relaxed);
+        return controllerInputActive_.load(std::memory_order_relaxed);
     }
 
     void PrismaBridge::OnControllerStickSector(int sector)
     {
         // Called only by a queued F4SE game-thread task. Never call PrismaUI
         // from the physical controller polling thread.
-        if (sector < 0 || sector >= 72 ||
-            !quickControllerInputActive_.load(std::memory_order_relaxed) ||
-            !menuOpen_ || viewMode_ != ViewMode::QuickMenu ||
+        if (sector < -1 || sector >= 72 ||
+            !controllerInputActive_.load(std::memory_order_relaxed) ||
+            !menuOpen_ ||
             !viewDomReady_ || !api_ || !api_->IsValid(menuView_)) {
             return;
         }
+        // -1 is a neutral-release signal, not an input or confirmation.
         const auto value = std::to_string(sector);
         api_->InteropCall(menuView_, "k2040ControllerStickSector", value.c_str());
     }
@@ -1128,6 +1270,69 @@ namespace k2040
         log::Info("Prisma menu view created as an interactive panel with Escape ownership.");
     }
 
+    // Fallout 4 stores gamepad mappings as XInput button bits. Read the
+    // currently loaded control map rather than assuming A is always Activate.
+    // This is game-thread only, and does not change any user input settings.
+    const char* CanonicalGamepadButton(std::uint32_t code)
+    {
+        switch (code) {
+        case XINPUT_GAMEPAD_A: return "A";
+        case XINPUT_GAMEPAD_B: return "B";
+        case XINPUT_GAMEPAD_X: return "X";
+        case XINPUT_GAMEPAD_Y: return "Y";
+        case XINPUT_GAMEPAD_DPAD_UP: return "DUp";
+        case XINPUT_GAMEPAD_DPAD_DOWN: return "DDown";
+        case XINPUT_GAMEPAD_DPAD_LEFT: return "DLeft";
+        case XINPUT_GAMEPAD_DPAD_RIGHT: return "DRight";
+        case XINPUT_GAMEPAD_LEFT_SHOULDER: return "LB";
+        case XINPUT_GAMEPAD_RIGHT_SHOULDER: return "RB";
+        case XINPUT_GAMEPAD_BACK: return "Back";
+        case XINPUT_GAMEPAD_START: return "Start";
+        case XINPUT_GAMEPAD_LEFT_THUMB: return "LS";
+        case XINPUT_GAMEPAD_RIGHT_THUMB: return "RS";
+        default: return nullptr;
+        }
+    }
+
+    const char* ReadMappedControllerButton(
+        std::string_view event,
+        RE::UserEvents::INPUT_CONTEXT_ID context)
+    {
+        if (const auto* controls = RE::ControlMap::GetSingleton()) {
+            return CanonicalGamepadButton(
+                controls->GetMappedKey(event, RE::INPUT_DEVICE::kGamepad, context));
+        }
+        return nullptr;
+    }
+
+    void PrismaBridge::CaptureControllerButtonMapping()
+    {
+        // OpenView is dispatched by the existing hotkey/game-thread task.
+        // Keep ControlMap access out of Prisma's asynchronous DOM callback.
+        controllerConfirmButton_ = "A";
+        controllerCancelButton_ = "B";
+        const char* confirm = ReadMappedControllerButton(
+            "Activate", RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay);
+        if (!confirm) {
+            confirm = ReadMappedControllerButton(
+                "Accept", RE::UserEvents::INPUT_CONTEXT_ID::kBasicMenuNav);
+        }
+        if (!confirm) {
+            confirm = "A";
+            log::Warn("Could not resolve a supported mapped controller confirmation; using default A.");
+        }
+
+        const char* cancel = ReadMappedControllerButton(
+            "Cancel", RE::UserEvents::INPUT_CONTEXT_ID::kBasicMenuNav);
+        if (!cancel) cancel = "B";
+        if (std::string_view(cancel) == confirm) {
+            cancel = std::string_view(confirm) == "A" ? "B" : "A";
+            log::Warn("Controller accept/cancel mappings overlapped; selected the other face button for cancel.");
+        }
+        controllerConfirmButton_ = confirm;
+        controllerCancelButton_ = cancel;
+    }
+
     void PrismaBridge::BindControllerActions()
     {
         if (!controllerApi_ || menuView_ == 0 || !api_->IsValid(menuView_)) {
@@ -1135,13 +1340,14 @@ namespace k2040
         }
 
         controllerApi_->ClearControllerActions(menuView_);
-        if (viewMode_ != ViewMode::QuickMenu) {
-            log::Info("Controller actions intentionally disabled for Builder/Settings.");
-            return;
-        }
-        constexpr std::pair<const char*, const char*> bindings[] = {
-            { "A", "accept" },
-            { "B", "cancel" },
+        // Focused Builder and Settings share mapped gamepad confirmation,
+        // back, D-pad and shoulder bindings with Quick Menu.
+        const char* confirm = controllerConfirmButton_.c_str();
+        const char* cancel = controllerCancelButton_.c_str();
+
+        const std::pair<const char*, const char*> bindings[] = {
+            { confirm, "accept" },
+            { cancel, "cancel" },
             { "LB", "previous" },
             { "RB", "next" },
             { "DUp", "up" },
@@ -1152,6 +1358,13 @@ namespace k2040
 
         std::size_t bound = 0;
         for (const auto& [button, action] : bindings) {
+            // A remapped confirm/cancel button must never also navigate.
+            if (std::string_view(action) != "accept" &&
+                std::string_view(action) != "cancel" &&
+                (std::string_view(button) == confirm || std::string_view(button) == cancel)) {
+                log::Warn(std::string("Controller navigation binding skipped because it overlaps confirmation/cancel: ") + button + ".");
+                continue;
+            }
             if (controllerApi_->BindControllerAction(menuView_, button, action)) {
                 ++bound;
             } else {
@@ -1159,9 +1372,30 @@ namespace k2040
             }
         }
 
+        // Builder uses a separate explicit show/hide command, never a focus
+        // change. Choose a face button that cannot conflict with the mapped
+        // Confirm or Cancel; when neither is free, disable this shortcut.
+        if (viewMode_ == ViewMode::MenuBuilder) {
+            const char* secondary = nullptr;
+            for (const char* button : { "X", "Y" }) {
+                if (std::string_view(button) != confirm && std::string_view(button) != cancel) {
+                    secondary = button;
+                    break;
+                }
+            }
+            if (secondary && controllerApi_->BindControllerAction(menuView_, secondary, "toggle")) {
+                api_->InteropCall(menuView_, "k2040ControllerSecondaryButton", secondary);
+                ++bound;
+            }
+        }
+
+        // Keep browser-side dispatch tied to the exact buttons bound above.
+        // Navigation is never an implicit attachment or preference action.
+        api_->InteropCall(menuView_, "k2040ControllerConfirmButton", confirm);
+        api_->InteropCall(menuView_, "k2040ControllerCancelButton", cancel);
         log::Info(
-            "Prisma controller actions bound for the active page: " +
-            std::to_string(bound) + "/" + std::to_string(std::size(bindings)) + ".");
+            "Prisma controller actions bound: " + std::to_string(bound) +
+            " (confirm=" + confirm + ", cancel=" + cancel + ").");
     }
 
     void PrismaBridge::PushPayloadToView()
@@ -1335,20 +1569,55 @@ namespace k2040
 
     void PrismaBridge::CompleteFirstPersonPresentationRestore(const char* reason)
     {
-        if (!pendingFirstPersonPresentationRefresh_.exchange(false)) {
+        const bool restoreFirstPerson = pendingFirstPersonPresentationRefresh_.exchange(false);
+
+        // Coalesce all successful AE OMOD changes from the open Quick Menu
+        // into one latest-stack re-equip after menu/Prisma teardown. This avoids
+        // running an equip cycle for each rapid change while animations and
+        // model loads from prior changes may still be outstanding.
+        std::optional<EquippedWeaponInfo> deferredAE;
+        if (!menuOpen_ && pendingAEReequipInfo_) {
+            deferredAE = std::move(pendingAEReequipInfo_);
+            pendingAEReequipInfo_.reset();
+        }
+
+        if (!restoreFirstPerson && !deferredAE) {
             return;
         }
 
         const auto* taskInterface = F4SE::GetTaskInterface();
         if (!taskInterface) {
-            log::Warn("Could not schedule the post-close weapon presentation restore because the F4SE task interface is unavailable.");
+            log::Warn("Post-close weapon restore skipped because the F4SE task interface is unavailable.");
             return;
         }
 
-        taskInterface->AddTask([]() {
+        const bool hasDeferredAE = deferredAE.has_value();
+        const auto expectedGeneration = menuGeneration_;
+        taskInterface->AddTask([this, expectedGeneration, restoreFirstPerson,
+                                deferredAE = std::move(deferredAE)]() {
+            // A new menu or save transition invalidates both the stored exact
+            // stack and any queued post-close work. Never replay an old equip.
+            if (menuGeneration_ != expectedGeneration || menuOpen_) {
+                k2040::log::Info("Stale post-close weapon task skipped after menu/game transition.");
+                return;
+            }
+
             auto* player = RE::PlayerCharacter::GetSingleton();
             if (!player) {
-                k2040::log::Warn("Post-close weapon presentation restore skipped because the player is unavailable.");
+                k2040::log::Warn("Post-close weapon restore skipped because the player is unavailable.");
+                return;
+            }
+
+            if (deferredAE) {
+                auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(deferredAE->weapon.formId);
+                if (weapon && TryAutoReequipModifiedWeaponAE(player, weapon, *deferredAE)) {
+                    k2040::log::Info("One post-close AE re-equip completed for the latest modified weapon stack.");
+                } else {
+                    k2040::log::Warn("Post-close AE re-equip was skipped or could not verify the equipped stack.");
+                }
+            }
+
+            if (!restoreFirstPerson) {
                 return;
             }
 
@@ -1363,18 +1632,18 @@ namespace k2040
 
             if (auto* taskQueue = RE::TaskQueueInterface::GetSingleton()) {
                 taskQueue->QueueShow1stPerson(true);
-                k2040::log::Info("Queued first-person presentation refresh from the post-close game task.");
+                k2040::log::Info("Queued first-person presentation refresh after post-close weapon work.");
             } else {
                 k2040::log::Warn("First-person presentation refresh skipped because the game task queue is unavailable.");
             }
         });
 
-        std::string message = "Scheduled post-close weapon presentation restore";
+        std::string message = "Scheduled post-close weapon update";
         if (reason && reason[0] != '\0') {
             message += " ";
             message += reason;
         }
-        message += ".";
+        message += hasDeferredAE ? " with deferred AE re-equip." : " with presentation-only recovery.";
         log::Info(message);
     }
 
@@ -1435,6 +1704,9 @@ namespace k2040
 
     void PrismaBridge::OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode)
     {
+        // Invalidate any previous session's queued post-close refresh. Keep
+        // pending OMOD changes across Quick Menu -> Builder hotkey switches.
+        ++menuGeneration_;
         pendingFirstPersonPresentationRefresh_ = false;
 
         // A hidden Prisma 2.1 view can remain valid while its underlying render
@@ -1463,8 +1735,9 @@ namespace k2040
             }
         }
 
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         viewMode_ = mode;
+        CaptureControllerButtonMapping();
         currentWeaponInfo_ = weaponInfo;
         currentMenu_ = menu;
         CaptureWeaponPresentationState();
@@ -1557,8 +1830,9 @@ namespace k2040
         // Builder <-> Settings switches can acquire a new owner.
         UnregisterMenuCursorFallback();
 
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         viewMode_ = mode;
+        CaptureControllerButtonMapping();
         lastPayload_ = BuildMenuPayload(currentWeaponInfo_, currentMenu_);
         CreateMenuViewIfNeeded();
         if (menuView_ == 0) {
@@ -1590,7 +1864,7 @@ namespace k2040
     {
         SetHotkeyCaptureActive(false);
         SetMenuHotkeyUiForwardingActive(false);
-        quickControllerInputActive_ = false;
+        controllerInputActive_ = false;
         menuOpen_ = false;
         pendingFocus_ = false;
         log::Info("Prisma menu internal open state set to false and pending focus cancelled.");
@@ -1650,7 +1924,11 @@ namespace k2040
 
     void PrismaBridge::ResetForGameTransition(const char* reason)
     {
-        quickControllerInputActive_ = false;
+        // A task queued for a prior save or game load must never re-equip
+        // a weapon after the player/inventory context has changed.
+        ++menuGeneration_;
+        pendingAEReequipInfo_.reset();
+        controllerInputActive_ = false;
         const PrismaView previousView = menuView_;
 
         SetMenuHotkeyUiForwardingActive(false);
@@ -1705,7 +1983,7 @@ namespace k2040
         }
 
         viewDomReady_ = true;
-        quickControllerInputActive_ = menuOpen_ && viewMode_ == ViewMode::QuickMenu && controllerApi_;
+        controllerInputActive_ = menuOpen_ && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
         // Page-facing listeners are safest once the JavaScript context exists.
@@ -2552,12 +2830,22 @@ namespace k2040
         auto* weapon = RE::TESForm::GetFormByID<RE::TESObjectWEAP>(request.expectedWeaponFormId);
         log::Info("Post-mutation stage: engine refresh prerequisites resolved.");
         if (player && weapon) {
-            log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
-            if (RefreshModifiedEquippedItem(player, weapon)) {
-                log::Info("Post-mutation stage: equipped weapon refresh returned.");
-                log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+            if (REX::FModule::GetExecutingModule().GetFileVersion() ==
+                    REL::Version{ 1, 11, 240, 0 } &&
+                GetSettings().aeAutoReequipAfterApply) {
+                // This remains a strictly opt-in AE-only workaround. Keep only
+                // the latest successfully verified stack until final menu
+                // close; no repeated equip cycles inside the focused menu.
+                pendingAEReequipInfo_ = result.weaponInfo;
+                log::Info("Post-mutation stage: coalesced AE weapon refresh for menu close.");
             } else {
-                log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
+                log::Info("Post-mutation stage: checking equipped weapon refresh compatibility.");
+                if (RefreshModifiedEquippedItem(player, weapon)) {
+                    log::Info("Post-mutation stage: equipped weapon refresh returned.");
+                    log::Info("Requested the equipped weapon-slot refresh after the verified attachment transaction.");
+                } else {
+                    log::Info("Post-mutation stage: incompatible equipped weapon refresh safely skipped.");
+                }
             }
         } else {
             log::Warn("Equipped weapon-slot refresh could not be requested because the player or weapon is unavailable.");

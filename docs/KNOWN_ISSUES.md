@@ -26,6 +26,121 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.213 orientation-aware controller focus
+
+A tester reports Builder's horizontally arranged top actions must be
+navigated using Up/Down in the initial 0.5.212 tester. The revised
+shared focus helper uses Left/Right within the Builder header and
+weapon-setting row, with Up/Down moving between rows. Vertical
+categories, entries and dropdowns retain Up/Down; Settings two-column
+theme/presentation choices and horizontal confirmation controls use
+their displayed axes. LT is a configurable Quick Menu opener button
+or modifier only; it is not mapped to menu navigation.
+
+Automated input simulation confirms the directional model without
+triggering changes merely from focus movement. The new behavior
+remains unverified with an actual controller under Proton/Prisma.
+
+## Unreleased 0.5.212 Builder and Settings controller focus
+
+Both pages now use a shared controller focus helper with mapped
+Confirm/Cancel, sticks and D-pad, pane/tab movement, and dedicated
+dropdown and dialog interaction. No dropdown value is committed by
+highlight movement; Back closes the open dropdown without saving.
+The Builder's visibility commands require an explicit Confirm/secondary
+face-button action. Reset Everything stays confirmation-gated.
+Settings slider edits are entered using Confirm.
+
+Node event simulations and static contracts are available, but focused
+in-game Prisma input and modal/dropdown testing is still required.
+Keyboard hotkey capture, rename, hex colour text, and mouse drag-based
+Builder reordering are not fully controller-operable in this iteration.
+Do not claim complete controller-only editing or release readiness.
+
+## Unreleased 0.5.211 unified navigation and Compact Hybrid
+
+A user reported that controller navigation in Compact Hybrid felt
+inconsistent and its D-pad Up/Down actions moved focus in the opposite
+visual direction around the category semicircle. The wheel draws
+categories from the bottom toward the top, unlike list layouts.
+The shared 0.5.211 navigation model reverses only hybrid category
+traversal, maps both thumbsticks and D-pad through the same direction
+router, and gives Left/Right, Cancel and shoulder buttons consistent
+pane/category/page behavior in every presentation. No movement triggers
+attachment installation. Browser events and the real renderer have
+automated tests; initial user in-game testing reports the navigation
+working as far as tested. This is a focused provisional result, not a
+complete verification of every presentation, controller mapping or
+repeat/transition case.
+
+## Unreleased 0.5.210 controller input refinement
+
+Controller movement now highlights Quick Menu categories/options using
+either analog stick or D-pad in every presentation. The browser never
+installs an OMOD from movement: the player must separately press the
+game-mapped Activate/Confirm button; fallback is menu Accept, then A.
+Cancel is read from the game's menu mapping where available. Thumbstick
+neutral input clears the remembered angle. D-pad use takes temporary
+priority over a held stick to avoid the old radial angle overriding it.
+
+This passed native static checks and deterministic browser action tests.
+The user also confirmed the 0.5.210 controller behavior works in their
+in-game setup. This is focused confirmation, not exhaustive evidence
+for remapped confirmation buttons, navigation across every layout/page,
+all repeat behavior, or broader Steam Input/Proton configurations.
+This describes the 0.5.210 state; 0.5.212 adds Builder/Settings
+navigation while keeping text editing and drag operations mouse/keyboard.
+
+## Unreleased 0.5.209 AE repeated-modification refresh
+
+A user report on 0.5.208 confirmed automatic re-equip works for
+individual attachment changes, but repeated modifications inside one
+Quick Menu session can leave the visible model reflecting an earlier
+change. The live game log recorded eleven successful guarded attachment
+transactions and eleven full AE re-equip completions; it does not prove
+that each visual model finished loading before the next action.
+
+The 0.5.209 experiment queues only one exact-stack re-equip for the
+latest successfully verified state, after Quick Menu close and Prisma
+focus release. It preserves ammo safeguards and rejects stale menu,
+game-transition or installed OMOD snapshots. Focused user testing of
+0.5.209 on AE 1.11.240 reports that repeated attachment changes now
+become visually current after closing the Quick Menu. This closes
+the reported multi-change visual symptom only.
+
+The tester also reported that loaded ammunition can reset during
+automatic re-equip and explicitly accepts that magazine-state trade-off.
+The code retains its guarded attempt to restore the prior loaded count;
+that attempt is not a guarantee. The ordinary magazine reset is not
+itself a release blocker, but unintentional reserve ammunition loss or
+duplication, animation problems, crashes, and broader weapon compatibility
+remain unverified and are not accepted by that decision.
+
+## Unreleased 0.5.208 AE re-equip and hidden range offset
+
+Focused 0.5.207 in-game testing on AE 1.11.240 reported that the
+weapon became unequipped without automatic re-equip. The plugin log
+records UnequipObject returning false and immediately aborting the
+paired equip. That return value does not establish the final equipment
+state. The 0.5.208 experiment now attempts the matching exact-stack
+equip even when the initial return was false and rechecks live state.
+A fresh game test is required before claiming this actually restores
+the weapon or preserves ammo/animations. Do not use 0.5.207's enabled
+re-equip tester on a permanent save.
+
+The same session showed an internal universal shotgun range-offset
+OMOD exposed as a selectable generated-menu category despite being
+absent from the workbench. The generated catalog now hides that
+internal AP while leaving its installed identity and graph intact.
+
+## Unreleased 0.5.207 AE re-equip experiment
+
+ECO Redux documents that its native weapon-model refresh can re-equip the
+gun and refill the magazine. This optional AE-only tester applies the same
+general principle without copying ECO code. Exact-stack re-equip and loaded
+ammunition restoration use defensive checks, but animation and ammunition
+safety remain unverified in-game. The fallback is off by default.
+
 ## Unreleased 0.5.206 verified AE post-modification crash
 
 Addictol Crash Logger captured an access violation executing

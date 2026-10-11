@@ -1180,6 +1180,18 @@ namespace k2040
 
             candidate.consumes = ResolveAttachPointKeyword(mod->attachPoint.keywordIndex);
             if (candidate.consumes.formId == 0) continue;
+
+            // Fallout4.esm's universal range-offset OMODs are hidden
+            // configuration records, not workbench-visible weapon mods.
+            // Keep installed identities and live AP graph intact, but do
+            // not turn this internal AP into a player-facing category.
+            if (candidate.consumes.editorId == "ap_Gun_UniversalOffset_Range") {
+                log::Info(
+                    "Generated menu kept universal range offset internal: OMOD=" +
+                    ToHexFormId(candidate.omod.formId) +
+                    ", installed=" + (candidate.installed ? std::string("true") : "false"));
+                continue;
+            }
             candidate.provides = CollectAttachParentSlots(mod->attachParents);
 
             const auto targetMetadata = ResolveOmodTargetMetadata(mod);
