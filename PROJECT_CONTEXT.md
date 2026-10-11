@@ -10,6 +10,16 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
+based on the 0.5.213 controller and AE work. The off-by-default global
+Behavior toggle removes the loose-mod inventory requirement for installing
+compatible OMODs. It neither consumes nor generates loose inventory items,
+while keeping loaded crafting-recipe existence, explicit weapon-target,
+AP reachability, default-material, provider/child order, exact-stack,
+rollback and hidden/internal OMOD protections. Profiles cannot enable it;
+Force unsafe swaps remains separate. Build/static tests pass; in-game
+mutation/inventory QA is still required.
+
 Unreleased 0.5.213 corrects orientation mismatches in the 0.5.212
 Builder and Settings controller focus layer. Builder header and weapon
 controls now use Left/Right within horizontal rows and Up/Down between

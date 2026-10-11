@@ -26,6 +26,31 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.214 cheat-mode tester
+
+The optional global Cheat mode allows otherwise-compatible attachments
+to be installed without carrying loose mods or crafting their component
+requirements. Normal inventory checks return when the setting is off.
+No loose mods are consumed or created in cheat mode, including removals
+of previously installed attachments.
+
+It still blocks incompatible/missing attachment points, unresolved
+provider-child relationships, scripted/internal OMODs, dangerous material
+resets and unavailable loaded attachment records. The generated menu
+still requires the same recipe and weapon-association discovery evidence;
+it does not remove recipe/keyword validity checks merely because the
+player wants to avoid obtaining the item. The menu does not perform
+ordinary workbench crafting, so it does not consume components in
+normal mode either.
+
+Automatic inventory consumption during engine mutation is compensated
+only for an exact single item, followed by live count verification;
+unresolved counts fail with a rollback attempt. This needs dedicated
+in-game tests for empty inventory, available loose mods, providers and
+dependents, material defaults, both supported runtimes, and normal-mode
+behavior. Build/static tests are not runtime proof. Do not release or
+merge until focused mutation tests pass.
+
 ## Unreleased 0.5.213 orientation-aware controller focus
 
 A tester reports Builder's horizontally arranged top actions must be
