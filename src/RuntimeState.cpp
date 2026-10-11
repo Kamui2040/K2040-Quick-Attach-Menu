@@ -1035,7 +1035,8 @@ namespace k2040
 
     EcoWeaponMenu BuildGenericWeaponMenu_ReadOnly(
         const EquippedWeaponInfo& weaponInfo,
-        bool includeInventoryUnavailableOptions)
+        bool includeInventoryUnavailableOptions,
+        bool ignoreInventoryRequirements)
     {
         EcoWeaponMenu menu;
         menu.weapon = weaponInfo.weapon;
@@ -1155,7 +1156,7 @@ namespace k2040
             auto* looseMod = mod->GetLooseMod();
             candidate.looseMod = MakeFormRef(looseMod);
             const bool noLooseOptionAllowed =
-                !looseMod && GetSettings().allowNoLooseModOptions;
+                !looseMod && (ignoreInventoryRequirements || GetSettings().allowNoLooseModOptions);
 
             if (looseMod) {
                 auto* player = RE::PlayerCharacter::GetSingleton();
@@ -1323,6 +1324,7 @@ namespace k2040
             option.isVisible = true;
             option.isSelectable = option.isStructurallyValid &&
                 (option.isInstalled ||
+                    (ignoreInventoryRequirements && !option.isInstalled) ||
                     (option.hasLooseMod && option.isAvailableInInventory) ||
                     (!option.hasLooseMod && GetSettings().allowNoLooseModOptions));
 
@@ -1336,6 +1338,7 @@ namespace k2040
 
             if (option.isInstalled) option.status = "installed";
             else if (!option.isStructurallyValid) option.status = "provider-not-installed";
+            else if (ignoreInventoryRequirements && !option.isInstalled) option.status = "ready-cheat";
             else if (option.hasLooseMod && !option.isAvailableInInventory) option.status = "inventory-unavailable";
             else if (!option.hasLooseMod && !GetSettings().allowNoLooseModOptions) option.status = "no-loose-mod-disallowed";
             else option.status = "ready";
@@ -2088,7 +2091,8 @@ namespace k2040
 
     EcoWeaponMenu BuildEcoWeaponMenu_ReadOnly(
         const EquippedWeaponInfo& weaponInfo,
-        bool includeInventoryUnavailableGeneratedOptions)
+        bool includeInventoryUnavailableGeneratedOptions,
+        bool ignoreInventoryRequirements)
     {
         std::string sourceMode = GetSettings().menuSource;
         std::transform(sourceMode.begin(), sourceMode.end(), sourceMode.begin(), [](unsigned char c) {
@@ -2096,6 +2100,39 @@ namespace k2040
         });
 
         const auto quickMenuPreferences = GetQuickMenuPreferences();
+        const auto applyCheatPolicy = [&](EcoWeaponMenu& menu) {
+            if (!ignoreInventoryRequirements || !menu.valid) return;
+            for (auto& category : menu.categories) {
+                for (auto& option : category.options) {
+                    // Inventory-only override; do not clear material-default,
+                    // structural, hidden, dependency, or compatibility blocks.
+                    if (option.isInstalled || option.isDefaultApplied ||
+                        option.userHidden || !option.isVisible ||
+                        !option.isStructurallyValid) continue;
+                    if (IsEmptyMaterialDefaultOmod(option)) {
+                        // When live instance identity cannot be resolved,
+                        // MarkImplicitMaterialDefault cannot classify the
+                        // empty-material marker. Never turn it into a
+                        // selectable install just because items are free.
+                        option.isSelectable = false;
+                        option.status = "material-reset-needs-workbench";
+                        continue;
+                    }
+                    if (option.status == "inventory-unavailable" ||
+                        option.status == "no-loose-mod-disallowed") {
+                        option.isSelectable = true;
+                        option.status = "ready-cheat";
+                    }
+                }
+                category.hasVisibleOptions = std::any_of(
+                    category.options.begin(), category.options.end(),
+                    [](const EcoMenuOption& option) {
+                        return option.isVisible && !option.userHidden &&
+                            (option.isInstalled || option.isDefaultApplied ||
+                                (option.isSelectable && option.isStructurallyValid));
+                    });
+            }
+        };
         const auto weaponSourceOverride = GetAuthoredMenuOverride(weaponInfo.weapon);
         const bool forceGenerated = weaponSourceOverride == AuthoredMenuOverride::ForceGenerated;
         const bool forceAuthored = weaponSourceOverride == AuthoredMenuOverride::ForceAuthored;
@@ -2109,14 +2146,17 @@ namespace k2040
                     : "Menu source mode GeneratedOnly: skipping authored ECO lookup."));
             auto generated = BuildGenericWeaponMenu_ReadOnly(
                 weaponInfo,
-                includeInventoryUnavailableGeneratedOptions);
+                includeInventoryUnavailableGeneratedOptions || ignoreInventoryRequirements,
+                ignoreInventoryRequirements);
             MarkImplicitMaterialDefault(generated, weaponInfo);
+            applyCheatPolicy(generated);
             return generated;
         }
 
         auto authored = BuildEcoAuthoredWeaponMenu_ReadOnly(weaponInfo);
         if (authored.valid) {
             MarkImplicitMaterialDefault(authored, weaponInfo);
+            applyCheatPolicy(authored);
             return authored;
         }
 
@@ -2128,8 +2168,10 @@ namespace k2040
         log::Info("No usable authored ECO menu found; attempting runtime-generated fallback.");
         auto generated = BuildGenericWeaponMenu_ReadOnly(
             weaponInfo,
-            includeInventoryUnavailableGeneratedOptions);
+            includeInventoryUnavailableGeneratedOptions || ignoreInventoryRequirements,
+            ignoreInventoryRequirements);
         MarkImplicitMaterialDefault(generated, weaponInfo);
+        applyCheatPolicy(generated);
         return generated;
     }
 
@@ -2149,7 +2191,11 @@ namespace k2040
             return fail("weapon-changed", "The equipped weapon changed before the attachment could be applied.");
         }
 
-        const auto menu = BuildEcoWeaponMenu_ReadOnly(weaponInfo);
+        if (GetQuickMenuPreferences().cheatMode != request.cheatMode) {
+            return fail("cheat-mode-changed", "Cheat mode changed before the attachment could be applied.");
+        }
+        const auto menu = BuildEcoWeaponMenu_ReadOnly(
+            weaponInfo, request.cheatMode, request.cheatMode);
         if (!menu.valid) {
             return fail("menu-revalidation-failed", "The weapon menu is no longer valid.");
         }
@@ -2290,10 +2336,10 @@ namespace k2040
         if (!player || !player->inventoryList || !targetMod) {
             return fail("runtime-form-unavailable", "The live attachment forms could not be resolved safely.");
         }
-        if (targetLoose && player->inventoryList->GetItemCount(targetLoose) == 0) {
+        if (!request.cheatMode && targetLoose && player->inventoryList->GetItemCount(targetLoose) == 0) {
             return fail("inventory-changed", "The required loose mod is no longer in the inventory.");
         }
-        if (!targetLoose && !GetSettings().allowNoLooseModOptions) {
+        if (!request.cheatMode && !targetLoose && !GetSettings().allowNoLooseModOptions) {
             return fail("loose-mod-required", "This attachment has no loose mod and such actions are disabled.");
         }
 
@@ -2431,6 +2477,9 @@ namespace k2040
 
         const auto addLooseReturn = [&](RE::BGSMod::Attachment::Mod* mod) -> bool {
             if (!mod) return false;
+            // Cheats preserve all loose inventory counts, including items
+            // normally returned from previously installed attachments.
+            if (request.cheatMode) return true;
             auto* loose = mod->GetLooseMod();
             if (!loose) return true;
             if (loose == targetLoose) return false;
@@ -2541,7 +2590,11 @@ namespace k2040
             return fail("weapon-changed", "The equipped weapon changed before the attachment could be applied.");
         }
 
-        result.menu = BuildEcoWeaponMenu_ReadOnly(result.weaponInfo);
+        if (GetQuickMenuPreferences().cheatMode != request.cheatMode) {
+            return fail("cheat-mode-changed", "Cheat mode changed before the attachment could be applied.");
+        }
+        result.menu = BuildEcoWeaponMenu_ReadOnly(
+            result.weaponInfo, request.cheatMode, request.cheatMode);
         if (!result.menu.valid) {
             return fail("menu-revalidation-failed", "The weapon menu is no longer valid.");
         }
@@ -2617,7 +2670,7 @@ namespace k2040
             (previousOmodFormId != 0 && !previousMod)) {
             return fail("runtime-form-unavailable", "The live weapon or attachment forms could not be resolved safely.");
         }
-        if (!targetLoose && !GetSettings().allowNoLooseModOptions) {
+        if (!request.cheatMode && !targetLoose && !GetSettings().allowNoLooseModOptions) {
             return fail("loose-mod-required", "This attachment has no loose mod and such actions are disabled.");
         }
 
@@ -2626,7 +2679,7 @@ namespace k2040
         };
 
         const std::uint32_t targetLooseBefore = inventoryCount(targetLoose);
-        if (targetLoose && targetLooseBefore == 0) {
+        if (!request.cheatMode && targetLoose && targetLooseBefore == 0) {
             return fail("inventory-changed", "The required loose mod is no longer in the inventory.");
         }
 
@@ -2731,7 +2784,8 @@ namespace k2040
             if (previousOmodFormId != 0) {
                 attachmentRestored = attachmentRestored && containsInstalled(rollbackInfo, previousOmodFormId);
             } else {
-                const auto rollbackMenu = BuildEcoWeaponMenu_ReadOnly(rollbackInfo);
+                const auto rollbackMenu = BuildEcoWeaponMenu_ReadOnly(
+                    rollbackInfo, request.cheatMode, request.cheatMode);
                 attachmentRestored = attachmentRestored && rollbackMenu.valid && std::none_of(
                     rollbackMenu.installedOmodAttachmentInfo.begin(),
                     rollbackMenu.installedOmodAttachmentInfo.end(),
@@ -2777,10 +2831,22 @@ namespace k2040
                 rollbackPassed);
         }
 
-        const std::uint32_t expectedTargetLoose = targetLoose ? targetLooseBefore - 1 : 0;
+        const std::uint32_t expectedTargetLoose = targetLoose
+            ? (request.cheatMode ? targetLooseBefore : targetLooseBefore - 1) : 0;
         if (targetLoose) {
             const auto targetAfterEngine = inventoryCount(targetLoose);
-            if (targetAfterEngine == targetLooseBefore) {
+            if (request.cheatMode && targetAfterEngine < targetLooseBefore &&
+                targetLooseBefore - targetAfterEngine == 1) {
+                if (!addOne(targetLoose)) {
+                    const bool rollbackPassed = rollback("cheat inventory preservation failed");
+                    return fail(
+                        rollbackPassed ? "inventory-change-rejected" : "rollback-failed",
+                        rollbackPassed
+                            ? "Inventory could not be preserved and the original state was restored."
+                            : "Inventory restoration failed. Reload the test save.",
+                        rollbackPassed);
+                }
+            } else if (!request.cheatMode && targetAfterEngine == targetLooseBefore) {
                 if (!removeOne(targetLoose)) {
                     const bool rollbackPassed = rollback("the selected loose mod could not be consumed");
                     return fail(
@@ -2849,7 +2915,10 @@ namespace k2040
                 rollbackPassed);
         }
 
-        result.menu = BuildEcoWeaponMenu_ReadOnly(result.weaponInfo);
+        // The policy was revalidated before mutation on this game thread.
+        // Do not abort after modifying the weapon without rolling it back.
+        result.menu = BuildEcoWeaponMenu_ReadOnly(
+            result.weaponInfo, request.cheatMode, request.cheatMode);
         if (!result.menu.valid) {
             const bool rollbackPassed = rollback("the refreshed menu could not be rebuilt");
             return fail(
@@ -2877,12 +2946,15 @@ namespace k2040
         }
 
         result.success = true;
-        result.status = "attachment-applied";
-        result.message = "Attachment equipped.";
+        result.status = request.cheatMode ? "attachment-applied-cheat" : "attachment-applied";
+        result.message = request.cheatMode
+            ? "Attachment equipped without using loose mods."
+            : "Attachment equipped.";
         log::Info(
             "Guarded attachment transaction verified: weapon=" + ToHexFormId(request.expectedWeaponFormId) +
             ", previousOMOD=" + (previousOmodFormId != 0 ? ToHexFormId(previousOmodFormId) : std::string("none")) +
             ", targetOMOD=" + ToHexFormId(request.targetOmodFormId) +
+            ", cheatMode=" + (request.cheatMode ? std::string("true") : std::string("false")) +
             ", targetLoose=" + (targetLoose
                 ? std::to_string(targetLooseBefore) + "->" + std::to_string(expectedTargetLoose)
                 : std::string("none")) +
