@@ -67,6 +67,11 @@ Only durable product decisions belong here. Current release state belongs in
   vertical lists or move between visual rows. Dropdowns remain vertical
   and only a separate Confirm applies a selection. LT is a supported
   optional Quick Menu opener binding, not a default navigation command.
+- Each K2040 mod owns its MCM child page, hotkeys and controller defaults
+  while including the same byte-identical K2040_Mods parent in its
+  distributable Data tree. Child-owned bindings never move into the
+  parent namespace. Keep native hotkeys and PrismaUI functional
+  without any MCM installation.
 - Controller navigation extends to Quick Menu, Builder and Settings with
   separate focus handling appropriate to each presentation. A mapped
   Activate/Confirm press alone triggers an action; navigating a Builder

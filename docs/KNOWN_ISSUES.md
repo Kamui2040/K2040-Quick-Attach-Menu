@@ -28,10 +28,11 @@ candidate ignores disabled entries for installed identity.
 
 ## Unreleased 0.5.215 MCM child and theme tester
 
-- Native MCM supports ownerModName merging. Without K2040_Mods installed,
-  its original loader leaves Quick Attach's child page orphaned, so use
-  the separate standalone MCM layout if a standalone MCM page is needed.
-  Never install the child and standalone layouts simultaneously.
+- Native MCM supports ownerModName merging. Quick Attach now bundles
+  the canonical shared K2040_Mods parent with its child MCM configuration.
+  No separately downloaded Hub or alternate MCM layout is needed.
+  Amethyst may warn about the same parent file supplied by another
+  K2040 mod; this is expected only while the files are byte-identical.
 - F4SE Menu Framework accepts standard MCM files but its translation
   source has not demonstrated equivalent ownerModName grouping. Treat
   its grouping and external-function dispatch as unverified until tested.
@@ -39,8 +40,10 @@ candidate ignores disabled entries for installed identity.
   experimental parent settings may exist. Quick Attach reads them only
   to avoid known simultaneous controller chords; this is not a complete
   cross-mod dispatcher for all future mods.
-- Native MCM, F4SE Menu Framework, OG and AE in-game integration remain
-  untested for this version. No game install has been changed.
+- Native MCM (including Quick Attach + Minimap combined grouping), F4SE
+  Menu Framework, OG and AE in-game integration remain untested for this
+  version. Compiling and checking package contents cannot confirm
+  in-game grouping or hotkey behavior.
 - Cheat mode remains Experimental. Use at your own risk, including the
   accepted loose-mod return and AE gameplay-effect refresh limitations.
 

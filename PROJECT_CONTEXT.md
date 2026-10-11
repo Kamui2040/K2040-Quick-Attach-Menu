@@ -10,15 +10,18 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
-Unreleased 0.5.215 is an isolated ownerModName MCM child and appearance
-candidate. Quick Attach retains its native K2040_Quick_Attach_Menu
-keybind IDs and ships its own child page, keybinds.json, and controller
-settings.ini. The optional K2040_Mods repository supplies only a
-parent. Experimental parent controller preferences are copied once
-to the child INI if it is not already present; standalone shortcuts
-remain a fallback. The MCM Scaleform callbacks queue the existing
-game-thread dispatcher. A separate standalone MCM layout is supplied
-for no-parent installation, because native MCM hides orphan pages.
+Unreleased 0.5.215 is an isolated MCM packaging and appearance
+candidate. Each Quick Attach installer now bundles the unchanged
+K2040_Mods parent (SHA-256
+8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb)
+alongside its child page, keybinds.json and child-owned controller
+settings.ini. The separate MCM Hub download and obsolete alternate
+standalone-MCM package are unnecessary. Other K2040 mods may supply
+the same byte-identical parent. Existing keyboard action IDs and
+Shift+K / Ctrl+Shift+K defaults remain unchanged. Experimental parent
+controller preferences are copied once to the child INI if it is not
+already present; native shortcuts remain a fallback without MCM.
+MCM Scaleform callbacks use the existing game-thread dispatcher.
 Classic Pip-Boy has HUD-style chrome and font fallbacks, and Fallout 76
 uses the Quest Journal-inspired palette. Cheat mode is labelled
 Experimental and use-at-your-own-risk. Static/browser/native build

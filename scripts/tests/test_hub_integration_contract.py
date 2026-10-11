@@ -34,13 +34,20 @@ class McmChildContract(unittest.TestCase):
                 self.assertEqual(x["valueOptions"]["sourceType"],"ModSettingInt")
                 self.assertEqual(len(x["valueOptions"]["options"]),17)
 
-    def test_standalone_variant_is_exclusive_layout_only(self):
+    def test_bundled_parent_and_child_are_independent(self):
+        from hashlib import sha256
+        parent_file=ROOT/"dist/Data/MCM/Config/K2040_Mods/config.json"
+        self.assertEqual(sha256(parent_file.read_bytes()).hexdigest(),
+            "8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb")
+        parent=json.loads(parent_file.read_text())
         child=json.loads((CONFIG/"config.json").read_text())
-        standalone=json.loads((ROOT/"packaging/mcm-standalone/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json").read_text())
-        assert "ownerModName" not in standalone
-        assert "pages" not in standalone
-        self.assertEqual(standalone["content"],child["pages"][0]["content"])
-        self.assertEqual(standalone["modName"],child["modName"])
+        self.assertEqual(parent["modName"],"K2040_Mods")
+        self.assertEqual(parent["pages"],[])
+        self.assertNotIn("ownerModName",parent)
+        self.assertEqual(child["ownerModName"],parent["modName"])
+        self.assertEqual(child["modName"],"K2040_Quick_Attach_Menu")
+        self.assertEqual(list(parent_file.parent.iterdir()),[parent_file])
+        self.assertFalse((ROOT/"packaging/mcm-standalone/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json").exists())
 
     def test_keybind_handlers_are_real_and_child_owned(self):
         kb=json.loads((CONFIG/"keybinds.json").read_text())

@@ -1,11 +1,18 @@
 ## Optional K2040 Mods MCM grouping (0.5.215 tester)
 
-Quick Attach Menu owns its MCM hotkeys in K2040_Quick_Attach_Menu.
-Its regular config uses ownerModName=K2040_Mods to contribute one page
-to the optional Hub. Native MCM supports this from menu version code 3
-(MCM 1.11). When no owner exists the native loader does not show an
-orphan child page; the separately packaged standalone MCM layout omits
-ownerModName and should be used instead. Only one layout may be installed.
+Quick Attach Menu bundles the canonical K2040_Mods parent in every
+installer, along with its own MCM child configuration. The shared
+parent must remain byte-for-byte identical to the template at
+https://github.com/Kamui2040/K2040-MCM-Hub
+(SHA-256:
+8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb).
+Other K2040 mods can supply the same parent; conflicts are harmless
+only when its bytes match. No separate Hub download, alternate MCM
+layout or centralized child action registration is needed. The child
+keeps modName=K2040_Quick_Attach_Menu and ownerModName=K2040_Mods.
+Native MCM supports grouped child pages from version code 3 (MCM 1.11).
+Quick Attach still operates without MCM using native hotkeys and
+PrismaUI, even though MCM pages themselves are unavailable.
 
 Controller settings are stored in Data/MCM/Settings/
 K2040_Quick_Attach_Menu.ini. An existing experimental
@@ -16,7 +23,8 @@ remain openQuickMenu and openMenuBuilder, with native settings fallback.
 
 F4SE Menu Framework has a separate MCM translation implementation;
 owner grouping and CallExternalFunction callbacks require separate
-runtime testing. Controller collisions are checked against the
+runtime testing. Native MCM also needs a combined Quick Attach +
+Prisma Minimap game check before claiming one parent and two pages. Controller collisions are checked against the
 known Minimap buttons; independent plugins do not yet share a general
 conflict coordinator. No OG or AE gameplay QA is claimed for this
 integration.
