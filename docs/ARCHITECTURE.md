@@ -61,7 +61,10 @@ the live form table.
 The runtime-generated menu now requires **positive workbench evidence** for
 uninstalled choices: a loaded COBJ recipe whose created item is that exact OMOD,
 a consumed attachment point reachable from the weapon graph, and an explicit
-resolved OMOD MNAM keyword that matches the equipped base WEAP. A shared AP,
+resolved OMOD MNAM keyword that matches the equipped base WEAP or a live
+instance keyword proven to be added by an active, reachable installed OMOD.
+An OMOD-added target must be backed by its weapon Keywords/Add property; a
+stale instance keyword alone cannot establish compatibility. A shared AP,
 weapon keyword alone, generic/no-target OMOD, loose-mod item, or source-plugin
 name cannot independently make an uninstalled OMOD a generated choice. Missing
 recipes or unresolved MNAM metadata fail closed. Installed OMODs remain visible
