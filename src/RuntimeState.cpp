@@ -1089,6 +1089,81 @@ namespace k2040
             }
         }
 
+        // MNAM may target a keyword added by an installed receiver/barrel rather
+        // than a keyword on the base WEAP. Accept that dynamic target only when
+        // it is present on the live instance AND a currently installed, reachable
+        // OMOD explicitly adds it through its weapon Keywords property.
+        // This avoids treating stale instance keywords (for example after a
+        // Tactical Reload change) as proof of weapon-family compatibility.
+        //
+        // F4SE ObjectMod.psc: Weapon_Target_pkKeywords = 31.
+        constexpr std::uint32_t kWeaponKeywordPropertyTarget = 31u;
+        std::unordered_set<RE::TESFormID> installedAddedKeywordIds;
+        std::unordered_set<RE::TESFormID> installedRemovedKeywordIds;
+        const auto live = ResolveLiveAttachPoints(weaponInfo);
+        if (weaponInfo.equippedInventoryStackFound &&
+            weaponInfo.equippedInventoryStackCount == 1 &&
+            weaponInfo.installedObjectInstanceRawCount ==
+                weaponInfo.installedObjectInstanceResolvedCount &&
+            weaponInfo.equippedInstanceDataPresent) {
+            for (const auto& installed : live.installedOmods) {
+                if (!ContainsFormId(
+                        live.liveReachableAttachPoints,
+                        installed.consumesAttachPoint.formId)) {
+                    continue;
+                }
+
+                auto* installedMod =
+                    RE::TESForm::GetFormByID<RE::BGSMod::Attachment::Mod>(
+                        installed.omod.formId);
+                RE::BGSMod::Container::Data modData{};
+                if (!installedMod ||
+                    !TryGetAttachmentContainerData(installedMod, modData) ||
+                    (modData.propertyModCount > 0 && !modData.propertyMods) ||
+                    modData.propertyModCount > 4096) {
+                    continue;
+                }
+
+                for (std::uint32_t i = 0; i < modData.propertyModCount; ++i) {
+                    const auto& property = modData.propertyMods[i];
+                    if (property.target != kWeaponKeywordPropertyTarget ||
+                        property.type != RE::BGSMod::Property::TYPE::kForm ||
+                        (property.op != RE::BGSMod::Property::OP::kAdd &&
+                            property.op != RE::BGSMod::Property::OP::kRem)) {
+                        continue;
+                    }
+
+                    // CommonLib stores the modifier value as a union. Compare
+                    // with resolved live keyword forms rather than dereferencing
+                    // its union member as an unchecked form pointer.
+                    for (const auto& liveKeyword : weaponInfo.equippedInstanceKeywords) {
+                        auto* keyword =
+                            RE::TESForm::GetFormByID<RE::BGSKeyword>(
+                                liveKeyword.formId);
+                        if (!keyword ||
+                            (property.data.form != keyword &&
+                                property.data.fv.formID != keyword->GetFormID())) {
+                            continue;
+                        }
+
+                        if (property.op == RE::BGSMod::Property::OP::kAdd) {
+                            installedAddedKeywordIds.insert(keyword->GetFormID());
+                        } else {
+                            installedRemovedKeywordIds.insert(keyword->GetFormID());
+                        }
+                    }
+                }
+            }
+        }
+        for (const auto keywordId : installedRemovedKeywordIds) {
+            installedAddedKeywordIds.erase(keywordId);
+        }
+        log::Info(
+            "Generated installed-OMOD keyword target evidence: activeAdded=" +
+            std::to_string(installedAddedKeywordIds.size()) +
+            ", explicitRemovals=" +
+            std::to_string(installedRemovedKeywordIds.size()) + ".");
+
         // CommonLibF4 exposes FNAM/filter keywords but not the OMOD record's
         // raw MNAM Target OMOD Keywords used by weapon mod-association checks.
         // Read MNAM from the winning plugin record instead of approximating
@@ -1209,7 +1284,8 @@ namespace k2040
                     }
 
                     candidate.filters.push_back(target);
-                    if (equippedWeapon->HasKeyword(keyword)) {
+                    if (equippedWeapon->HasKeyword(keyword) ||
+                        installedAddedKeywordIds.contains(keyword->GetFormID())) {
                         targetMatches = true;
                         explicitTargetMatched = true;
                     }
@@ -1280,7 +1356,6 @@ namespace k2040
             }
         }
 
-        const auto live = ResolveLiveAttachPoints(weaponInfo);
         menu.graphPreviewAttachPoints = graphAttachPoints;
         menu.liveReachableAttachPoints = live.liveReachableAttachPoints;
         menu.installedOmodAttachmentInfo = live.installedOmods;
