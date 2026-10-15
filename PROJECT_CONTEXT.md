@@ -10,6 +10,18 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.216 is an isolated generated-menu compatibility fix on top of
+the unified 0.5.215 MCM/theme branch. It addresses a report that a rail weapon
+light was visible while installed but disappeared after being removed. The
+original menu checked an uninstalled OMOD's MNAM against the base WEAP only;
+the reported live weapon also had the needed keyword from installed parts.
+The candidate now permits dynamic MNAM matches only with both a matching live
+keyword and an active installed OMOD's weapon Keywords/Add property; explicit
+keyword removals reject that evidence. Recipe, AP, inventory, Cheat mode,
+internal/hidden and transaction checks remain unchanged. A Linux build and
+OG/AE in-game validation have not yet been performed. Do not merge or release
+until the appropriate checks pass.
+
 Unreleased 0.5.215 is an isolated MCM packaging and appearance
 candidate. Each Quick Attach installer now bundles the unchanged
 K2040_Mods parent (SHA-256
