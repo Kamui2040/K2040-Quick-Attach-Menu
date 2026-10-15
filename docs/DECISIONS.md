@@ -49,8 +49,11 @@ Only durable product decisions belong here. Current release state belongs in
   provider/dependency/rollback checks. Reject unproven material resets and
   ambiguous default records without engine mutation.
 - Generated uninstalled OMOD discovery requires a loaded COBJ recipe creating
-  the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
-  for recovery. Recipe presence is not the full workbench condition evaluator;
+  the exact OMOD plus matching MNAM and reachable AP. A dynamic MNAM match
+  needs both the live weapon keyword and an installed, reachable OMOD with a
+  weapon Keywords/Add property for that keyword. Live-only or removed-keyword
+  hints are insufficient. Preserve installed forms for recovery. Recipe
+  presence is not the full workbench condition evaluator;
   don't label the resulting list exact workbench parity until validated.
 - Cheat mode is an off-by-default, local-only global inventory-policy
   override. Missing crafting components or loose-mod MISC items never
