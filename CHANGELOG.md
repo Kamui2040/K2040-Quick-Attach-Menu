@@ -1,3 +1,14 @@
+## 0.5.216 (unreleased RIS rediscovery candidate)
+
+- Recognize generated-menu MNAM targets supplied by active installed OMODs,
+  fixing a reported attachment option that disappeared after removal from a
+  rail-enabled Service Rifle.
+- Require explicit installed-OMOD Add Keywords evidence and a matching live
+  keyword; reject unproven or removed keywords to preserve safety.
+- Keep the unified K2040 Mods MCM page, controller support, Cheat mode, AE
+  refresh workaround, and Fallout 76 theme unchanged.
+- Build and in-game validation pending; not an official release.
+
 ## 0.5.215 (unreleased Hub and theme integration tester)
 
 - Cheat mode is now clearly marked Experimental, with a use-at-your-own-risk
