@@ -19,8 +19,9 @@ material requires a workbench until a safe direct-removal path is validated.
 The unreleased 0.5.216 candidate also recognizes attachment-target keywords
 added by currently installed weapon parts, but only when the live instance and
 the installed OMOD's Add Keywords property agree. This addresses a rail
-attachment disappearing from the menu after removal; in-game retesting remains
-pending.
+attachment disappearing from the menu after removal. The original reporter
+retested the fix and confirmed that the reported issue is resolved in-game;
+broader compatibility testing remains separate.
 
 The unreleased generated-menu filter requires a matching weapon keyword,
 reachable attachment point, and a loaded crafting recipe creating each new

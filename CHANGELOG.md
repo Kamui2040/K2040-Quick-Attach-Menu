@@ -7,7 +7,10 @@
   keyword; reject unproven or removed keywords to preserve safety.
 - Keep the unified K2040 Mods MCM page, controller support, Cheat mode, AE
   refresh workaround, and Fallout 76 theme unchanged.
-- Build and in-game validation pending; not an official release.
+- Pinned Linux build and automated regression tests passed. The original
+  reporter tested the fix and confirmed that the reported RIS rediscovery
+  issue is resolved. Broader cross-weapon and OG/AE QA remains open; this is
+  not an official release.
 
 ## 0.5.215 (unreleased Hub and theme integration tester)
 

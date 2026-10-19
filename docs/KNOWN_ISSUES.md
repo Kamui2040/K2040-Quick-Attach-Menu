@@ -8,8 +8,11 @@ log identifies a target MNAM keyword present on the weapon's live instance but
 not on the base WEAP. The 0.5.216 candidate requires positive Add Keywords
 property evidence from a currently installed, reachable OMOD before it uses
 a live-only keyword for generated menu discovery. Removed or unproven keywords
-still fail closed. Cross-runtime build and in-game remove/reinstall validation
-are outstanding; do not claim the fix is confirmed in-game yet.
+still fail closed. The pinned Linux cross-build, regression suites, and
+Windows x64 packaging passed. The original reporting user retested the RIS
+attachment rediscovery bug and confirmed that this specific issue is fixed
+in-game. This focused user-tested result does not establish exhaustive
+OG/AE, Tactical Reload, or unrelated weapon compatibility.
 
 ## 0.5.180 generated-menu compatibility
 

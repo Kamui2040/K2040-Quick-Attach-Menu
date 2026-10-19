@@ -18,9 +18,14 @@ the reported live weapon also had the needed keyword from installed parts.
 The candidate now permits dynamic MNAM matches only with both a matching live
 keyword and an active installed OMOD's weapon Keywords/Add property; explicit
 keyword removals reject that evidence. Recipe, AP, inventory, Cheat mode,
-internal/hidden and transaction checks remain unchanged. A Linux build and
-OG/AE in-game validation have not yet been performed. Do not merge or release
-until the appropriate checks pass.
+internal/hidden and transaction checks remain unchanged. The pinned
+CommonLibF4 Linux cross-build, Windows x64 DLL/package checks, 41 Python
+tests, four JavaScript suites, and native chord test passed. The original
+reporting user subsequently tested the RIS attachment rediscovery fix and
+confirmed that the reported bug is resolved in their setup. This is focused
+user-tested acceptance, not exhaustive OG/AE or cross-weapon QA. Keep the
+isolated PR draft until other applicable runtime gates pass; do not publish
+an official release without approval.
 
 Unreleased 0.5.215 is an isolated MCM packaging and appearance
 candidate. Each Quick Attach installer now bundles the unchanged
