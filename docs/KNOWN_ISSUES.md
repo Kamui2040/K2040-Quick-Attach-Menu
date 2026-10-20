@@ -14,8 +14,8 @@ attachment rediscovery bug and confirmed that this specific issue is fixed
 in-game. This focused user-tested result does not establish exhaustive
 OG/AE, Tactical Reload, or unrelated weapon compatibility. The validated
 stable ZIP and checksum were promoted on GitHub on 2026-10-20 after the
-maintainer reported final gameplay checks passed. Nexus remains on 0.5.199
-pending separate publication.
+maintainer reported final gameplay checks passed. The maintainer subsequently
+published version 0.5.216 on Nexus Mods as well.
 
 ## 0.5.180 generated-menu compatibility
 

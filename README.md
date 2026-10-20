@@ -22,7 +22,7 @@ the installed OMOD's Add Keywords property agree. This addresses a rail
 attachment disappearing from the menu after removal. The original reporter
 retested the fix and confirmed that the reported issue is resolved in-game;
 broader compatibility testing remains separate.
-The maintainer's final 0.5.216 gameplay checks passed. Download the [0.5.216 stable release and checksum](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.216) on GitHub. Nexus continues to list 0.5.199 until a separate upload.
+The maintainer's final 0.5.216 gameplay checks passed. Download the [0.5.216 stable release and checksum](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.216) on GitHub. Version 0.5.216 is also available on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575).
 
 The unreleased generated-menu filter requires a matching weapon keyword,
 reachable attachment point, and a loaded crafting recipe creating each new

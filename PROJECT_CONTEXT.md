@@ -27,7 +27,8 @@ confirmed that the reported bug is resolved in their setup. The maintainer
 also reports the final combined 0.5.216 in-game tests passed. All five
 validated development PRs are merged into main. The stable GitHub ZIP is
 byte-identical to the tested preview ZIP and has a published checksum.
-Nexus continues to list 0.5.199; Nexus publication is a separate action.
+The maintainer confirmed that 0.5.216 has also been published on Nexus Mods.
+Both GitHub and Nexus now offer version 0.5.216.
 The known AE visual/effect refresh and Cheat mode item-return behavior remain
 accepted and documented.
 

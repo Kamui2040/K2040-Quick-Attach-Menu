@@ -11,8 +11,8 @@
 - Pinned Linux build and automated regression tests passed. The original
   reporter tested the fix and confirmed that the reported RIS rediscovery
   issue is resolved. The maintainer reports final 0.5.216 gameplay checks
-  passed. GitHub now lists 0.5.216 as stable; Nexus remains on 0.5.199 until
-  a separate Nexus publication.
+  passed. Version 0.5.216 is stable on GitHub and was subsequently published
+  to Nexus Mods by the maintainer.
 
 ## 0.5.215 (unreleased Hub and theme integration tester)
 
