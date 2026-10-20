@@ -1,4 +1,4 @@
-## 0.5.216 (unreleased RIS rediscovery candidate)
+## 0.5.216 (GitHub preview, 2026-10-20)
 
 - Recognize generated-menu MNAM targets supplied by active installed OMODs,
   fixing a reported attachment option that disappeared after removal from a
@@ -10,7 +10,7 @@
 - Pinned Linux build and automated regression tests passed. The original
   reporter tested the fix and confirmed that the reported RIS rediscovery
   issue is resolved. Broader cross-weapon and OG/AE QA remains open; this is
-  not an official release.
+  a GitHub pre-release, not a stable or Nexus release.
 
 ## 0.5.215 (unreleased Hub and theme integration tester)
 

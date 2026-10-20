@@ -1,6 +1,6 @@
 # Known Issues and Limits
 
-## Unreleased 0.5.216 dynamic target keyword candidate
+## GitHub pre-release 0.5.216 dynamic target keyword fix
 
 A Service Rifle user reported that RIS rail equipment remains visible while
 installed but disappears from the generated menu after removal. The diagnostic
@@ -12,7 +12,9 @@ still fail closed. The pinned Linux cross-build, regression suites, and
 Windows x64 packaging passed. The original reporting user retested the RIS
 attachment rediscovery bug and confirmed that this specific issue is fixed
 in-game. This focused user-tested result does not establish exhaustive
-OG/AE, Tactical Reload, or unrelated weapon compatibility.
+OG/AE, Tactical Reload, or unrelated weapon compatibility. The validated
+preview ZIP and checksum were published on GitHub on 2026-10-20; the
+separate stable/Nexus 0.5.199 releases remain unchanged.
 
 ## 0.5.180 generated-menu compatibility
 

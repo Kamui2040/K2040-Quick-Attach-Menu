@@ -16,12 +16,13 @@ The unreleased default-material handling displays an empty material slot as
 already having the default material applied. A reset from a non-default
 material requires a workbench until a safe direct-removal path is validated.
 
-The unreleased 0.5.216 candidate also recognizes attachment-target keywords
+The 0.5.216 GitHub preview recognizes attachment-target keywords
 added by currently installed weapon parts, but only when the live instance and
 the installed OMOD's Add Keywords property agree. This addresses a rail
 attachment disappearing from the menu after removal. The original reporter
 retested the fix and confirmed that the reported issue is resolved in-game;
 broader compatibility testing remains separate.
+The [0.5.216 preview and checksum](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.216) are available on GitHub; 0.5.199 remains stable.
 
 The unreleased generated-menu filter requires a matching weapon keyword,
 reachable attachment point, and a loaded crafting recipe creating each new
