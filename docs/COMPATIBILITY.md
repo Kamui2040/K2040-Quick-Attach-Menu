@@ -1,4 +1,4 @@
-## Optional K2040 Mods MCM grouping (0.5.215 tester)
+## Optional K2040 Mods MCM grouping (included in 0.5.216)
 
 Quick Attach Menu bundles the canonical K2040_Mods parent in every
 installer, along with its own MCM child configuration. The shared
@@ -45,17 +45,17 @@ matrix were not reported for this 0.5.215 check.
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.198` |
+| Plugin | `0.5.216` |
 | Architecture | Windows x64 |
 
-Unreleased 0.5.214 introduces an opt-in Cheat mode that bypasses
+Version 0.5.216 includes the opt-in Cheat mode that bypasses
 loose-mod inventory requirements for otherwise-valid attachments.
 No workbench crafting components are used by the Quick Menu even
 without it. Cheat mode also preserves loose-mod inventory rather than
 generating removed attachment items. The original weapon/OMOD/AP
 compatibility checks, material-default safeguards, generated recipe
 and target association tests, dependency ordering, exact equipped
-stack and rollback protections still apply. This candidate has passed
+stack and rollback protections still apply. This implementation has passed
 Linux builds and deterministic source checks. Focused AE user
 testing reports successful Cheat mode installs and the return of
 ordinary loose-mod requirements when it is disabled. If a free

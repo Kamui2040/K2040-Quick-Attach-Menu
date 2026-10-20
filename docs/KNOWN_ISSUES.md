@@ -1,11 +1,11 @@
 # Known Issues and Limits
 
-## GitHub pre-release 0.5.216 dynamic target keyword fix
+## Stable GitHub release 0.5.216 dynamic target keyword fix
 
 A Service Rifle user reported that RIS rail equipment remains visible while
 installed but disappears from the generated menu after removal. The diagnostic
 log identifies a target MNAM keyword present on the weapon's live instance but
-not on the base WEAP. The 0.5.216 candidate requires positive Add Keywords
+not on the base WEAP. Version 0.5.216 requires positive Add Keywords
 property evidence from a currently installed, reachable OMOD before it uses
 a live-only keyword for generated menu discovery. Removed or unproven keywords
 still fail closed. The pinned Linux cross-build, regression suites, and
@@ -13,8 +13,9 @@ Windows x64 packaging passed. The original reporting user retested the RIS
 attachment rediscovery bug and confirmed that this specific issue is fixed
 in-game. This focused user-tested result does not establish exhaustive
 OG/AE, Tactical Reload, or unrelated weapon compatibility. The validated
-preview ZIP and checksum were published on GitHub on 2026-10-20; the
-separate stable/Nexus 0.5.199 releases remain unchanged.
+stable ZIP and checksum were promoted on GitHub on 2026-10-20 after the
+maintainer reported final gameplay checks passed. Nexus remains on 0.5.199
+pending separate publication.
 
 ## 0.5.180 generated-menu compatibility
 
@@ -42,7 +43,7 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
-## Unreleased 0.5.215 MCM child and theme tester
+## 0.5.215 MCM child and theme work (included in 0.5.216)
 
 - Native MCM supports ownerModName merging. Quick Attach now bundles
   the canonical shared K2040_Mods parent with its child MCM configuration.
@@ -69,7 +70,7 @@ candidate ignores disabled entries for installed identity.
 - Cheat mode remains Experimental. Use at your own risk, including the
   accepted loose-mod return and AE gameplay-effect refresh limitations.
 
-## Unreleased 0.5.214 cheat-mode tester
+## 0.5.214 Cheat mode work (included in 0.5.216)
 
 The optional global Cheat mode allows otherwise-compatible attachments
 to be installed without carrying loose mods or crafting their component
