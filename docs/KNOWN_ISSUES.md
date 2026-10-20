@@ -1,5 +1,21 @@
 # Known Issues and Limits
 
+## GitHub pre-release 0.5.216 dynamic target keyword fix
+
+A Service Rifle user reported that RIS rail equipment remains visible while
+installed but disappears from the generated menu after removal. The diagnostic
+log identifies a target MNAM keyword present on the weapon's live instance but
+not on the base WEAP. The 0.5.216 candidate requires positive Add Keywords
+property evidence from a currently installed, reachable OMOD before it uses
+a live-only keyword for generated menu discovery. Removed or unproven keywords
+still fail closed. The pinned Linux cross-build, regression suites, and
+Windows x64 packaging passed. The original reporting user retested the RIS
+attachment rediscovery bug and confirmed that this specific issue is fixed
+in-game. This focused user-tested result does not establish exhaustive
+OG/AE, Tactical Reload, or unrelated weapon compatibility. The validated
+preview ZIP and checksum were published on GitHub on 2026-10-20; the
+separate stable/Nexus 0.5.199 releases remain unchanged.
+
 ## 0.5.180 generated-menu compatibility
 
 Version 0.5.180 can admit unrelated OMODs when generic attachment points overlap
