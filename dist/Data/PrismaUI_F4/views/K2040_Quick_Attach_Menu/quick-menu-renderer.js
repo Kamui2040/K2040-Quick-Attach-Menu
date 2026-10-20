@@ -293,7 +293,7 @@
 
   Renderer.prototype.applyTheme = function() {
     var settings = this.settings();
-    var theme = ["default", "pipboy", "high-contrast", "custom"].indexOf(settings.theme) >= 0 ? settings.theme : "default";
+    var theme = ["default", "pipboy", "high-contrast", "fallout76", "custom"].indexOf(settings.theme) >= 0 ? settings.theme : "default";
     var opacity = clamp(settings.backgroundOpacity, .25, 1, .92);
     var accent = "#66c4ff";
     var text = "#f4faff";
@@ -304,6 +304,13 @@
       text = "#ffffff";
       panel = "#000000";
       installed = "#63ff9b";
+    } else if (theme === "fallout76") {
+      // Shared with Quest Journal's Fallout 76-inspired palette. Use
+      // original CSS; no proprietary fonts or game assets are shipped.
+      accent = "#f5cb5b";
+      text = "#ffffcb";
+      panel = "#181c1d";
+      installed = "#e0c870";
     } else if (theme === "custom") {
       accent = hex(settings.customAccent, accent);
       text = hex(settings.customText, text);
@@ -327,10 +334,14 @@
       target.style.setProperty("--qm-panel", rgba(panel, opacity));
       target.style.setProperty("--qm-panel-strong", rgba(panel, Math.min(1, opacity + .05)));
       target.style.setProperty("--qm-row", theme === "pipboy" ? "transparent" : rgba(panel, opacity));
-      target.style.setProperty("--qm-active", theme === "pipboy" ? accent : rgba(accent, Math.min(.48, .19 + opacity * .22)));
-      target.style.setProperty("--qm-line", theme === "pipboy" ? rgba(accent, .84) : rgba(text, .20));
-      target.style.setProperty("--qm-line-soft", theme === "pipboy" ? rgba(accent, .28) : rgba(text, .10));
-      target.style.setProperty("--qm-muted", theme === "pipboy" ? rgba(accent, .72) : rgba(text, .68));
+      target.style.setProperty("--qm-active", theme === "pipboy" ? accent :
+        theme === "fallout76" ? rgba(accent, .14) : rgba(accent, Math.min(.48, .19 + opacity * .22)));
+      target.style.setProperty("--qm-line", theme === "pipboy" ? rgba(accent, .84) :
+        theme === "fallout76" ? rgba(accent, .48) : rgba(text, .20));
+      target.style.setProperty("--qm-line-soft", theme === "pipboy" ? rgba(accent, .28) :
+        theme === "fallout76" ? rgba(accent, .26) : rgba(text, .10));
+      target.style.setProperty("--qm-muted", theme === "pipboy" ? rgba(accent, .72) :
+        theme === "fallout76" ? "#e0c870" : rgba(text, .68));
       target.style.setProperty("--qm-accent-faint", rgba(accent, .12));
       target.style.setProperty("--qm-hud-color", accent);
       target.style.setProperty("--qm-hud-background", panel);

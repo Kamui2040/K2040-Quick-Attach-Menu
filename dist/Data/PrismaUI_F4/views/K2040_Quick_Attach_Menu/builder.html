@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>K2040's Quick Attach Menu Builder</title>
+  <link rel="stylesheet" href="quick-menu.css">
   <style>
     :root {
       --accent: #47c8ff;
@@ -621,6 +622,7 @@
         Array.prototype.indexOf.call(focusedRow.parentElement.querySelectorAll(".row"), focusedRow);
       var weapon = payload && payload.weapon ? payload.weapon : {};
       var parser = payload && payload.parser ? payload.parser : {};
+      document.body.classList.toggle("theme-fallout76", !!(payload && payload.settings && payload.settings.theme === "fallout76"));
       document.getElementById("weaponName").textContent = displayName(weapon.name) || "No equipped weapon menu found";
       updateProfileStatus();
       updateMenuSourceControl();
