@@ -121,7 +121,7 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open quick menu</span><span class="setting-help">Press it again to close the quick menu.</span></span><button id="quickKey" class="keybind" data-id="openQuickMenu" type="button">Loading…</button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open menu builder</span><span class="setting-help">Opens or closes the builder; switches from the quick menu when needed.</span></span><button id="builderKey" class="keybind" data-id="openMenuBuilder" type="button">Loading…</button></div>
           <h3 class="group-title">Quick Menu controller shortcut</h3>
-          <p class="intro">Only the Quick Menu uses controller navigation. Set its opening shortcut here using keyboard or mouse. Builder and Settings remain keyboard-and-mouse interfaces.</p>
+          <p class="intro">Quick Menu, Builder and Settings now share controller navigation. The shortcut below sets the Quick Menu opener; it does not change the game-mapped Confirm button. Text entry and keyboard hotkey capture still require a keyboard.</p>
           <div class="setting-row">
             <span class="setting-copy"><span class="setting-name">Controller: Open quick menu</span><span class="setting-help" id="controllerQuickCurrent">Unassigned</span></span>
             <span class="controller-binding-controls">
@@ -216,6 +216,7 @@
   <div id="confirmOverlay" hidden><div class="confirm-box"><h3>Reset everything?</h3><div>This returns the mod to a fresh-install settings state, including every weapon-specific customization.</div><div class="confirm-actions"><button id="cancelReset" class="action" type="button">Cancel</button><button id="confirmReset" class="reset-button danger" type="button">Reset everything</button></div></div></div>
 
   <script src="quick-menu-renderer.js"></script>
+  <script src="controller-pages.js"></script>
   <script>
     (function() {
       "use strict";
@@ -780,6 +781,10 @@
       document.addEventListener("mouseup", finishPanelResize, true);
 
       setupColourEditors();
+      window.K2040ControllerPages.create("settings", {
+        isKeyCaptureActive: function() { return !!capturing; },
+        cancelKeyCapture: cancelCapture
+      });
     })();
   </script>
 </body>

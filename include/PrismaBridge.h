@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 #include "RuntimeState.h"
@@ -20,7 +21,7 @@ namespace k2040
         bool BeginOpenFromHotkey();
         bool IsMenuFocused() const;
         bool IsMenuBuilderOpen() const;
-        bool IsQuickControllerInputActive() const;
+        bool IsControllerInputActive() const;
         void OnControllerStickSector(int sector);
 
         void OpenMenu(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
@@ -48,12 +49,16 @@ namespace k2040
         PRISMA_UI_API::IVPrismaUI10* api_ = nullptr;
         PRISMA_UI_API::IVPrismaUI12* controllerApi_ = nullptr;
         PrismaView menuView_ = 0;
+        // Captured from Fallout 4 controls on the game thread at menu open,
+        // never queried from Prisma's asynchronous DOM-ready callback.
+        std::string controllerConfirmButton_ = "A";
+        std::string controllerCancelButton_ = "B";
 
         bool pendingPayload_ = false;
         bool pendingFocus_ = false;
         bool viewDomReady_ = false;
         bool menuOpen_ = false;
-        std::atomic_bool quickControllerInputActive_ = false;
+        std::atomic_bool controllerInputActive_ = false;
         bool weaponDrawStateCaptured_ = false;
         bool weaponWasDrawnBeforeOpen_ = false;
         bool menuOpenedInFirstPerson_ = false;
@@ -69,12 +74,17 @@ namespace k2040
         std::string builderProfileMessage_;
         std::string builderProfileFileName_;
         EquippedWeaponInfo currentWeaponInfo_;
+        // One latest verified stack per active session. AE re-equips only after
+        // the Quick Menu is closed and the engine returns to the game thread.
+        std::optional<EquippedWeaponInfo> pendingAEReequipInfo_;
+        std::uint64_t menuGeneration_ = 0;
         EcoWeaponMenu currentMenu_;
 
         std::string BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const;
 
         void CreateMenuViewIfNeeded();
         void BindControllerActions();
+        void CaptureControllerButtonMapping();
         void OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode);
         void RequestViewSwitch(ViewMode mode);
         void SwitchView(ViewMode mode);

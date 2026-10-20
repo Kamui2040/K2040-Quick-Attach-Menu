@@ -18,6 +18,8 @@ namespace k2040
         bool hideBracketedText = false;
 
         bool closeAfterApply = false;
+        // Experimental AE-only fallback, off until target-runtime QA.
+        bool aeAutoReequipAfterApply = false;
 
         bool hideInvalidOptions = true;
         std::string menuSource = "Auto";
