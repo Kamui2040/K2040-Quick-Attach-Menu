@@ -1,16 +1,16 @@
 # Current Project State
 
-- Current public release: `0.5.199`
-- Previous public release: `0.5.198`
+- Current stable GitHub release: `0.5.216`
+- Previous stable GitHub release: `0.5.199`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
-- Current-release runtime validation: focused external confirmation that the
-  reported Tactical Reload false safety block and SREP barrel-to-empty-muzzle
-  path are resolved; the broader attachment regression matrix was not
-  independently repeated for 0.5.199
+- Current-release runtime validation: original reporter confirms the RIS
+  attachment rediscovery fix; the maintainer reports final 0.5.216 gameplay
+  checks passed. Previous controller, Cheat mode, MCM and OG/AE tests remain
+  applicable. Known AE refresh and cross-mode loose-item limitations are accepted.
 - Release presentation: text-only; icons and weapon preview are not included
 
-GitHub pre-release 0.5.216 was published on 2026-10-20 as an isolated
+GitHub stable release 0.5.216 was promoted on 2026-10-20, including the
 generated-menu compatibility fix on top of
 the unified 0.5.215 MCM/theme branch. It addresses a report that a rail weapon
 light was visible while installed but disappeared after being removed. The
@@ -23,14 +23,15 @@ internal/hidden and transaction checks remain unchanged. The pinned
 CommonLibF4 Linux cross-build, Windows x64 DLL/package checks, 41 Python
 tests, four JavaScript suites, and native chord test passed. The original
 reporting user subsequently tested the RIS attachment rediscovery fix and
-confirmed that the reported bug is resolved in their setup. This is focused
-user-tested acceptance, not exhaustive OG/AE or cross-weapon QA. Keep the
-isolated PR draft until other applicable runtime gates pass. The 0.5.216
-preview ZIP and checksum are public on GitHub, while 0.5.199 remains the
-latest stable release and the Nexus version. Stable/Nexus publication still
-requires separate approval.
+confirmed that the reported bug is resolved in their setup. The maintainer
+also reports the final combined 0.5.216 in-game tests passed. All five
+validated development PRs are merged into main. The stable GitHub ZIP is
+byte-identical to the tested preview ZIP and has a published checksum.
+Nexus continues to list 0.5.199; Nexus publication is a separate action.
+The known AE visual/effect refresh and Cheat mode item-return behavior remain
+accepted and documented.
 
-Unreleased 0.5.215 is an isolated MCM packaging and appearance
+Version 0.5.215 (included in stable 0.5.216) is an MCM packaging and appearance
 candidate. Each Quick Attach installer now bundles the unchanged
 K2040_Mods parent (SHA-256
 8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb)
@@ -56,7 +57,7 @@ bug fixes; those issues were not reported to affect Quick Attach.
 This does not establish that their own controls work, or that F4SE
 Menu Framework and all input combinations behave identically.
 
-Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
+Version 0.5.214 (included in stable 0.5.216) introduced Cheat mode,
 based on the 0.5.213 controller and AE work. The off-by-default global
 Behavior toggle removes the loose-mod inventory requirement for installing
 compatible OMODs. It neither consumes nor generates loose inventory items,
@@ -210,7 +211,7 @@ shortcuts default to unassigned and do not change keyboard/MCM bindings.
 No cheat-mode capability or altered attachment transaction/refresh path is
 included. Build, packaging, and target-runtime controller testing are pending.
 
-Version `0.5.199` is the current public release. It allows a
+Version `0.5.199` was the previous stable GitHub release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment
 point only when the hypothetical graph does not activate an existing unreachable
 attachment. The transaction requires the unrelated installed OMOD identities to
