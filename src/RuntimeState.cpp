@@ -8,6 +8,7 @@
 
 #include <F4SE/F4SE.h>
 #include <RE/Fallout.h>
+#include <RE/B/BGSConstructibleObject.h>
 #include <RE/B/BGSObjectInstanceExtra.h>
 #include <RE/E/ExtraDataList.h>
 #include <RE/M/MESSAGEBOX_BUTTON.h>
@@ -24,6 +25,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -1071,20 +1073,39 @@ namespace k2040
         const auto& allMods = dataHandler->GetFormArray<RE::BGSMod::Attachment::Mod>();
         candidates.reserve(allMods.size());
 
+        // Weapon-family MNAM and a reachable AP alone do not prove that an
+        // OMOD is offered by a workbench: scripted records may deliberately
+        // share both. Resolve positive COBJ -> OMOD links from loaded forms.
+        // Do not consult exported xEdit data, plugin names, or hardcoded IDs.
+        std::unordered_set<RE::TESFormID> workbenchRecipeOutputs;
+        const auto& recipes = dataHandler->GetFormArray<RE::BGSConstructibleObject>();
+        workbenchRecipeOutputs.reserve(recipes.size());
+        for (const auto* recipe : recipes) {
+            if (!recipe) continue;
+            const auto* output = recipe->GetCreatedItem();
+            if (output && output->GetFormType() == RE::ENUM_FORM_ID::kOMOD) {
+                workbenchRecipeOutputs.insert(output->GetFormID());
+            }
+        }
+
         // CommonLibF4 exposes FNAM/filter keywords but not the OMOD record's
         // raw MNAM Target OMOD Keywords used by weapon mod-association checks.
         // Read MNAM from the winning plugin record instead of approximating
         // compatibility from source plugin or the wrong runtime keyword array.
         //
-        // Workbench-compatible candidate rule:
+        // Generated workbench-candidate rule:
+        // - uninstalled choices require a loaded crafting recipe creating this
+        //   exact OMOD; a loose-mod item alone is not positive evidence;
         // - consumed AP must belong to the weapon/provider graph;
-        // - OMODs with no MNAM target are generic for that AP;
-        // - OMODs with MNAM targets require at least one matching keyword on
-        //   the equipped base WEAP;
-        // - installed OMODs remain visible even if metadata cannot be resolved.
+        // - uninstalled choices require an explicit MNAM keyword matching the
+        //   equipped base WEAP (AP or no-MNAM alone are not enough);
+        // - installed OMODs remain visible so invalid prior state is not hidden.
+        // COBJ presence is necessary but not yet sufficient for exact workbench
+        // parity: bench-specific recipes and recipe CTDA visibility need study.
         //
         // Inventory affects Quick Menu visibility only; Builder enumeration is
         // independent of inventory.
+        std::size_t rejectedWithoutRecipe = 0;
         for (auto* mod : allMods) {
             if (!mod || mod->targetFormType != RE::ENUM_FORM_ID::kWEAP) continue;
 
@@ -1092,6 +1113,15 @@ namespace k2040
             candidate.mod = mod;
             candidate.omod = MakeFormRef(mod);
             candidate.installed = ContainsFormId(weaponInfo.installedObjectInstanceMods, candidate.omod.formId);
+
+            if (!candidate.installed &&
+                !workbenchRecipeOutputs.contains(candidate.omod.formId)) {
+                // A loaded COBJ recipe is the basic proof of workbench
+                // discoverability; an OMOD whose only context is a scripted
+                // application must not appear as a new player-facing choice.
+                ++rejectedWithoutRecipe;
+                continue;
+            }
 
             if (IsTacticalReloadInfrastructureOmod(candidate.omod)) {
                 if (candidate.installed) {
@@ -1155,8 +1185,7 @@ namespace k2040
             const auto targetMetadata = ResolveOmodTargetMetadata(mod);
             candidate.fallbackLabel =
                 HumanizeOmodEditorId(targetMetadata.recordEditorId);
-            bool targetMatches = candidate.installed ||
-                targetMetadata.status == OmodTargetMetadataStatus::NoTargetKeywords;
+            bool targetMatches = candidate.installed;
 
             bool explicitTargetMatched = false;
             if (targetMetadata.status == OmodTargetMetadataStatus::Resolved) {
@@ -1172,20 +1201,6 @@ namespace k2040
                         explicitTargetMatched = true;
                     }
                 }
-            }
-
-            // Generated no-loose choices need an explicit weapon-family match.
-            // This supports player-facing damage tiers and similar actions while
-            // keeping generic/internal no-loose helpers out of the catalog.
-            if (!candidate.installed && !looseMod &&
-                GetSettings().allowNoLooseModOptions &&
-                !explicitTargetMatched) {
-                log::Info(
-                    "Generated no-loose candidate rejected without explicit matching MNAM target: OMOD=" +
-                    ToHexFormId(candidate.omod.formId) +
-                    ", source=" +
-                    (candidate.omod.sourcePlugin.empty() ? std::string("(unknown)") : candidate.omod.sourcePlugin));
-                continue;
             }
 
             if (!candidate.installed && !targetMatches) {
@@ -1210,14 +1225,14 @@ namespace k2040
                 log::Info(
                     "Generated carried candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
                     ", looseMod=" + ToHexFormId(candidate.looseMod.formId) +
-                    ", label="" + SafeFullName(looseMod) + """ +
+                    ", label=\"" + SafeFullName(looseMod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
             } else if (!candidate.installed && !looseMod && explicitTargetMatched) {
                 log::Info(
                     "Generated no-loose candidate accepted: OMOD=" + ToHexFormId(candidate.omod.formId) +
-                    ", label="" + SafeFullName(candidate.mod) + """ +
+                    ", label=\"" + SafeFullName(candidate.mod) + "\"" +
                     ", consumes=" +
                         (candidate.consumes.editorId.empty() ? ToHexFormId(candidate.consumes.formId) : candidate.consumes.editorId) +
                     ", targetKeywords=" + JoinFormRefEditorIds(candidate.filters));
@@ -1225,6 +1240,12 @@ namespace k2040
 
             candidates.push_back(std::move(candidate));
         }
+
+        log::Info(
+            "Generated workbench recipe discovery: recipeOutputOMODCount=" +
+            std::to_string(workbenchRecipeOutputs.size()) +
+            ", OMODsWithNoRecipeExcluded=" + std::to_string(rejectedWithoutRecipe) +
+            ", weaponTargetMatchedCandidates=" + std::to_string(candidates.size()) + ".");
 
         // Retain only candidates connected to a base attach point, directly or
         // through another compatible provider OMOD.
@@ -1967,6 +1988,92 @@ namespace k2040
         return menu;
     }
 
+    // An empty material attachment point already represents the default visual
+    // state. Some workbench default choices are real no-effect OMOD records, but
+    // installing one into an already-empty slot is not an ordinary replacement.
+    // Inspect the loaded OMOD rather than relying on a localized label, FormID,
+    // source plugin, or a default-template keyword as installed identity.
+    bool IsEmptyMaterialDefaultOmod(const EcoMenuOption& option)
+    {
+        if (option.isInstalled || option.hasLooseMod ||
+            !option.isStructurallyValid ||
+            !option.providesAttachParentSlots.empty() ||
+            option.consumesAttachPoint.editorId != "ap_WeaponMaterial") {
+            return false;
+        }
+
+        auto* mod = RE::TESForm::GetFormByID<RE::BGSMod::Attachment::Mod>(option.omod.formId);
+        if (!mod || mod->swapForm ||
+            (mod->attachParents.array && mod->attachParents.size != 0)) {
+            return false;
+        }
+
+        RE::BGSMod::Container::Data data{};
+        return TryGetAttachmentContainerData(mod, data) &&
+            data.attachmentCount == 0 && data.propertyModCount == 0;
+    }
+
+    void MarkImplicitMaterialDefault(EcoWeaponMenu& menu, const EquippedWeaponInfo& weaponInfo)
+    {
+        if (!menu.valid ||
+            !weaponInfo.equippedInventoryStackFound ||
+            weaponInfo.equippedInventoryStackCount != 1 ||
+            weaponInfo.installedObjectInstanceRawCount == 0 ||
+            weaponInfo.installedObjectInstanceRawCount != weaponInfo.installedObjectInstanceResolvedCount) {
+            return;
+        }
+
+        std::vector<EcoMenuOption*> defaults;
+        for (auto& category : menu.categories) {
+            for (auto& option : category.options) {
+                if (IsEmptyMaterialDefaultOmod(option)) {
+                    defaults.push_back(std::addressof(option));
+                }
+            }
+        }
+        if (defaults.empty()) return;
+
+        // Existing material OMODs are real installed state. Until the proper
+        // engine workbench removal path is established, refuse to install a
+        // no-effect marker over them; this exact operation has crashed before.
+        bool installedMaterialPresent = false;
+        for (const auto& installed : menu.installedOmodAttachmentInfo) {
+            for (const auto* candidate : defaults) {
+                if (candidate->consumesAttachPoint.formId ==
+                    installed.consumesAttachPoint.formId) {
+                    installedMaterialPresent = true;
+                    break;
+                }
+            }
+            if (installedMaterialPresent) break;
+        }
+
+        for (auto* candidate : defaults) {
+            candidate->isSelectable = false;
+            if (installedMaterialPresent) {
+                candidate->status = "material-reset-needs-workbench";
+            } else if (defaults.size() != 1) {
+                candidate->status = "ambiguous-material-default";
+            } else {
+                candidate->isDefaultApplied = true;
+                candidate->status = "default-applied";
+            }
+        }
+        for (auto& category : menu.categories) {
+            for (const auto& option : category.options) {
+                if (option.isDefaultApplied) {
+                    category.hasVisibleOptions = true;
+                }
+            }
+        }
+        log::Info(
+            "Material default classification: noEffectCandidates=" +
+            std::to_string(defaults.size()) +
+            ", installedMaterialPresent=" + (installedMaterialPresent ? "true" : "false") +
+            ", defaultApplied=" + (!installedMaterialPresent && defaults.size() == 1 ? "true" : "false") +
+            "; no mutation performed.");
+    }
+
     EcoWeaponMenu BuildEcoWeaponMenu_ReadOnly(
         const EquippedWeaponInfo& weaponInfo,
         bool includeInventoryUnavailableGeneratedOptions)
@@ -1988,13 +2095,18 @@ namespace k2040
                 : (globalGenerated
                     ? "Global preference ignores authored ECO menus; using the runtime-generated menu."
                     : "Menu source mode GeneratedOnly: skipping authored ECO lookup."));
-            return BuildGenericWeaponMenu_ReadOnly(
+            auto generated = BuildGenericWeaponMenu_ReadOnly(
                 weaponInfo,
                 includeInventoryUnavailableGeneratedOptions);
+            MarkImplicitMaterialDefault(generated, weaponInfo);
+            return generated;
         }
 
         auto authored = BuildEcoAuthoredWeaponMenu_ReadOnly(weaponInfo);
-        if (authored.valid) return authored;
+        if (authored.valid) {
+            MarkImplicitMaterialDefault(authored, weaponInfo);
+            return authored;
+        }
 
         if (sourceMode == "authoredonly" || forceAuthored) {
             log::Info("Menu source mode AuthoredOnly: runtime-generated fallback disabled.");
@@ -2002,9 +2114,11 @@ namespace k2040
         }
 
         log::Info("No usable authored ECO menu found; attempting runtime-generated fallback.");
-        return BuildGenericWeaponMenu_ReadOnly(
+        auto generated = BuildGenericWeaponMenu_ReadOnly(
             weaponInfo,
             includeInventoryUnavailableGeneratedOptions);
+        MarkImplicitMaterialDefault(generated, weaponInfo);
+        return generated;
     }
 
     AttachmentReturnPreparation PrepareAttachmentReturn(const AttachmentMutationRequest& request)
@@ -2043,7 +2157,8 @@ namespace k2040
                 return option.omod.formId == request.targetOmodFormId;
             });
         if (targetIt == categoryIt->options.end() || targetIt->userHidden || !targetIt->isVisible ||
-            targetIt->isInstalled || !targetIt->isSelectable || !targetIt->isStructurallyValid) {
+            (targetIt->isInstalled || targetIt->isDefaultApplied) ||
+            !targetIt->isSelectable || !targetIt->isStructurallyValid) {
             return fail("option-changed", "The selected attachment is no longer available.");
         }
 
@@ -2434,7 +2549,8 @@ namespace k2040
                 return option.omod.formId == request.targetOmodFormId;
             });
         if (targetIt == categoryIt->options.end() || targetIt->userHidden || !targetIt->isVisible ||
-            targetIt->isInstalled || !targetIt->isSelectable || !targetIt->isStructurallyValid) {
+            (targetIt->isInstalled || targetIt->isDefaultApplied) ||
+            !targetIt->isSelectable || !targetIt->isStructurallyValid) {
             return fail("option-changed", "The selected attachment is no longer available.");
         }
         const auto targetProvidedAttachPoints = targetIt->providesAttachParentSlots;

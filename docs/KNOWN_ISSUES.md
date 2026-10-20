@@ -26,6 +26,113 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.206 verified AE post-modification crash
+
+Addictol Crash Logger captured an access violation executing
+Fallout4.exe+24E2BE8 after a verified vanilla Double-Barrel Shotgun
+sight replacement. The old refresh call used Address Library ID
+1153963, which is absent on game version 1.11.240. Lookup reaches
+the adjacent 1153964 at exactly the non-executable crash address.
+The return address in the plugin disassembles immediately after
+the indirect equipped-refresh call. This explains the previously
+unresolved post-transaction AE crashes without assuming a bad save.
+
+The candidate intentionally skips this unsafe visual refresh on AE,
+while preserving the verified attachment operation. Its original
+1.10.163 path requires an executable target. Players may need to
+re-equip the weapon to see the new model. A focused in-game 1.11.240 test subsequently installed
+Double-Barrel Shotgun standard sights successfully, verified the new
+object-instance OMOD, and logged the incompatible visual refresh
+being skipped. The game did not crash. The visible shotgun only
+updated when switching weapons. This validates the crash avoidance
+for that test, not every weapon or the original-game runtime.
+
+A supported, low-impact immediate visual refresh remains unresolved.
+CommonLibF4 exposes AE relocation IDs for actor/equipment management
+and queued 3D updates, but these are not proven equivalent to a
+weapon-only refresh. Automatic re-equipping may alter ammo, animation,
+or equipped state; resetting an entire actor's 3D is too intrusive
+to apply speculatively. Do not replace the known-bad pointer with
+an untested or cross-runtime relocation.
+
+## Unreleased 0.5.205 ordinary radial label overlap
+
+A screenshot from 0.5.203 showed overlapping receiver labels in
+keyboard/mouse radial mode. The 0.5.204 pagination only covered
+controller radial, not the ordinary mouse interface. The 0.5.205
+candidate extends the six-entry page cap to mouse radial with
+center paging arrows, wheel/Page Up/Page Down controls, short
+wedge labels and a full-name hover caption. All options remain
+reachable without changing their install behavior. Target
+in-game visual QA is pending; the receiver crash remains unresolved.
+
+## Unreleased 0.5.204 receiver crash and dense radial
+
+Version 0.5.203 logged a successful and verified vanilla 10mm receiver
+transition from Advanced Receiver to Rapid Automatic Receiver before the
+game crashed after submitting the updated Prisma payload. Without a crash
+call stack, the exact failing instruction remains unknown. Version
+0.5.204 adds flushed markers before and after the existing payload
+submission and equipped-item refresh, without changing either operation.
+It is a diagnostic candidate, not a crash fix.
+
+With many receivers, controller radial option labels overlapped. The
+option ring now shows at most six choices per page, preserves all choices
+across pages via LB/RB, shortens wedge labels, and displays the full
+selected label in the wheel center. The mouse layout remains unchanged.
+In-game presentation and control tests are still required.
+
+## Unreleased 0.5.203 Quick Menu controller refinement
+
+Previous controller navigation in Builder and Settings was not intuitive
+enough for those complex panels. They now remain keyboard/mouse-only until
+their layouts are deliberately redesigned. The retired controller Builder
+opener is ignored without altering keyboard/MCM shortcuts. Quick Menu uses
+the Prisma V12 controller button bridge, plus sampled XInput left/right
+stick angle for radial selection. A enters a category and then confirms an
+attachment; B backs out and then closes. The controller radial outer
+options occupy a full ring, independent of category direction, and D-right
+no longer enters the outer ring.
+
+Static direction/activation tests and the cross-build do not establish
+behavior on a real Steam Input/Proton controller. Specifically validate
+dead-zone stability, A/B stage transitions, stick priority, button mapping,
+mouse coexistence, and ordinary Cascade navigation before merging.
+
+## Unreleased 0.5.202 default material safety
+
+A 0.5.201 game session on a 10mm confirmed no previously installed material
+OMOD, yet selecting the vanilla No Material OMOD 0024A0D9 attached it to the
+object-instance stack and the game crashed after the transaction verified and
+the UI payload was sent. The engine refresh remains a probable but unproven
+crash site; no crash stack is available. A unique unloaded, zero-effect
+material default is now presentation-only "already applied" when the installed
+material point is empty, and the selection is rejected before mutation.
+Attempts to replace a different installed material with a no-effect reset
+OMOD remain disabled pending verification of a safe workbench-equivalent
+removal path. This does not prove the overall crash is fixed.
+
+## Unreleased 0.5.201 follow-up
+
+Static and build validation are required for the controller focus/navigation
+fixes and recipe-backed generated-OMOD filter. The filter preserves installed
+OMODs but requires a COBJ recipe, explicit matching MNAM, and reachable AP for
+new generated choices. This is deliberately stricter than previous behavior;
+mods that offer loose-only choices without a COBJ may need a separate
+workbench-compatibility path. Bench-specific recipe and perk/condition
+visibility are not yet modeled precisely. Controller interaction, attachment
+catalog accuracy and crash regression all require focused game testing.
+The previous equipped-weapon presentation refresh is not modified by this
+candidate; no cheat-mode code has been reintroduced.
+
+## Unreleased controller-only 0.5.200 candidate
+
+The controller-only candidate preserves 0.5.199 attachment mutation, inventory,
+and equipped-model refresh behavior. Unlike the discarded cheat-mode candidate,
+it does not permit inventory-free swaps. Controller navigation and independent
+single-/two-button XInput opener shortcuts are not yet in-game validated.
+Steam Input mappings and gamepad focus behavior require target-environment QA.
+
 ## Unsupported attachment operations fail closed
 
 Ambiguous inventory stacks, unresolved forms, dependency cycles, stale menu

@@ -87,6 +87,7 @@
     this.activeCategoryIndex = null;
     this.activePane = "categories";
     this.lastFocusedOptionIndex = 0;
+    this.radialOptionPage = 0;
     this.statusMessage = "";
     this.statusClass = "";
     this.viewportFrame = 0;
@@ -147,7 +148,10 @@
 
   Renderer.prototype.optionReason = function(option) {
     if (!option) return "Choose an attachment.";
+    if (option.isDefaultApplied) return "Default material already applied.";
     if (option.isInstalled) return "Currently installed.";
+    if (option.status === "material-reset-needs-workbench") return "Use a weapon workbench to remove the current material.";
+    if (option.status === "ambiguous-material-default") return "Default material cannot be identified safely.";
     if (option.isSelectable && option.isStructurallyValid) {
       return "Ready to equip.";
     }
@@ -475,7 +479,15 @@
     (this.statusPortal || container).appendChild(status);
     var hints = document.createElement("div");
     hints.className = "qm-hints";
-    hints.textContent = "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+    hints.textContent = this.options.controllerActive
+      ? ((this.settings().presentation === "radial")
+          ? (this.activePane === "categories"
+              ? "Stick: Point at category · A: Open · B: Close"
+              : "Stick: Point at attachment · A: Confirm · LB/RB: Page · B: Back")
+          : "D-pad: Navigate · A: Confirm · LB/RB: Category · B: Close")
+      : this.settings().presentation === "radial"
+        ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
+        : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";
@@ -585,6 +597,10 @@
   Renderer.prototype.makeOptionSegment = function(svg, labelLayer, category, option, start, end, cx, cy, innerRadius, outerRadius) {
     var self = this;
     var label = this.displayName(option.label) || "Unnamed attachment";
+    // The center caption preserves the full name for mouse and controller.
+    // Keep all radial wedge labels short enough to fit without overlap.
+    var shortLabel = this.settings().presentation === "radial" && label.length > 18
+      ? label.slice(0, 17).trimEnd() + "…" : label;
     var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
     var focused = this.activePane === "options" && option.optionIndex === this.lastFocusedOptionIndex;
     var stateClass = (option.isInstalled ? "installed" : "") +
@@ -598,10 +614,11 @@
     group.appendChild(path);
     var labelBox = this.appendWheelLabel(labelLayer,
       { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
-      label, true, stateClass);
+      shortLabel, true, stateClass);
     group.addEventListener("mouseenter", function() {
       labelBox.classList.add("hovered");
       self.lastFocusedOptionIndex = option.optionIndex;
+      self.updateRadialCaption();
     });
     group.addEventListener("mouseleave", function() { labelBox.classList.remove("hovered"); });
     group.addEventListener("click", function() {
@@ -610,6 +627,41 @@
       self.activateOption(category, option);
     });
     svg.appendChild(group);
+  };
+
+  Renderer.prototype.radialPageInfo = function(category) {
+    var all = this.visibleOptions(category);
+    var pageSize = 6; // No more than six readable wedges on the option ring.
+    var count = Math.max(1, Math.ceil(all.length / pageSize));
+    this.radialOptionPage = Math.max(0, Math.min(count - 1, this.radialOptionPage));
+    var start = this.radialOptionPage * pageSize;
+    return {
+      all: all,
+      options: all.slice(start, start + pageSize),
+      start: start,
+      count: count,
+      index: this.radialOptionPage
+    };
+  };
+
+  Renderer.prototype.changeRadialPage = function(delta) {
+    if (this.settings().presentation !== "radial" ||
+        (this.options.controllerActive && this.activePane !== "options")) return;
+    var category = this.findCategory(this.activeCategoryIndex);
+    var info = this.radialPageInfo(category);
+    if (info.count < 2) return;
+    this.radialOptionPage = (this.radialOptionPage + delta + info.count) % info.count;
+    var next = this.radialPageInfo(category).options[0];
+    if (next) this.lastFocusedOptionIndex = next.optionIndex;
+    this.render();
+  };
+
+  Renderer.prototype.updateRadialCaption = function() {
+    if (!this.root) return;
+    var name = this.root.querySelector(".qm-radial-controller-selected");
+    if (!name) return;
+    var option = this.focusedOption(this.findCategory(this.activeCategoryIndex));
+    name.textContent = option ? this.displayName(option.label) : "No attachment selected";
   };
 
   Renderer.prototype.renderRadial = function(categories, category) {
@@ -633,19 +685,77 @@
       var categoryEnd = -90 + (i + 1) * categorySweep - 1.5;
       this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 300, 300, 108, 190);
     }
-    var options = this.visibleOptions(category);
-    if (category && options.length) {
+    var controllerOptions = this.options.controllerActive;
+    var pageInfo = this.radialPageInfo(category);
+    var options = pageInfo.options;
+    // Both input modes use readable paged options. Controller mode uses a
+    // full circle; mouse mode retains its familiar category-centered arc.
+    if (category && options.length && (this.activePane === "options" || !this.options.controllerActive)) {
       var categoryPosition = categories.indexOf(category);
       var categoryMiddle = -90 + (categoryPosition + .5) * categorySweep;
-      var optionSweep = Math.min(250, Math.max(72, options.length * 38));
+      var optionSweep = this.options.controllerActive ? 360 : Math.min(250, Math.max(72, options.length * 38));
       var optionSize = optionSweep / options.length;
-      var optionStart = categoryMiddle - optionSweep / 2;
+      var optionStart = this.options.controllerActive ? -90 : categoryMiddle - optionSweep / 2;
       for (var j = 0; j < options.length; j += 1) {
         this.makeOptionSegment(svg, labelLayer, category, options[j], optionStart + j * optionSize + 1.2,
           optionStart + (j + 1) * optionSize - 1.2, 300, 300, 202, 286);
       }
     }
     layout.appendChild(svg);
+    if (category && options.length && (this.activePane === "options" || !controllerOptions)) {
+      var self = this;
+      // Full labels live in the center where they cannot overlap wedges.
+      var focused = options.find(function(option) {
+        return option.optionIndex === self.lastFocusedOptionIndex;
+      }) || options[0];
+      var caption = document.createElement("div");
+      caption.className = "qm-radial-controller-caption";
+      var name = document.createElement("div");
+      name.className = "qm-radial-controller-selected";
+      name.textContent = this.displayName(focused.label);
+      caption.appendChild(name);
+      var pager = document.createElement("div");
+      pager.className = "qm-radial-controller-pager";
+      if (pageInfo.count > 1 && !controllerOptions) {
+        var previous = document.createElement("button");
+        previous.type = "button";
+        previous.className = "qm-radial-page-button";
+        previous.textContent = "‹";
+        previous.setAttribute("aria-label", "Previous attachment page");
+        previous.addEventListener("click", function(event) {
+          event.stopPropagation();
+          self.changeRadialPage(-1);
+        });
+        pager.appendChild(previous);
+      }
+      var number = document.createElement("span");
+      number.textContent = "Page " + (pageInfo.index + 1) + " / " + pageInfo.count;
+      pager.appendChild(number);
+      if (pageInfo.count > 1 && !controllerOptions) {
+        var next = document.createElement("button");
+        next.type = "button";
+        next.className = "qm-radial-page-button";
+        next.textContent = "›";
+        next.setAttribute("aria-label", "Next attachment page");
+        next.addEventListener("click", function(event) {
+          event.stopPropagation();
+          self.changeRadialPage(1);
+        });
+        pager.appendChild(next);
+        layout.addEventListener("wheel", function(event) {
+          if (!event.deltaY) return;
+          event.preventDefault();
+          self.changeRadialPage(event.deltaY > 0 ? 1 : -1);
+        }, { passive:false });
+      }
+      if (controllerOptions && pageInfo.count > 1) {
+        var help = document.createElement("div");
+        help.textContent = "LB/RB: Change page";
+        pager.appendChild(help);
+      }
+      caption.appendChild(pager);
+      layout.appendChild(caption);
+    }
     return layout;
   };
 
@@ -711,10 +821,35 @@
     this.activeCategoryIndex = category.categoryIndex;
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
+    this.radialOptionPage = 0;
     this.statusMessage = "";
     this.statusClass = "";
     this.render();
     if (this.options.onCategoryChanged) this.options.onCategoryChanged(category);
+  };
+
+  Renderer.prototype.selectRadialSector = function(sector) {
+    if ((this.settings().presentation || "cascade") !== "radial" ||
+        !this.options.controllerActive || !Number.isInteger(sector) ||
+        sector < 0 || sector >= 72) return;
+    if (this.activePane === "categories") {
+      var categories = this.visibleCategories();
+      if (!categories.length) return;
+      var selectedCategory = categories[Math.floor((sector + .5) * categories.length / 72) % categories.length];
+      if (selectedCategory.categoryIndex !== this.activeCategoryIndex) {
+        this.selectCategory(selectedCategory.categoryIndex);
+      }
+    } else {
+      var category = this.findCategory(this.activeCategoryIndex);
+      var page = this.radialPageInfo(category);
+      var options = page.options;
+      if (!options.length) return;
+      var selectedOption = options[Math.floor((sector + .5) * options.length / 72) % options.length];
+      if (selectedOption.optionIndex !== this.lastFocusedOptionIndex) {
+        this.lastFocusedOptionIndex = selectedOption.optionIndex;
+        this.render();
+      }
+    }
   };
 
   Renderer.prototype.moveCategory = function(delta) {
@@ -738,12 +873,26 @@
     }
     index = index < 0 ? (delta > 0 ? 0 : options.length - 1) : (index + delta + options.length) % options.length;
     this.lastFocusedOptionIndex = options[index].optionIndex;
+    if (this.settings().presentation === "radial") {
+      this.radialOptionPage = Math.floor(index / 6);
+    }
     this.render();
   };
 
   Renderer.prototype.switchPane = function(direction) {
-    if (direction > 0 && this.activePane === "categories") this.activePane = "options";
-    else if (direction < 0 && this.activePane === "options") this.activePane = "categories";
+    if (direction > 0 && this.activePane === "categories") {
+      this.activePane = "options";
+      if (this.settings().presentation === "radial") {
+        var category = this.findCategory(this.activeCategoryIndex);
+        var options = this.visibleOptions(category);
+        var index = options.findIndex(function(option) {
+          return option.optionIndex === this.lastFocusedOptionIndex;
+        }, this);
+        this.radialOptionPage = index < 0 ? 0 : Math.floor(index / 6);
+      }
+    } else if (direction < 0 && this.activePane === "options") {
+      this.activePane = "categories";
+    }
     this.render();
   };
 

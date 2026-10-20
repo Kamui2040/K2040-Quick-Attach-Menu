@@ -20,6 +20,8 @@ namespace k2040
         bool BeginOpenFromHotkey();
         bool IsMenuFocused() const;
         bool IsMenuBuilderOpen() const;
+        bool IsQuickControllerInputActive() const;
+        void OnControllerStickSector(int sector);
 
         void OpenMenu(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
         void OpenMenuBuilder(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
@@ -44,12 +46,14 @@ namespace k2040
         };
 
         PRISMA_UI_API::IVPrismaUI10* api_ = nullptr;
+        PRISMA_UI_API::IVPrismaUI12* controllerApi_ = nullptr;
         PrismaView menuView_ = 0;
 
         bool pendingPayload_ = false;
         bool pendingFocus_ = false;
         bool viewDomReady_ = false;
         bool menuOpen_ = false;
+        std::atomic_bool quickControllerInputActive_ = false;
         bool weaponDrawStateCaptured_ = false;
         bool weaponWasDrawnBeforeOpen_ = false;
         bool menuOpenedInFirstPerson_ = false;
@@ -70,6 +74,7 @@ namespace k2040
         std::string BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const;
 
         void CreateMenuViewIfNeeded();
+        void BindControllerActions();
         void OpenView(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu, ViewMode mode);
         void RequestViewSwitch(ViewMode mode);
         void SwitchView(ViewMode mode);

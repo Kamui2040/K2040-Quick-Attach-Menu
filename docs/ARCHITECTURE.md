@@ -58,17 +58,26 @@ for MNAM. Because CommonLibF4 does not expose MNAM structurally, the runtime
 reads MNAM from the winning loaded plugin record and resolves those keywords to
 the live form table.
 
-An uninstalled generated OMOD must consume an attachment point reachable from
-the weapon graph. If its winning OMOD record has MNAM targets, at least one must
-be a keyword on the equipped base WEAP. If the record has no MNAM targets, the
-OMOD is generic for that reachable attachment point. If MNAM metadata cannot be
-resolved safely, the uninstalled candidate fails closed. Installed OMODs remain
-visible from live object-instance identity. Source plugin is not a compatibility
-gate because patches and add-ons may validly extend a weapon from another
-plugin.
+The runtime-generated menu now requires **positive workbench evidence** for
+uninstalled choices: a loaded COBJ recipe whose created item is that exact OMOD,
+a consumed attachment point reachable from the weapon graph, and an explicit
+resolved OMOD MNAM keyword that matches the equipped base WEAP. A shared AP,
+weapon keyword alone, generic/no-target OMOD, loose-mod item, or source-plugin
+name cannot independently make an uninstalled OMOD a generated choice. Missing
+recipes or unresolved MNAM metadata fail closed. Installed OMODs remain visible
+from live object-instance identity so pre-existing or scripted state is not
+concealed. Source plugin is not a compatibility gate because patches and add-ons
+may validly extend a weapon from another plugin.
 
-Generated menus expose player-facing workbench choices, not every reachable
-OMOD record. Linked loose-mod items remain the normal generated path. When
+COBJ presence is a conservative initial workbench-discoverability gate, **not
+proof of exact workbench menu parity**. Bench-specific categories, crafting
+conditions, perks, and unusual loose-mod-only setups need additional review.
+Generated menus must not imply that recipe eligibility alone guarantees an
+installation, or alter live mutation authority to circumvent that review.
+
+Generated menus expose positively evidenced player-facing workbench choices,
+not every reachable OMOD record. Linked loose-mod items remain the normal
+inventory installation path after compatibility discovery. When
 `AllowNoLooseModOptions` is enabled, an uninstalled no-loose OMOD may also be
 exposed if it has an explicit resolved MNAM target matching the equipped weapon.
 Generic no-MNAM no-loose records stay out of generated discovery because they
@@ -87,6 +96,21 @@ The known Tactical Reload switcher records `TRT_mod_EntryPoint1`,
 `TRT_mod_EntryPoint2`, and `TRT_mod_KeywordApply` from
 `TacticalReload_IngameSwitch.esp` remain live graph inputs but are not generated
 player choices or dependency-removal candidates.
+
+Equipped weapon visual refresh uses runtime-specific engine
+relocations. Never call a missing or non-executable relocation.
+A crash logger proved that the old ID 1153963 is missing from the
+1.11.240 database and resolves to game non-executable data.
+Until an AE-safe refresh path is verified, only 1.10.163 may use
+that refresh after an exact-version and executable-section check.
+AE skips the visual refresh and logs this limitation, without
+affecting attachment transaction identity, inventory, or rollback.
+
+Post-mutation diagnostics bracket read-only menu payload construction, Prisma
+payload submission, equipped-refresh prerequisite resolution, and the
+existing synchronous equipped-weapon refresh with flushed stage markers.
+These markers narrow crashes but do not by themselves provide a stack trace
+or prove which callee faulted. The runtime does not skip normal refresh.
 
 A successful attachment transaction rebuilds the live menu and then reapplies
 the same persisted visibility, ordering, and label preferences used on initial
@@ -137,6 +161,30 @@ closes it and the other opener switches menus without releasing gameplay
 isolation between views. Escape closes either menu. DialogueMenu blocks opener
 actions. There is no separate registered close binding.
 
+The PrismaUI V12 controller action bridge binds button actions **only** to
+Quick Menu views. Builder and Settings use keyboard/mouse, pending custom
+controller-oriented layouts. One optional controller opener toggles Quick Menu;
+the legacy Builder controller binding is ignored. Keyboard/MCM binding
+behavior is unchanged.
+
+The native XInput input thread samples either analog stick (left priority,
+right fallback) only while a Quick Menu DOM is ready, applies a dead zone,
+quantizes the direction clockwise from 12 o'clock, and queues the angle on the
+F4SE game thread. The game-thread Prisma bridge revalidates the live Quick
+Menu view before forwarding the direction into the browser. The radial
+controller UI is explicitly two-step: direction selects category -> A enters
+its full-circle outer attachment ring -> direction selects option -> A
+confirms; B backs out then closes. The outer controller ring shows a
+maximum of six options per page. LB/RB switches pages in the outer ring
+and switches categories when at the category ring; the full selected label
+is displayed in the center. The sampled angle and page changes never
+authorize mutation without an explicit A. Other presentations retain
+D-pad button navigation. Keyboard/mouse radial mode retains the
+category-centered attachment arc but uses the same six-entry paging cap.
+Center arrow buttons, mouse wheel, and Page Up/Down move between pages,
+while hovering updates the full-name caption without a mutation.
+Steam Input/Proton and in-game UI behavior require runtime testing.
+
 The mod-owned Prisma builder remains authoritative for per-weapon presentation
 settings and links to the mod-owned general settings page. Switching between
 those pages creates a fresh Prisma view while preserving gameplay isolation,
@@ -165,6 +213,19 @@ enumeration. That hidden registration view does not authorize attachment
 changes or bypass the normal hotkey/open safety path. The existing Dock
 metadata remains informational under PrismaUI `2.1.1`; the Dock contract does
 not provide a custom native action for opening the Builder or Quick Menu.
+
+### Empty material attachment point
+
+A material slot can be the default state with **no installed OMOD**. When the
+equipped stack's object-instance OMOD probe is complete, a single unloaded
+material OMOD with no material swap, nested attachments, attach parents, linked
+loose mod, or property modifications is marked as **effective default applied**
+for UI purposes only. The engine's installed OMOD identity and graph must not
+be faked; in particular, the attachment-return preparation must still see the
+actual empty material slot. Selecting the already-effective default is a no-op
+without an engine modification or synchronous visual refresh. An ambiguous
+default or a reset when a different material is actually installed is blocked
+until a workbench-equivalent reset implementation is validated.
 
 ## Attachment transaction safety
 

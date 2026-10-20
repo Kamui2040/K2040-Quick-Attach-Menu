@@ -43,6 +43,41 @@ Only durable product decisions belong here. Current release state belongs in
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,
   reapplies persisted presentation preferences before reaching the active view.
+- An empty material AP is already the default state: classify one unique
+  zero-effect material OMOD as UI-only effective default when the exact live
+  stack has no material OMOD. Never misrepresent it as actually installed for
+  provider/dependency/rollback checks. Reject unproven material resets and
+  ambiguous default records without engine mutation.
+- Generated uninstalled OMOD discovery requires a loaded COBJ recipe creating
+  the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
+  for recovery. Recipe presence is not the full workbench condition evaluator;
+  don't label the resulting list exact workbench parity until validated.
+- Controller-specific navigation and opener support are scoped to Quick Menu
+  only. Builder/Settings remain keyboard/mouse pending proper layouts; the
+  obsolete controller Builder shortcut is ignored without changing MCM keys.
+- Apply the radial six-entry page limit to keyboard/mouse too. Provide
+  center paging arrows, mouse-wheel and Page Up/Page Down navigation, and
+  a full-name hover caption. Never remove entries to fit the wheel.
+- Show at most six controller radial attachment entries per page;
+  LB/RB changes option pages, and the full selected name appears in the
+  center. Never remove available attachments merely to fit the wheel.
+- An Address Library relocation must be verified for the target
+  game runtime, not inferred from a nearby ID. The equipped refresh
+  ID 1153963 is absent on AE 1.11.240 and caused executable-data
+  access violations. Skip AE immediate visual refresh until a
+  verified implementation exists, while retaining normal OMOD
+  mutations. Keep 1.10.163 behind exact-version and executable
+  address checks; do not claim target-runtime PASS from a build.
+- Flushed post-mutation stage markers may narrow a crash location,
+  but must not be misrepresented as a verified fix or a crash stack.
+- XInput radial direction is sampled on the native input thread only while a
+  Quick Menu is active, then dispatched to Prisma via F4SE game-thread work.
+  Never call PrismaUI from the poller thread. Use left stick preferentially,
+  right as fallback, with a dead zone and angle-based selection; A alone
+  confirms, B backs out/closes. Avoid D-right as an entry action in radial UI.
+- Only the Quick Menu binds PrismaUI V12 controller actions. The optional
+  single/two-button Quick opener stays independent of keyboard/MCM bindings
+  and must never bypass menu-open or attachment mutation safety checks.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.

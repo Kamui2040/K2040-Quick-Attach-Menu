@@ -10,6 +10,63 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+The unreleased 0.5.206 safety candidate fixes the invalid AE post-mod
+refresh call identified in an actual Addictol crash report. On Fallout 4
+1.11.240 the used Address Library ID 1153963 is absent and lookup
+resolves into non-executable data. The guarded candidate skips that
+instant visual refresh on AE while retaining normal OMOD transactions;
+the 1.10.163 path is gated by exact version and executable section.
+Focused in-game QA on 1.11.240 now confirms the shotgun sight change is
+verified without crashing and the invalid refresh is safely skipped.
+Switching weapons updates the visible model. This is not proof of
+original-runtime compatibility or full attachment regression success.
+A native AE-safe automatic weapon model refresh remains unresolved.
+
+The unreleased 0.5.205 radial presentation follow-up extends the
+six-option page limit to keyboard/mouse mode, adds center pager buttons,
+mouse wheel/Page Up/Page Down navigation, and shows the full hovered
+attachment name. The earlier 0.5.204 paging applied only to controller.
+In-game UI QA is pending; the receiver crash remains unresolved.
+
+The unreleased 0.5.204 diagnostic/layout tester follows a 10mm vanilla
+Advanced-to-Rapid-Automatic receiver swap that verified the actual OMOD
+transaction but crashed after the UI update. The exact crash instruction
+remains unknown. It adds flushed stage markers around the post-mutation
+UI and existing equipped refresh, without altering either operation.
+Controller radial option labels were overlapping; this tester uses a
+six-entry paged ring with LB/RB paging and a full-name caption.
+Build, runtime safety and presentation validation are pending.
+
+The unreleased 0.5.203 controller refinement keeps native controller
+navigation and its opener exclusive to the Quick Menu. Builder and Settings
+remain keyboard/mouse. Both analog sticks are supported for radial pointing,
+preferring left when active; A enters/accepts, B backs out/closes. Analog events
+are sampled on the native input thread and delivered to Prisma on the game
+thread. The 0.5.202 default material guard and 0.5.201 recipe discovery remain
+unchanged. Build and target-runtime analog QA are pending.
+
+The unreleased 0.5.202 tester addresses repeated in-game crashes after
+selecting vanilla "No Material" on a 10mm that already had no material OMOD.
+It adds UI-only effective-default classification for a unique zero-effect
+material default and rejects replacing existing material paint with such a
+record until the proper workbench operation can be validated. No synthetic
+installed identity, ordinary attachment mutation, or equipped-slot refresh
+change is made. The controller/recipe improvements from 0.5.201 remain.
+Build and in-game validation are still required.
+
+The unreleased 0.5.201 follow-up adds recipe-backed generated workbench
+discovery and fixes controller focus and binding-editor consistency. It does
+not change normal attachment mutation or equipped-weapon refresh behavior.
+Exact workbench parity and runtime QA remain unverified.
+
+The unreleased 0.5.200 controller-only candidate starts from the proven
+0.5.199 attachment/inventory implementation. It adds PrismaUI V12 controller
+navigation and independent configurable XInput controller menu-opening
+shortcuts, including single buttons or two-button combinations. Controller
+shortcuts default to unassigned and do not change keyboard/MCM bindings.
+No cheat-mode capability or altered attachment transaction/refresh path is
+included. Build, packaging, and target-runtime controller testing are pending.
+
 Version `0.5.199` is the current public release. It allows a
 provider attachment to be installed into an empty, live-reachable attachment
 point only when the hypothetical graph does not activate an existing unreachable
