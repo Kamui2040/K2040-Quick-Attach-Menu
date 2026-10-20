@@ -260,7 +260,8 @@ See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) and
 The project builds a Windows x64 F4SE plugin from Linux with xmake and an
 xmake-compatible CommonLibF4 checkout. Set the local toolchain paths described
 in [`AGENTS.md`](AGENTS.md), then run the documented `releasedbg` configure and
-build commands.
+build commands. A verified fresh-clone recovery procedure is in
+[`docs/BUILDING_ON_LINUX.md`](docs/BUILDING_ON_LINUX.md).
 
 The committed PrismaUI API header is an unchanged upstream file. Its exact
 source revision, checksum, and license are recorded under

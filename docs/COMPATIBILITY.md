@@ -2,10 +2,11 @@
 
 Quick Attach Menu bundles the canonical K2040_Mods parent in every
 installer, along with its own MCM child configuration. The shared
-parent must remain byte-for-byte identical to the template at
-https://github.com/Kamui2040/K2040-MCM-Hub
+parent must remain byte-for-byte identical across participating K2040 mods
 (SHA-256:
 8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb).
+The standalone MCM Hub repository was retired and deleted; each K2040 mod
+bundles its own copy of the shared parent in the release package.
 Other K2040 mods can supply the same parent; conflicts are harmless
 only when its bytes match. No separate Hub download, alternate MCM
 layout or centralized child action registration is needed. The child
