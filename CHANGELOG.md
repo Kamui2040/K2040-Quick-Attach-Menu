@@ -1,16 +1,18 @@
-## 0.5.216 (GitHub preview, 2026-10-20)
+## 0.5.216 (stable GitHub release, 2026-10-20)
 
 - Recognize generated-menu MNAM targets supplied by active installed OMODs,
   fixing a reported attachment option that disappeared after removal from a
   rail-enabled Service Rifle.
 - Require explicit installed-OMOD Add Keywords evidence and a matching live
   keyword; reject unproven or removed keywords to preserve safety.
-- Keep the unified K2040 Mods MCM page, controller support, Cheat mode, AE
-  refresh workaround, and Fallout 76 theme unchanged.
+- Includes controller support, optional experimental Cheat mode, bundled
+  unified K2040 Mods MCM parent/child, improved Classic Pip-Boy and Fallout 76
+  themes, and guarded AE refresh with a default-off re-equip workaround.
 - Pinned Linux build and automated regression tests passed. The original
   reporter tested the fix and confirmed that the reported RIS rediscovery
-  issue is resolved. Broader cross-weapon and OG/AE QA remains open; this is
-  a GitHub pre-release, not a stable or Nexus release.
+  issue is resolved. The maintainer reports final 0.5.216 gameplay checks
+  passed. GitHub now lists 0.5.216 as stable; Nexus remains on 0.5.199 until
+  a separate Nexus publication.
 
 ## 0.5.215 (unreleased Hub and theme integration tester)
 
