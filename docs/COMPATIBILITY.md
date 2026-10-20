@@ -10,6 +10,34 @@
 | Plugin | `0.5.198` |
 | Architecture | Windows x64 |
 
+Unreleased 0.5.214 introduces an opt-in Cheat mode that bypasses
+loose-mod inventory requirements for otherwise-valid attachments.
+No workbench crafting components are used by the Quick Menu even
+without it. Cheat mode also preserves loose-mod inventory rather than
+generating removed attachment items. The original weapon/OMOD/AP
+compatibility checks, material-default safeguards, generated recipe
+and target association tests, dependency ordering, exact equipped
+stack and rollback protections still apply. This candidate has passed
+Linux builds and deterministic source checks. Focused AE user
+testing reports successful Cheat mode installs and the return of
+ordinary loose-mod requirements when it is disabled. If a free
+cheat-installed attachment is removed only after the option is
+turned off, ordinary return handling may award its loose mod.
+This accepted cross-mode side effect is documented in Known Issues;
+it is not a failure of Cheat mode's inventory-neutral transactions
+while the option remains enabled. The maintainer reports the broader
+weapon, dependency and original-game checks they performed passed.
+Public testing is the remaining step for wider compatibility
+confidence; exact coverage has not been independently established.
+
+A known AE 1.11.240 limitation affects gameplay state after changing
+attachments: automatic re-equip can update the weapon model without
+updating aiming or other effects. A 10mm recon scope may aim through
+ordinary sights, and a suppressor may not take effect, until the
+player manually switches weapons away and back. The tester accepts
+this workaround for release. The specific cause is not yet proven,
+and OG 1.10.163 behavior is not implicated by this AE report.
+
 Unreleased 0.5.213 refines Builder and Settings controller focus so
 Left/Right follows horizontal rows, including the Builder top toolbar,
 weapon controls, Settings theme/presentation choice grids and side-by-side

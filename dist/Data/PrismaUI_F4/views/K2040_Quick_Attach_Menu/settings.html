@@ -191,6 +191,7 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Use ECO-authored menus globally</span><span class="setting-help">When off, generated menus are used unless a weapon forces its ECO patch.</span></span><button id="useAuthored" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Control hints</span></span><div id="controlHintsControl" class="choice-control"><button id="controlHintsTrigger" class="choice-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="controlHintsValue">Contextual</span><span class="choice-arrow" aria-hidden="true">▼</span></button><div id="controlHintsOptions" class="choice-options" role="listbox" hidden><button class="choice-option" type="button" role="option" data-value="off">Off</button><button class="choice-option" type="button" role="option" data-value="contextual">Contextual</button><button class="choice-option" type="button" role="option" data-value="always">Always</button></div></div></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Close after applying a mod</span></span><button id="closeAfterApply" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
+          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Cheat mode</span><span class="setting-help">Install compatible attachments without needing crafting materials or loose mods. Inventory stays unchanged. Weapon compatibility and safety checks still apply.</span></span><button id="cheatMode" class="toggle" type="button" role="switch" aria-checked="false"></button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Gameplay slowdown while open</span><span class="setting-help">0% keeps normal time. 100% fully pauses gameplay.</span></span><span class="slider-wrap"><input id="menuSlowdown" type="range" min="0" max="100" step="1"><output id="menuSlowdownValue">100% · paused</output></span></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Diagnostic logging</span><span class="setting-help">Turn off plugin diagnostic log messages. Existing log files are kept.</span></span><button id="loggingEnabled" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
           <button class="reset-button" data-reset="behavior" type="button">Reset behavior</button>
@@ -322,7 +323,7 @@
 
       function toggle(id, command) {
         var value = !getToggle(id);
-        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply", "logging-enabled":"loggingEnabled" };
+        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply", "cheat-mode":"cheatMode", "logging-enabled":"loggingEnabled" };
         setToggle(id, value);
         settings[keys[command] || command] = value;
         send("set:" + command + ":" + (value ? "1" : "0"));
@@ -607,6 +608,7 @@
         document.getElementById("opacityValue").value = document.getElementById("opacity").value + "%";
         setToggle("useAuthored", settings.useAuthoredMenus !== false);
         setToggle("closeAfterApply", !!settings.closeAfterApply);
+        setToggle("cheatMode", !!settings.cheatMode);
         setToggle("loggingEnabled", settings.loggingEnabled !== false);
         var rawSlowdown = settings.menuSlowdown === undefined ? 1 : Number(settings.menuSlowdown);
         var slowdown = Math.round(Math.max(0, Math.min(1, isNaN(rawSlowdown) ? 1 : rawSlowdown)) * 100);
@@ -644,6 +646,7 @@
 
       document.getElementById("useAuthored").addEventListener("click", function() { toggle("useAuthored", "use-authored"); });
       document.getElementById("closeAfterApply").addEventListener("click", function() { toggle("closeAfterApply", "close-after-apply"); });
+      document.getElementById("cheatMode").addEventListener("click", function() { toggle("cheatMode", "cheat-mode"); });
       document.getElementById("loggingEnabled").addEventListener("click", function() { toggle("loggingEnabled", "logging-enabled"); });
       document.getElementById("menuSlowdown").addEventListener("input", function(event) { settings.menuSlowdown = Number(event.target.value) / 100; document.getElementById("menuSlowdownValue").value = menuSlowdownLabel(event.target.value); });
       document.getElementById("menuSlowdown").addEventListener("change", function() { send("set:menu-slowdown:" + settings.menuSlowdown.toFixed(2)); });

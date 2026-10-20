@@ -26,6 +26,77 @@ Version 0.5.180 can count disabled object-instance OMOD entries as installed,
 which can make a valid replacement fail as ambiguous. The 0.5.181 hotfix
 candidate ignores disabled entries for installed identity.
 
+## Unreleased 0.5.214 cheat-mode tester
+
+The optional global Cheat mode allows otherwise-compatible attachments
+to be installed without carrying loose mods or crafting their component
+requirements. Normal inventory checks return when the setting is off.
+No loose mods are consumed or created in cheat mode, including removals
+of previously installed attachments.
+
+It still blocks incompatible/missing attachment points, unresolved
+provider-child relationships, scripted/internal OMODs, dangerous material
+resets and unavailable loaded attachment records. The generated menu
+still requires the same recipe and weapon-association discovery evidence;
+it does not remove recipe/keyword validity checks merely because the
+player wants to avoid obtaining the item. The menu does not perform
+ordinary workbench crafting, so it does not consume components in
+normal mode either.
+
+Automatic inventory consumption during engine mutation is compensated
+only for an exact single item, followed by live count verification;
+unresolved counts fail with a rollback attempt. Build/static checks
+cannot by themselves establish runtime success. Focused user testing
+on AE confirms Cheat mode works for the tested weapons and the normal
+loose-mod requirement returns when disabled. Compatibility across
+additional weapons, provider/dependent relationships, material defaults,
+inventory states and game configurations can benefit from public tests.
+The maintainer subsequently reported that the broader weapon,
+attachment and original-game compatibility checks they performed
+also passed. Treat this as maintainer acceptance of the tested scope,
+not exhaustive confirmation for all weapons, dependencies, inventory
+states or installed mod combinations. Broader public testing remains
+the next compatibility confidence step.
+
+### Cheat-installed attachments removed after disabling cheats
+
+An attachment installed free while Cheat mode is enabled becomes a
+normal equipped OMOD. If the player then disables Cheat mode and
+replaces that attachment, the normal return-item path can add its
+associated loose mod to inventory, even though the player never
+owned that item. Focused in-game testing confirms this sequence.
+
+This is an accepted, non-blocking Cheat mode side effect. When Cheat
+mode is enabled, its own attachment changes continue to avoid loose
+mod consumption and returns. To avoid receiving the free returned
+item, remove or replace the cheat-installed attachment while Cheat
+mode is still enabled, or discard the returned loose mod afterward.
+The runtime currently does not persist whether each installed weapon
+attachment was acquired using Cheat mode. Preventing this across
+mode changes and saves would require per-weapon-instance provenance
+and more invasive return handling, with separate migration/runtime
+testing. No such behavior change is part of this tester.
+
+### AE visual refresh versus attachment effects
+
+On Fallout 4 AE 1.11.240, the optional post-close automatic re-equip
+can update the visible attachment model without immediately activating
+the attachment's gameplay behavior. The reported example is a recon
+scope on the 10mm pistol: its model appears but aiming still uses
+ordinary sights until the player switches to another weapon and back.
+The user reports similar behavior with a suppressor.
+
+**Workaround:** switch to another weapon and back after installing
+an attachment if its effect has not taken hold. The tester accepts
+this limitation for release. The AE refresh path is a likely area
+to investigate, but the exact cause has not been established.
+Do not claim that the visible model proves scope or suppressor
+functionality was refreshed. The existing automatic re-equip only
+addresses the presentation of changes; it does not reliably refresh
+every dependent gameplay state. Future fixes require separate AE
+runtime evidence, and must not reintroduce the known invalid
+immediate-refresh call.
+
 ## Unreleased 0.5.213 orientation-aware controller focus
 
 A tester reports Builder's horizontally arranged top actions must be

@@ -10,6 +10,33 @@
   independently repeated for 0.5.199
 - Release presentation: text-only; icons and weapon preview are not included
 
+Unreleased 0.5.214 begins a separately isolated Cheat mode feature,
+based on the 0.5.213 controller and AE work. The off-by-default global
+Behavior toggle removes the loose-mod inventory requirement for installing
+compatible OMODs. It neither consumes nor generates loose inventory items,
+while keeping loaded crafting-recipe existence, explicit weapon-target,
+AP reachability, default-material, provider/child order, exact-stack,
+rollback and hidden/internal OMOD protections. Profiles cannot enable it;
+Force unsafe swaps remains separate. Build/static tests pass.
+Focused AE user testing reports successful Cheat mode installs and
+confirms that disabling the setting restores normal item requirements.
+The tester observed one cross-mode side effect: an attachment installed
+free under Cheat mode can yield its associated loose mod when replaced
+after Cheat mode is disabled. This is consistent with normal return
+handling for installed attachments: the runtime does not remember
+whether an individual part was originally acquired for free. No
+separate provenance tracking or inventory rewrite is planned for this
+accepted limitation. The maintainer now reports that their broader
+weapon/attachment and original-game compatibility checks pass as far
+as they can tell. This is focused user acceptance, not independently
+audited exhaustive test coverage; the remaining confidence step is
+broader public testing. On AE 1.11.240 the user also observed a
+separate post-attachment refresh limitation: automatic re-equip updates
+the visible model, but a 10mm recon scope continues aiming as if it
+had ordinary sights until a manual swap away and back. The tester
+reports a comparable suppressor effect. The manual weapon switch is
+an accepted workaround, not a proven cause or comprehensive fix.
+
 Unreleased 0.5.213 corrects orientation mismatches in the 0.5.212
 Builder and Settings controller focus layer. Builder header and weapon
 controls now use Left/Right within horizontal rows and Up/Down between

@@ -153,7 +153,7 @@
     if (option.status === "material-reset-needs-workbench") return "Use a weapon workbench to remove the current material.";
     if (option.status === "ambiguous-material-default") return "Default material cannot be identified safely.";
     if (option.isSelectable && option.isStructurallyValid) {
-      return "Ready to equip.";
+      return option.status === "ready-cheat" ? "Ready (cheat mode; no loose mod needed)." : "Ready to equip.";
     }
     switch (option.status) {
     case "provider-not-installed": return "Requires another attachment first.";
@@ -199,7 +199,8 @@
     var status = this.statusPortal ? this.statusPortal.querySelector(".qm-status") : this.root.querySelector(".qm-status");
     if (!status) return;
     status.className = "qm-status" + (this.statusClass ? " " + this.statusClass : "");
-    status.textContent = this.statusMessage;
+    status.textContent = this.statusMessage ||
+      (this.settings().cheatMode ? "Cheat mode active" : "");
     this.updateScreenStatus();
   };
 
@@ -474,7 +475,8 @@
   Renderer.prototype.appendStatusAndMeta = function(container) {
     var status = document.createElement("div");
     status.className = "qm-status" + (this.statusClass ? " " + this.statusClass : "");
-    status.textContent = this.statusMessage;
+    status.textContent = this.statusMessage ||
+      (this.settings().cheatMode ? "Cheat mode active" : "");
     status.setAttribute("role", "status");
     (this.statusPortal || container).appendChild(status);
     var hints = document.createElement("div");

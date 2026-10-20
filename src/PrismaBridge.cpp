@@ -1187,6 +1187,7 @@ namespace k2040
                  << "\"openMenuBuilderHotkeyKeycode\":" << builderHotkey.keycode << ","
                  << "\"openMenuBuilderHotkeyModifiers\":" << builderHotkey.modifiers << ","
                  << "\"closeAfterApply\":" << (quickMenu.closeAfterApply ? "true" : "false") << ","
+                 << "\"cheatMode\":" << (quickMenu.cheatMode ? "true" : "false") << ","
                  << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
                  << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
@@ -2498,6 +2499,10 @@ namespace k2040
             } else if (parts.size() == 3 && parts[1] == "control-hints") preferences.controlHints = std::string(parts[2]);
             else if (parts.size() == 3 && parts[1] == "close-after-apply") {
                 const auto value = boolValue(parts[2]); if (!value) return; preferences.closeAfterApply = *value;
+            } else if (parts.size() == 3 && parts[1] == "cheat-mode") {
+                const auto value = boolValue(parts[2]); if (!value) return;
+                rebuildMenu = preferences.cheatMode != *value;
+                preferences.cheatMode = *value;
             } else if (parts.size() == 3 && parts[1] == "logging-enabled") {
                 const auto value = boolValue(parts[2]); if (!value) return;
                 updateLogging = preferences.loggingEnabled != *value;
@@ -2582,6 +2587,7 @@ namespace k2040
                     preferences.useAuthoredMenus = sourceMode != "generatedonly";
                     preferences.controlHints = legacy.showControlHints ? "always" : "contextual";
                     preferences.closeAfterApply = legacy.closeAfterApply;
+                    preferences.cheatMode = false;
                     preferences.loggingEnabled = true;
                     preferences.menuSlowdown = 1.0;
                 } else if (parts[1] == "labels") {
@@ -2715,6 +2721,7 @@ namespace k2040
         request.expectedWeaponFormId = currentMenu_.weapon.formId;
         request.targetOmodFormId = optionIt->omod.formId;
         request.consumedAttachPointFormId = optionIt->consumesAttachPoint.formId;
+        request.cheatMode = GetQuickMenuPreferences().cheatMode;
 
         const std::string selectionKey = argument ? argument : "";
         log::Info(
@@ -2740,6 +2747,13 @@ namespace k2040
             attachmentMutationPending_ = false;
             log::Warn("Queued attachment mutation cancelled because the menu or equipped-weapon snapshot changed.");
             SendSelectionResult(selectionKey.c_str(), false, false, "menu-state-changed", "The weapon menu changed before the attachment could be applied.");
+            return;
+        }
+
+        if (GetQuickMenuPreferences().cheatMode != request.cheatMode) {
+            attachmentMutationPending_ = false;
+            SendSelectionResult(selectionKey.c_str(), false, false,
+                "cheat-mode-changed", "Cheat mode changed before the attachment could be applied.");
             return;
         }
 

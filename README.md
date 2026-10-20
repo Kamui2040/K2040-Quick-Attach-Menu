@@ -22,6 +22,24 @@ attachment. This reduces exposure of internal/scripted options, but exact
 workbench conditions and unusual loose-mod-only entries are still being
 validated. Already-installed parts remain visible for recovery.
 
+Unreleased 0.5.214 tester: Settings > Behavior has an optional Cheat
+mode switch (off by default). It allows compatible weapon attachments
+to be installed without carrying loose mods or obtaining crafting
+components, while leaving loose-mod inventory unchanged. Normal
+inventory rules return when it is disabled. This does not bypass
+attachment compatibility, provider ordering, default-material safety,
+or other guarded operations. Generated attachments still require
+a loaded crafting recipe and matching weapon association to appear.
+It is not the same as per-weapon Force unsafe swaps. Focused AE
+in-game tests confirm Cheat mode works and that normal item requirements
+return when the switch is disabled. One accepted side effect: if you
+install a part for free, turn Cheat mode off, then replace that part,
+normal attachment-return rules can give you its loose mod. To avoid
+that, replace it while Cheat mode is still on or discard the returned
+item. The maintainer reports the tested weapon, attachment and
+original-game compatibility behavior passes. Wider public testing is
+welcome; not every modded weapon combination has been verified.
+
 ## Features
 
 - Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.

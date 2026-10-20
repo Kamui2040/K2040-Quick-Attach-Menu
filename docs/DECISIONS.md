@@ -52,6 +52,15 @@ Only durable product decisions belong here. Current release state belongs in
   the exact OMOD plus matching MNAM and reachable AP. Preserve installed forms
   for recovery. Recipe presence is not the full workbench condition evaluator;
   don't label the resulting list exact workbench parity until validated.
+- Cheat mode is an off-by-default, local-only global inventory-policy
+  override. Missing crafting components or loose-mod MISC items never
+  authorize structurally incompatible attachment operations. Runtime
+  generated-menu discovery still requires a loaded COBJ recipe and matching
+  target association; hidden/internal OMODs stay hidden. Actual installation
+  must recheck the current mode, weapon stack, OMOD/AP graph, and dependency
+  plan. Cheat mode preserves loose inventory counts rather than granting
+  returned items. It is separate from the per-weapon Force unsafe swaps
+  exception and is excluded from distributable weapon-menu profiles.
 - Builder and Settings directional movement follows the visible geometry:
   Left/Right traverse horizontal toolbars, settings rows, two-column
   choice grids, and side-by-side confirmation controls; Up/Down traverse

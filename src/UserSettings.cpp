@@ -172,6 +172,7 @@ namespace
             std::optional<bool> useAuthoredMenus;
             std::optional<std::string> controlHints;
             std::optional<bool> closeAfterApply;
+            std::optional<bool> cheatMode;
             std::optional<bool> loggingEnabled;
             std::optional<double> menuSlowdown;
             std::optional<double> builderPanelWidth;
@@ -193,6 +194,7 @@ namespace
                     customPanel.has_value() || customInstalled.has_value() ||
                     useAuthoredMenus.has_value() ||
                     controlHints.has_value() || closeAfterApply.has_value() ||
+                    cheatMode.has_value() ||
                     loggingEnabled.has_value() || menuSlowdown.has_value() ||
                     builderPanelWidth.has_value() || builderPanelHeight.has_value() ||
                     settingsPanelWidth.has_value() || settingsPanelHeight.has_value() ||
@@ -1251,6 +1253,7 @@ namespace
             writeBool("useAuthoredMenus", g_document.general.useAuthoredMenus);
             writeString("controlHints", g_document.general.controlHints);
             writeBool("closeAfterApply", g_document.general.closeAfterApply);
+            writeBool("cheatMode", g_document.general.cheatMode);
             writeBool("loggingEnabled", g_document.general.loggingEnabled);
             writeNumber("menuSlowdown", g_document.general.menuSlowdown);
             writeNumber("builderPanelWidth", g_document.general.builderPanelWidth);
@@ -1863,6 +1866,7 @@ namespace k2040
                 !ReadOptionalBoolMember(*general, "useAuthoredMenus", g_document.general.useAuthoredMenus) ||
                 !ReadOptionalStringMember(*general, "controlHints", g_document.general.controlHints) ||
                 !ReadOptionalBoolMember(*general, "closeAfterApply", g_document.general.closeAfterApply) ||
+                !ReadOptionalBoolMember(*general, "cheatMode", g_document.general.cheatMode) ||
                 !ReadOptionalBoolMember(*general, "loggingEnabled", g_document.general.loggingEnabled) ||
                 !ReadOptionalNumberMember(*general, "menuSlowdown", g_document.general.menuSlowdown) ||
                 !ReadOptionalNumberMember(*general, "builderPanelWidth", g_document.general.builderPanelWidth) ||
@@ -2674,6 +2678,7 @@ namespace k2040
         result.useAuthoredMenus = g_document.general.useAuthoredMenus.value_or(sourceMode != "generatedonly");
         result.controlHints = g_document.general.controlHints.value_or(legacy.showControlHints ? "always" : "contextual");
         result.closeAfterApply = g_document.general.closeAfterApply.value_or(legacy.closeAfterApply);
+        result.cheatMode = g_document.general.cheatMode.value_or(false);
         result.loggingEnabled = g_document.general.loggingEnabled.value_or(true);
         result.menuSlowdown = std::clamp(g_document.general.menuSlowdown.value_or(1.0), 0.0, 1.0);
         const auto resolvePanelDimension = [](const std::optional<double>& dimension) {
@@ -2737,6 +2742,7 @@ namespace k2040
             current.useAuthoredMenus == value.useAuthoredMenus &&
             current.controlHints == value.controlHints &&
             current.closeAfterApply == value.closeAfterApply &&
+            current.cheatMode == value.cheatMode &&
             current.loggingEnabled == value.loggingEnabled &&
             current.menuSlowdown == value.menuSlowdown &&
             current.builderPanelWidth == value.builderPanelWidth &&
@@ -2759,6 +2765,7 @@ namespace k2040
         general.useAuthoredMenus = value.useAuthoredMenus;
         general.controlHints = value.controlHints;
         general.closeAfterApply = value.closeAfterApply;
+        general.cheatMode = value.cheatMode;
         general.loggingEnabled = value.loggingEnabled;
         general.menuSlowdown = value.menuSlowdown;
         general.builderPanelWidth = value.builderPanelWidth;
