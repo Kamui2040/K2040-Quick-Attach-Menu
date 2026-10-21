@@ -1,3 +1,18 @@
+## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
+
+- Restore the native MCM-supported `RunConsoleCommand` empty-action
+  definitions from 0.5.199 for both hotkeys. Actual menu opening remains
+  handled by Quick Attach's existing native input polling, not an MCM command.
+- The 0.5.215 grouped MCM work changed definitions to `CallExternalFunction`,
+  which native MCM cannot deserialize for its keybind registry. The in-game
+  0.5.217 test confirmed the initialization-only approach did not fix capture.
+- Existing explicit Unbound selections are preserved; users with old saved
+  unbound entries can reassign in MCM or use the PrismaUI Reset controls action
+  after a valid registry is available. Fresh installs still receive Shift+K and
+  Ctrl+Shift+K when no prior MCM initialization marker exists.
+- Build/static/packaging checks and focused target-runtime QA remain distinct;
+  this is not a public release.
+
 ## 0.5.217 (unreleased MCM keybind regression candidate)
 
 - Initialize Quick Attach's MCM keybind records when they are absent, so a new

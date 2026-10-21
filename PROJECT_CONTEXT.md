@@ -1,8 +1,9 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.216`
-- Current development candidate: `0.5.217`, MCM hotkey registration regression;
-  Linux build and automated validation passed, in-game testing pending.
+- Current development candidate: `0.5.218`, restores the native MCM-supported
+  hotkey action type. Earlier `0.5.217` initialization-only tester failed
+  in-game; current candidate still requires targeted game testing.
 - Previous stable GitHub release: `0.5.199`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`

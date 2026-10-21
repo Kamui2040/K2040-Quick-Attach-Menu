@@ -1,5 +1,19 @@
 # Known Issues and Limits
 
+## 0.5.218 unreleased MCM keybind registration regression
+
+The 0.5.215 MCM parent/child integration changed both native MCM keybind
+`action.type` definitions from `RunConsoleCommand` to `CallExternalFunction`.
+Unlike settings-page external callbacks, native MCM's keybind deserializer does
+not recognize `CallExternalFunction`, so registration fails and capture can
+briefly display a new binding before reverting to None. Revert the registry
+definitions to the original supported inert command while retaining native
+physical input handling. The 0.5.217 seeding-only candidate failed focused
+in-game testing. A stale initialization marker can independently preserve a
+previous Unbound choice; do not silently overwrite deliberately unbound keys.
+Target-runtime verification of 0.5.218 remains pending.
+
+
 ## Stable GitHub release 0.5.216 dynamic target keyword fix
 
 A Service Rifle user reported that RIS rail equipment remains visible while

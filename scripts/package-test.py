@@ -59,12 +59,10 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
         raise ValueError("Keyboard assignments must remain child-owned")
     actions = {v["id"]: v["action"] for v in bind["keybinds"]}
     if actions != {
-        "openQuickMenu": {"type": "CallExternalFunction",
-                          "plugin": "K2040_Quick_Attach_Menu", "function": "ToggleQuickMenu"},
-        "openMenuBuilder": {"type": "CallExternalFunction",
-                             "plugin": "K2040_Quick_Attach_Menu", "function": "ToggleBuilder"},
+        "openQuickMenu": {"type": "RunConsoleCommand", "command": ""},
+        "openMenuBuilder": {"type": "RunConsoleCommand", "command": ""},
     }:
-        raise ValueError("MCM actions do not match the native child handlers")
+        raise ValueError("MCM actions must use the supported inert native registry handler")
     if data[DEFAULTS].decode("utf-8") != (
             "[Controller]\niQuickAttachPadPrimary=0\niQuickAttachPadModifier=0\n"):
         raise ValueError("Controller defaults must be child-owned and unbound")

@@ -163,7 +163,12 @@ attachment transaction remain authoritative after import.
 The F4SE plugin INI remains the standalone hotkey source. When MCM has written
 an individual registered-hotkey override to its shared registry, that value
 takes precedence and is refreshed after leaving MCM. Missing registered values
-fall back independently to the plugin INI, so MCM remains optional. MCM owns
+fall back to the plugin INI before MCM initializes its registry. Once MCM
+hotkeys have been initialized, clearing a binding is intentionally Unbound,
+not a trigger to restore a default. MCM remains optional. MCM keybind actions
+use a supported inert `RunConsoleCommand` entry; Quick Attach's native poller
+executes the menu-opening action. `CallExternalFunction` is not a supported
+native MCM keybind registry action. MCM owns
 registration and conflict reporting. Physical opener state is polled outside
 Fallout's gameplay input layer, while focused Prisma pages may forward matching
 browser events as a supplemental path. Duplicate cross-source signals are

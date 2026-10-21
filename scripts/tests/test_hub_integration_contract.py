@@ -53,8 +53,11 @@ class McmChildContract(unittest.TestCase):
         kb=json.loads((CONFIG/"keybinds.json").read_text())
         self.assertEqual(kb["modName"],"K2040_Quick_Attach_Menu")
         self.assertEqual({x["id"]:x["action"] for x in kb["keybinds"]},{
-            "openQuickMenu":{"type":"CallExternalFunction","plugin":"K2040_Quick_Attach_Menu","function":"ToggleQuickMenu"},
-            "openMenuBuilder":{"type":"CallExternalFunction","plugin":"K2040_Quick_Attach_Menu","function":"ToggleBuilder"}})
+            "openQuickMenu":{"type":"RunConsoleCommand","command":""},
+            "openMenuBuilder":{"type":"RunConsoleCommand","command":""}})
+        # Native MCM hotkey registry supports RunConsoleCommand, not
+        # CallExternalFunction. Execution stays in Quick Attach's native poller.
+        self.assertNotIn("CallExternalFunction",(CONFIG/"keybinds.json").read_text())
         self.assertIn('RegisterChildMcmScaleform',self.main)
         self.assertIn('QueueMenuHotkeyActionFromMcm',self.main)
         self.assertIn('HotkeyActionSource::McmChild',self.hotkey)

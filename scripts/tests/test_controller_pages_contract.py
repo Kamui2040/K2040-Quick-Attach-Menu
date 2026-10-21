@@ -70,7 +70,7 @@ class ControllerPagesContract(unittest.TestCase):
         self.assertIn('var horizontal = mode === "settings";', self.helper)
 
     def test_build_version_sync(self):
-        self.assertIn("0x000500D9; // 0.5.217",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.217"),3)
+        self.assertIn("0x000500DA; // 0.5.218",(ROOT/"src/main.cpp").read_text())
+        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.218"),3)
 
 if __name__=="__main__":unittest.main()
