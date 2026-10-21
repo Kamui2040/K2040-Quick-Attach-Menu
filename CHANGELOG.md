@@ -1,4 +1,4 @@
-## 0.5.219 (stable GitHub release; Nexus packaging candidate, 2026-10-21)
+## 0.5.219 (published on GitHub and Nexus Mods, 2026-10-21)
 
 - Fixed native MCM hotkey registration and first-time assignment by restoring
   supported child-owned keybind actions. Shift+K and Ctrl+Shift+K are initialized
@@ -9,8 +9,8 @@
   the deployed DLL matches the validated ZIP. Linux build, 52 Python tests,
   JavaScript suites, native chord tests and packaging checks passed.
 - The validated, user-tested ZIP and its SHA-256 were published as the GitHub
-  v0.5.219 release. Nexus installation archive is prepared for the maintainer
-  to upload separately; no Nexus 0.5.219 publication has been confirmed.
+  v0.5.219 release. The maintainer also confirmed that Nexus Mods now offers
+  version 0.5.219 on the existing mod page.
 
 ## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
 

@@ -1,15 +1,17 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
-- Current Nexus packaging candidate: `0.5.219`; Nexus publication is still
-  separate and not confirmed. The maintainer tested and accepted the keyboard
+- Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
+  on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
+  The maintainer tested and accepted the keyboard
   fix in Fallout 4 OG 1.10.163; the deployed DLL matches the published GitHub
   ZIP and the F4SE log records held-opener isolation and key-up release for
   both menus. Build, deterministic packaging and 52 Python tests passed.
   GitHub release: https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.219
   Release tag points at the user-tested commit 8fd5a11517265a14637fec1fa711fc2a93958d43.
   Gaming Mods website PR #63 is merged and live, with the project page and
-  release feed updated in five languages. Nexus remains last confirmed at 0.5.216.
+  release feed updated in five languages. Nexus 0.5.219 is also maintainer-confirmed;
+  Gaming Mods website PR #64 updates its Nexus status in all five languages.
 - Previous stable GitHub release: `0.5.216` (also available on Nexus Mods)
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
@@ -37,7 +39,7 @@ also reports the final combined 0.5.216 in-game tests passed. All five
 validated development PRs are merged into main. The stable GitHub ZIP is
 byte-identical to the tested preview ZIP and has a published checksum.
 The maintainer confirmed that 0.5.216 has also been published on Nexus Mods.
-The previous version 0.5.216 is on both GitHub and Nexus; current GitHub release is 0.5.219. Nexus 0.5.219 upload is not confirmed.
+The maintainer reports that v0.5.219 is now published on both GitHub and Nexus Mods. The public Nexus page may lag in unauthenticated caches; check the current Files tab before relying on external metadata.
 The known AE visual/effect refresh and Cheat mode item-return behavior remain
 accepted and documented.
 
