@@ -1,15 +1,15 @@
-## 0.5.219 (unreleased held-shortcut close guard)
+## 0.5.219 (validated Nexus packaging candidate, 2026-10-21)
 
-- When a keyboard/mouse opener closes Quick Menu or Builder, keep this mod's
-  gameplay-input layer active until the opener's base key/button is released.
-  Prevent a mapped vanilla Pip-Boy/Quick Data action from seeing the same
-  physical closing press after Prisma unfocuses.
-- Reuse the Quest Journal's bounded, game-thread-deferred release pattern;
-  preserve Escape close, menu switching, ordinary close-after-apply,
-  remapped MCM chords, and the existing first-person/cursor cleanup.
-  New menu opens cancel stale release tasks; game transitions force cleanup.
-- Five-second failsafe prevents input isolation being stranded by a missing
-  key-up event. The target Fallout 4 runtime still needs focused testing.
+- Fixed native MCM hotkey registration and first-time assignment by restoring
+  supported child-owned keybind actions. Shift+K and Ctrl+Shift+K are initialized
+  on a clean installation; existing chosen bindings remain preserved.
+- Fixed opening the underlying Pip-Boy when closing Quick Menu or Menu Builder
+  with a shortcut. Keep gameplay input blocked until the held opener is released.
+- Maintainer confirmed the 0.5.219 fix works in-game on Fallout 4 1.10.163;
+  the deployed DLL matches the validated ZIP. Linux build, 52 Python tests,
+  JavaScript suites, native chord tests and packaging checks passed.
+- Prepared for a maintainer-operated Nexus upload. Packaging and game testing
+  do not constitute a Nexus or GitHub release publication.
 
 ## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
 

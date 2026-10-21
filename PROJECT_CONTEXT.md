@@ -1,11 +1,12 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.216`
-- Current development candidate: `0.5.219`, adds held-opener input release
-  protection to the 0.5.218 MCM registration fix. User reports that a clean
-  Quick Attach settings reset restored binding behavior, but closing with a
-  shortcut can trigger the underlying game's K/Pip-Boy binding. Build passed;
-  focused 0.5.219 in-game verification remains pending.
+- Current Nexus packaging candidate: `0.5.219`. The maintainer confirmed the
+  keyboard close behavior fixed in-game; the actual Amethyst-installed DLL
+  equals the built tester and its OG 1.10.163 F4SE log records input guarding
+  and release for both menus. Build, deterministic packaging, and automated
+  checks passed. Public GitHub and Nexus releases remain `0.5.216` until
+  publication is explicitly approved/completed.
 - Previous stable GitHub release: `0.5.199`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
