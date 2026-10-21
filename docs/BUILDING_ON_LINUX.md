@@ -1,6 +1,6 @@
 # Build and restore Quick Attach Menu on Linux
 
-The [GitHub release](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.216) contains the tested installation ZIP and SHA-256 checksum. **Restoring the released mod does not require a compiler or Windows SDK.** Verify the archive and install it using a mod manager with matching Fallout 4, F4SE and PrismaUI runtime dependencies documented in [COMPATIBILITY.md](COMPATIBILITY.md).
+The [current GitHub release v0.5.219](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.219) contains the user-tested installation ZIP and SHA-256 checksum. **Restoring the released mod does not require a compiler or Windows SDK.** Verify the archive and install it using a mod manager with matching Fallout 4, F4SE and PrismaUI runtime dependencies documented in [COMPATIBILITY.md](COMPATIBILITY.md).
 
 These instructions recover the **development environment** to compile a Windows x64 F4SE DLL from a fresh public GitHub clone. The maintainer host is Linux x86_64, not Windows.
 

@@ -1,13 +1,16 @@
 # Current Project State
 
-- Current stable GitHub release: `0.5.216`
-- Current Nexus packaging candidate: `0.5.219`. The maintainer confirmed the
-  keyboard close behavior fixed in-game; the actual Amethyst-installed DLL
-  equals the built tester and its OG 1.10.163 F4SE log records input guarding
-  and release for both menus. Build, deterministic packaging, and automated
-  checks passed. Public GitHub and Nexus releases remain `0.5.216` until
-  publication is explicitly approved/completed.
-- Previous stable GitHub release: `0.5.199`
+- Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
+- Current Nexus packaging candidate: `0.5.219`; Nexus publication is still
+  separate and not confirmed. The maintainer tested and accepted the keyboard
+  fix in Fallout 4 OG 1.10.163; the deployed DLL matches the published GitHub
+  ZIP and the F4SE log records held-opener isolation and key-up release for
+  both menus. Build, deterministic packaging and 52 Python tests passed.
+  GitHub release: https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.219
+  Release tag points at the user-tested commit 8fd5a11517265a14637fec1fa711fc2a93958d43.
+  Gaming Mods website PR #63 is merged and live, with the project page and
+  release feed updated in five languages. Nexus remains last confirmed at 0.5.216.
+- Previous stable GitHub release: `0.5.216` (also available on Nexus Mods)
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`
 - Current-release runtime validation: original reporter confirms the RIS
@@ -34,7 +37,7 @@ also reports the final combined 0.5.216 in-game tests passed. All five
 validated development PRs are merged into main. The stable GitHub ZIP is
 byte-identical to the tested preview ZIP and has a published checksum.
 The maintainer confirmed that 0.5.216 has also been published on Nexus Mods.
-Both GitHub and Nexus now offer version 0.5.216.
+The previous version 0.5.216 is on both GitHub and Nexus; current GitHub release is 0.5.219. Nexus 0.5.219 upload is not confirmed.
 The known AE visual/effect refresh and Cheat mode item-return behavior remain
 accepted and documented.
 
