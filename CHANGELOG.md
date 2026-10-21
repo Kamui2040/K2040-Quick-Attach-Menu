@@ -1,3 +1,14 @@
+## 0.5.217 (unreleased MCM keybind regression candidate)
+
+- Initialize Quick Attach's MCM keybind records when they are absent, so a new
+  installation displays Shift+K and Ctrl+Shift+K and allows first-time rebinding.
+- Preserve existing assignments, including intentionally unbound keys, and
+  avoid replacing any other mod's bindings. Without MCM, the native INI
+  shortcuts remain available.
+- The 0.5.216 report described newly captured keys reverting to None. Linux
+  cross-build, automated tests, and package checks passed. In-game confirmation
+  is still required; this is not a public release.
+
 ## 0.5.216 (stable GitHub release, 2026-10-20)
 
 - Recognize generated-menu MNAM targets supplied by active installed OMODs,

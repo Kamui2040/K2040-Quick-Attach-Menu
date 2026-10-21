@@ -16,6 +16,8 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <tuple>
+#include <iterator>
 #include <vector>
 
 #include "Logger.h"
@@ -293,7 +295,7 @@ namespace
         return k2040::SharedHotkeyBinding{
             *keycode,
             *modifiers,
-            BindingDisplayName(*keycode, *modifiers),
+            *keycode ? BindingDisplayName(*keycode, *modifiers) : "Unbound",
             true
         };
     }
@@ -305,8 +307,126 @@ namespace
         std::uint32_t modifiers = 0;
     };
 
+    void SeedDefaultMcmBindings()
+    {
+        // Classic MCM's OptionsList.as dereferences GetKeybind(...).keycode
+        // without checking for null. A missing registry record leaves its
+        // hotkey picker unable to perform its very first assignment.
+        // Never reset a saved binding, including a deliberate Unbound (0).
+        try {
+            const auto config=std::filesystem::path("Data/MCM/Config/K2040_Quick_Attach_Menu/config.json");
+            if (!std::filesystem::is_regular_file(config)) return;
+            if (!std::filesystem::is_regular_file("Data/F4SE/Plugins/mcm.dll") &&
+                !std::filesystem::is_regular_file("Data/F4SE/Plugins/F4SEMenuFramework.dll")) return;
+            const auto marker=std::filesystem::path("Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized");
+            const bool initialized=std::filesystem::is_regular_file(marker);
+            const bool existing=std::filesystem::exists(kMcmKeybindRegistryPath);
+            std::string json;
+            if (existing) {
+                if (std::filesystem::file_size(kMcmKeybindRegistryPath)>1024*1024) return;
+                std::ifstream f(kMcmKeybindRegistryPath,std::ios::binary);
+                if (!f) return;
+                json.assign(std::istreambuf_iterator<char>(f),std::istreambuf_iterator<char>());
+                if ((!f.good()&&!f.eof())||json.size()>1024*1024) return;
+            } else json="{\"version\":1,\"keybinds\":[]}\n";
+
+            auto keybinds=FindJsonMemberValueStart(json,"keybinds");
+            if (!keybinds) {
+                const auto end=json.find_last_not_of(" \t\r\n");
+                if (end==json.npos || json[end]!='}') return;
+                json.insert(end,",\"keybinds\":[]");
+                keybinds=FindJsonMemberValueStart(json,"keybinds");
+            }
+            if (!keybinds || *keybinds>=json.size() || json[*keybinds]!='[') return;
+            bool changed=false;
+            for (const auto [id,key,mods]:
+                 {std::tuple<std::string_view,std::uint32_t,std::uint32_t>
+                     {kOpenMenuKeybindId,'K',1u},
+                     {kOpenMenuBuilderKeybindId,'K',3u}}) {
+                if (FindMcmKeybindObject(json,id)) continue;
+                // If a previous user explicitly cleared a hotkey, do not
+                // resurrect its factory assignment on the next start.
+                std::uint32_t selected=initialized?0:key;
+                // Reject an initial default only when some other entry
+                // already has exactly the same key+modifier combination.
+                // Collision scan is safe against the small registry and
+                // preserves every other mod's entry and byte representation.
+                const auto scan=json.find("\"keybinds\"");
+                const auto opening=json.find('[',scan);
+                if (opening==json.npos)return;
+                bool quoted=false,escaped=false;
+                unsigned level=0;
+                std::size_t start=json.npos;
+                for(auto i=opening+1;i<json.size();++i){
+                    const char c=json[i];
+                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
+                        else if(c=='"')quoted=false;continue;}
+                    if(c=='"'){quoted=true;continue;}
+                    if(c=='{'){if(level++==0)start=i;continue;}
+                    if(c=='}' && level){
+                        if(--level==0 && start!=json.npos){
+                            const auto obj=std::string_view(json).substr(start,i-start+1);
+                            const auto otherKey=ReadJsonUnsignedMember(obj,"keycode");
+                            const auto otherMod=ReadJsonUnsignedMember(obj,"modifiers");
+                            if(otherKey && otherMod && *otherKey==selected && *otherMod==mods)
+                                selected=0;
+                        }
+                        continue;
+                    }
+                    if(c==']'&&!level)break;
+                }
+                const auto arrayStart=json.find('[',json.find("\"keybinds\""));
+                if(arrayStart==json.npos)return;
+                std::size_t end=arrayStart+1;quoted=false;escaped=false;level=0;
+                for(;end<json.size();++end){
+                    const char c=json[end];
+                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
+                        else if(c=='"')quoted=false;continue;}
+                    if(c=='"'){quoted=true;continue;}
+                    if(c=='{'){++level;continue;}
+                    if(c=='}' && level){--level;continue;}
+                    if(c==']'&&!level)break;
+                }
+                if(end>=json.size())return;
+                const auto any=json.find_first_not_of(" \t\r\n",arrayStart+1)<end;
+                const std::string record=std::string("{\"id\":\"")+std::string(id)+
+                  "\",\"keycode\":"+std::to_string(selected)+
+                  ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":"+
+                  std::to_string(selected?mods:0)+"}";
+                json.insert(end,std::string(any?",":"")+record);
+                changed=true;
+            }
+            if (changed) {
+                if(json.size()>1024*1024)return;
+                std::error_code ec;
+                std::filesystem::create_directories(kMcmKeybindRegistryPath.parent_path(),ec);
+                if(ec)return;
+                auto temporary=kMcmKeybindRegistryPath;
+                temporary+=".k2040-quick-init.tmp";
+                {std::ofstream f(temporary,std::ios::binary|std::ios::trunc);
+                 if(!f)return;f<<json;f.flush();if(!f)return;}
+                if(!MoveFileExW(temporary.c_str(),kMcmKeybindRegistryPath.c_str(),
+                    MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)){
+                    std::filesystem::remove(temporary,ec);return;
+                }
+            }
+            if(!initialized){
+                std::error_code ec;
+                std::filesystem::create_directories(marker.parent_path(),ec);
+                if(ec)return;
+                std::ofstream f(marker,std::ios::trunc|std::ios::binary);
+                if(f)f<<"initialized=1\n";
+            }
+        }catch(const std::exception& e){
+            k2040::log::Warn(std::string("MCM hotkey default initialization skipped: ")+e.what());
+        }catch(...){}
+    }
+
     bool WriteSharedHotkeyBindings(const std::vector<PendingSharedBinding>& bindings)
     {
+        // Unbind through classic MCM removes a record entirely. Seed an
+        // explicit Unbound record so PrismaUI can reassign immediately.
+        SeedDefaultMcmBindings();
         std::ifstream file(kMcmKeybindRegistryPath, std::ios::binary);
         if (!file.is_open()) {
             k2040::log::Warn("Shared MCM keybinding registry could not be opened for update.");
@@ -381,7 +501,7 @@ namespace
                 break;
         }
 
-        if (virtualKey == 0) {
+        if (virtualKey == 0 && modifiers != 0) {
             return std::nullopt;
         }
 
@@ -494,9 +614,18 @@ namespace
 
         std::ostringstream buffer;
         buffer << file.rdbuf();
-        return file.good() || file.eof()
-            ? ParseMcmKeybindRegistry(buffer.str(), overrides)
-            : false;
+        if(!file.good() && !file.eof())return false;
+        if(!ParseMcmKeybindRegistry(buffer.str(),overrides))return false;
+        // MCM's ClearKeybind removes records. Once this mod has registered
+        // defaults, missing records mean explicitly Unbound, not INI fallback.
+        if(std::filesystem::is_regular_file(
+                "Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized")){
+            if(!FindMcmKeybindObject(buffer.str(),kOpenMenuKeybindId))
+                overrides.openMenu=k2040::HotkeyState{};
+            if(!FindMcmKeybindObject(buffer.str(),kOpenMenuBuilderKeybindId))
+                overrides.openMenuBuilder=k2040::HotkeyState{};
+        }
+        return true;
     }
 
     void ResetHotkeyEdgeState()
@@ -523,8 +652,22 @@ namespace
         ResetHotkeyEdgeState();
     }
 
+    bool McmProviderActive()
+    {
+        return GetModuleHandleW(L"mcm.dll") != nullptr ||
+               GetModuleHandleW(L"F4SEMenuFramework.dll") != nullptr;
+    }
+
     void RefreshMcmHotkeys(bool force)
     {
+        if (!McmProviderActive()) {
+            if (g_loadedMcmRegistryExists || force) {
+                ApplyConfiguredHotkeys(nullptr);
+                g_loadedMcmRegistryExists = false;
+                g_loadedMcmWriteTime.reset();
+            }
+            return;
+        }
         const auto now = std::chrono::steady_clock::now();
         if (!force && now < g_nextMcmRefresh) {
             return;
@@ -786,7 +929,13 @@ namespace k2040
 
     SharedHotkeyBinding GetSharedHotkeyBinding(const std::string& id)
     {
-        if (const auto shared = ReadSharedHotkeyBinding(id)) return *shared;
+        if (McmProviderActive()) {
+            if (const auto shared = ReadSharedHotkeyBinding(id)) return *shared;
+        }
+        if(McmProviderActive() && std::filesystem::is_regular_file(
+               "Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized") &&
+           (id==kOpenMenuKeybindId || id==kOpenMenuBuilderKeybindId))
+            return {0,0,"Unbound",true};
 
         const auto& state = id == kOpenMenuBuilderKeybindId
             ? g_openMenuBuilderHotkey
@@ -873,6 +1022,7 @@ namespace k2040
     void InitializeHotkey()
     {
         ApplyConfiguredHotkeys(nullptr);
+        SeedDefaultMcmBindings();
         RefreshMcmHotkeys(true);
         InitializeControllerShortcuts();
 
