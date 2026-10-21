@@ -1,4 +1,4 @@
-## 0.5.219 (validated Nexus packaging candidate, 2026-10-21)
+## 0.5.219 (stable GitHub release; Nexus packaging candidate, 2026-10-21)
 
 - Fixed native MCM hotkey registration and first-time assignment by restoring
   supported child-owned keybind actions. Shift+K and Ctrl+Shift+K are initialized
@@ -8,8 +8,9 @@
 - Maintainer confirmed the 0.5.219 fix works in-game on Fallout 4 1.10.163;
   the deployed DLL matches the validated ZIP. Linux build, 52 Python tests,
   JavaScript suites, native chord tests and packaging checks passed.
-- Prepared for a maintainer-operated Nexus upload. Packaging and game testing
-  do not constitute a Nexus or GitHub release publication.
+- The validated, user-tested ZIP and its SHA-256 were published as the GitHub
+  v0.5.219 release. Nexus installation archive is prepared for the maintainer
+  to upload separately; no Nexus 0.5.219 publication has been confirmed.
 
 ## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
 
