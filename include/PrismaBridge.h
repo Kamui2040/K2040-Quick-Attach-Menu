@@ -112,4 +112,6 @@ namespace k2040
     };
 
     PrismaBridge& GetPrismaBridge();
+    // Polling thread checks physical release; game-thread tasks own input layer.
+    void PollDeferredQuickMenuGameplayIsolationRelease();
 }

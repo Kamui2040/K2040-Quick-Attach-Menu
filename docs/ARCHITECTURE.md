@@ -176,7 +176,14 @@ filtered, and all menu open/close/switch work is queued to the F4SE game thread.
 The two registered opener bindings act as toggles: the active menu's opener
 closes it and the other opener switches menus without releasing gameplay
 isolation between views. Escape closes either menu. DialogueMenu blocks opener
-actions. There is no separate registered close binding.
+actions. There is no separate registered close binding. The unreleased 0.5.219
+fix retains this mod's gameplay input isolation after a shortcut-triggered
+close while its base key remains physically held, because otherwise the same
+key may reach the Pip-Boy on Prisma unfocus. A native polling thread detects
+key-up (five-second failsafe), but queues layer cleanup on the game thread.
+A subsequent open cancels the old pending release; save transitions always
+clear it. This is separate from physical hotkey edge suppression and requires
+in-game verification.
 
 The PrismaUI V12 controller action bridge binds button actions **only** to
 Quick Menu views. Builder and Settings use keyboard/mouse, pending custom

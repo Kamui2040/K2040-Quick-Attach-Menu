@@ -1,3 +1,16 @@
+## 0.5.219 (unreleased held-shortcut close guard)
+
+- When a keyboard/mouse opener closes Quick Menu or Builder, keep this mod's
+  gameplay-input layer active until the opener's base key/button is released.
+  Prevent a mapped vanilla Pip-Boy/Quick Data action from seeing the same
+  physical closing press after Prisma unfocuses.
+- Reuse the Quest Journal's bounded, game-thread-deferred release pattern;
+  preserve Escape close, menu switching, ordinary close-after-apply,
+  remapped MCM chords, and the existing first-person/cursor cleanup.
+  New menu opens cancel stale release tasks; game transitions force cleanup.
+- Five-second failsafe prevents input isolation being stranded by a missing
+  key-up event. The target Fallout 4 runtime still needs focused testing.
+
 ## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
 
 - Restore the native MCM-supported `RunConsoleCommand` empty-action

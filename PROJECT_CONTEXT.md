@@ -1,9 +1,11 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.216`
-- Current development candidate: `0.5.218`, restores the native MCM-supported
-  hotkey action type. Earlier `0.5.217` initialization-only tester failed
-  in-game; current candidate still requires targeted game testing.
+- Current development candidate: `0.5.219`, adds held-opener input release
+  protection to the 0.5.218 MCM registration fix. User reports that a clean
+  Quick Attach settings reset restored binding behavior, but closing with a
+  shortcut can trigger the underlying game's K/Pip-Boy binding. Build passed;
+  focused 0.5.219 in-game verification remains pending.
 - Previous stable GitHub release: `0.5.199`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`

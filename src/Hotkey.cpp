@@ -30,6 +30,8 @@ namespace
 {
     k2040::HotkeyState g_openMenuHotkey;
     k2040::HotkeyState g_openMenuBuilderHotkey;
+    std::atomic<std::uint32_t> g_quickOpenerVirtualKey{0};
+    std::atomic<std::uint32_t> g_builderOpenerVirtualKey{0};
 
     std::atomic_bool g_wasOpenPressedLastPoll = false;
     std::atomic_bool g_wasBuilderPressedLastPoll = false;
@@ -649,6 +651,8 @@ namespace
             }
         }
 
+        g_quickOpenerVirtualKey.store(g_openMenuHotkey.virtualKey, std::memory_order_release);
+        g_builderOpenerVirtualKey.store(g_openMenuBuilderHotkey.virtualKey, std::memory_order_release);
         ResetHotkeyEdgeState();
     }
 
@@ -903,6 +907,18 @@ namespace k2040
         return state;
     }
 
+    std::uint32_t HeldMenuOpenerVirtualKey()
+    {
+        // Check the base key even if a modifier was released first. The
+        // remaining physical key must not reach a vanilla game binding after
+        // the focused Prisma view is closed.
+        for (const auto* key : {&g_quickOpenerVirtualKey, &g_builderOpenerVirtualKey}) {
+            const auto vk = key->load(std::memory_order_acquire);
+            if (vk != 0 && IsPhysicalKeyDown(vk)) return vk;
+        }
+        return 0;
+    }
+
     bool IsHotkeyPressedNow(const HotkeyState& hotkey)
     {
         if (hotkey.virtualKey == 0) {
@@ -1033,6 +1049,7 @@ namespace k2040
 
     void PollHotkey()
     {
+        PollDeferredQuickMenuGameplayIsolationRelease();
         RefreshMcmHotkeys(false);
 
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);

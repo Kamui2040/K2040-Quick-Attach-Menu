@@ -1,5 +1,15 @@
 # Known Issues and Limits
 
+## 0.5.219 unreleased opener-close input leak
+
+A keyboard opener that overlaps a vanilla game command (for example the K
+Pip-Boy binding in the user's setup) can trigger that game command when the
+same chord closes Quick Menu or Builder. The menu's input layer was released
+immediately during Prisma unfocus, before the physical key-up. The 0.5.219
+candidate follows Quest Journal's held-input release guard for both menu
+openers without intercepting the base game's permanent bindings. Game-thread
+and time-bounded release is required; target-runtime verification pending.
+
 ## 0.5.218 unreleased MCM keybind registration regression
 
 The 0.5.215 MCM parent/child integration changed both native MCM keybind

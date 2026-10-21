@@ -11,6 +11,7 @@
 #include "UserSettings.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cstddef>
 #include <charconv>
 #include <cctype>
@@ -57,6 +58,12 @@ namespace
     bool g_pauseHoldMenuEventSinkRegistered = false;
     RE::BSTSmartPointer<RE::BSInputEnableLayer> g_quickMenuInputLayer;
     bool g_quickMenuGameplayIsolationActive = false;
+    // Match the Quest Journal's held-opener guard: do not expose the K key to
+    // Fallout when a closing shortcut unfocuses the Prisma window mid-press.
+    // The polling thread only queues tasks; layer ownership stays on the game thread.
+    std::atomic<std::uint32_t> g_deferredQuickMenuReleaseKey{0};
+    std::atomic<std::uint64_t> g_deferredQuickMenuReleaseAt{0};
+    std::atomic_bool g_deferredQuickMenuReleaseQueued{false};
     bool g_quickMenuTimeBaselineCaptured = false;
     bool g_quickMenuTimeAdjusted = false;
     bool g_builderMenuModeGuard = false;
@@ -361,6 +368,9 @@ namespace
 
     void ReleaseQuickMenuGameplayIsolation()
     {
+        g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
+        g_deferredQuickMenuReleaseAt.store(0, std::memory_order_release);
+        g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
         if (g_quickMenuTimeAdjusted) {
             if (auto* timer = RE::BSTimer::GetSingleton()) {
                 const float currentMultiplier = RE::BSTimer::QGlobalTimeMultiplier();
@@ -387,11 +397,40 @@ namespace
         }
     }
 
+    void FinishDeferredQuickMenuGameplayIsolationRelease(std::uint32_t key)
+    {
+        g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
+        if (k2040::GetPrismaBridge().IsMenuFocused() ||
+            g_deferredQuickMenuReleaseKey.load(std::memory_order_acquire) != key) {
+            return; // A new menu has reopened or the game has transitioned.
+        }
+        const auto started = g_deferredQuickMenuReleaseAt.load(std::memory_order_acquire);
+        if ((GetAsyncKeyState(static_cast<int>(key)) & 0x8000) != 0 &&
+            GetTickCount64() - started < 5000) {
+            return;
+        }
+        ReleaseQuickMenuGameplayIsolation();
+        k2040::log::Info("Released the quick-menu input layer after the closing opener was released.");
+    }
+
     void ScheduleQuickMenuGameplayIsolationRelease()
     {
+        const auto heldKey = g_quickMenuGameplayIsolationActive
+            ? k2040::HeldMenuOpenerVirtualKey() : 0;
+        if (heldKey != 0) {
+            g_deferredQuickMenuReleaseAt.store(GetTickCount64(), std::memory_order_release);
+            g_deferredQuickMenuReleaseKey.store(heldKey, std::memory_order_release);
+            k2040::log::Info("Keeping gameplay input blocked until the closing opener key is released.");
+            return;
+        }
+        // Invalidate any older deferred task before scheduling an ordinary
+        // close; neither path may dismantle a subsequently reopened menu.
+        g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
         if (const auto* taskInterface = F4SE::GetTaskInterface()) {
             taskInterface->AddTask([]() {
-                ReleaseQuickMenuGameplayIsolation();
+                if (!k2040::GetPrismaBridge().IsMenuFocused()) {
+                    ReleaseQuickMenuGameplayIsolation();
+                }
             });
         } else {
             k2040::log::Warn("F4SE task interface unavailable; releasing quick-menu gameplay isolation immediately.");
@@ -752,6 +791,21 @@ namespace k2040
         return g_prismaBridge;
     }
 
+    void PollDeferredQuickMenuGameplayIsolationRelease()
+    {
+        const auto key = g_deferredQuickMenuReleaseKey.load(std::memory_order_acquire);
+        if (key == 0) return;
+        const auto started = g_deferredQuickMenuReleaseAt.load(std::memory_order_acquire);
+        if ((GetAsyncKeyState(static_cast<int>(key)) & 0x8000) != 0 &&
+            GetTickCount64() - started < 5000) return;
+        if (g_deferredQuickMenuReleaseQueued.exchange(true, std::memory_order_acq_rel)) return;
+        if (const auto* tasks = F4SE::GetTaskInterface()) {
+            tasks->AddTask([key]() { FinishDeferredQuickMenuGameplayIsolationRelease(key); });
+        } else {
+            g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
+        }
+    }
+
     bool PrismaBridge::Initialize()
     {
         // PrismaUI 2.1.1 assigns reserved numeric IDs 136-139 to V9-V12. The
@@ -891,6 +945,11 @@ namespace k2040
         if (!CanOpenFromHotkey()) {
             return false;
         }
+
+        // Reusing a still-held input layer is safe; a release task queued for
+        // an earlier menu must never tear down the new menu's isolation.
+        g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
+        g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
 
         // Isolate gameplay before weapon probing and payload construction so
         // the opening K press cannot reach the Pip-Boy during that work.

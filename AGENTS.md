@@ -39,6 +39,7 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Prisma browser hotkey forwarding is supplemental, not exclusive. Under Proton/CEF, Mouse 4/5 may not emit DOM mouse events while the view is focused, so the native poller must remain active. Mouse-button held/release state uses the `GetAsyncKeyState` high-order physical-down bit only; do not fold the low-order pressed-since-last-query bit into held state. Cross-source duplicate opener signals must be suppressed before queuing game-thread work.
 - Browser-forwarded actions and browser close requests must queue game work through the F4SE task interface.
 - Native MCM keybind definitions must use a type its keybind manager supports. Use inert `RunConsoleCommand` for Quick Attach openers and keep native polling authoritative; `CallExternalFunction` is not a valid MCM keybind registry action.
+- Never release a Prisma menu's gameplay-input layer while a keyboard/mouse opener that closed it is still held: the physical key may reach the underlying Pip-Boy. Defer only this mod's release until physical key-up with a bounded failsafe, queue engine cleanup to the game thread, cancel stale work on reopen and always release on game transition.
 - Before calling any runtime-specific native relocation, verify its exact
   Address Library ID exists for that game version and that the destination
   is executable. The relocation check alone does not validate a calling
