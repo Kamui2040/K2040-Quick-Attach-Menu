@@ -23,6 +23,7 @@ namespace k2040
 
     HotkeyState ParseHotkey(const std::string& text);
     bool IsHotkeyPressedNow(const HotkeyState& hotkey);
+    std::uint32_t HeldMenuOpenerVirtualKey();
     SharedHotkeyBinding GetSharedHotkeyBinding(const std::string& id);
     bool SetSharedHotkeyBinding(const std::string& id, std::uint32_t keycode, std::uint32_t modifiers);
     bool ResetSharedHotkeyBindings();

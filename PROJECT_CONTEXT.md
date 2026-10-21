@@ -1,6 +1,12 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.216`
+- Current Nexus packaging candidate: `0.5.219`. The maintainer confirmed the
+  keyboard close behavior fixed in-game; the actual Amethyst-installed DLL
+  equals the built tester and its OG 1.10.163 F4SE log records input guarding
+  and release for both menus. Build, deterministic packaging, and automated
+  checks passed. Public GitHub and Nexus releases remain `0.5.216` until
+  publication is explicitly approved/completed.
 - Previous stable GitHub release: `0.5.199`
 - Product name: **K2040's Quick Attach Menu**
 - Package identifier: `K2040_Quick_Attach_Menu`

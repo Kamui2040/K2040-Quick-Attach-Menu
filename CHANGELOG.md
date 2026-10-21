@@ -1,3 +1,42 @@
+## 0.5.219 (validated Nexus packaging candidate, 2026-10-21)
+
+- Fixed native MCM hotkey registration and first-time assignment by restoring
+  supported child-owned keybind actions. Shift+K and Ctrl+Shift+K are initialized
+  on a clean installation; existing chosen bindings remain preserved.
+- Fixed opening the underlying Pip-Boy when closing Quick Menu or Menu Builder
+  with a shortcut. Keep gameplay input blocked until the held opener is released.
+- Maintainer confirmed the 0.5.219 fix works in-game on Fallout 4 1.10.163;
+  the deployed DLL matches the validated ZIP. Linux build, 52 Python tests,
+  JavaScript suites, native chord tests and packaging checks passed.
+- Prepared for a maintainer-operated Nexus upload. Packaging and game testing
+  do not constitute a Nexus or GitHub release publication.
+
+## 0.5.218 (unreleased native MCM hotkey-action compatibility candidate)
+
+- Restore the native MCM-supported `RunConsoleCommand` empty-action
+  definitions from 0.5.199 for both hotkeys. Actual menu opening remains
+  handled by Quick Attach's existing native input polling, not an MCM command.
+- The 0.5.215 grouped MCM work changed definitions to `CallExternalFunction`,
+  which native MCM cannot deserialize for its keybind registry. The in-game
+  0.5.217 test confirmed the initialization-only approach did not fix capture.
+- Existing explicit Unbound selections are preserved; users with old saved
+  unbound entries can reassign in MCM or use the PrismaUI Reset controls action
+  after a valid registry is available. Fresh installs still receive Shift+K and
+  Ctrl+Shift+K when no prior MCM initialization marker exists.
+- Build/static/packaging checks and focused target-runtime QA remain distinct;
+  this is not a public release.
+
+## 0.5.217 (unreleased MCM keybind regression candidate)
+
+- Initialize Quick Attach's MCM keybind records when they are absent, so a new
+  installation displays Shift+K and Ctrl+Shift+K and allows first-time rebinding.
+- Preserve existing assignments, including intentionally unbound keys, and
+  avoid replacing any other mod's bindings. Without MCM, the native INI
+  shortcuts remain available.
+- The 0.5.216 report described newly captured keys reverting to None. Linux
+  cross-build, automated tests, and package checks passed. In-game confirmation
+  is still required; this is not a public release.
+
 ## 0.5.216 (stable GitHub release, 2026-10-20)
 
 - Recognize generated-menu MNAM targets supplied by active installed OMODs,

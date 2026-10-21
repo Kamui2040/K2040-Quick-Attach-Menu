@@ -1,5 +1,30 @@
 # Known Issues and Limits
 
+## Fixed in 0.5.219: opener-close input leak
+
+A shortcut overlapping a vanilla game command could also trigger the vanilla
+action when it closed Quick Menu or Builder. Quick Attach now retains only its
+own gameplay-input layer until the shortcut's base key is physically released,
+with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
+on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
+verified.
+
+## 0.5.218 unreleased MCM keybind registration regression
+
+The 0.5.215 MCM parent/child integration changed both native MCM keybind
+`action.type` definitions from `RunConsoleCommand` to `CallExternalFunction`.
+Unlike settings-page external callbacks, native MCM's keybind deserializer does
+not recognize `CallExternalFunction`, so registration fails and capture can
+briefly display a new binding before reverting to None. Revert the registry
+definitions to the original supported inert command while retaining native
+physical input handling. The 0.5.217 seeding-only candidate failed focused
+in-game testing. A stale initialization marker can independently preserve a
+previous Unbound choice; do not silently overwrite deliberately unbound keys.
+After resetting this mod's saved settings and using the native-supported action
+in 0.5.219, the maintainer confirmed that binding and close behavior worked
+in-game; the shared registry and other mods' entries remain separately owned.
+
+
 ## Stable GitHub release 0.5.216 dynamic target keyword fix
 
 A Service Rifle user reported that RIS rail equipment remains visible while

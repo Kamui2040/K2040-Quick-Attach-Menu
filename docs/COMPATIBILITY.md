@@ -23,8 +23,9 @@ present. The original files remain unchanged. Keyboard registry IDs
 remain openQuickMenu and openMenuBuilder, with native settings fallback.
 
 F4SE Menu Framework has a separate MCM translation implementation;
-owner grouping and CallExternalFunction callbacks require separate
-runtime testing. The maintainer reports the bundled Quick Attach MCM
+owner grouping and settings-page external callbacks require separate
+runtime testing; native MCM hotkey registration itself uses the supported
+empty `RunConsoleCommand` action. The maintainer reports the bundled Quick Attach MCM
 integration working in-game in the tested setup. The maintainer
 subsequently confirmed that Quick Attach, Prisma Minimap and Quest
 Journal all register as child entries under one K2040 Mods parent.
@@ -46,7 +47,7 @@ matrix were not reported for this 0.5.215 check.
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.216` |
+| Plugin | `0.5.216` (published); `0.5.219` (validated Nexus packaging candidate) |
 | Architecture | Windows x64 |
 
 Version 0.5.216 includes the opt-in Cheat mode that bypasses

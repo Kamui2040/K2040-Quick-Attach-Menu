@@ -163,7 +163,12 @@ attachment transaction remain authoritative after import.
 The F4SE plugin INI remains the standalone hotkey source. When MCM has written
 an individual registered-hotkey override to its shared registry, that value
 takes precedence and is refreshed after leaving MCM. Missing registered values
-fall back independently to the plugin INI, so MCM remains optional. MCM owns
+fall back to the plugin INI before MCM initializes its registry. Once MCM
+hotkeys have been initialized, clearing a binding is intentionally Unbound,
+not a trigger to restore a default. MCM remains optional. MCM keybind actions
+use a supported inert `RunConsoleCommand` entry; Quick Attach's native poller
+executes the menu-opening action. `CallExternalFunction` is not a supported
+native MCM keybind registry action. MCM owns
 registration and conflict reporting. Physical opener state is polled outside
 Fallout's gameplay input layer, while focused Prisma pages may forward matching
 browser events as a supplemental path. Duplicate cross-source signals are
@@ -171,7 +176,14 @@ filtered, and all menu open/close/switch work is queued to the F4SE game thread.
 The two registered opener bindings act as toggles: the active menu's opener
 closes it and the other opener switches menus without releasing gameplay
 isolation between views. Escape closes either menu. DialogueMenu blocks opener
-actions. There is no separate registered close binding.
+actions. There is no separate registered close binding. The unreleased 0.5.219
+fix retains this mod's gameplay input isolation after a shortcut-triggered
+close while its base key remains physically held, because otherwise the same
+key may reach the Pip-Boy on Prisma unfocus. A native polling thread detects
+key-up (five-second failsafe), but queues layer cleanup on the game thread.
+A subsequent open cancels the old pending release; save transitions always
+clear it. This is separate from physical hotkey edge suppression and requires
+in-game verification.
 
 The PrismaUI V12 controller action bridge binds button actions **only** to
 Quick Menu views. Builder and Settings use keyboard/mouse, pending custom
