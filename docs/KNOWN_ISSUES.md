@@ -9,6 +9,56 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
+
+New in-game report: CEF also returned keycode `144` with Shift/Ctrl/Alt,
+which the Settings browser recorder accepted as the final key; Windows VK 144
+means NumLock, not Shift. The resulting saved chord did not trigger correctly.
+The browser recorder now ignores this synthetic code and other lock/modifier
+codes. The native Settings save API also rejects these before touching the
+shared registry, even if the browser erroneously submits one.
+
+The native MCM menu can hold its own keybind registrations in memory; editing
+`Keybinds.json` directly from Prisma Settings does not invoke MCM's live
+Scaleform `RemapKeybind`/`SetKeybind` methods. This can cause a temporarily
+stale MCM display or MCM to write its old bindings back later. A full live
+MCM sync implementation is still unresolved; do not claim both UIs are
+synchronized during the same session until this is verified in-game.
+
+
+A further user test showed that ignoring ordinary modifier keycodes alone is
+insufficient: PrismaUI/CEF may also report left/right Shift/Ctrl/Alt as Win32
+codes 160–165, and the native MCM registry write can fail when the file is
+open. The revised candidate ignores physical modifier-only events and, if
+atomic file replacement is blocked, uses a byte-verified recovery-backed write
+with error reporting. No result is accepted without game-level retesting.
+
+
+The Settings page previously filtered Shift/Ctrl/Alt/Meta only by numeric
+keyboard codes. PrismaUI/CEF can deliver a modifier-only event with its name
+but `keyCode=0`, which the page accidentally committed as a new binding. The
+native side then rejects the invalid key and refreshes the saved assignment,
+making capture appear to cancel on Shift. Recognize modifier names and physical
+codes, ignore unknown keyboard codes, and keep waiting for a real final key or
+Mouse 4/5 click. Native MCM capture and the shared registry stay unchanged.
+Validate in-game for both keyboard+modifier and mouse+modifier combinations.
+
+## 0.5.220 test candidate — duplicate Menu Builder bindings (runtime QA pending)
+
+A live native MCM `Keybinds.json` contained multiple Quick Attach
+`openMenuBuilder` entries: an older Unbound record and newer working mouse
+bindings. MCM/Prisma lookup was reading the first record and showing None,
+while the native registry parser applied the last one and allowed the action.
+The Graphify-guided 0.5.220 follow-up also uses one scanner for the
+native MCM keybind registry, rejects malformed arrays and nested-key
+impostors, and aligns displayed bindings with the last valid saved key.
+
+The 0.5.220 follow-up reads and edits the last entry consistently, and
+reconciles older duplicates on startup by preserving the last valid saved
+assignment and retaining other mods' registry records untouched. This is a
+settings-file repair and requires in-game retesting; never overwrite or reset
+user-assigned keys as a workaround.
+
 ## 0.5.218 unreleased MCM keybind registration regression
 
 The 0.5.215 MCM parent/child integration changed both native MCM keybind

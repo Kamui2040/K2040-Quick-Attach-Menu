@@ -1,3 +1,4 @@
+#include "AttachmentLabels.h"
 #include "RuntimeState.h"
 #include "LiveAPResolver.h"
 #include "OmodTargetResolver.h"
@@ -1403,13 +1404,14 @@ namespace k2040
                     (option.hasLooseMod && option.isAvailableInInventory) ||
                     (!option.hasLooseMod && GetSettings().allowNoLooseModOptions));
 
-            option.label = SafeFullName(candidate.mod->GetLooseMod());
-            if (option.label.empty()) option.label = SafeFullName(candidate.mod);
-            if (option.label.empty()) option.label = candidate.fallbackLabel;
-            if (option.label.empty()) {
-                option.label = HumanizeOmodEditorId(candidate.omod.editorId);
-            }
-            if (option.label.empty()) option.label = "Unnamed attachment";
+            // Prefer the actual OMOD display name over its loose MISC item's
+            // potentially confusing name. Persisted Builder label overrides
+            // are reapplied after this base label is constructed.
+            option.label = ChooseGeneratedAttachmentLabel(
+                SafeFullName(candidate.mod),
+                SafeFullName(candidate.mod->GetLooseMod()),
+                candidate.fallbackLabel,
+                HumanizeOmodEditorId(candidate.omod.editorId));
 
             if (option.isInstalled) option.status = "installed";
             else if (!option.isStructurallyValid) option.status = "provider-not-installed";

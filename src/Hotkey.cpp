@@ -1,8 +1,13 @@
+#include "McmKeybindRegistry.h"
+#include "SettingsKeyCaptureValidation.h"
+#include "SettingsNativeMouseCapture.h"
 #include "Hotkey.h"
 #include "ControllerShortcuts.h"
 
 #include <F4SE/F4SE.h>
+#include <RE/U/UI.h>
 #include <Windows.h>
+#include "McmRegistryPersistence.h"
 
 #include <algorithm>
 #include <atomic>
@@ -12,6 +17,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -37,11 +43,24 @@ namespace
     std::atomic_bool g_wasBuilderPressedLastPoll = false;
     std::atomic_bool g_wasEscapePressedLastPoll = false;
     std::atomic_bool g_hotkeyCaptureActive = false;
+    std::atomic<std::uint64_t> g_hotkeyCaptureGeneration{0};
     std::atomic_bool g_hotkeyCaptureReleasePending = false;
     std::atomic_bool g_menuHotkeyUiForwardingActive = false;
     std::atomic_bool g_menuHotkeyReleasePending = false;
     std::atomic<std::uint64_t> g_lastQuickActionTick = 0;
     std::atomic<std::uint64_t> g_lastBuilderActionTick = 0;
+    // Native MCM caches bindings independently from Keybinds.json. Only the
+    // Pause-menu Scaleform bridge can update its live keybind manager.
+    struct McmLiveBinding
+    {
+        std::uint32_t keycode = 0;
+        std::uint32_t modifiers = 0;
+    };
+    std::mutex g_mcmSyncMutex;
+    std::optional<McmLiveBinding> g_mcmQuickPending;
+    std::optional<McmLiveBinding> g_mcmBuilderPending;
+    std::atomic_bool g_mcmSyncPending = false;
+    std::atomic_bool g_mcmSyncTaskQueued = false;
     std::atomic<std::uint8_t> g_lastQuickActionSource = 0;
     std::atomic<std::uint8_t> g_lastBuilderActionSource = 0;
 
@@ -95,33 +114,9 @@ namespace
     }
 
     std::optional<std::size_t> FindJsonMemberValueStart(
-        std::string_view object,
-        std::string_view member)
+        std::string_view object, std::string_view member)
     {
-        const std::string needle = std::string("\"") + std::string(member) + "\"";
-        std::size_t searchFrom = 0;
-
-        while (true) {
-            const auto memberStart = object.find(needle, searchFrom);
-            if (memberStart == std::string_view::npos) {
-                return std::nullopt;
-            }
-
-            auto cursor = memberStart + needle.size();
-            while (cursor < object.size() && std::isspace(static_cast<unsigned char>(object[cursor])) != 0) {
-                ++cursor;
-            }
-
-            if (cursor < object.size() && object[cursor] == ':') {
-                ++cursor;
-                while (cursor < object.size() && std::isspace(static_cast<unsigned char>(object[cursor])) != 0) {
-                    ++cursor;
-                }
-                return cursor;
-            }
-
-            searchFrom = memberStart + needle.size();
-        }
+        return k2040::FindMcmObjectMemberValue(object, member);
     }
 
     std::optional<std::string> ReadJsonStringMember(
@@ -190,45 +185,56 @@ namespace
         std::size_t end = 0;
     };
 
-    std::optional<JsonObjectRange> FindMcmKeybindObject(std::string_view json, std::string_view id)
+    std::vector<JsonObjectRange> FindMcmKeybindObjects(std::string_view json, std::string_view id)
     {
         const auto keybindsStart = FindJsonMemberValueStart(json, "keybinds");
-        if (!keybindsStart || *keybindsStart >= json.size() || json[*keybindsStart] != '[') return std::nullopt;
+        if (!keybindsStart) return {};
+        const auto array = k2040::ScanMcmKeybindArray(json, *keybindsStart);
+        if (!array) return {};
 
-        bool inString = false;
-        bool escaped = false;
-        std::size_t objectStart = std::string_view::npos;
-        std::uint32_t objectDepth = 0;
-        for (auto cursor = *keybindsStart + 1; cursor < json.size(); ++cursor) {
-            const char c = json[cursor];
-            if (inString) {
-                if (escaped) escaped = false;
-                else if (c == '\\') escaped = true;
-                else if (c == '"') inString = false;
-                continue;
-            }
-            if (c == '"') {
-                inString = true;
-            } else if (c == '{') {
-                if (objectDepth == 0) objectStart = cursor;
-                ++objectDepth;
-            } else if (c == '}') {
-                if (objectDepth == 0) return std::nullopt;
-                --objectDepth;
-                if (objectDepth == 0 && objectStart != std::string_view::npos) {
-                    const auto object = json.substr(objectStart, cursor - objectStart + 1);
-                    const auto modName = ReadJsonStringMember(object, "modName");
-                    const auto objectId = ReadJsonStringMember(object, "id");
-                    if (modName && objectId && *modName == kMcmModName && *objectId == id) {
-                        return JsonObjectRange{ objectStart, cursor + 1 };
-                    }
-                    objectStart = std::string_view::npos;
-                }
-            } else if (c == ']' && objectDepth == 0) {
-                break;
-            }
+        std::vector<JsonObjectRange> matches;
+        for (const auto& [start, end] : array->objects) {
+            const auto object = json.substr(start, end - start);
+            const auto modName = ReadJsonStringMember(object, "modName");
+            const auto objectId = ReadJsonStringMember(object, "id");
+            if (modName && objectId && *modName == kMcmModName && *objectId == id)
+                matches.push_back(JsonObjectRange{ start, end });
         }
-        return std::nullopt;
+        return matches;
+    }
+
+    std::optional<JsonObjectRange> FindMcmKeybindObject(std::string_view json, std::string_view id)
+    {
+        const auto matches = FindMcmKeybindObjects(json, id);
+        // The native registry parser applies later assignments last; use the
+        // same entry when displaying/editing a binding before reconciliation.
+        if (matches.empty()) return std::nullopt;
+        return matches.back();
+    }
+
+    std::optional<bool> ReconcileMcmKeybindDuplicates(std::string& registry)
+    {
+        std::string cleaned = registry;
+        bool changed = false;
+        for (const auto id : { kOpenMenuKeybindId, kOpenMenuBuilderKeybindId }) {
+            const auto matches = FindMcmKeybindObjects(cleaned, id);
+            if (matches.size() < 2) continue;
+            const auto& retained = matches.back();
+            const std::string_view object(cleaned.data() + retained.start,
+                                          retained.end - retained.start);
+            const auto key = ReadJsonUnsignedMember(object, "keycode");
+            const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
+            if (!key || !modifiers || !ParseMcmHotkey(*key, *modifiers)) {
+                return std::nullopt;  // Do not discard a possibly recoverable assignment.
+            }
+            std::vector<std::pair<std::size_t, std::size_t>> ranges;
+            ranges.reserve(matches.size());
+            for (const auto& item : matches) ranges.emplace_back(item.start, item.end);
+            if (!k2040::RemoveEarlierMcmKeybindObjects(cleaned, ranges)) return std::nullopt;
+            changed = true;
+        }
+        registry.swap(cleaned);
+        return changed;
     }
 
     bool ReplaceJsonUnsignedMember(std::string& object, std::string_view member, std::uint32_t value)
@@ -288,18 +294,22 @@ namespace
         buffer << file.rdbuf();
         if (!file.good() && !file.eof()) return std::nullopt;
         const auto json = buffer.str();
-        const auto range = FindMcmKeybindObject(json, id);
-        if (!range) return std::nullopt;
-        const std::string_view object(json.data() + range->start, range->end - range->start);
-        const auto keycode = ReadJsonUnsignedMember(object, "keycode");
-        const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
-        if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) return std::nullopt;
-        return k2040::SharedHotkeyBinding{
-            *keycode,
-            *modifiers,
-            *keycode ? BindingDisplayName(*keycode, *modifiers) : "Unbound",
-            true
-        };
+        const auto matches = FindMcmKeybindObjects(json, id);
+        // Runtime parsing ignores invalid entries and retains the last valid
+        // one. Show the same effective assignment even before deduplication.
+        for (auto it = matches.rbegin(); it != matches.rend(); ++it) {
+            const std::string_view object(json.data() + it->start, it->end - it->start);
+            const auto keycode = ReadJsonUnsignedMember(object, "keycode");
+            const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
+            if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;
+            return k2040::SharedHotkeyBinding{
+                *keycode,
+                *modifiers,
+                *keycode ? BindingDisplayName(*keycode, *modifiers) : "Unbound",
+                true
+            };
+        }
+        return std::nullopt;
     }
 
     struct PendingSharedBinding
@@ -340,7 +350,13 @@ namespace
                 keybinds=FindJsonMemberValueStart(json,"keybinds");
             }
             if (!keybinds || *keybinds>=json.size() || json[*keybinds]!='[') return;
-            bool changed=false;
+            const auto reconciled = ReconcileMcmKeybindDuplicates(json);
+            if (!reconciled) {
+                k2040::log::Warn("MCM keybind duplicate repair skipped: registry is not safely editable.");
+                return;
+            }
+            bool changed=*reconciled;
+            if (changed) k2040::log::Info("Removed older duplicate Quick Attach hotkeys; kept most recent assignments.");
             for (const auto [id,key,mods]:
                  {std::tuple<std::string_view,std::uint32_t,std::uint32_t>
                      {kOpenMenuKeybindId,'K',1u},
@@ -349,53 +365,23 @@ namespace
                 // If a previous user explicitly cleared a hotkey, do not
                 // resurrect its factory assignment on the next start.
                 std::uint32_t selected=initialized?0:key;
-                // Reject an initial default only when some other entry
-                // already has exactly the same key+modifier combination.
-                // Collision scan is safe against the small registry and
-                // preserves every other mod's entry and byte representation.
-                const auto scan=json.find("\"keybinds\"");
-                const auto opening=json.find('[',scan);
-                if (opening==json.npos)return;
-                bool quoted=false,escaped=false;
-                unsigned level=0;
-                std::size_t start=json.npos;
-                for(auto i=opening+1;i<json.size();++i){
-                    const char c=json[i];
-                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
-                        else if(c=='"')quoted=false;continue;}
-                    if(c=='"'){quoted=true;continue;}
-                    if(c=='{'){if(level++==0)start=i;continue;}
-                    if(c=='}' && level){
-                        if(--level==0 && start!=json.npos){
-                            const auto obj=std::string_view(json).substr(start,i-start+1);
-                            const auto otherKey=ReadJsonUnsignedMember(obj,"keycode");
-                            const auto otherMod=ReadJsonUnsignedMember(obj,"modifiers");
-                            if(otherKey && otherMod && *otherKey==selected && *otherMod==mods)
-                                selected=0;
-                        }
-                        continue;
-                    }
-                    if(c==']'&&!level)break;
+                // MCM may also register shortcuts from other mods. Avoid
+                // claiming a default already assigned in the same registry.
+                const auto array = k2040::ScanMcmKeybindArray(json, *keybinds);
+                if (!array) return;
+                for (const auto& [start, end] : array->objects) {
+                    const auto object = std::string_view(json).substr(start, end - start);
+                    const auto otherKey = ReadJsonUnsignedMember(object, "keycode");
+                    const auto otherMod = ReadJsonUnsignedMember(object, "modifiers");
+                    if (otherKey && otherMod && *otherKey == selected && *otherMod == mods)
+                        selected = 0;
                 }
-                const auto arrayStart=json.find('[',json.find("\"keybinds\""));
-                if(arrayStart==json.npos)return;
-                std::size_t end=arrayStart+1;quoted=false;escaped=false;level=0;
-                for(;end<json.size();++end){
-                    const char c=json[end];
-                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
-                        else if(c=='"')quoted=false;continue;}
-                    if(c=='"'){quoted=true;continue;}
-                    if(c=='{'){++level;continue;}
-                    if(c=='}' && level){--level;continue;}
-                    if(c==']'&&!level)break;
-                }
-                if(end>=json.size())return;
-                const auto any=json.find_first_not_of(" \t\r\n",arrayStart+1)<end;
-                const std::string record=std::string("{\"id\":\"")+std::string(id)+
-                  "\",\"keycode\":"+std::to_string(selected)+
-                  ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":"+
-                  std::to_string(selected?mods:0)+"}";
-                json.insert(end,std::string(any?",":"")+record);
+                const std::string record = std::string("{\"id\":\"") + std::string(id) +
+                  "\",\"keycode\":" + std::to_string(selected) +
+                  ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":" +
+                  std::to_string(selected ? mods : 0) + "}";
+                json.insert(array->closingBracket,
+                    std::string(array->objects.empty() ? "" : ",") + record);
                 changed=true;
             }
             if (changed) {
@@ -470,11 +456,20 @@ namespace
 
         const auto tempNative = temp.native();
         const auto pathNative = kMcmKeybindRegistryPath.native();
-        if (!MoveFileExW(tempNative.c_str(), pathNative.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        const auto saved = k2040::SaveSharedMcmRegistry(tempNative, pathNative, buffer.str(), json);
+        if (!saved.saved) {
             std::error_code ec;
             std::filesystem::remove(temp, ec);
-            k2040::log::Warn("Shared MCM keybinding registry replacement failed.");
+            k2040::log::Warn("Shared MCM keybinding registry replacement failed: Windows error " +
+                std::to_string(saved.replaceError) + ", fallback error " +
+                std::to_string(saved.fallbackError) +
+                (saved.restoreFailed ? "; automatic restore failed, recovery backup retained." : "."));
             return false;
+        }
+        if (saved.usedInPlaceFallback) {
+            k2040::log::Warn("MCM registry atomic replacement blocked (Windows error " +
+                std::to_string(saved.replaceError) +
+                "); safely updated verified live file with recovery backup.");
         }
 
         g_loadedMcmWriteTime.reset();
@@ -549,62 +544,16 @@ namespace
     {
         const auto keybindsStart = FindJsonMemberValueStart(json, "keybinds");
         if (!keybindsStart) {
-            // MCM writes {"version":1} until its first keybind is registered.
+            // MCM writes {"version":1} until a hotkey is registered.
             return true;
         }
-
-        if (*keybindsStart >= json.size() || json[*keybindsStart] != '[') {
-            return false;
+        const auto array = k2040::ScanMcmKeybindArray(json, *keybindsStart);
+        if (!array) return false;
+        for (const auto& [start, end] : array->objects) {
+            if (!ApplyMcmKeybindObject(json.substr(start, end - start), overrides))
+                return false;
         }
-
-        bool inString = false;
-        bool escaped = false;
-        std::size_t objectStart = std::string_view::npos;
-        std::uint32_t objectDepth = 0;
-
-        for (auto cursor = *keybindsStart + 1; cursor < json.size(); ++cursor) {
-            const char c = json[cursor];
-
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                } else if (c == '\\') {
-                    escaped = true;
-                } else if (c == '"') {
-                    inString = false;
-                }
-                continue;
-            }
-
-            if (c == '"') {
-                inString = true;
-                continue;
-            }
-
-            if (c == '{') {
-                if (objectDepth == 0) {
-                    objectStart = cursor;
-                }
-                ++objectDepth;
-            } else if (c == '}') {
-                if (objectDepth == 0) {
-                    return false;
-                }
-                --objectDepth;
-                if (objectDepth == 0) {
-                    if (!ApplyMcmKeybindObject(
-                            json.substr(objectStart, cursor - objectStart + 1),
-                            overrides)) {
-                        return false;
-                    }
-                    objectStart = std::string_view::npos;
-                }
-            } else if (c == ']' && objectDepth == 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     bool LoadMcmHotkeyOverrides(McmHotkeyOverrides& overrides)
@@ -654,6 +603,93 @@ namespace
         g_quickOpenerVirtualKey.store(g_openMenuHotkey.virtualKey, std::memory_order_release);
         g_builderOpenerVirtualKey.store(g_openMenuBuilderHotkey.virtualKey, std::memory_order_release);
         ResetHotkeyEdgeState();
+    }
+
+    void StageNativeMcmLiveSync(std::string_view id, std::uint32_t keycode,
+                                std::uint32_t modifiers)
+    {
+        if (!GetModuleHandleW(L"mcm.dll")) return;
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            if (id == kOpenMenuKeybindId) g_mcmQuickPending = { keycode, modifiers };
+            else if (id == kOpenMenuBuilderKeybindId) g_mcmBuilderPending = { keycode, modifiers };
+            else return;
+        }
+        g_mcmSyncPending.store(true, std::memory_order_release);
+        k2040::log::Info("Settings MCM keybinding change queued for live Pause-menu sync.");
+    }
+
+    // Called from an F4SE task on the game thread; no private MCM addresses,
+    // hooks, or calls into its DLL. The public Scaleform action returns a bool.
+    void TryNativeMcmLiveSyncOnGameThread()
+    {
+        const auto finish = []() {
+            g_mcmSyncTaskQueued.store(false, std::memory_order_release);
+        };
+        if (!GetModuleHandleW(L"mcm.dll")) { finish(); return; }
+        // Bound retries per Pause-menu session: if MCM's Scaleform bridge is
+        // absent/rejects a mapping, do not repeatedly overwrite subsequent
+        // native MCM user edits while its menu remains open.
+        static unsigned int attemptsThisPause = 0;
+        auto* ui = RE::UI::GetSingleton();
+        if (!ui || !ui->GetMenuOpen(RE::BSFixedString("PauseMenu"))) {
+            attemptsThisPause = 0;
+            finish();
+            return;
+        }
+        if (attemptsThisPause >= 3u) { finish(); return; }
+        const auto menu = ui->GetMenu(RE::BSFixedString("PauseMenu"));
+        if (!menu || !menu->uiMovie) { finish(); return; }
+        ++attemptsThisPause;
+
+        const auto sync = [&](std::string_view id, const McmLiveBinding& binding) {
+            Scaleform::GFx::Value args[4];
+            args[0] = "K2040_Quick_Attach_Menu";
+            const std::string keybindId(id);
+            args[1] = keybindId.c_str();
+            args[2] = static_cast<std::int32_t>(binding.keycode);
+            args[3] = static_cast<std::int32_t>(binding.modifiers);
+            Scaleform::GFx::Value result;
+            return menu->uiMovie->Invoke("root.mcm.SetKeybind", &result, args, 4) &&
+                result.IsBoolean() && result.GetBoolean();
+        };
+
+        // Copy while holding the mutex. Never hold it during the Scaleform call.
+        std::optional<McmLiveBinding> quick;
+        std::optional<McmLiveBinding> builder;
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            quick = g_mcmQuickPending;
+            builder = g_mcmBuilderPending;
+        }
+        // Respect newer MCM/user edits: a pending Settings write is valid only
+        // while the current on-disk binding still matches that exact request.
+        const auto stillCurrent = [](std::string_view id, const McmLiveBinding& binding) {
+            const auto registered = ReadSharedHotkeyBinding(id);
+            return registered && registered->keycode == binding.keycode &&
+                registered->modifiers == binding.modifiers;
+        };
+        const bool staleQuick = quick && !stillCurrent(kOpenMenuKeybindId, *quick);
+        const bool staleBuilder = builder && !stillCurrent(kOpenMenuBuilderKeybindId, *builder);
+        const bool quickDone = quick && !staleQuick && sync(kOpenMenuKeybindId, *quick);
+        const bool builderDone = builder && !staleBuilder && sync(kOpenMenuBuilderKeybindId, *builder);
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            const auto unchanged = [](const McmLiveBinding& a, const McmLiveBinding& b) {
+                return a.keycode == b.keycode && a.modifiers == b.modifiers;
+            };
+            if ((quickDone || staleQuick) && quick && g_mcmQuickPending && unchanged(*quick, *g_mcmQuickPending))
+                g_mcmQuickPending.reset();
+            if ((builderDone || staleBuilder) && builder && g_mcmBuilderPending && unchanged(*builder, *g_mcmBuilderPending))
+                g_mcmBuilderPending.reset();
+            g_mcmSyncPending.store(g_mcmQuickPending.has_value() || g_mcmBuilderPending.has_value(),
+                                   std::memory_order_release);
+        }
+        if (staleQuick || staleBuilder)
+            k2040::log::Warn("Cancelled stale Settings MCM synchronization because the registry changed.");
+        if (quickDone || builderDone)
+            k2040::log::Info("Native MCM live keybinding manager accepted Settings sync.");
+        finish();
     }
 
     bool McmProviderActive()
@@ -970,7 +1006,13 @@ namespace k2040
     bool SetSharedHotkeyBinding(const std::string& id, std::uint32_t keycode, std::uint32_t modifiers)
     {
         if (id != kOpenMenuKeybindId && id != kOpenMenuBuilderKeybindId) return false;
+        if (!k2040::IsSettingsCaptureKeycode(keycode) || (modifiers & ~0x7u) != 0) {
+            log::Warn("Ignored unsupported Settings keybind capture code " +
+                std::to_string(keycode) + "; retained existing MCM binding.");
+            return false;
+        }
         if (!WriteSharedHotkeyBindings({ PendingSharedBinding{ id, keycode, modifiers } })) return false;
+        StageNativeMcmLiveSync(id, keycode, modifiers);
         log::Info(std::string("Shared MCM keybinding updated: ") + id + ".");
         return true;
     }
@@ -981,7 +1023,11 @@ namespace k2040
             PendingSharedBinding{ kOpenMenuKeybindId, static_cast<std::uint32_t>('K'), 0x1u },
             PendingSharedBinding{ kOpenMenuBuilderKeybindId, static_cast<std::uint32_t>('K'), 0x3u }
         });
-        if (saved) log::Info("Shared MCM keybindings restored to fresh-install defaults.");
+        if (saved) {
+            StageNativeMcmLiveSync(kOpenMenuKeybindId, static_cast<std::uint32_t>('K'), 0x1u);
+            StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId, static_cast<std::uint32_t>('K'), 0x3u);
+            log::Info("Shared MCM keybindings restored to fresh-install defaults.");
+        }
         return saved;
     }
 
@@ -993,6 +1039,7 @@ namespace k2040
         }
 
         g_hotkeyCaptureReleasePending = !active;
+        g_hotkeyCaptureGeneration.fetch_add(1, std::memory_order_acq_rel);
         ResetHotkeyEdgeState();
     }
 
@@ -1052,6 +1099,23 @@ namespace k2040
         PollDeferredQuickMenuGameplayIsolationRelease();
         RefreshMcmHotkeys(false);
 
+        // Reconcile Settings changes with native MCM's live in-memory keybind
+        // registry when its Pause-menu movie next becomes available. Never
+        // invoke Scaleform from this background polling thread.
+        static auto nextMcmSyncAttempt = std::chrono::steady_clock::time_point{};
+        const auto syncNow = std::chrono::steady_clock::now();
+        if (g_mcmSyncPending.load(std::memory_order_acquire) &&
+            syncNow >= nextMcmSyncAttempt) {
+            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(850);
+            if (!g_mcmSyncTaskQueued.exchange(true, std::memory_order_acq_rel)) {
+                if (const auto* tasks = F4SE::GetTaskInterface()) {
+                    tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });
+                } else {
+                    g_mcmSyncTaskQueued.store(false, std::memory_order_release);
+                }
+            }
+        }
+
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
         const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
         // Independent XInput shortcuts use the same game-thread action queue
@@ -1092,7 +1156,31 @@ namespace k2040
         const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
         const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
 
-        if (g_hotkeyCaptureActive.load()) {
+        // CEF under Proton does not reliably deliver XBUTTON1/XBUTTON2 DOM
+        // events. Sample the physical buttons on this polling thread, and
+        // enqueue only the Prisma callback onto the game thread.
+        static k2040::SettingsNativeMouseCapture nativeMouse;
+        const bool captureActive = g_hotkeyCaptureActive.load(std::memory_order_acquire);
+        const auto captureSession = g_hotkeyCaptureGeneration.load(std::memory_order_acquire);
+        const bool mouse4 = IsPhysicalKeyDown(VK_XBUTTON1);
+        const bool mouse5 = IsPhysicalKeyDown(VK_XBUTTON2);
+        const std::uint32_t capturedMouse = nativeMouse.Sample(
+            captureSession, captureActive, mouse4, mouse5);
+        if (captureActive && capturedMouse != 0) {
+            const std::uint32_t modifiers =
+                (IsPhysicalKeyDown(VK_SHIFT) ? 1u : 0u) |
+                (IsPhysicalKeyDown(VK_CONTROL) ? 2u : 0u) |
+                (IsPhysicalKeyDown(VK_MENU) ? 4u : 0u);
+            if (const auto* tasks = F4SE::GetTaskInterface()) {
+                tasks->AddTask([capturedMouse, modifiers, captureSession]() {
+                    if (!g_hotkeyCaptureActive.load(std::memory_order_acquire) ||
+                        g_hotkeyCaptureGeneration.load(std::memory_order_acquire) != captureSession)
+                        return; // cancelled, switched views or stale session
+                    GetPrismaBridge().OnNativeSettingsMouseCapture(capturedMouse, modifiers);
+                });
+            }
+        }
+        if (captureActive) {
             g_wasOpenPressedLastPoll.store(openPressedNow);
             g_wasBuilderPressedLastPoll.store(builderPressedNow);
             return;

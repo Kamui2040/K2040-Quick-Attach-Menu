@@ -1,6 +1,39 @@
 # Current Project State
 
+- In 0.5.220 Settings QA, keyboard modifier chords were assignable but Mouse
+  4/5 was not, with or without modifiers. The Settings browser depended only
+  on DOM mousedown events, which may be absent under Proton/CEF. The draft
+  candidate now captures physical side-button edges natively and dispatches
+  to the focused Settings browser on the game thread with stale-session guards.
+  Settings keyboard/mouse changes and Reset also stage a pending native MCM
+  Pause-menu `SetKeybind` synchronization, which remains unverified in-game;
+  fail-closed when the source registry changed before the sync attempt.
+- A later user runtime report found synthetic Windows `VK_NUMLOCK` code 144
+  emitted for Shift/Ctrl/Alt in Prisma Settings capture, incorrectly replacing
+  otherwise working hotkeys. The latest unreleased branch discards code 144
+  and other modifier/lock codes in both browser and native Settings save paths.
+  In-memory MCM keybind registrations may still be stale after external JSON
+  changes; native MCM live sync remains unresolved and game QA is pending.
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
+- A Settings-page hotkey capture retest revealed a second blocker in native
+  MCM registry persistence: replacing an open registry file can fail under
+  Wine/Proton. The unreleased candidate now uses a guarded, verified backup
+  and in-place fallback, and excludes left/right modifier virtual keys 160–165.
+  Automated cross-build and isolated Wine tests pass; game acceptance is pending.
+- The 0.5.220 Settings UI keybind recorder now ignores modifier-only CEF
+  events even with zero numeric keycode, and ignores unsupported/unknown codes
+  instead of sending invalid updates. Verify keyboard and mouse chord capture
+  in-game before merging the draft PR.
+- Version `0.5.220` is an unreleased test candidate. Generated labels prefer OMOD FULL over linked MISC FULL and retain authored/Builder overrides. A 0.5.220 user test exposed duplicate Menu Builder hotkey entries in native MCM: an older None record masked a newer working binding. The replacement tester now reads the latest binding and removes only older duplicate Quick Attach records on startup. In-game acceptance is still pending; do not merge or publish until tested.
+- The unreleased `0.5.220` Graphify-guided maintenance candidate shares one
+  MCM keybind-array scanner across default seeding, collision detection,
+  duplicate repair, runtime polling and displayed bindings. Its root-field
+  lookup now excludes nested JSON keys. A shared JSON-escaping helper prevents
+  control characters in attachment labels and saved preferences from producing
+  invalid JSON. The pinned Linux Windows x64 build, 60 Python tests, four
+  JavaScript suites, four native C++ tests, and PE/version checks passed.
+  Actual game/runtime validation remains pending. The associated PR stays
+  draft; do not interpret source/build checks as in-game acceptance.
 - Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard

@@ -1,3 +1,4 @@
+#include "JsonEscape.h"
 #include "AttachmentRuntimeModel.h"
 
 #include <sstream>
@@ -6,25 +7,7 @@
 
 namespace
 {
-    std::string JsonEscape(const std::string& value)
-    {
-        std::ostringstream out;
-
-        for (char c : value) {
-            switch (c) {
-            case '"': out << "\\\""; break;
-            case '\\': out << "\\\\"; break;
-            case '\n': out << "\\n"; break;
-            case '\r': out << "\\r"; break;
-            case '\t': out << "\\t"; break;
-            default:
-                out << c;
-                break;
-            }
-        }
-
-        return out.str();
-    }
+    using k2040::JsonEscape;
 
     void WriteStringArray(std::ostringstream& json, const std::vector<std::string>& values)
     {

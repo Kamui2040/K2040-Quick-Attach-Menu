@@ -121,7 +121,7 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open quick menu</span><span class="setting-help">Press it again to close the quick menu.</span></span><button id="quickKey" class="keybind" data-id="openQuickMenu" type="button">Loading…</button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open menu builder</span><span class="setting-help">Opens or closes the builder; switches from the quick menu when needed.</span></span><button id="builderKey" class="keybind" data-id="openMenuBuilder" type="button">Loading…</button></div>
           <h3 class="group-title">Quick Menu controller shortcut</h3>
-          <p class="intro">Quick Menu, Builder and Settings now share controller navigation. The shortcut below sets the Quick Menu opener; it does not change the game-mapped Confirm button. Text entry and keyboard hotkey capture still require a keyboard.</p>
+          <p class="intro">Quick Menu, Builder and Settings now share controller navigation. The shortcut below sets the Quick Menu opener; it does not change the game-mapped Confirm button. Keyboard recording uses the focused view; Mouse 4/5 capture is handled through the native input poller under Proton.</p>
           <div class="setting-row">
             <span class="setting-copy"><span class="setting-name">Controller: Open quick menu</span><span class="setting-help" id="controllerQuickCurrent">Unassigned</span></span>
             <span class="controller-binding-controls">
@@ -137,6 +137,7 @@
             </span>
           </div>
           <p class="intro" id="controllerShortcutNotice" role="status">Controller shortcuts are initially unassigned to avoid interfering with Fallout's gamepad controls.</p>
+          <p class="intro" role="status">With native MCM installed, Settings changes and Reset controls request live MCM synchronization when the Pause menu is available. MCM may temporarily display an older shortcut; confirm the assignment in MCM before relying on it.</p>
           <button class="reset-button" data-reset="controls" type="button">Reset controls</button>
         </section>
 
@@ -671,7 +672,7 @@
       function beginCapture(button) {
         capturing = button.dataset.id;
         Array.prototype.forEach.call(document.querySelectorAll(".keybind"), function(item) { item.classList.toggle("capturing", item === button); });
-        button.textContent = "Press a key…";
+        button.textContent = "Hold modifiers, then press a key or Mouse 4/5…";
         send("keybind-capture:1");
       }
       function cancelCapture() {
@@ -688,12 +689,31 @@
         send("keybind:" + id + ":" + keycode + ":" + modifiers);
         Array.prototype.forEach.call(document.querySelectorAll(".keybind"), function(button) { button.classList.remove("capturing"); });
       }
+      // Under Proton, CEF may not send mousedown for physical Mouse 4/5.
+      // The native poller forwards the exact same MCM pseudo-keycodes here.
+      window.k2040CaptureNativeMouse = function(keycode, modifiers) {
+        if (!capturing || (keycode !== 259 && keycode !== 260) ||
+            !Number.isInteger(modifiers) || modifiers < 0 || modifiers > 7) return false;
+        commitKey(keycode, !!(modifiers & 1), !!(modifiers & 2), !!(modifiers & 4));
+        return true;
+      };
       document.addEventListener("keydown", function(event) {
         if (capturing) {
           event.preventDefault(); event.stopPropagation();
           if (event.key === "Escape") { cancelCapture(); return; }
-          if ([16,17,18,91,92].indexOf(event.keyCode) >= 0) return;
-          commitKey(event.keyCode || event.which, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);
+          var code = Number(event.keyCode || event.which || 0);
+          // Some PrismaUI/CEF keyboard events report a modifier by name but
+          // supply keyCode=0. Never finish capture on modifier-only events.
+          if (/^(Shift|Control|Alt|AltGraph|Meta|OS|Super|Hyper)(Left|Right)?$/.test(event.key || "") ||
+              /^(Shift|Control|Alt|AltGraph|Meta|OS|Super|Hyper)(Left|Right)?$/.test(event.code || "") ||
+              // Windows virtual-key codes 160-165 are left/right Shift/Ctrl/Alt.
+              // CEF/Proton may forward these instead of generic 16/17/18.
+              // Under Proton/CEF a modifier press can arrive as VK_NUMLOCK
+              // (144) with no useful event.key/event.code. Never bind it.
+              [16,17,18,20,91,92,93,144,145,160,161,162,163,164,165,224,229].indexOf(code) >= 0) return;
+          // Unknown codes must not submit an invalid binding and reset the UI.
+          if (!Number.isInteger(code) || code <= 0 || code > 255) return;
+          commitKey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);
           return;
         }
         var keycode = Number(event.keyCode || event.which || 0);

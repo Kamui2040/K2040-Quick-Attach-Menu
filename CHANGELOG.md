@@ -1,3 +1,29 @@
+## 0.5.220 (unreleased OMOD label source test candidate)
+
+- Settings Mouse 4/5 keybind recording now supplements unreliable CEF mouse events with native physical edge capture, supporting standalone Mouse 4/5 and Shift/Ctrl/Alt combinations without immediately reopening a menu or capturing a held opener.
+- Settings Reset and rebind operations now request native MCM in-memory synchronization through the public Pause-menu `root.mcm.SetKeybind` callback when available, with stale-record rejection; live game verification remains outstanding.
+
+
+- Settings hotkey capture now discards CEF's spurious keycode `144` (Windows NumLock) emitted when pressing Shift/Ctrl/Alt; modifier-only events can no longer be saved as a final key. A second native boundary check rejects invalid Settings capture keycodes before updating the shared MCM registry. Native MCM's own remapping capability is unchanged.
+
+
+- Corrected Settings key capture for left/right Shift/Ctrl/Alt virtual keys 160–165 that CEF/Proton may report instead of the generic modifier keycodes.
+- Fixed shared MCM keybind persistence under Wine/Proton when an open MCM registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
+
+
+- Settings-page keybind recording now keeps listening when Shift/Ctrl/Alt/Meta is pressed even if PrismaUI/CEF reports the modifier with no numeric keycode. Invalid/unknown keyboard events no longer reset the displayed binding; modifier+mouse and modifier+keyboard capture are retained.
+
+- Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
+- ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
+- Restricted registry field lookup to top-level object members so unrelated nested data cannot hide or impersonate MCM key assignments.
+- Reused one full JSON string-escaping helper for menu payloads, saved preferences and diagnostic JSON; all C0 controls are now escaped consistently, including user-provided names.
+- Consolidated the MCM keybind array traversal used by runtime input,
+  Menu Builder display, default seeding, and duplicate repair. Invalid registry
+  arrays now fail closed, and display falls back to the last valid recorded
+  assignment when a newer duplicate is malformed.
+- Corrected duplicate native MCM Menu Builder keybind records that could show None while a later user-defined shortcut still worked. Use the newest assignment and remove only older duplicate Quick Attach entries on startup.
+- Automated and native build checks are separate from required in-game acceptance; do not publish before testing.
+
 ## 0.5.219 (published on GitHub and Nexus Mods, 2026-10-21)
 
 - Fixed native MCM hotkey registration and first-time assignment by restoring
