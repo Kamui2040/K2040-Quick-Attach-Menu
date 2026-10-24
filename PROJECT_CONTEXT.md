@@ -1,6 +1,7 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
+- Version `0.5.220` is an unreleased, untested-in-game label-precedence candidate. Generated options prefer OMOD FULL over linked MISC FULL; ECO authored labels and Builder custom labels remain unchanged. Targeted user in-game QA is required before merging or publishing.
 - Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard

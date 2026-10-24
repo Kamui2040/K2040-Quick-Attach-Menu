@@ -1,3 +1,9 @@
+## 0.5.220 (unreleased OMOD label source test candidate)
+
+- Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
+- ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
+- Automated and native build checks are separate from required in-game acceptance; do not publish before testing.
+
 ## 0.5.219 (published on GitHub and Nexus Mods, 2026-10-21)
 
 - Fixed native MCM hotkey registration and first-time assignment by restoring
