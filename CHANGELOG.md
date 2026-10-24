@@ -1,5 +1,7 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- Settings-page keybind recording now keeps listening when Shift/Ctrl/Alt/Meta is pressed even if PrismaUI/CEF reports the modifier with no numeric keycode. Invalid/unknown keyboard events no longer reset the displayed binding; modifier+mouse and modifier+keyboard capture are retained.
+
 - Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
 - ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
 - Restricted registry field lookup to top-level object members so unrelated nested data cannot hide or impersonate MCM key assignments.

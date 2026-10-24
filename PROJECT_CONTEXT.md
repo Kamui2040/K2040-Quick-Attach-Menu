@@ -1,6 +1,10 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
+- The 0.5.220 Settings UI keybind recorder now ignores modifier-only CEF
+  events even with zero numeric keycode, and ignores unsupported/unknown codes
+  instead of sending invalid updates. Verify keyboard and mouse chord capture
+  in-game before merging the draft PR.
 - Version `0.5.220` is an unreleased test candidate. Generated labels prefer OMOD FULL over linked MISC FULL and retain authored/Builder overrides. A 0.5.220 user test exposed duplicate Menu Builder hotkey entries in native MCM: an older None record masked a newer working binding. The replacement tester now reads the latest binding and removes only older duplicate Quick Attach records on startup. In-game acceptance is still pending; do not merge or publish until tested.
 - The unreleased `0.5.220` Graphify-guided maintenance candidate shares one
   MCM keybind-array scanner across default seeding, collision detection,

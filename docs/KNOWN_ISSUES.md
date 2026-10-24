@@ -9,6 +9,17 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
+
+The Settings page previously filtered Shift/Ctrl/Alt/Meta only by numeric
+keyboard codes. PrismaUI/CEF can deliver a modifier-only event with its name
+but `keyCode=0`, which the page accidentally committed as a new binding. The
+native side then rejects the invalid key and refreshes the saved assignment,
+making capture appear to cancel on Shift. Recognize modifier names and physical
+codes, ignore unknown keyboard codes, and keep waiting for a real final key or
+Mouse 4/5 click. Native MCM capture and the shared registry stay unchanged.
+Validate in-game for both keyboard+modifier and mouse+modifier combinations.
+
 ## 0.5.220 test candidate — duplicate Menu Builder bindings (runtime QA pending)
 
 A live native MCM `Keybinds.json` contained multiple Quick Attach

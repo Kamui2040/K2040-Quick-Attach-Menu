@@ -671,7 +671,7 @@
       function beginCapture(button) {
         capturing = button.dataset.id;
         Array.prototype.forEach.call(document.querySelectorAll(".keybind"), function(item) { item.classList.toggle("capturing", item === button); });
-        button.textContent = "Press a key…";
+        button.textContent = "Hold modifiers, then press a key or Mouse 4/5…";
         send("keybind-capture:1");
       }
       function cancelCapture() {
@@ -692,8 +692,15 @@
         if (capturing) {
           event.preventDefault(); event.stopPropagation();
           if (event.key === "Escape") { cancelCapture(); return; }
-          if ([16,17,18,91,92].indexOf(event.keyCode) >= 0) return;
-          commitKey(event.keyCode || event.which, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);
+          var code = Number(event.keyCode || event.which || 0);
+          // Some PrismaUI/CEF keyboard events report a modifier by name but
+          // supply keyCode=0. Never finish capture on modifier-only events.
+          if (["Shift","Control","Alt","AltGraph","Meta","OS","Super","Hyper"].indexOf(event.key) >= 0 ||
+              /^(Shift|Control|Alt|Meta)(Left|Right)$/.test(event.code || "") ||
+              [16,17,18,91,92,93,224].indexOf(code) >= 0) return;
+          // Unknown codes must not submit an invalid binding and reset the UI.
+          if (!Number.isInteger(code) || code <= 0 || code > 255) return;
+          commitKey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);
           return;
         }
         var keycode = Number(event.keyCode || event.which || 0);
