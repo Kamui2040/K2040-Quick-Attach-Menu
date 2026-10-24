@@ -1,5 +1,9 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- Corrected Settings key capture for left/right Shift/Ctrl/Alt virtual keys 160–165 that CEF/Proton may report instead of the generic modifier keycodes.
+- Fixed shared MCM keybind persistence under Wine/Proton when an open MCM registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
+
+
 - Settings-page keybind recording now keeps listening when Shift/Ctrl/Alt/Meta is pressed even if PrismaUI/CEF reports the modifier with no numeric keycode. Invalid/unknown keyboard events no longer reset the displayed binding; modifier+mouse and modifier+keyboard capture are retained.
 
 - Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.

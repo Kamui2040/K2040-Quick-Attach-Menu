@@ -11,6 +11,14 @@ verified.
 
 ## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
 
+A further user test showed that ignoring ordinary modifier keycodes alone is
+insufficient: PrismaUI/CEF may also report left/right Shift/Ctrl/Alt as Win32
+codes 160–165, and the native MCM registry write can fail when the file is
+open. The revised candidate ignores physical modifier-only events and, if
+atomic file replacement is blocked, uses a byte-verified recovery-backed write
+with error reporting. No result is accepted without game-level retesting.
+
+
 The Settings page previously filtered Shift/Ctrl/Alt/Meta only by numeric
 keyboard codes. PrismaUI/CEF can deliver a modifier-only event with its name
 but `keyCode=0`, which the page accidentally committed as a new binding. The

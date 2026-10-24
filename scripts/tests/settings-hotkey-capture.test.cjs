@@ -79,6 +79,18 @@ function setup() {
   assert.equal(test.context.capturing, '');
 }
 
+// Chromium may emit an ambiguous physical modifier with virtual-key 160.
+// This previously committed an invalid standalone modifier and reset the UI.
+{
+  const test = setup();
+  test.begin('openMenuBuilder');
+  test.key({ key: 'Unidentified', code: '', keyCode: 160, shiftKey: true });
+  assert.deepEqual(test.sent, ['keybind-capture:1']);
+  assert.equal(test.context.capturing, 'openMenuBuilder');
+  test.mouse({ button: 3, shiftKey: true });
+  assert.deepEqual(test.sent, ['keybind-capture:1', 'keybind:openMenuBuilder:259:1']);
+}
+
 for (const modifier of [
   { key: 'Control', code: 'ControlRight', ctrlKey: true },
   { key: 'Alt', code: 'AltLeft', altKey: true },
@@ -87,7 +99,10 @@ for (const modifier of [
   { key: 'Unidentified', code: 'ShiftRight', shiftKey: true },
   { key: 'Unidentified', code: 'ControlLeft', ctrlKey: true },
   { key: 'Unidentified', code: 'AltLeft', altKey: true },
-  { key: 'Unidentified', code: 'MetaRight' }
+  { key: 'Unidentified', code: 'MetaRight' },
+  { key: 'ShiftLeft', code: '', shiftKey: true },
+  { key: 'ControlRight', code: '', ctrlKey: true },
+  { key: 'AltRight', code: '', altKey: true }
 ]) {
   const test = setup();
   test.begin('openQuickMenu');
@@ -95,7 +110,7 @@ for (const modifier of [
   assert.equal(test.context.capturing, 'openQuickMenu');
   assert.deepEqual(test.sent, ['keybind-capture:1']);
 }
-for (const numeric of [16, 17, 18, 91, 92, 93, 224]) {
+for (const numeric of [16, 17, 18, 91, 92, 93, 160, 161, 162, 163, 164, 165, 224, 229]) {
   const test = setup(); test.begin('openMenuBuilder');
   test.key({ key: 'Unidentified', keyCode: numeric });
   assert.deepEqual(test.sent, ['keybind-capture:1']);

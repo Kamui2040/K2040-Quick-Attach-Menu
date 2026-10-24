@@ -33,6 +33,18 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('matches.rbegin()',display)
         self.assertIn('if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;',display)
 
+    def test_shared_mcm_registry_write_is_recoverable_under_wine(self):
+        persistence = (ROOT / 'include/McmRegistryPersistence.h').read_text()
+        self.assertIn('MoveFileExW(', persistence)
+        self.assertIn('ERROR_ACCESS_DENIED', persistence)
+        self.assertIn('ERROR_SHARING_VIOLATION', persistence)
+        self.assertIn('CopyFileW(destination.c_str(), recovery.c_str(), FALSE)', persistence)
+        self.assertIn('current != original', persistence)
+        self.assertIn('WriteMcmRegistryHandle(target, replacement)', persistence)
+        self.assertIn('result.restoreFailed', persistence)
+        self.assertIn('k2040::SaveSharedMcmRegistry(', SOURCE)
+        self.assertIn('saved.replaceError', SOURCE)
+
     def test_safe_duplicate_scope(self):
         body = SOURCE.split('std::vector<JsonObjectRange> FindMcmKeybindObjects(',1)[1].split('bool ReplaceJsonUnsignedMember(',1)[0]
         self.assertIn('*modName == kMcmModName && *objectId == id', body)

@@ -4,6 +4,7 @@
 
 #include <F4SE/F4SE.h>
 #include <Windows.h>
+#include "McmRegistryPersistence.h"
 
 #include <algorithm>
 #include <atomic>
@@ -438,11 +439,20 @@ namespace
 
         const auto tempNative = temp.native();
         const auto pathNative = kMcmKeybindRegistryPath.native();
-        if (!MoveFileExW(tempNative.c_str(), pathNative.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        const auto saved = k2040::SaveSharedMcmRegistry(tempNative, pathNative, buffer.str(), json);
+        if (!saved.saved) {
             std::error_code ec;
             std::filesystem::remove(temp, ec);
-            k2040::log::Warn("Shared MCM keybinding registry replacement failed.");
+            k2040::log::Warn("Shared MCM keybinding registry replacement failed: Windows error " +
+                std::to_string(saved.replaceError) + ", fallback error " +
+                std::to_string(saved.fallbackError) +
+                (saved.restoreFailed ? "; automatic restore failed, recovery backup retained." : "."));
             return false;
+        }
+        if (saved.usedInPlaceFallback) {
+            k2040::log::Warn("MCM registry atomic replacement blocked (Windows error " +
+                std::to_string(saved.replaceError) +
+                "); safely updated verified live file with recovery backup.");
         }
 
         g_loadedMcmWriteTime.reset();

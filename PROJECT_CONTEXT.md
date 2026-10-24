@@ -1,6 +1,11 @@
 # Current Project State
 
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
+- A Settings-page hotkey capture retest revealed a second blocker in native
+  MCM registry persistence: replacing an open registry file can fail under
+  Wine/Proton. The unreleased candidate now uses a guarded, verified backup
+  and in-place fallback, and excludes left/right modifier virtual keys 160–165.
+  Automated cross-build and isolated Wine tests pass; game acceptance is pending.
 - The 0.5.220 Settings UI keybind recorder now ignores modifier-only CEF
   events even with zero numeric keycode, and ignores unsupported/unknown codes
   instead of sending invalid updates. Verify keyboard and mouse chord capture
