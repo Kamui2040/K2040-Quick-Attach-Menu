@@ -129,6 +129,13 @@ Only durable product decisions belong here. Current release state belongs in
   only while their focused view is active. The optional single/two-button
   Quick opener stays independent of keyboard/MCM bindings and must never
   bypass menu-open or attachment mutation safety checks.
+- Use one JSON string-escape implementation for menu payloads, preferences and
+  diagnostic output. Untrusted display text may contain any C0 control byte,
+  which must be escaped before it is passed to PrismaUI or written as JSON.
+- Use one bounded, structural scanner for the native MCM keybinds array across
+  runtime parsing, menu display, initialization/collision detection, and
+  duplicate repair. Reject incomplete or malformed arrays rather than
+  silently accepting a different effective hotkey depending on the caller.
 - An MCM keybinding registry may hold duplicate entries for the same mod+hotkey. For Quick Attach read the last valid stored assignment consistently, reconcile earlier duplicates at initialization, and never rewrite another mod's entries or override explicit Unbound choices. Keep this limited to the owned child namespace.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a

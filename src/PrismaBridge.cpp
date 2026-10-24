@@ -1,3 +1,4 @@
+#include "JsonEscape.h"
 #include <F4SE/F4SE.h>
 #include <RE/Fallout.h>
 
@@ -481,25 +482,7 @@ namespace
         g_builderMenuModeGuard = false;
     }
 
-    std::string JsonEscape(const std::string& value)
-    {
-        std::ostringstream out;
-
-        for (const char c : value) {
-            switch (c) {
-            case '"': out << "\\\""; break;
-            case '\\': out << "\\\\"; break;
-            case '\n': out << "\\n"; break;
-            case '\r': out << "\\r"; break;
-            case '\t': out << "\\t"; break;
-            default:
-                out << c;
-                break;
-            }
-        }
-
-        return out.str();
-    }
+    using k2040::JsonEscape;
 
     std::string ToCssColour(const RE::NiColor& colour)
     {

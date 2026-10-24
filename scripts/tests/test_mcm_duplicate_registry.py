@@ -19,6 +19,20 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('std::string cleaned = registry;', SOURCE)
         self.assertIn('kOpenMenuBuilderKeybindId', SOURCE)
 
+    def test_shared_keybind_array_scan_for_all_registry_paths(self):
+        lookup = SOURCE.split('std::vector<JsonObjectRange> FindMcmKeybindObjects(',1)[1].split('std::optional<JsonObjectRange> FindMcmKeybindObject(',1)[0]
+        seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split('bool WriteSharedHotkeyBindings(',1)[0]
+        parser = SOURCE.split('bool ParseMcmKeybindRegistry(',1)[1].split('bool LoadMcmHotkeyOverrides(',1)[0]
+        self.assertIn('k2040::FindMcmObjectMemberValue(object, member)', SOURCE)
+        for body in (lookup, seed, parser):
+            self.assertIn('k2040::ScanMcmKeybindArray(', body)
+        self.assertIn('array->objects', lookup)
+        self.assertIn('array->closingBracket', seed)
+        self.assertIn('for (const auto& [start, end] : array->objects)', parser)
+        display = SOURCE.split('std::optional<k2040::SharedHotkeyBinding> ReadSharedHotkeyBinding(',1)[1].split('struct PendingSharedBinding',1)[0]
+        self.assertIn('matches.rbegin()',display)
+        self.assertIn('if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;',display)
+
     def test_safe_duplicate_scope(self):
         body = SOURCE.split('std::vector<JsonObjectRange> FindMcmKeybindObjects(',1)[1].split('bool ReplaceJsonUnsignedMember(',1)[0]
         self.assertIn('*modName == kMcmModName && *objectId == id', body)

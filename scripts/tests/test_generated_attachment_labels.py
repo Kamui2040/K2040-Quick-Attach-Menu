@@ -5,6 +5,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 class GeneratedAttachmentLabelsContract(unittest.TestCase):
+    def test_all_json_outputs_share_control_character_escaping(self):
+        for source_name in ('AttachmentRuntimeModel.cpp', 'UserSettings.cpp', 'PrismaBridge.cpp'):
+            source = (ROOT / 'src' / source_name).read_text()
+            self.assertIn('#include "JsonEscape.h"', source)
+            self.assertIn('using k2040::JsonEscape;', source)
+        self.assertIn('if (c < 0x20)', (ROOT / 'include/JsonEscape.h').read_text())
+
     def test_generated_omod_name_before_misc_name(self):
         source = (ROOT / 'src/RuntimeState.cpp').read_text()
         generated = source.split('EcoWeaponMenu BuildGenericWeaponMenu_ReadOnly(', 1)[1].split('static EcoWeaponMenu BuildEcoAuthoredWeaponMenu_ReadOnly(', 1)[0]

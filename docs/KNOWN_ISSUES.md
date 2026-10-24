@@ -15,6 +15,10 @@ A live native MCM `Keybinds.json` contained multiple Quick Attach
 `openMenuBuilder` entries: an older Unbound record and newer working mouse
 bindings. MCM/Prisma lookup was reading the first record and showing None,
 while the native registry parser applied the last one and allowed the action.
+The Graphify-guided 0.5.220 follow-up also uses one scanner for the
+native MCM keybind registry, rejects malformed arrays and nested-key
+impostors, and aligns displayed bindings with the last valid saved key.
+
 The 0.5.220 follow-up reads and edits the last entry consistently, and
 reconciles older duplicates on startup by preserving the last valid saved
 assignment and retaining other mods' registry records untouched. This is a

@@ -1,4 +1,4 @@
-#include "McmKeybindDeduplication.h"
+#include "McmKeybindRegistry.h"
 #include "Hotkey.h"
 #include "ControllerShortcuts.h"
 
@@ -96,33 +96,9 @@ namespace
     }
 
     std::optional<std::size_t> FindJsonMemberValueStart(
-        std::string_view object,
-        std::string_view member)
+        std::string_view object, std::string_view member)
     {
-        const std::string needle = std::string("\"") + std::string(member) + "\"";
-        std::size_t searchFrom = 0;
-
-        while (true) {
-            const auto memberStart = object.find(needle, searchFrom);
-            if (memberStart == std::string_view::npos) {
-                return std::nullopt;
-            }
-
-            auto cursor = memberStart + needle.size();
-            while (cursor < object.size() && std::isspace(static_cast<unsigned char>(object[cursor])) != 0) {
-                ++cursor;
-            }
-
-            if (cursor < object.size() && object[cursor] == ':') {
-                ++cursor;
-                while (cursor < object.size() && std::isspace(static_cast<unsigned char>(object[cursor])) != 0) {
-                    ++cursor;
-                }
-                return cursor;
-            }
-
-            searchFrom = memberStart + needle.size();
-        }
+        return k2040::FindMcmObjectMemberValue(object, member);
     }
 
     std::optional<std::string> ReadJsonStringMember(
@@ -194,41 +170,17 @@ namespace
     std::vector<JsonObjectRange> FindMcmKeybindObjects(std::string_view json, std::string_view id)
     {
         const auto keybindsStart = FindJsonMemberValueStart(json, "keybinds");
-        if (!keybindsStart || *keybindsStart >= json.size() || json[*keybindsStart] != '[') return {};
+        if (!keybindsStart) return {};
+        const auto array = k2040::ScanMcmKeybindArray(json, *keybindsStart);
+        if (!array) return {};
 
         std::vector<JsonObjectRange> matches;
-        bool inString = false;
-        bool escaped = false;
-        std::size_t objectStart = std::string_view::npos;
-        std::uint32_t objectDepth = 0;
-        for (auto cursor = *keybindsStart + 1; cursor < json.size(); ++cursor) {
-            const char c = json[cursor];
-            if (inString) {
-                if (escaped) escaped = false;
-                else if (c == '\\') escaped = true;
-                else if (c == '"') inString = false;
-                continue;
-            }
-            if (c == '"') {
-                inString = true;
-            } else if (c == '{') {
-                if (objectDepth == 0) objectStart = cursor;
-                ++objectDepth;
-            } else if (c == '}') {
-                if (objectDepth == 0) return {};
-                --objectDepth;
-                if (objectDepth == 0 && objectStart != std::string_view::npos) {
-                    const auto object = json.substr(objectStart, cursor - objectStart + 1);
-                    const auto modName = ReadJsonStringMember(object, "modName");
-                    const auto objectId = ReadJsonStringMember(object, "id");
-                    if (modName && objectId && *modName == kMcmModName && *objectId == id) {
-                        matches.push_back(JsonObjectRange{ objectStart, cursor + 1 });
-                    }
-                    objectStart = std::string_view::npos;
-                }
-            } else if (c == ']' && objectDepth == 0) {
-                break;
-            }
+        for (const auto& [start, end] : array->objects) {
+            const auto object = json.substr(start, end - start);
+            const auto modName = ReadJsonStringMember(object, "modName");
+            const auto objectId = ReadJsonStringMember(object, "id");
+            if (modName && objectId && *modName == kMcmModName && *objectId == id)
+                matches.push_back(JsonObjectRange{ start, end });
         }
         return matches;
     }
@@ -324,18 +276,22 @@ namespace
         buffer << file.rdbuf();
         if (!file.good() && !file.eof()) return std::nullopt;
         const auto json = buffer.str();
-        const auto range = FindMcmKeybindObject(json, id);
-        if (!range) return std::nullopt;
-        const std::string_view object(json.data() + range->start, range->end - range->start);
-        const auto keycode = ReadJsonUnsignedMember(object, "keycode");
-        const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
-        if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) return std::nullopt;
-        return k2040::SharedHotkeyBinding{
-            *keycode,
-            *modifiers,
-            *keycode ? BindingDisplayName(*keycode, *modifiers) : "Unbound",
-            true
-        };
+        const auto matches = FindMcmKeybindObjects(json, id);
+        // Runtime parsing ignores invalid entries and retains the last valid
+        // one. Show the same effective assignment even before deduplication.
+        for (auto it = matches.rbegin(); it != matches.rend(); ++it) {
+            const std::string_view object(json.data() + it->start, it->end - it->start);
+            const auto keycode = ReadJsonUnsignedMember(object, "keycode");
+            const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
+            if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;
+            return k2040::SharedHotkeyBinding{
+                *keycode,
+                *modifiers,
+                *keycode ? BindingDisplayName(*keycode, *modifiers) : "Unbound",
+                true
+            };
+        }
+        return std::nullopt;
     }
 
     struct PendingSharedBinding
@@ -391,53 +347,23 @@ namespace
                 // If a previous user explicitly cleared a hotkey, do not
                 // resurrect its factory assignment on the next start.
                 std::uint32_t selected=initialized?0:key;
-                // Reject an initial default only when some other entry
-                // already has exactly the same key+modifier combination.
-                // Collision scan is safe against the small registry and
-                // preserves every other mod's entry and byte representation.
-                const auto scan=json.find("\"keybinds\"");
-                const auto opening=json.find('[',scan);
-                if (opening==json.npos)return;
-                bool quoted=false,escaped=false;
-                unsigned level=0;
-                std::size_t start=json.npos;
-                for(auto i=opening+1;i<json.size();++i){
-                    const char c=json[i];
-                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
-                        else if(c=='"')quoted=false;continue;}
-                    if(c=='"'){quoted=true;continue;}
-                    if(c=='{'){if(level++==0)start=i;continue;}
-                    if(c=='}' && level){
-                        if(--level==0 && start!=json.npos){
-                            const auto obj=std::string_view(json).substr(start,i-start+1);
-                            const auto otherKey=ReadJsonUnsignedMember(obj,"keycode");
-                            const auto otherMod=ReadJsonUnsignedMember(obj,"modifiers");
-                            if(otherKey && otherMod && *otherKey==selected && *otherMod==mods)
-                                selected=0;
-                        }
-                        continue;
-                    }
-                    if(c==']'&&!level)break;
+                // MCM may also register shortcuts from other mods. Avoid
+                // claiming a default already assigned in the same registry.
+                const auto array = k2040::ScanMcmKeybindArray(json, *keybinds);
+                if (!array) return;
+                for (const auto& [start, end] : array->objects) {
+                    const auto object = std::string_view(json).substr(start, end - start);
+                    const auto otherKey = ReadJsonUnsignedMember(object, "keycode");
+                    const auto otherMod = ReadJsonUnsignedMember(object, "modifiers");
+                    if (otherKey && otherMod && *otherKey == selected && *otherMod == mods)
+                        selected = 0;
                 }
-                const auto arrayStart=json.find('[',json.find("\"keybinds\""));
-                if(arrayStart==json.npos)return;
-                std::size_t end=arrayStart+1;quoted=false;escaped=false;level=0;
-                for(;end<json.size();++end){
-                    const char c=json[end];
-                    if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;
-                        else if(c=='"')quoted=false;continue;}
-                    if(c=='"'){quoted=true;continue;}
-                    if(c=='{'){++level;continue;}
-                    if(c=='}' && level){--level;continue;}
-                    if(c==']'&&!level)break;
-                }
-                if(end>=json.size())return;
-                const auto any=json.find_first_not_of(" \t\r\n",arrayStart+1)<end;
-                const std::string record=std::string("{\"id\":\"")+std::string(id)+
-                  "\",\"keycode\":"+std::to_string(selected)+
-                  ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":"+
-                  std::to_string(selected?mods:0)+"}";
-                json.insert(end,std::string(any?",":"")+record);
+                const std::string record = std::string("{\"id\":\"") + std::string(id) +
+                  "\",\"keycode\":" + std::to_string(selected) +
+                  ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":" +
+                  std::to_string(selected ? mods : 0) + "}";
+                json.insert(array->closingBracket,
+                    std::string(array->objects.empty() ? "" : ",") + record);
                 changed=true;
             }
             if (changed) {
@@ -591,62 +517,16 @@ namespace
     {
         const auto keybindsStart = FindJsonMemberValueStart(json, "keybinds");
         if (!keybindsStart) {
-            // MCM writes {"version":1} until its first keybind is registered.
+            // MCM writes {"version":1} until a hotkey is registered.
             return true;
         }
-
-        if (*keybindsStart >= json.size() || json[*keybindsStart] != '[') {
-            return false;
+        const auto array = k2040::ScanMcmKeybindArray(json, *keybindsStart);
+        if (!array) return false;
+        for (const auto& [start, end] : array->objects) {
+            if (!ApplyMcmKeybindObject(json.substr(start, end - start), overrides))
+                return false;
         }
-
-        bool inString = false;
-        bool escaped = false;
-        std::size_t objectStart = std::string_view::npos;
-        std::uint32_t objectDepth = 0;
-
-        for (auto cursor = *keybindsStart + 1; cursor < json.size(); ++cursor) {
-            const char c = json[cursor];
-
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                } else if (c == '\\') {
-                    escaped = true;
-                } else if (c == '"') {
-                    inString = false;
-                }
-                continue;
-            }
-
-            if (c == '"') {
-                inString = true;
-                continue;
-            }
-
-            if (c == '{') {
-                if (objectDepth == 0) {
-                    objectStart = cursor;
-                }
-                ++objectDepth;
-            } else if (c == '}') {
-                if (objectDepth == 0) {
-                    return false;
-                }
-                --objectDepth;
-                if (objectDepth == 0) {
-                    if (!ApplyMcmKeybindObject(
-                            json.substr(objectStart, cursor - objectStart + 1),
-                            overrides)) {
-                        return false;
-                    }
-                    objectStart = std::string_view::npos;
-                }
-            } else if (c == ']' && objectDepth == 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     bool LoadMcmHotkeyOverrides(McmHotkeyOverrides& overrides)

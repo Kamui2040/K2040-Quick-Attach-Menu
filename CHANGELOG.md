@@ -2,6 +2,12 @@
 
 - Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
 - ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
+- Restricted registry field lookup to top-level object members so unrelated nested data cannot hide or impersonate MCM key assignments.
+- Reused one full JSON string-escaping helper for menu payloads, saved preferences and diagnostic JSON; all C0 controls are now escaped consistently, including user-provided names.
+- Consolidated the MCM keybind array traversal used by runtime input,
+  Menu Builder display, default seeding, and duplicate repair. Invalid registry
+  arrays now fail closed, and display falls back to the last valid recorded
+  assignment when a newer duplicate is malformed.
 - Corrected duplicate native MCM Menu Builder keybind records that could show None while a later user-defined shortcut still worked. Use the newest assignment and remove only older duplicate Quick Attach entries on startup.
 - Automated and native build checks are separate from required in-game acceptance; do not publish before testing.
 

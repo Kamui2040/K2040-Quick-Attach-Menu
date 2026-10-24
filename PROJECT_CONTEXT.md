@@ -2,6 +2,15 @@
 
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
 - Version `0.5.220` is an unreleased test candidate. Generated labels prefer OMOD FULL over linked MISC FULL and retain authored/Builder overrides. A 0.5.220 user test exposed duplicate Menu Builder hotkey entries in native MCM: an older None record masked a newer working binding. The replacement tester now reads the latest binding and removes only older duplicate Quick Attach records on startup. In-game acceptance is still pending; do not merge or publish until tested.
+- The unreleased `0.5.220` Graphify-guided maintenance candidate shares one
+  MCM keybind-array scanner across default seeding, collision detection,
+  duplicate repair, runtime polling and displayed bindings. Its root-field
+  lookup now excludes nested JSON keys. A shared JSON-escaping helper prevents
+  control characters in attachment labels and saved preferences from producing
+  invalid JSON. The pinned Linux Windows x64 build, 60 Python tests, four
+  JavaScript suites, four native C++ tests, and PE/version checks passed.
+  Actual game/runtime validation remains pending. The associated PR stays
+  draft; do not interpret source/build checks as in-game acceptance.
 - Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard
