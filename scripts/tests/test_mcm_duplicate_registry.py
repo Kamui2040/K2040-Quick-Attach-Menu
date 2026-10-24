@@ -1,0 +1,29 @@
+"""A duplicated MCM record must not mask the last working user hotkey."""
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SOURCE = (ROOT / 'src/Hotkey.cpp').read_text()
+
+class DuplicateMcmRegistryContract(unittest.TestCase):
+    def test_prefer_latest_record_for_read_and_settings_write(self):
+        body = SOURCE.split('std::optional<JsonObjectRange> FindMcmKeybindObject(', 1)[1].split('std::optional<bool> ReconcileMcmKeybindDuplicates(', 1)[0]
+        self.assertIn('FindMcmKeybindObjects(json, id)', body)
+        self.assertIn('return matches.back();', body)
+
+    def test_reconcile_before_default_seeding(self):
+        body = SOURCE.split('void SeedDefaultMcmBindings()', 1)[1].split('bool WriteSharedHotkeyBindings(', 1)[0]
+        self.assertLess(body.index('ReconcileMcmKeybindDuplicates(json)'), body.index('if (FindMcmKeybindObject(json,id)) continue;'))
+        self.assertIn('if (changed)', body)
+        self.assertIn('MOVEFILE_WRITE_THROUGH', body)
+        self.assertIn('std::string cleaned = registry;', SOURCE)
+        self.assertIn('kOpenMenuBuilderKeybindId', SOURCE)
+
+    def test_safe_duplicate_scope(self):
+        body = SOURCE.split('std::vector<JsonObjectRange> FindMcmKeybindObjects(',1)[1].split('bool ReplaceJsonUnsignedMember(',1)[0]
+        self.assertIn('*modName == kMcmModName && *objectId == id', body)
+        self.assertIn('ParseMcmHotkey(*key, *modifiers)', body)
+        self.assertIn('k2040::RemoveEarlierMcmKeybindObjects(cleaned, ranges)', body)
+
+if __name__ == '__main__':
+    unittest.main()

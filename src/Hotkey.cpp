@@ -1,3 +1,4 @@
+#include "McmKeybindDeduplication.h"
 #include "Hotkey.h"
 #include "ControllerShortcuts.h"
 
@@ -190,11 +191,12 @@ namespace
         std::size_t end = 0;
     };
 
-    std::optional<JsonObjectRange> FindMcmKeybindObject(std::string_view json, std::string_view id)
+    std::vector<JsonObjectRange> FindMcmKeybindObjects(std::string_view json, std::string_view id)
     {
         const auto keybindsStart = FindJsonMemberValueStart(json, "keybinds");
-        if (!keybindsStart || *keybindsStart >= json.size() || json[*keybindsStart] != '[') return std::nullopt;
+        if (!keybindsStart || *keybindsStart >= json.size() || json[*keybindsStart] != '[') return {};
 
+        std::vector<JsonObjectRange> matches;
         bool inString = false;
         bool escaped = false;
         std::size_t objectStart = std::string_view::npos;
@@ -213,14 +215,14 @@ namespace
                 if (objectDepth == 0) objectStart = cursor;
                 ++objectDepth;
             } else if (c == '}') {
-                if (objectDepth == 0) return std::nullopt;
+                if (objectDepth == 0) return {};
                 --objectDepth;
                 if (objectDepth == 0 && objectStart != std::string_view::npos) {
                     const auto object = json.substr(objectStart, cursor - objectStart + 1);
                     const auto modName = ReadJsonStringMember(object, "modName");
                     const auto objectId = ReadJsonStringMember(object, "id");
                     if (modName && objectId && *modName == kMcmModName && *objectId == id) {
-                        return JsonObjectRange{ objectStart, cursor + 1 };
+                        matches.push_back(JsonObjectRange{ objectStart, cursor + 1 });
                     }
                     objectStart = std::string_view::npos;
                 }
@@ -228,7 +230,41 @@ namespace
                 break;
             }
         }
-        return std::nullopt;
+        return matches;
+    }
+
+    std::optional<JsonObjectRange> FindMcmKeybindObject(std::string_view json, std::string_view id)
+    {
+        const auto matches = FindMcmKeybindObjects(json, id);
+        // The native registry parser applies later assignments last; use the
+        // same entry when displaying/editing a binding before reconciliation.
+        if (matches.empty()) return std::nullopt;
+        return matches.back();
+    }
+
+    std::optional<bool> ReconcileMcmKeybindDuplicates(std::string& registry)
+    {
+        std::string cleaned = registry;
+        bool changed = false;
+        for (const auto id : { kOpenMenuKeybindId, kOpenMenuBuilderKeybindId }) {
+            const auto matches = FindMcmKeybindObjects(cleaned, id);
+            if (matches.size() < 2) continue;
+            const auto& retained = matches.back();
+            const std::string_view object(cleaned.data() + retained.start,
+                                          retained.end - retained.start);
+            const auto key = ReadJsonUnsignedMember(object, "keycode");
+            const auto modifiers = ReadJsonUnsignedMember(object, "modifiers");
+            if (!key || !modifiers || !ParseMcmHotkey(*key, *modifiers)) {
+                return std::nullopt;  // Do not discard a possibly recoverable assignment.
+            }
+            std::vector<std::pair<std::size_t, std::size_t>> ranges;
+            ranges.reserve(matches.size());
+            for (const auto& item : matches) ranges.emplace_back(item.start, item.end);
+            if (!k2040::RemoveEarlierMcmKeybindObjects(cleaned, ranges)) return std::nullopt;
+            changed = true;
+        }
+        registry.swap(cleaned);
+        return changed;
     }
 
     bool ReplaceJsonUnsignedMember(std::string& object, std::string_view member, std::uint32_t value)
@@ -340,7 +376,13 @@ namespace
                 keybinds=FindJsonMemberValueStart(json,"keybinds");
             }
             if (!keybinds || *keybinds>=json.size() || json[*keybinds]!='[') return;
-            bool changed=false;
+            const auto reconciled = ReconcileMcmKeybindDuplicates(json);
+            if (!reconciled) {
+                k2040::log::Warn("MCM keybind duplicate repair skipped: registry is not safely editable.");
+                return;
+            }
+            bool changed=*reconciled;
+            if (changed) k2040::log::Info("Removed older duplicate Quick Attach hotkeys; kept most recent assignments.");
             for (const auto [id,key,mods]:
                  {std::tuple<std::string_view,std::uint32_t,std::uint32_t>
                      {kOpenMenuKeybindId,'K',1u},

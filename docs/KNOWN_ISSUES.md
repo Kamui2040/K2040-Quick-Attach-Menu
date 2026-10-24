@@ -9,6 +9,18 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## 0.5.220 test candidate — duplicate Menu Builder bindings (runtime QA pending)
+
+A live native MCM `Keybinds.json` contained multiple Quick Attach
+`openMenuBuilder` entries: an older Unbound record and newer working mouse
+bindings. MCM/Prisma lookup was reading the first record and showing None,
+while the native registry parser applied the last one and allowed the action.
+The 0.5.220 follow-up reads and edits the last entry consistently, and
+reconciles older duplicates on startup by preserving the last valid saved
+assignment and retaining other mods' registry records untouched. This is a
+settings-file repair and requires in-game retesting; never overwrite or reset
+user-assigned keys as a workaround.
+
 ## 0.5.218 unreleased MCM keybind registration regression
 
 The 0.5.215 MCM parent/child integration changed both native MCM keybind

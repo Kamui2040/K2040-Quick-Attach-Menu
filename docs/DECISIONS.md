@@ -129,6 +129,7 @@ Only durable product decisions belong here. Current release state belongs in
   only while their focused view is active. The optional single/two-button
   Quick opener stays independent of keyboard/MCM bindings and must never
   bypass menu-open or attachment mutation safety checks.
+- An MCM keybinding registry may hold duplicate entries for the same mod+hotkey. For Quick Attach read the last valid stored assignment consistently, reconcile earlier duplicates at initialization, and never rewrite another mod's entries or override explicit Unbound choices. Keep this limited to the owned child namespace.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.

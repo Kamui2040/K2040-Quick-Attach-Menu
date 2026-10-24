@@ -2,6 +2,7 @@
 
 - Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
 - ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
+- Corrected duplicate native MCM Menu Builder keybind records that could show None while a later user-defined shortcut still worked. Use the newest assignment and remove only older duplicate Quick Attach entries on startup.
 - Automated and native build checks are separate from required in-game acceptance; do not publish before testing.
 
 ## 0.5.219 (published on GitHub and Nexus Mods, 2026-10-21)
