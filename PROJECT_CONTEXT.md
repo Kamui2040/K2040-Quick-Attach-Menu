@@ -1,5 +1,13 @@
 # Current Project State
 
+- In 0.5.220 Settings QA, keyboard modifier chords were assignable but Mouse
+  4/5 was not, with or without modifiers. The Settings browser depended only
+  on DOM mousedown events, which may be absent under Proton/CEF. The draft
+  candidate now captures physical side-button edges natively and dispatches
+  to the focused Settings browser on the game thread with stale-session guards.
+  Settings keyboard/mouse changes and Reset also stage a pending native MCM
+  Pause-menu `SetKeybind` synchronization, which remains unverified in-game;
+  fail-closed when the source registry changed before the sync attempt.
 - A later user runtime report found synthetic Windows `VK_NUMLOCK` code 144
   emitted for Shift/Ctrl/Alt in Prisma Settings capture, incorrectly replacing
   otherwise working hotkeys. The latest unreleased branch discards code 144

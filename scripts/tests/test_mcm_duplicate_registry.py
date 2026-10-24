@@ -33,6 +33,29 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('matches.rbegin()',display)
         self.assertIn('if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;',display)
 
+    def test_native_mouse_capture_is_game_thread_only(self):
+        self.assertIn('nativeMouse.Sample(', SOURCE)
+        self.assertIn('tasks->AddTask([capturedMouse, modifiers, captureSession]()', SOURCE)
+        self.assertIn('OnNativeSettingsMouseCapture(capturedMouse, modifiers)', SOURCE)
+        self.assertIn('g_hotkeyCaptureGeneration.load', SOURCE)
+        html = (ROOT / 'dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html').read_text()
+        self.assertIn('window.k2040CaptureNativeMouse = function(keycode, modifiers)', html)
+        bridge = (ROOT / 'src/PrismaBridge.cpp').read_text()
+        self.assertIn('PrismaBridge::OnNativeSettingsMouseCapture(', bridge)
+
+    def test_settings_mcm_reset_attempts_public_pause_sync(self):
+        self.assertIn('GetMenuOpen(RE::BSFixedString("PauseMenu"))', SOURCE)
+        self.assertIn('Invoke("root.mcm.SetKeybind", &result, args, 4)', SOURCE)
+        self.assertIn('result.IsBoolean() && result.GetBoolean()', SOURCE)
+        self.assertIn('g_mcmSyncTaskQueued.exchange(true', SOURCE)
+        self.assertIn('tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });', SOURCE)
+        self.assertIn('registered->keycode == binding.keycode', SOURCE)
+        self.assertIn('registered->modifiers == binding.modifiers', SOURCE)
+        reset = SOURCE.split('bool ResetSharedHotkeyBindings()', 1)[1].split('void SetHotkeyCaptureActive(',1)[0]
+        self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
+        self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
+        self.assertLess(reset.index('if (saved)'), reset.index('StageNativeMcmLiveSync(kOpenMenuKeybindId'))
+
     def test_settings_capture_is_validated_before_touching_shared_registry(self):
         start = SOURCE.index('bool SetSharedHotkeyBinding(')
         end = SOURCE.index('bool ResetSharedHotkeyBindings(', start)

@@ -121,7 +121,7 @@
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open quick menu</span><span class="setting-help">Press it again to close the quick menu.</span></span><button id="quickKey" class="keybind" data-id="openQuickMenu" type="button">Loading…</button></div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Open menu builder</span><span class="setting-help">Opens or closes the builder; switches from the quick menu when needed.</span></span><button id="builderKey" class="keybind" data-id="openMenuBuilder" type="button">Loading…</button></div>
           <h3 class="group-title">Quick Menu controller shortcut</h3>
-          <p class="intro">Quick Menu, Builder and Settings now share controller navigation. The shortcut below sets the Quick Menu opener; it does not change the game-mapped Confirm button. Text entry and keyboard hotkey capture still require a keyboard.</p>
+          <p class="intro">Quick Menu, Builder and Settings now share controller navigation. The shortcut below sets the Quick Menu opener; it does not change the game-mapped Confirm button. Keyboard recording uses the focused view; Mouse 4/5 capture is handled through the native input poller under Proton.</p>
           <div class="setting-row">
             <span class="setting-copy"><span class="setting-name">Controller: Open quick menu</span><span class="setting-help" id="controllerQuickCurrent">Unassigned</span></span>
             <span class="controller-binding-controls">
@@ -137,6 +137,7 @@
             </span>
           </div>
           <p class="intro" id="controllerShortcutNotice" role="status">Controller shortcuts are initially unassigned to avoid interfering with Fallout's gamepad controls.</p>
+          <p class="intro" role="status">With native MCM installed, Settings changes and Reset controls request live MCM synchronization when the Pause menu is available. MCM may temporarily display an older shortcut; confirm the assignment in MCM before relying on it.</p>
           <button class="reset-button" data-reset="controls" type="button">Reset controls</button>
         </section>
 
@@ -688,6 +689,14 @@
         send("keybind:" + id + ":" + keycode + ":" + modifiers);
         Array.prototype.forEach.call(document.querySelectorAll(".keybind"), function(button) { button.classList.remove("capturing"); });
       }
+      // Under Proton, CEF may not send mousedown for physical Mouse 4/5.
+      // The native poller forwards the exact same MCM pseudo-keycodes here.
+      window.k2040CaptureNativeMouse = function(keycode, modifiers) {
+        if (!capturing || (keycode !== 259 && keycode !== 260) ||
+            !Number.isInteger(modifiers) || modifiers < 0 || modifiers > 7) return false;
+        commitKey(keycode, !!(modifiers & 1), !!(modifiers & 2), !!(modifiers & 4));
+        return true;
+      };
       document.addEventListener("keydown", function(event) {
         if (capturing) {
           event.preventDefault(); event.stopPropagation();

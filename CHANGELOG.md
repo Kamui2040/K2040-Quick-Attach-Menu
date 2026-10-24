@@ -1,5 +1,9 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- Settings Mouse 4/5 keybind recording now supplements unreliable CEF mouse events with native physical edge capture, supporting standalone Mouse 4/5 and Shift/Ctrl/Alt combinations without immediately reopening a menu or capturing a held opener.
+- Settings Reset and rebind operations now request native MCM in-memory synchronization through the public Pause-menu `root.mcm.SetKeybind` callback when available, with stale-record rejection; live game verification remains outstanding.
+
+
 - Settings hotkey capture now discards CEF's spurious keycode `144` (Windows NumLock) emitted when pressing Shift/Ctrl/Alt; modifier-only events can no longer be saved as a final key. A second native boundary check rejects invalid Settings capture keycodes before updating the shared MCM registry. Native MCM's own remapping capability is unchanged.
 
 

@@ -30,6 +30,7 @@ function setup() {
   let renders = 0;
   const context = {
     capturing: '',
+    window: {},
     document: {
       querySelectorAll(selector) { assert.equal(selector, '.keybind'); return buttons; },
       addEventListener(name, listener, capture) {
@@ -55,6 +56,7 @@ function setup() {
     return e;
   }
   return { buttons, sent, context, begin, event,
+    nativeMouse(keycode, modifiers) { return context.window.k2040CaptureNativeMouse(keycode, modifiers); },
     key(fields) { const e = event(fields); handlers.keydown(e); return e; },
     mouse(fields) { const e = event(fields); handlers.mousedown(e); return e; },
     renders() { return renders; }
@@ -164,3 +166,31 @@ for (const invalidCode of [0, 256, 261, 999]) {
   assert.equal(test.renders(), 1);
 }
 console.log('PASS: Settings-page capture ignores CEF modifier-only events and invalid keys; mouse 4/5 and keyboard chords, Escape cancel');
+
+// Native XBUTTON fallback is routed into the exact same capture command and
+// may never duplicate a previously completed DOM mouse assignment.
+{
+  const test = setup();
+  assert.equal(test.nativeMouse(259, 0), false);
+  test.begin('openMenuBuilder');
+  assert.equal(test.nativeMouse(259, 1), true);
+  assert.deepEqual(test.sent, ['keybind-capture:1', 'keybind:openMenuBuilder:259:1']);
+  assert.equal(test.nativeMouse(259, 1), false);
+}
+{
+  const test = setup();
+  test.begin('openQuickMenu');
+  assert.equal(test.nativeMouse(260, 3), true);
+  assert.deepEqual(test.sent, ['keybind-capture:1', 'keybind:openQuickMenu:260:3']);
+}
+{
+  const test = setup();
+  test.begin('openQuickMenu');
+  assert.equal(test.nativeMouse(144, 1), false);
+  assert.equal(test.nativeMouse(259, 8), false);
+  assert.equal(test.context.capturing, 'openQuickMenu');
+  assert.deepEqual(test.sent, ['keybind-capture:1']);
+  test.key({key:'Escape',keyCode:27});
+  assert.equal(test.nativeMouse(259, 1), false);
+  assert.deepEqual(test.sent, ['keybind-capture:1', 'keybind-capture:0']);
+}

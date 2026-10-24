@@ -2459,6 +2459,21 @@ namespace k2040
         log::Info(changed ? "Menu-builder change saved." : "Menu-builder state already matched the request.");
     }
 
+    void PrismaBridge::OnNativeSettingsMouseCapture(std::uint32_t keycode, std::uint32_t modifiers)
+    {
+        if (!menuOpen_ || viewMode_ != ViewMode::Settings || !IsHotkeyCaptureActive() ||
+            !api_ || menuView_ == 0 || !api_->IsValid(menuView_)) return;
+        if ((keycode != 259u && keycode != 260u) || (modifiers & ~0x7u) != 0) return;
+        // Browser owns the target binding and finalizes the same command path
+        // as keyboard capture. Native input does not manipulate MCM itself.
+        log::Info(keycode == 259u
+            ? "Native Settings capture forwarded Mouse 4."
+            : "Native Settings capture forwarded Mouse 5.");
+        api_->Invoke(menuView_,
+            ("if(window.k2040CaptureNativeMouse){window.k2040CaptureNativeMouse(" +
+             std::to_string(keycode) + "," + std::to_string(modifiers) + ");}").c_str());
+    }
+
     void PrismaBridge::OnSettingsChangeRequested(const char* argument)
     {
         if (!menuOpen_ || viewMode_ != ViewMode::Settings || !argument) {

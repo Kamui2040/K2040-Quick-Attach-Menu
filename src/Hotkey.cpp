@@ -1,9 +1,11 @@
 #include "McmKeybindRegistry.h"
 #include "SettingsKeyCaptureValidation.h"
+#include "SettingsNativeMouseCapture.h"
 #include "Hotkey.h"
 #include "ControllerShortcuts.h"
 
 #include <F4SE/F4SE.h>
+#include <RE/U/UI.h>
 #include <Windows.h>
 #include "McmRegistryPersistence.h"
 
@@ -15,6 +17,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -40,11 +43,24 @@ namespace
     std::atomic_bool g_wasBuilderPressedLastPoll = false;
     std::atomic_bool g_wasEscapePressedLastPoll = false;
     std::atomic_bool g_hotkeyCaptureActive = false;
+    std::atomic<std::uint64_t> g_hotkeyCaptureGeneration{0};
     std::atomic_bool g_hotkeyCaptureReleasePending = false;
     std::atomic_bool g_menuHotkeyUiForwardingActive = false;
     std::atomic_bool g_menuHotkeyReleasePending = false;
     std::atomic<std::uint64_t> g_lastQuickActionTick = 0;
     std::atomic<std::uint64_t> g_lastBuilderActionTick = 0;
+    // Native MCM caches bindings independently from Keybinds.json. Only the
+    // Pause-menu Scaleform bridge can update its live keybind manager.
+    struct McmLiveBinding
+    {
+        std::uint32_t keycode = 0;
+        std::uint32_t modifiers = 0;
+    };
+    std::mutex g_mcmSyncMutex;
+    std::optional<McmLiveBinding> g_mcmQuickPending;
+    std::optional<McmLiveBinding> g_mcmBuilderPending;
+    std::atomic_bool g_mcmSyncPending = false;
+    std::atomic_bool g_mcmSyncTaskQueued = false;
     std::atomic<std::uint8_t> g_lastQuickActionSource = 0;
     std::atomic<std::uint8_t> g_lastBuilderActionSource = 0;
 
@@ -589,6 +605,93 @@ namespace
         ResetHotkeyEdgeState();
     }
 
+    void StageNativeMcmLiveSync(std::string_view id, std::uint32_t keycode,
+                                std::uint32_t modifiers)
+    {
+        if (!GetModuleHandleW(L"mcm.dll")) return;
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            if (id == kOpenMenuKeybindId) g_mcmQuickPending = { keycode, modifiers };
+            else if (id == kOpenMenuBuilderKeybindId) g_mcmBuilderPending = { keycode, modifiers };
+            else return;
+        }
+        g_mcmSyncPending.store(true, std::memory_order_release);
+        k2040::log::Info("Settings MCM keybinding change queued for live Pause-menu sync.");
+    }
+
+    // Called from an F4SE task on the game thread; no private MCM addresses,
+    // hooks, or calls into its DLL. The public Scaleform action returns a bool.
+    void TryNativeMcmLiveSyncOnGameThread()
+    {
+        const auto finish = []() {
+            g_mcmSyncTaskQueued.store(false, std::memory_order_release);
+        };
+        if (!GetModuleHandleW(L"mcm.dll")) { finish(); return; }
+        // Bound retries per Pause-menu session: if MCM's Scaleform bridge is
+        // absent/rejects a mapping, do not repeatedly overwrite subsequent
+        // native MCM user edits while its menu remains open.
+        static unsigned int attemptsThisPause = 0;
+        auto* ui = RE::UI::GetSingleton();
+        if (!ui || !ui->GetMenuOpen(RE::BSFixedString("PauseMenu"))) {
+            attemptsThisPause = 0;
+            finish();
+            return;
+        }
+        if (attemptsThisPause >= 3u) { finish(); return; }
+        const auto menu = ui->GetMenu(RE::BSFixedString("PauseMenu"));
+        if (!menu || !menu->uiMovie) { finish(); return; }
+        ++attemptsThisPause;
+
+        const auto sync = [&](std::string_view id, const McmLiveBinding& binding) {
+            Scaleform::GFx::Value args[4];
+            args[0] = "K2040_Quick_Attach_Menu";
+            const std::string keybindId(id);
+            args[1] = keybindId.c_str();
+            args[2] = static_cast<std::int32_t>(binding.keycode);
+            args[3] = static_cast<std::int32_t>(binding.modifiers);
+            Scaleform::GFx::Value result;
+            return menu->uiMovie->Invoke("root.mcm.SetKeybind", &result, args, 4) &&
+                result.IsBoolean() && result.GetBoolean();
+        };
+
+        // Copy while holding the mutex. Never hold it during the Scaleform call.
+        std::optional<McmLiveBinding> quick;
+        std::optional<McmLiveBinding> builder;
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            quick = g_mcmQuickPending;
+            builder = g_mcmBuilderPending;
+        }
+        // Respect newer MCM/user edits: a pending Settings write is valid only
+        // while the current on-disk binding still matches that exact request.
+        const auto stillCurrent = [](std::string_view id, const McmLiveBinding& binding) {
+            const auto registered = ReadSharedHotkeyBinding(id);
+            return registered && registered->keycode == binding.keycode &&
+                registered->modifiers == binding.modifiers;
+        };
+        const bool staleQuick = quick && !stillCurrent(kOpenMenuKeybindId, *quick);
+        const bool staleBuilder = builder && !stillCurrent(kOpenMenuBuilderKeybindId, *builder);
+        const bool quickDone = quick && !staleQuick && sync(kOpenMenuKeybindId, *quick);
+        const bool builderDone = builder && !staleBuilder && sync(kOpenMenuBuilderKeybindId, *builder);
+        {
+            std::lock_guard lock(g_mcmSyncMutex);
+            const auto unchanged = [](const McmLiveBinding& a, const McmLiveBinding& b) {
+                return a.keycode == b.keycode && a.modifiers == b.modifiers;
+            };
+            if ((quickDone || staleQuick) && quick && g_mcmQuickPending && unchanged(*quick, *g_mcmQuickPending))
+                g_mcmQuickPending.reset();
+            if ((builderDone || staleBuilder) && builder && g_mcmBuilderPending && unchanged(*builder, *g_mcmBuilderPending))
+                g_mcmBuilderPending.reset();
+            g_mcmSyncPending.store(g_mcmQuickPending.has_value() || g_mcmBuilderPending.has_value(),
+                                   std::memory_order_release);
+        }
+        if (staleQuick || staleBuilder)
+            k2040::log::Warn("Cancelled stale Settings MCM synchronization because the registry changed.");
+        if (quickDone || builderDone)
+            k2040::log::Info("Native MCM live keybinding manager accepted Settings sync.");
+        finish();
+    }
+
     bool McmProviderActive()
     {
         return GetModuleHandleW(L"mcm.dll") != nullptr ||
@@ -909,6 +1012,7 @@ namespace k2040
             return false;
         }
         if (!WriteSharedHotkeyBindings({ PendingSharedBinding{ id, keycode, modifiers } })) return false;
+        StageNativeMcmLiveSync(id, keycode, modifiers);
         log::Info(std::string("Shared MCM keybinding updated: ") + id + ".");
         return true;
     }
@@ -919,7 +1023,11 @@ namespace k2040
             PendingSharedBinding{ kOpenMenuKeybindId, static_cast<std::uint32_t>('K'), 0x1u },
             PendingSharedBinding{ kOpenMenuBuilderKeybindId, static_cast<std::uint32_t>('K'), 0x3u }
         });
-        if (saved) log::Info("Shared MCM keybindings restored to fresh-install defaults.");
+        if (saved) {
+            StageNativeMcmLiveSync(kOpenMenuKeybindId, static_cast<std::uint32_t>('K'), 0x1u);
+            StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId, static_cast<std::uint32_t>('K'), 0x3u);
+            log::Info("Shared MCM keybindings restored to fresh-install defaults.");
+        }
         return saved;
     }
 
@@ -931,6 +1039,7 @@ namespace k2040
         }
 
         g_hotkeyCaptureReleasePending = !active;
+        g_hotkeyCaptureGeneration.fetch_add(1, std::memory_order_acq_rel);
         ResetHotkeyEdgeState();
     }
 
@@ -990,6 +1099,23 @@ namespace k2040
         PollDeferredQuickMenuGameplayIsolationRelease();
         RefreshMcmHotkeys(false);
 
+        // Reconcile Settings changes with native MCM's live in-memory keybind
+        // registry when its Pause-menu movie next becomes available. Never
+        // invoke Scaleform from this background polling thread.
+        static auto nextMcmSyncAttempt = std::chrono::steady_clock::time_point{};
+        const auto syncNow = std::chrono::steady_clock::now();
+        if (g_mcmSyncPending.load(std::memory_order_acquire) &&
+            syncNow >= nextMcmSyncAttempt) {
+            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(850);
+            if (!g_mcmSyncTaskQueued.exchange(true, std::memory_order_acq_rel)) {
+                if (const auto* tasks = F4SE::GetTaskInterface()) {
+                    tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });
+                } else {
+                    g_mcmSyncTaskQueued.store(false, std::memory_order_release);
+                }
+            }
+        }
+
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
         const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
         // Independent XInput shortcuts use the same game-thread action queue
@@ -1030,7 +1156,31 @@ namespace k2040
         const bool escapeWasPressed = g_wasEscapePressedLastPoll.exchange(escapePressedNow);
         const bool escapeReleasedEdge = !escapePressedNow && escapeWasPressed;
 
-        if (g_hotkeyCaptureActive.load()) {
+        // CEF under Proton does not reliably deliver XBUTTON1/XBUTTON2 DOM
+        // events. Sample the physical buttons on this polling thread, and
+        // enqueue only the Prisma callback onto the game thread.
+        static k2040::SettingsNativeMouseCapture nativeMouse;
+        const bool captureActive = g_hotkeyCaptureActive.load(std::memory_order_acquire);
+        const auto captureSession = g_hotkeyCaptureGeneration.load(std::memory_order_acquire);
+        const bool mouse4 = IsPhysicalKeyDown(VK_XBUTTON1);
+        const bool mouse5 = IsPhysicalKeyDown(VK_XBUTTON2);
+        const std::uint32_t capturedMouse = nativeMouse.Sample(
+            captureSession, captureActive, mouse4, mouse5);
+        if (captureActive && capturedMouse != 0) {
+            const std::uint32_t modifiers =
+                (IsPhysicalKeyDown(VK_SHIFT) ? 1u : 0u) |
+                (IsPhysicalKeyDown(VK_CONTROL) ? 2u : 0u) |
+                (IsPhysicalKeyDown(VK_MENU) ? 4u : 0u);
+            if (const auto* tasks = F4SE::GetTaskInterface()) {
+                tasks->AddTask([capturedMouse, modifiers, captureSession]() {
+                    if (!g_hotkeyCaptureActive.load(std::memory_order_acquire) ||
+                        g_hotkeyCaptureGeneration.load(std::memory_order_acquire) != captureSession)
+                        return; // cancelled, switched views or stale session
+                    GetPrismaBridge().OnNativeSettingsMouseCapture(capturedMouse, modifiers);
+                });
+            }
+        }
+        if (captureActive) {
             g_wasOpenPressedLastPoll.store(openPressedNow);
             g_wasBuilderPressedLastPoll.store(builderPressedNow);
             return;

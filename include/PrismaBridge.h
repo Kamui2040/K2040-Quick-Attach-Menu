@@ -36,6 +36,7 @@ namespace k2040
         void OnOptionPreviewRequested(const char* argument);
         void OnBuilderChangeRequested(const char* argument);
         void OnSettingsChangeRequested(const char* argument);
+        void OnNativeSettingsMouseCapture(std::uint32_t keycode, std::uint32_t modifiers);
         void OnPauseHoldClosed();
 
     private:
