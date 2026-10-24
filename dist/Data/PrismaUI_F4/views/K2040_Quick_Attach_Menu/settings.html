@@ -699,7 +699,9 @@
               /^(Shift|Control|Alt|AltGraph|Meta|OS|Super|Hyper)(Left|Right)?$/.test(event.code || "") ||
               // Windows virtual-key codes 160-165 are left/right Shift/Ctrl/Alt.
               // CEF/Proton may forward these instead of generic 16/17/18.
-              [16,17,18,91,92,93,160,161,162,163,164,165,224,229].indexOf(code) >= 0) return;
+              // Under Proton/CEF a modifier press can arrive as VK_NUMLOCK
+              // (144) with no useful event.key/event.code. Never bind it.
+              [16,17,18,20,91,92,93,144,145,160,161,162,163,164,165,224,229].indexOf(code) >= 0) return;
           // Unknown codes must not submit an invalid binding and reset the UI.
           if (!Number.isInteger(code) || code <= 0 || code > 255) return;
           commitKey(code, !!event.shiftKey, !!event.ctrlKey, !!event.altKey);

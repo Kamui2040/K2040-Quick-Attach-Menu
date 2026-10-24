@@ -79,6 +79,25 @@ function setup() {
   assert.equal(test.context.capturing, '');
 }
 
+// The user-observed CEF case: any modifier generated synthetic keyCode 144
+// (Win32 VK_NUMLOCK). It must not overwrite a working MCM binding.
+for (const fields of [
+  { shiftKey: true }, { ctrlKey: true }, { altKey: true },
+  { shiftKey: true, ctrlKey: true }
+]) {
+  const test = setup();
+  test.begin('openMenuBuilder');
+  test.key(Object.assign({ key: 'Unidentified', code: '', keyCode: 144 }, fields));
+  assert.equal(test.context.capturing, 'openMenuBuilder');
+  assert.deepEqual(test.sent, ['keybind-capture:1']);
+  assert.equal(test.renders(), 0);
+  // A real final mouse button must still be capturable afterwards.
+  test.mouse({ button: 3, shiftKey: !!fields.shiftKey, ctrlKey: !!fields.ctrlKey, altKey: !!fields.altKey });
+  assert.equal(test.context.capturing, '');
+  assert.equal(test.sent.length, 2);
+  assert.equal(test.sent[1].startsWith('keybind:openMenuBuilder:259:'), true);
+}
+
 // Chromium may emit an ambiguous physical modifier with virtual-key 160.
 // This previously committed an invalid standalone modifier and reset the UI.
 {
@@ -110,7 +129,7 @@ for (const modifier of [
   assert.equal(test.context.capturing, 'openQuickMenu');
   assert.deepEqual(test.sent, ['keybind-capture:1']);
 }
-for (const numeric of [16, 17, 18, 91, 92, 93, 160, 161, 162, 163, 164, 165, 224, 229]) {
+for (const numeric of [16, 17, 18, 20, 91, 92, 93, 144, 145, 160, 161, 162, 163, 164, 165, 224, 229]) {
   const test = setup(); test.begin('openMenuBuilder');
   test.key({ key: 'Unidentified', keyCode: numeric });
   assert.deepEqual(test.sent, ['keybind-capture:1']);

@@ -33,6 +33,15 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('matches.rbegin()',display)
         self.assertIn('if (!keycode || !modifiers || !ParseMcmHotkey(*keycode, *modifiers)) continue;',display)
 
+    def test_settings_capture_is_validated_before_touching_shared_registry(self):
+        start = SOURCE.index('bool SetSharedHotkeyBinding(')
+        end = SOURCE.index('bool ResetSharedHotkeyBindings(', start)
+        body = SOURCE[start:end]
+        self.assertLess(body.index('IsSettingsCaptureKeycode(keycode)'), body.index('WriteSharedHotkeyBindings('))
+        helper = (ROOT / 'include/SettingsKeyCaptureValidation.h').read_text()
+        self.assertIn('keycode >= 144 && keycode <= 145', helper)
+        self.assertIn('keycode == 259', helper)
+
     def test_shared_mcm_registry_write_is_recoverable_under_wine(self):
         persistence = (ROOT / 'include/McmRegistryPersistence.h').read_text()
         self.assertIn('MoveFileExW(', persistence)

@@ -11,6 +11,21 @@ verified.
 
 ## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
 
+New in-game report: CEF also returned keycode `144` with Shift/Ctrl/Alt,
+which the Settings browser recorder accepted as the final key; Windows VK 144
+means NumLock, not Shift. The resulting saved chord did not trigger correctly.
+The browser recorder now ignores this synthetic code and other lock/modifier
+codes. The native Settings save API also rejects these before touching the
+shared registry, even if the browser erroneously submits one.
+
+The native MCM menu can hold its own keybind registrations in memory; editing
+`Keybinds.json` directly from Prisma Settings does not invoke MCM's live
+Scaleform `RemapKeybind`/`SetKeybind` methods. This can cause a temporarily
+stale MCM display or MCM to write its old bindings back later. A full live
+MCM sync implementation is still unresolved; do not claim both UIs are
+synchronized during the same session until this is verified in-game.
+
+
 A further user test showed that ignoring ordinary modifier keycodes alone is
 insufficient: PrismaUI/CEF may also report left/right Shift/Ctrl/Alt as Win32
 codes 160–165, and the native MCM registry write can fail when the file is

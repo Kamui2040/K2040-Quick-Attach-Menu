@@ -1,4 +1,5 @@
 #include "McmKeybindRegistry.h"
+#include "SettingsKeyCaptureValidation.h"
 #include "Hotkey.h"
 #include "ControllerShortcuts.h"
 
@@ -902,6 +903,11 @@ namespace k2040
     bool SetSharedHotkeyBinding(const std::string& id, std::uint32_t keycode, std::uint32_t modifiers)
     {
         if (id != kOpenMenuKeybindId && id != kOpenMenuBuilderKeybindId) return false;
+        if (!k2040::IsSettingsCaptureKeycode(keycode) || (modifiers & ~0x7u) != 0) {
+            log::Warn("Ignored unsupported Settings keybind capture code " +
+                std::to_string(keycode) + "; retained existing MCM binding.");
+            return false;
+        }
         if (!WriteSharedHotkeyBindings({ PendingSharedBinding{ id, keycode, modifiers } })) return false;
         log::Info(std::string("Shared MCM keybinding updated: ") + id + ".");
         return true;

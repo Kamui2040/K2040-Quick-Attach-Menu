@@ -1,5 +1,11 @@
 # Current Project State
 
+- A later user runtime report found synthetic Windows `VK_NUMLOCK` code 144
+  emitted for Shift/Ctrl/Alt in Prisma Settings capture, incorrectly replacing
+  otherwise working hotkeys. The latest unreleased branch discards code 144
+  and other modifier/lock codes in both browser and native Settings save paths.
+  In-memory MCM keybind registrations may still be stale after external JSON
+  changes; native MCM live sync remains unresolved and game QA is pending.
 - Current stable GitHub release: `0.5.219` (published 2026-10-21 with verified ZIP and checksum)
 - A Settings-page hotkey capture retest revealed a second blocker in native
   MCM registry persistence: replacing an open registry file can fail under

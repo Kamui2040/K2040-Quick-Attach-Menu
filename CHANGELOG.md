@@ -1,5 +1,8 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- Settings hotkey capture now discards CEF's spurious keycode `144` (Windows NumLock) emitted when pressing Shift/Ctrl/Alt; modifier-only events can no longer be saved as a final key. A second native boundary check rejects invalid Settings capture keycodes before updating the shared MCM registry. Native MCM's own remapping capability is unchanged.
+
+
 - Corrected Settings key capture for left/right Shift/Ctrl/Alt virtual keys 160–165 that CEF/Proton may report instead of the generic modifier keycodes.
 - Fixed shared MCM keybind persistence under Wine/Proton when an open MCM registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
 

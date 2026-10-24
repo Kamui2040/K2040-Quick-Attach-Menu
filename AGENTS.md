@@ -38,6 +38,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Do not reset hotkey edge state when capture state did not actually change; a held opener must not become a second synthetic press during menu switching.
 - Prisma browser hotkey forwarding is supplemental, not exclusive. Under Proton/CEF, Mouse 4/5 may not emit DOM mouse events while the view is focused, so the native poller must remain active. Mouse-button held/release state uses the `GetAsyncKeyState` high-order physical-down bit only; do not fold the low-order pressed-since-last-query bit into held state. Cross-source duplicate opener signals must be suppressed before queuing game-thread work.
 - Browser-forwarded actions and browser close requests must queue game work through the F4SE task interface.
+- Browser key-capture events are not authoritative under Proton/CEF: a
+  modifier-only press may carry synthetic `keyCode=144` (`VK_NUMLOCK`). Reject
+  modifier/lock-only capture codes at both browser and native Settings save
+  boundaries before mutating MCM bindings. Do not treat MCM's in-memory
+  keybind manager as synchronized merely because Keybinds.json was updated.
 - Shared native MCM registry saves must preserve every other mod's binding.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged
