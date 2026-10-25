@@ -1,3 +1,4 @@
+#include "JsonEscape.h"
 #include "UserSettings.h"
 
 #include "Logger.h"
@@ -657,32 +658,7 @@ namespace
         g_diagnostics.dirty = true;
     }
 
-    std::string JsonEscape(const std::string& value)
-    {
-        std::ostringstream out;
-        for (const char c : value) {
-            switch (c) {
-            case '"': out << "\\\""; break;
-            case '\\': out << "\\\\"; break;
-            case '\b': out << "\\b"; break;
-            case '\f': out << "\\f"; break;
-            case '\n': out << "\\n"; break;
-            case '\r': out << "\\r"; break;
-            case '\t': out << "\\t"; break;
-            default:
-                if (static_cast<unsigned char>(c) < 0x20) {
-                    out << "\\u"
-                        << std::uppercase << std::hex << std::setw(4) << std::setfill('0')
-                        << static_cast<int>(static_cast<unsigned char>(c))
-                        << std::nouppercase << std::dec;
-                } else {
-                    out << c;
-                }
-                break;
-            }
-        }
-        return out.str();
-    }
+    using k2040::JsonEscape;
 
     const JsonValue* FindMember(const JsonObject& object, const std::string& key)
     {

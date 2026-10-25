@@ -1,3 +1,4 @@
+#include "JsonEscape.h"
 #include <F4SE/F4SE.h>
 #include <RE/Fallout.h>
 
@@ -481,25 +482,7 @@ namespace
         g_builderMenuModeGuard = false;
     }
 
-    std::string JsonEscape(const std::string& value)
-    {
-        std::ostringstream out;
-
-        for (const char c : value) {
-            switch (c) {
-            case '"': out << "\\\""; break;
-            case '\\': out << "\\\\"; break;
-            case '\n': out << "\\n"; break;
-            case '\r': out << "\\r"; break;
-            case '\t': out << "\\t"; break;
-            default:
-                out << c;
-                break;
-            }
-        }
-
-        return out.str();
-    }
+    using k2040::JsonEscape;
 
     std::string ToCssColour(const RE::NiColor& colour)
     {
@@ -2476,6 +2459,21 @@ namespace k2040
         log::Info(changed ? "Menu-builder change saved." : "Menu-builder state already matched the request.");
     }
 
+    void PrismaBridge::OnNativeSettingsMouseCapture(std::uint32_t keycode, std::uint32_t modifiers)
+    {
+        if (!menuOpen_ || viewMode_ != ViewMode::Settings || !IsHotkeyCaptureActive() ||
+            !api_ || menuView_ == 0 || !api_->IsValid(menuView_)) return;
+        if ((keycode != 259u && keycode != 260u) || (modifiers & ~0x7u) != 0) return;
+        // Browser owns the target binding and finalizes the same command path
+        // as keyboard capture. Native input does not manipulate MCM itself.
+        log::Info(keycode == 259u
+            ? "Native Settings capture forwarded Mouse 4."
+            : "Native Settings capture forwarded Mouse 5.");
+        api_->Invoke(menuView_,
+            ("if(window.k2040CaptureNativeMouse){window.k2040CaptureNativeMouse(" +
+             std::to_string(keycode) + "," + std::to_string(modifiers) + ");}").c_str());
+    }
+
     void PrismaBridge::OnSettingsChangeRequested(const char* argument)
     {
         if (!menuOpen_ || viewMode_ != ViewMode::Settings || !argument) {
@@ -2612,10 +2610,10 @@ namespace k2040
             SetHotkeyCaptureActive(false);
             if (parts[1] == "all") {
                 ResetAllUserPreferences();
-                ResetSharedHotkeyBindings();
+                if (!ResetSharedHotkeyBindings()) log::Warn("Reset all could not remap MCM keybinds; existing bindings preserved.");
                 if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
             } else if (parts[1] == "controls") {
-                ResetSharedHotkeyBindings();
+                if (!ResetSharedHotkeyBindings()) log::Warn("Reset controls could not remap MCM keybinds; existing bindings preserved.");
                 if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
                 RefreshBuilderPayload();
                 return;

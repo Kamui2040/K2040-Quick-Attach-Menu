@@ -130,6 +130,8 @@ open before sending the refreshed payload to the active view.
 
 ## Presentation preferences
 
+Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
+
 Bracketed-text cleanup is presentation-only. The source label remains intact.
 The dedicated general settings page independently controls bracketed prefixes,
 infixes, and suffixes. The quick menu and builder apply those global controls

@@ -39,6 +39,7 @@ Only durable product decisions belong here. Current release state belongs in
 - Force Unsafe Swaps is a stable-WEAP, per-weapon escape hatch that defaults
   off and bypasses only a diagnosed dependency-cycle ordering refusal. All
   other transaction checks remain active, and menu profiles cannot carry it.
+- Generated attachment labels prefer the OMOD FULL name, then linked loose MISC FULL, then safe OMOD EditorID fallbacks. ECO-authored button text stays authored, and per-weapon Builder custom labels override the generated display text. These labels never affect object-instance identity, inventory checks or transaction authority.
 - Builder presentation settings never authorize runtime mutation. Exported
   profiles contain per-weapon presentation preferences only.
 - Every live menu rebuild, including the refresh after an attachment change,
@@ -128,6 +129,19 @@ Only durable product decisions belong here. Current release state belongs in
   only while their focused view is active. The optional single/two-button
   Quick opener stays independent of keyboard/MCM bindings and must never
   bypass menu-open or attachment mutation safety checks.
+- Use one JSON string-escape implementation for menu payloads, preferences and
+  diagnostic output. Untrusted display text may contain any C0 control byte,
+  which must be escaped before it is passed to PrismaUI or written as JSON.
+- When native MCM is absent, other providers may need guarded writes to the
+  MCM-format registry. Attempt atomic replacement first; only if blocked by
+  sharing/access, verify a recovery copy and unchanged source before updating
+  the existing file handle, then flush and verify results. Native MCM is a
+  separate live authority: never use the file fallback while it is loaded.
+- Use one bounded, structural scanner for the native MCM keybinds array across
+  runtime parsing, menu display, initialization/collision detection, and
+  duplicate repair. Reject incomplete or malformed arrays rather than
+  silently accepting a different effective hotkey depending on the caller.
+- An MCM keybinding registry may hold duplicate entries for the same mod+hotkey. For Quick Attach read the last valid stored assignment consistently, reconcile earlier duplicates at initialization, and never rewrite another mod's entries or override explicit Unbound choices. Keep this limited to the owned child namespace.
 - MCM is an optional hotkey adapter. Native physical polling remains active for
   opener state, focused Prisma pages may forward matching browser events as a
   supplemental path, and duplicate cross-source signals are filtered.
