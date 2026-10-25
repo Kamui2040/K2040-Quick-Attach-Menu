@@ -1,33 +1,27 @@
-## 0.5.220 (unreleased OMOD label source test candidate)
+## 0.5.220 (release prepared, publication pending)
 
-- In-game QA: maintainer confirmed the 0.5.220 MCM single-writer tester passed on 2026-10-25. The conflicting Settings/MCM binding reset-and-clear issue is accepted as fixed in the tested setup; public publication remains separate.
-
-- Native MCM now owns keybind persistence and Settings queues `RemapKeybind` (not `SetKeybind`) for existing bindings, validating original/current live assignments and confirmation through `GetKeybind`. Settings Reset no longer competes with MCM's save-on-close. Previously cleared MCM entries remain absent at startup instead of being re-created as Unbound records.
-
-
-- Settings Mouse 4/5 keybind recording now supplements unreliable CEF mouse events with native physical edge capture, supporting standalone Mouse 4/5 and Shift/Ctrl/Alt combinations without immediately reopening a menu or capturing a held opener.
-- An earlier experimental Settings Reset/rebind integration tried MCM `SetKeybind` (registering a binding) and writing the registry independently; this was superseded after user QA exposed live/disk conflicts. The current candidate uses MCM's remapping and persistence path instead.
-
-
-- Settings hotkey capture now discards CEF's spurious keycode `144` (Windows NumLock) emitted when pressing Shift/Ctrl/Alt; modifier-only events can no longer be saved as a final key. A second native boundary check rejects invalid Settings capture keycodes before updating the shared MCM registry. Native MCM's own remapping capability is unchanged.
-
-
-- Corrected Settings key capture for left/right Shift/Ctrl/Alt virtual keys 160–165 that CEF/Proton may report instead of the generic modifier keycodes.
-- For non-native-MCM providers, fixed MCM-format keybind persistence under Wine/Proton when an open registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
-
-
-- Settings-page keybind recording now keeps listening when Shift/Ctrl/Alt/Meta is pressed even if PrismaUI/CEF reports the modifier with no numeric keycode. Invalid/unknown keyboard events no longer reset the displayed binding; modifier+mouse and modifier+keyboard capture are retained.
-
-- Generated weapon menus now prefer the OMOD display name rather than the associated loose MISC item name. Empty or whitespace-only OMOD names fall back to the MISC name and existing EditorID-based labels.
-- ECO-authored names and existing per-weapon Builder custom labels remain authoritative. Inventory, installed OMOD identity, and attachment safety checks are unchanged.
-- Restricted registry field lookup to top-level object members so unrelated nested data cannot hide or impersonate MCM key assignments.
-- Reused one full JSON string-escaping helper for menu payloads, saved preferences and diagnostic JSON; all C0 controls are now escaped consistently, including user-provided names.
-- Consolidated the MCM keybind array traversal used by runtime input,
-  Menu Builder display, default seeding, and duplicate repair. Invalid registry
-  arrays now fail closed, and display falls back to the last valid recorded
-  assignment when a newer duplicate is malformed.
-- Corrected duplicate native MCM Menu Builder keybind records that could show None while a later user-defined shortcut still worked. Use the newest assignment and remove only older duplicate Quick Attach entries on startup.
-- Automated and native build checks are separate from required in-game acceptance; do not publish before testing.
+- Generated weapon-attachment menus now prefer the OMOD display name over
+  the loose-mod MISC name, falling back when the OMOD name is unavailable.
+  ECO-authored labels and custom Builder names still take precedence.
+- Fixed Settings/MCM keybinds falling out of sync after rebinding, Reset
+  controls or clearing a binding. With native MCM installed, MCM alone owns
+  its live assignments and saves them on menu close. Settings now remaps
+  existing bindings through `RemapKeybind`, verifies through `GetKeybind`,
+  and does not overwrite the MCM registry file behind its back.
+- Restored reliable Settings recording for standalone Mouse 4/5 and
+  modifier+Mouse 4/5 shortcuts under Proton/PrismaUI. Modifier-only and
+  ambiguous keyboard events no longer assign invalid shortcuts.
+- Corrected duplicate Quick Attach entries in the shared MCM registry,
+  preserving other mods' bindings and previously cleared shortcuts.
+  When native MCM is absent, fallback registry saves include recovery and
+  unchanged-source safeguards.
+- Unified safe JSON escaping across menu data, preferences and diagnostics.
+  Attachment compatibility, inventory requirements and safety checks remain
+  unchanged.
+- **Validation:** The maintainer confirmed the final MCM keybind fix working
+  in Fallout 4 OG 1.10.163. The pinned Linux-to-Windows x64 build and
+  automated regression suites passed. Wider mod combinations and other
+  runtimes have not been independently retested for this release.
 
 ## 0.5.219 (published on GitHub and Nexus Mods, 2026-10-21)
 
