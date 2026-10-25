@@ -14,10 +14,13 @@
   original materials. Subsequent user screenshots confirmed recognisable
   installed parts and some texture detail, but reported horizontal stretching,
   continuous rotation and inaccessible offscreen attachment choices in the
-  Horizontal Bar. The current candidate narrows the preview viewport,
-  requests `spin: 0`, adds explicit attachment paging and preserves horizontal
-  scroll on redraw; these corrections are static-tested, not game-accepted.
-  Updated rendering/Alt-Tab/gameplay acceptance remains pending. Stable release is
+  Horizontal Bar. Subsequent in-game r4 screenshots and maintainer feedback
+  confirmed the unwanted spinning stopped and the attachment row became
+  accessible, but the top category row still clipped later categories and W/S
+  cycled horizontally rather than changing rows. The next candidate provides
+  category paging/scroll and row-oriented WASD/arrow/controller navigation.
+  This new correction is automated-tested but still needs in-game acceptance.
+  Full material/geometry parity and Alt-Tab QA also remain pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

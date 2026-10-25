@@ -20,6 +20,17 @@ function setup(presentation) {
     render() {},
     settings: () => ({ presentation }),
     navigateDirection: direction => {
+      if (presentation === 'horizontal') {
+        if (direction === 'left' || direction === 'right') {
+          actions.push([renderer.activePane === 'categories' ? 'category' : 'option',
+            direction === 'left' ? -1 : 1]);
+        } else if (direction === 'down' && renderer.activePane === 'categories') {
+          actions.push(['pane', 1]);renderer.activePane = 'options';
+        } else if (direction === 'up' && renderer.activePane === 'options') {
+          actions.push(['pane', -1]);renderer.activePane = 'categories';
+        }
+        return;
+      }
       if (direction === 'left' || direction === 'right') {
         const delta = direction === 'left' ? -1 : 1;
         actions.push(['pane', delta]);
@@ -65,10 +76,14 @@ function setup(presentation) {
       detail: { button: value, state }, stopImmediatePropagation() {}
     });
   }
-  return { win, renderer, actions, button, time: value => { now = value; } };
+  function key(value) {
+    docEvents.keydown({key:value,keyCode:0,repeat:false,
+      preventDefault(){},stopPropagation(){},stopImmediatePropagation(){}});
+  }
+  return { win, renderer, actions, button, key, time: value => { now = value; } };
 }
 
-for (const layout of ['cascade', 'hybrid', 'horizontal']) {
+for (const layout of ['cascade', 'hybrid']) {
   const c = setup(layout);
   c.win.k2040ControllerStickSector('0');
   assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? 1 : -1],
@@ -113,6 +128,39 @@ for (const layout of ['cascade', 'hybrid', 'horizontal']) {
     layout + ': held confirmation must not reapply');
 }
 
+{
+  const c = setup('horizontal');
+  c.win.k2040ControllerStickSector('18');
+  assert.deepEqual(c.actions.at(-1),['category',1], 'stick right advances top row');
+  c.time(10300);c.win.k2040ControllerStickSector('36');
+  assert.deepEqual(c.actions.at(-1),['pane',1], 'stick down enters attachments');
+  c.time(10600);c.win.k2040ControllerStickSector('18');
+  assert.deepEqual(c.actions.at(-1),['option',1], 'stick right advances attachment');
+  c.time(10900);c.win.k2040ControllerStickSector('0');
+  assert.deepEqual(c.actions.at(-1),['pane',-1], 'stick up returns to categories');
+  c.win.k2040ControllerStickSector('-1');
+  c.button('DRight');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.button('DDown');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.button('DLeft');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.button('DUp');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,0);
+  c.win.k2040ControllerConfirmButton('X');c.button('A');
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,0);
+  c.button('X');assert.equal(c.actions.filter(([name])=>name==='confirm').length,1);
+  // Confirm above enters the options pane; reset to top for a full two-row
+  // keyboard traversal beginning on the visible category strip.
+  c.renderer.activePane='categories';
+  c.key('d');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.key('s');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.key('a');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.key('w');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  c.key('ArrowRight');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.key('ArrowDown');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.key('ArrowLeft');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.key('ArrowUp');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,1,
+    'WASD and arrow-key navigation must not apply an attachment');
+}
 {
   const r = setup('radial');
   r.win.k2040ControllerStickSector('10');

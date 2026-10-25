@@ -96,6 +96,7 @@
     this.horizontalCategoryScroll = 0;
     this.renderedHorizontalCategoryIndex = null;
     this.horizontalShouldRevealFocus = false;
+    this.horizontalShouldRevealCategory = false;
   }
 
   Renderer.prototype.settings = function() {
@@ -500,13 +501,19 @@
     var confirm = this.options.controllerConfirmButton || "Confirm";
     var cancel = this.options.controllerCancelButton || "Back";
     hints.textContent = this.options.controllerActive
-      ? (this.activePane === "categories"
-          ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
-          : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
-            (this.settings().presentation === "radial" ? "Page" : "Category"))
+      ? (this.settings().presentation === "horizontal"
+          ? (this.activePane === "categories"
+              ? "Stick/D-pad ←/→: Categories · ↓/" + confirm + ": Attachments · " + cancel + ": Close"
+              : "Stick/D-pad ←/→: Attachments · ↑/" + cancel + ": Categories · " + confirm + ": Apply")
+          : (this.activePane === "categories"
+              ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
+              : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
+                (this.settings().presentation === "radial" ? "Page" : "Category")))
       : this.settings().presentation === "radial"
         ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
-        : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+        : this.settings().presentation === "horizontal"
+          ? "A/D or ←/→: Along row · W/S or ↑/↓: Change row · Enter: Apply · Wheel/‹ ›: Scroll"
+          : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";
@@ -548,11 +555,65 @@
     this.render();
   };
 
+  Renderer.prototype.scrollHorizontalCategories = function(delta) {
+    var list = this.root && this.root.querySelector &&
+      this.root.querySelector(".presentation-horizontal .qm-category-list");
+    var width = list && list.clientWidth > 0 ? list.clientWidth : 780;
+    var count = Math.max(1, Math.floor((width + 6) / 156));
+    this.moveHorizontalCategory(delta * count);
+  };
+
+  Renderer.prototype.moveHorizontalCategory = function(delta) {
+    var categories = this.visibleCategories();
+    if (!categories.length) return;
+    var current = categories.findIndex(function(category) {
+      return category.categoryIndex === this.activeCategoryIndex;
+    }, this);
+    var next = Math.max(0, Math.min(categories.length - 1,
+      (current < 0 ? 0 : current) + delta));
+    this.activePane = "categories";
+    this.horizontalShouldRevealCategory = true;
+    this.selectCategory(categories[next].categoryIndex);
+  };
+
+  Renderer.prototype.moveHorizontalOption = function(delta) {
+    var category = this.findCategory(this.activeCategoryIndex);
+    var options = this.visibleOptions(category);
+    if (!options.length) return;
+    var current = options.findIndex(function(option) {
+      return option.optionIndex === this.lastFocusedOptionIndex;
+    }, this);
+    var next = Math.max(0, Math.min(options.length - 1,
+      (current < 0 ? 0 : current) + delta));
+    this.activePane = "options";
+    this.lastFocusedOptionIndex = options[next].optionIndex;
+    this.horizontalShouldRevealFocus = true;
+    this.render();
+  };
+
   Renderer.prototype.restoreHorizontalRows = function() {
     if (!this.root || !this.root.querySelector) return;
     var options = this.root.querySelector(".presentation-horizontal .qm-option-list");
     var categories = this.root.querySelector(".presentation-horizontal .qm-category-list");
-    if (categories) categories.scrollLeft = this.horizontalCategoryScroll;
+    if (categories) {
+      categories.scrollLeft = this.horizontalCategoryScroll;
+      if (this.horizontalShouldRevealCategory) {
+        var active = categories.querySelector(".qm-category-button.active");
+        if (active && active.getBoundingClientRect && categories.getBoundingClientRect) {
+          var outerCategory = categories.getBoundingClientRect();
+          var innerCategory = active.getBoundingClientRect();
+          var scaleCategory = Math.max(.1,
+            outerCategory.width / Math.max(1, categories.clientWidth));
+          if (innerCategory.right > outerCategory.right) {
+            categories.scrollLeft += (innerCategory.right - outerCategory.right) / scaleCategory + 8;
+          } else if (innerCategory.left < outerCategory.left) {
+            categories.scrollLeft -= (outerCategory.left - innerCategory.left) / scaleCategory + 8;
+          }
+        }
+      }
+      this.horizontalCategoryScroll = categories.scrollLeft;
+    }
+    this.horizontalShouldRevealCategory = false;
     if (!options) return;
     options.scrollLeft = this.horizontalOptionScroll;
     if (this.activePane === "options" && this.horizontalShouldRevealFocus) {
@@ -576,8 +637,42 @@
     layout.className = "qm-layout qm-horizontal-layout";
     var categoryPane = document.createElement("nav");
     categoryPane.className = "qm-pane qm-horizontal-categories";
-    categoryPane.appendChild(this.makeCategoryList(categories));
-    layout.appendChild(categoryPane);
+    var categoryList = this.makeCategoryList(categories);
+    categoryPane.appendChild(categoryList);
+    var categoryRow = document.createElement("div");
+    categoryRow.className = "qm-horizontal-categories-row";
+    if (categories.length > 1) {
+      var previousCategory = document.createElement("button");
+      previousCategory.type = "button";
+      previousCategory.className = "qm-horizontal-page-button";
+      previousCategory.textContent = "‹";
+      previousCategory.title = "Previous categories";
+      previousCategory.setAttribute("aria-label", "Previous categories");
+      previousCategory.addEventListener("click", function() { self.scrollHorizontalCategories(-1); });
+      categoryRow.appendChild(previousCategory);
+    }
+    categoryRow.appendChild(categoryPane);
+    if (categories.length > 1) {
+      var nextCategory = document.createElement("button");
+      nextCategory.type = "button";
+      nextCategory.className = "qm-horizontal-page-button";
+      nextCategory.textContent = "›";
+      nextCategory.title = "Next categories";
+      nextCategory.setAttribute("aria-label", "Next categories");
+      nextCategory.addEventListener("click", function() { self.scrollHorizontalCategories(1); });
+      categoryRow.appendChild(nextCategory);
+    }
+    categoryList.addEventListener("wheel", function(event) {
+      if (categoryList.scrollWidth <= categoryList.clientWidth) return;
+      var movement = Math.abs(event.deltaX) >= Math.abs(event.deltaY)
+        ? event.deltaX : event.deltaY;
+      if (!movement) return;
+      event.preventDefault();
+      event.stopPropagation();
+      categoryList.scrollLeft += movement;
+      self.horizontalCategoryScroll = categoryList.scrollLeft;
+    }, { passive: false });
+    layout.appendChild(categoryRow);
     var weapon = this.payload && this.payload.weapon ? this.payload.weapon : {};
     if (!this.options.preview && weapon.previewBaseNifPath &&
         this.options.onPreviewToggle && this.options.previewSupported && this.options.previewSupported()) {
@@ -978,6 +1073,7 @@
     if (!category) return;
     if (this.activeCategoryIndex !== category.categoryIndex) this.horizontalOptionScroll = 0;
     this.activeCategoryIndex = category.categoryIndex;
+    this.horizontalShouldRevealCategory = true;
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
     this.horizontalShouldRevealFocus = this.activePane === "options";
@@ -1061,6 +1157,21 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
+    if (this.settings().presentation === "horizontal") {
+      // Two visible rows: Left/Right (A/D) move within the active row;
+      // Up/Down (W/S) move between rows without changing attachments.
+      if (direction === "left" || direction === "right") {
+        var step = direction === "left" ? -1 : 1;
+        if (this.activePane === "categories") this.moveHorizontalCategory(step);
+        else this.moveHorizontalOption(step);
+      } else if (direction === "down" && this.activePane === "categories") {
+        this.switchPane(1);
+      } else if (direction === "up" && this.activePane === "options") {
+        this.horizontalShouldRevealCategory = true;
+        this.switchPane(-1);
+      }
+      return;
+    }
     if (direction === "left") {
       this.switchPane(-1);
     } else if (direction === "right") {

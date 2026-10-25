@@ -32,8 +32,13 @@ Horizontal Bar option strip displayed only the initial attachments and could
 not reach later offscreen choices. The preview now requests zero native spin
 and uses a narrower destination aspect ratio. Option-strip paging buttons,
 wheel scrolling, keyboard/controller focus reveal and redraw scroll persistence
-are static-tested with 12 options at normal and scaled sizes. No new in-game
-result has validated any of these corrections yet.
+are static-tested with 12 options at normal and scaled sizes. The maintainer's
+r4 gameplay screenshots subsequently confirmed the model stopped spinning,
+that the attachment strip could page, and that some equipped-part textures
+appeared. The top category strip still clipped later categories, and W/S did
+not match horizontal row geometry. The next candidate adds category paging,
+wheel scrolling, scroll-to-category and navigation with Left/Right along the
+active row and Up/Down between the two rows; this follow-up needs in-game QA.
 
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,

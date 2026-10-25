@@ -281,6 +281,7 @@
   gap: 8px;
 }
 
+.presentation-horizontal .qm-horizontal-categories-row,
 .presentation-horizontal .qm-horizontal-options-row {
   display: flex;
   align-items: stretch;
@@ -289,6 +290,7 @@
   min-width: 0;
 }
 
+.presentation-horizontal .qm-horizontal-categories-row .qm-pane,
 .presentation-horizontal .qm-horizontal-options-row .qm-pane {
   flex: 1 1 0;
   min-width: 0;
