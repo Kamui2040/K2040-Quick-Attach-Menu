@@ -1,18 +1,20 @@
 # Current Project State
 
 - Stable release: `0.5.219` (GitHub/Nexus, runtime accepted 2026-10-21).
-- `0.5.220` is an unreleased candidate on draft PR #36 and must not be merged
-  before target-game QA. It includes OMOD FULL labels, a shared keybind scanner,
-  duplicate record repair, guarded JSON persistence for non-native providers,
-  CEF modifier/physical Mouse 4/5 capture, and control-input regressions.
+- `0.5.220` remains an unreleased candidate on PR #36. The maintainer
+  confirmed on 2026-10-25 that the latest MCM single-writer test passed in-game,
+  including the Settings/MCM binding conflict. This is user-tested acceptance
+  of that fix, not independent evidence of every other change in the PR.
+  The candidate also includes OMOD FULL labels, shared keybind parsing,
+  guarded non-native registry writes, and CEF modifier/Mouse 4/5 capture.
 - User QA established a native MCM keybind conflict: Settings wrote defaults to
   `Keybinds.json` while MCM retained previous live assignments and later saved
   them back. Upstream MCM's `SetKeybind` registers, rather than remaps, a key.
-  The latest candidate delegates native-MCM changes exclusively to MCM's
+  The accepted candidate delegates native-MCM changes exclusively to MCM's
   `RemapKeybind`, verifying current/previous values with `GetKeybind` and
   leaving serialization to MCM on close. A cleared native-MCM binding must be
-  restored in MCM itself. No installed game or user bindings are modified by
-  these code changes; the new integration requires in-game testing.
+  restored in MCM itself. The maintainer's latest in-game test passed; no
+  local game or user bindings were modified by the development run.
 - Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard

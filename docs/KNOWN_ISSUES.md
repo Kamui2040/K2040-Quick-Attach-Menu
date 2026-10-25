@@ -9,7 +9,7 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
-## 0.5.220 native MCM keybind writer conflict (runtime QA pending)
+## Fixed in 0.5.220 test candidate: native MCM keybind writer conflict (user-tested)
 
 User runtime QA exposed an independent live MCM manager and disk registry
 competing over Quick Attach bindings. Settings Reset wrote defaults directly
@@ -26,8 +26,10 @@ original disk and live binding, calls `root.mcm.RemapKeybind`, verifies via
 Settings shows unapplied changes as pending; neither Set nor Reset directly
 rewrites the native MCM file. Previously cleared MCM entries are not re-added
 on startup; MCM must restore them before Settings can remap them. A failed
-remap does not modify the registry. This code passed automated build/tests but
-has not yet passed Fallout 4 gameplay verification.
+remap does not modify the registry. The maintainer tested the revised
+single-writer candidate in-game and reported PASS on 2026-10-25. This confirms
+the reported conflict is fixed in the tested setup, not every possible MCM
+provider or key combination. Version 0.5.220 is not yet published.
 
 ## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
 
@@ -38,12 +40,11 @@ The browser recorder now ignores this synthetic code and other lock/modifier
 codes. The native Settings save API also rejects these before touching the
 shared registry, even if the browser erroneously submits one.
 
-The native MCM menu can hold its own keybind registrations in memory; editing
-`Keybinds.json` directly from Prisma Settings does not invoke MCM's live
-Scaleform `RemapKeybind`/`SetKeybind` methods. This can cause a temporarily
-stale MCM display or MCM to write its old bindings back later. A full live
-MCM sync implementation is still unresolved; do not claim both UIs are
-synchronized during the same session until this is verified in-game.
+The earlier implementation wrote `Keybinds.json` while native MCM held a
+separate live registry, which could cause stale displays or old assignments to
+return. The 0.5.220 single-writer candidate addresses that conflict and was
+reported working in-game by the maintainer on 2026-10-25. This paragraph
+records the historical cause, not a remaining blocker for the tested setup.
 
 
 A further user test showed that ignoring ordinary modifier keycodes alone is

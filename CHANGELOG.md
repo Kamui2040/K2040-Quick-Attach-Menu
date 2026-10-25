@@ -1,5 +1,7 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- In-game QA: maintainer confirmed the 0.5.220 MCM single-writer tester passed on 2026-10-25. The conflicting Settings/MCM binding reset-and-clear issue is accepted as fixed in the tested setup; public publication remains separate.
+
 - Native MCM now owns keybind persistence and Settings queues `RemapKeybind` (not `SetKeybind`) for existing bindings, validating original/current live assignments and confirmation through `GetKeybind`. Settings Reset no longer competes with MCM's save-on-close. Previously cleared MCM entries remain absent at startup instead of being re-created as Unbound records.
 
 
