@@ -972,6 +972,7 @@ namespace k2040
                 << "\"persistentIdentityValid\":" << (weaponInfo.weapon.persistentIdentityValid ? "true" : "false") << ","
                 << "\"persistentIdentityStatus\":\"" << JsonEscape(weaponInfo.weapon.persistentIdentityStatus) << "\","
                 << "\"status\":\"" << JsonEscape(weaponInfo.status) << "\","
+                << "\"previewBaseNifPath\":\"" << JsonEscape(weaponInfo.previewBaseNifPath) << "\","
                 << "\"baseAttachParentSlotCount\":" << weaponInfo.baseAttachParentSlots.size() << ","
                 << "\"baseAttachParentSlots\":";
 

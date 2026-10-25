@@ -1,5 +1,17 @@
 # Known Issues and Limits
 
+## 0.5.221 experimental base-weapon 3D preview (not yet runtime-tested)
+
+PrismaUI_F4 ModelPreview API v4 (introduced in 2.2.0) can load native NIF
+meshes in a view. In the horizontal layout, an optional preview now requests
+the equipped WEAP record's validated base mesh and exposes rotation and zoom.
+The request is not an engine-assembled inventory/OMOD preview; attachments,
+material swaps and individual weapon models may look different from the actual
+workbench. The preview remains opt-in, and it is absent when the provider does
+not offer API v4. Successful native loading, appearance, game lifecycle,
+Alt-Tab safety and older-provider fallback need in-game testing before release.
+The previous preview was withdrawn for failing Alt-Tab lifecycle testing.
+
 ## Fixed in 0.5.219: opener-close input leak
 
 A shortcut overlapping a vanilla game command could also trigger the vanilla

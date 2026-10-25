@@ -16,11 +16,18 @@
   <div id="focusHeartbeat" aria-hidden="true"></div>
   <main id="quickMenu" aria-label="Weapon attachment menu"></main>
   <script src="quick-menu-renderer.js"></script>
+  <script src="weapon-model-preview.js"></script>
   <script>
     (function() {
       "use strict";
 
       var currentPayload = null;
+      // A partial/older UI install must keep the existing text menu usable.
+      var modelPreview = window.K2040WeaponModelPreview
+        ? window.K2040WeaponModelPreview.create(window)
+        : { active: false, supported: function() { return false; },
+            toggle: function() { return false; }, sync: function() {},
+            stop: function() {}, endDrag: function() {} };
       var heartbeatTimer = 0;
       var heartbeatPhase = false;
       var keyboardActive = false;
@@ -33,6 +40,39 @@
             window.k2040OptionPreviewRequested(selectionKey);
           } else {
             renderer.setStatus("The game-side selection handler is unavailable.", "error");
+          }
+        },
+        previewSupported: function() { return modelPreview.supported(); },
+        isPreviewActive: function() { return modelPreview.active; },
+        onPreviewToggle: function() {
+          modelPreview.toggle();
+          renderer.render();
+        },
+        onPreviewLayout: function() {
+          var region = document.querySelector(".qm-weapon-preview-region");
+          var path = currentPayload && currentPayload.weapon ? currentPayload.weapon.previewBaseNifPath : "";
+          modelPreview.sync(region, path);
+          if (region && !region._k2040PreviewEventsBound) {
+            region._k2040PreviewEventsBound = true;
+            region.addEventListener("mousedown", function(event) {
+              if (event.button !== 0) return;
+              event.preventDefault();
+              event.stopPropagation();
+              modelPreview.beginDrag(event.clientX, event.clientY);
+            });
+            region.addEventListener("mousemove", function(event) {
+              if (!modelPreview.dragStart) return;
+              event.preventDefault();
+              event.stopPropagation();
+              modelPreview.drag(event.clientX, event.clientY);
+            });
+            region.addEventListener("mouseup", function() { modelPreview.endDrag(); });
+            region.addEventListener("mouseleave", function() { modelPreview.endDrag(); });
+            region.addEventListener("wheel", function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              modelPreview.scroll(event.deltaY);
+            }, { passive: false });
           }
         }
       });
@@ -47,6 +87,7 @@
       }
 
       function stopFocusHeartbeat() {
+        modelPreview.stop();
         if (heartbeatTimer) window.clearInterval(heartbeatTimer);
         heartbeatTimer = 0;
       }
@@ -63,6 +104,9 @@
       };
 
       window.k2040SetPayload = function(payloadText) {
+        // A refreshed weapon/OMOD state invalidates the current preview.
+        // Reopen explicitly; never keep native renderer resources tied to stale equipment.
+        modelPreview.stop();
         try {
           currentPayload = JSON.parse(payloadText);
         } catch (error) {
@@ -100,6 +144,17 @@
       };
 
       window.addEventListener("focus", startFocusHeartbeat);
+      window.addEventListener("blur", function() {
+        modelPreview.stop();
+      });
+      if (document.addEventListener) document.addEventListener("visibilitychange", function() {
+        if (document.hidden) modelPreview.stop();
+      });
+      window.addEventListener("pagehide", function() { modelPreview.stop(); });
+      window.addEventListener("mouseup", function() { modelPreview.endDrag(); });
+      window.addEventListener("resize", function() {
+        if (modelPreview.active) renderer.options.onPreviewLayout();
+      });
 
       function consumeKey(event) {
         event.preventDefault();

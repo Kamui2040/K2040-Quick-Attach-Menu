@@ -1,5 +1,6 @@
 #include "AttachmentLabels.h"
 #include "RuntimeState.h"
+#include "WeaponPreviewPath.h"
 #include "LiveAPResolver.h"
 #include "OmodTargetResolver.h"
 
@@ -968,6 +969,9 @@ namespace k2040
         info.weapon = MakeFormRef(weapon);
         info.equippedSlotIndex = matchedEquipIndex;
         info.weapon.displayName = SafeDisplayName(weapon);
+        if (const auto* model = weapon->GetModel()) {
+            info.previewBaseNifPath = NormalizeWeaponPreviewNifPath(model);
+        }
         info.baseAttachParentSlots = CollectAttachParentSlots(weapon->attachParents);
         info.defaultTemplateMods = CollectDefaultTemplateMods(weapon->objectTemplate, info.defaultTemplateProvidedSlots);
         info.currentAvailableSlotsPreview = info.baseAttachParentSlots;

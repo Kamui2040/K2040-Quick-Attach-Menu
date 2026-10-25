@@ -303,6 +303,28 @@
   margin: 0;
 }
 
+/* Experimental, opt-in base NIF model preview (PrismaUI ModelPreview v4 only).
+   The game workbench assembles installed OMOD geometry; this does not. */
+.qm-weapon-preview-panel { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.qm-weapon-preview-toggle {
+  align-self: center; padding: 7px 12px; border: 1px solid var(--qm-line);
+  background: var(--qm-panel); color: var(--qm-accent); cursor: pointer;
+}
+.qm-weapon-preview-toggle:hover, .qm-weapon-preview-toggle:focus-visible {
+  background: var(--qm-active); border-color: var(--qm-accent);
+}
+.qm-weapon-preview-region {
+  position: relative; width: 100%; height: clamp(180px, 34vh, 300px);
+  border: 1px solid var(--qm-line);
+  background: radial-gradient(ellipse at 50% 52%, rgba(160,185,190,.14), rgba(0,0,0,.42));
+  cursor: grab; overflow: hidden;
+}
+.qm-weapon-preview-region:active { cursor: grabbing; }
+.qm-weapon-preview-message {
+  text-align: center; padding: 3px; font-size: 11px; pointer-events: none;
+  background: rgba(0,0,0,.70); color: var(--qm-muted);
+}
+
 /* Controller-only radial pages keep full attachment names outside the wheel.
    The wheel SVG is unaffected so mouse/keyboard radial still behaves as before. */
 .qm-radial-controller-caption {

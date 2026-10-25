@@ -1,3 +1,18 @@
+## 0.5.221 (experimental 3D base-weapon preview — unreleased)
+
+- Added an opt-in native 3D preview for the Horizontal Bar layout when the
+  installed PrismaUI provider exposes ModelPreview API v4 (2.2.0+).
+  Older PrismaUI providers retain their existing text-only menu.
+- Uses the equipped WEAP record's validated NIF path, not a substitute model
+  or the current OMOD-assembled inventory instance. The preview is labelled
+  **base mesh only**; installed attachments or material swaps may differ.
+- Preview controls allow drag rotation and scroll-wheel zoom. Native rendering
+  is hidden on view close, weapon refresh, Alt-Tab/blur, and page unload.
+  Preview rendering never installs, removes, or re-equips attachments.
+- Static and cross-build checks do not establish rendering correctness.
+  Target-game QA (including Alt-Tab, reload, close/reopen and weapon switching)
+  must pass before enabling by default or releasing this experiment.
+
 ## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 
 - Generated weapon-attachment menus now prefer the OMOD display name over

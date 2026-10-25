@@ -1,5 +1,11 @@
 # Current Project State
 
+- 0.5.221 is an unreleased, opt-in Horizontal Bar base-weapon NIF preview
+  experiment using PrismaUI ModelPreview API v4 (provider 2.2.0+). It
+  deliberately does not claim vanilla workbench parity: OMOD-assembled
+  models and material swaps still need an engine-backed solution. Gameplay,
+  Alt-Tab, rendering and close/reopen acceptance are pending. Version 0.5.220
+  remains the last public stable release.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).

@@ -530,6 +530,31 @@
     categoryPane.className = "qm-pane qm-horizontal-categories";
     categoryPane.appendChild(this.makeCategoryList(categories));
     layout.appendChild(categoryPane);
+    var weapon = this.payload && this.payload.weapon ? this.payload.weapon : {};
+    if (!this.options.preview && weapon.previewBaseNifPath &&
+        this.options.onPreviewToggle && this.options.previewSupported && this.options.previewSupported()) {
+      var self = this;
+      var panel = document.createElement("section");
+      panel.className = "qm-weapon-preview-panel";
+      var button = document.createElement("button");
+      button.className = "qm-weapon-preview-toggle";
+      button.type = "button";
+      var active = this.options.isPreviewActive && this.options.isPreviewActive();
+      button.textContent = active ? "Hide 3D base weapon" : "Show 3D base weapon (experimental)";
+      button.addEventListener("click", function() { self.options.onPreviewToggle(); });
+      panel.appendChild(button);
+      if (active) {
+        var region = document.createElement("div");
+        region.className = "qm-weapon-preview-region";
+        region.setAttribute("aria-label", "Base weapon model preview");
+        var message = document.createElement("div");
+        message.className = "qm-weapon-preview-message";
+        message.textContent = "Base mesh only — installed attachments may differ. Drag to rotate; scroll to zoom.";
+        panel.appendChild(region);
+        panel.appendChild(message);
+      }
+      layout.appendChild(panel);
+    }
     layout.appendChild(this.makeOptionList(category, false));
     return layout;
   };
@@ -827,6 +852,7 @@
     this.appendStatusAndMeta(this.root);
     this.updateScreenLabels();
     this.updateScreenStatus();
+    if (this.options.onPreviewLayout) this.options.onPreviewLayout();
   };
 
   Renderer.prototype.selectCategory = function(categoryIndex) {
