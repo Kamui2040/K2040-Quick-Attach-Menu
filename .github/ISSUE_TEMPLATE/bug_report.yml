@@ -1,0 +1,106 @@
+name: Bug report
+description: Report a reproducible problem with K2040's Quick Attach Menu.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check [existing issues](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues) first.
+        Include the **exact installed versions** below; "latest" is not a version.
+        Attach relevant logs or screenshots if available, but remove private information
+        (such as personal file paths, account names or tokens) before posting.
+  - type: input
+    id: quick-attach-version
+    attributes:
+      label: Quick Attach Menu version
+      description: The installed version of this mod, not just the latest available release.
+      placeholder: "e.g. 0.5.220"
+    validations:
+      required: true
+  - type: input
+    id: fallout-version
+    attributes:
+      label: Fallout 4 game version
+      description: Enter the exact game runtime number. Original and Anniversary Edition behave differently.
+      placeholder: "e.g. 1.10.163 or 1.11.240"
+    validations:
+      required: true
+  - type: input
+    id: f4se-version
+    attributes:
+      label: F4SE version
+      description: The installed Fallout 4 Script Extender version, not just the game version.
+      placeholder: "Exact F4SE version"
+    validations:
+      required: true
+  - type: input
+    id: prisma-version
+    attributes:
+      label: PrismaUI_F4 version
+      description: Include the exact installed PrismaUI_F4 version.
+      placeholder: "e.g. 2.1.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: mcm-provider
+    attributes:
+      label: MCM / keybind provider
+      description: Select the interface used for configuration, if applicable.
+      options:
+        - Native Mod Configuration Menu (MCM)
+        - F4SE Menu Framework
+        - No MCM integration
+        - Not sure
+    validations:
+      required: false
+  - type: input
+    id: environment
+    attributes:
+      label: Platform and mod manager
+      description: Optional, but helpful for controller, keyboard, mouse and Proton issues.
+      placeholder: "e.g. Windows + MO2, or Linux + Proton + Amethyst"
+    validations:
+      required: false
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior, including any error message or crash.
+      placeholder: "What did you see?"
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What did you expect?
+      description: Explain what should have happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide the shortest sequence that reliably triggers the bug.
+      placeholder: |
+        1. Equip ...
+        2. Open Quick Menu or Builder ...
+        3. Select ...
+        4. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: relevant-mods
+    attributes:
+      label: Relevant weapon mods and settings
+      description: Optional. List weapon/attachment mods, MCM bindings, or Quick Attach settings involved in the issue. Only provide the load-order excerpt if relevant.
+      placeholder: "Weapon/mod name and version; attachment; relevant settings"
+    validations:
+      required: false
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Logs and screenshots
+      description: Optional. Attach screenshots or the relevant sections of F4SE and crash logs; redact personal information and secrets before sharing publicly.
+      placeholder: "Drag and drop files here or paste relevant log excerpts."
+    validations:
+      required: false

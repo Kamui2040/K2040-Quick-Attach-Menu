@@ -120,6 +120,10 @@ regression matrix was not independently repeated for this release. Version
 0.5.197 passed focused runtime testing on Fallout 4 `1.11.240`; its original-game
 compatibility path remains included but was not rerun on `1.10.163`.
 
+## Reporting bugs
+
+Use the [GitHub bug report form](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues/new/choose) and include the **exact installed versions** of Fallout 4, F4SE, PrismaUI_F4, and Quick Attach Menu, along with steps to reproduce the problem. Screenshots, relevant weapon mods and diagnostic logs are helpful when available; remove private information before posting logs.
+
 ## Installation
 
 Install the archive with a mod manager. The archive already contains
