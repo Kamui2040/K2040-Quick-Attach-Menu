@@ -1,9 +1,12 @@
 # Current Project State
 
-- Stable release: `0.5.219` (GitHub/Nexus, runtime accepted 2026-10-21).
+- GitHub release: `0.5.219` (published 2026-10-21). The maintainer
+  confirmed publishing `0.5.220` on Nexus Mods on 2026-10-25; the Nexus Files
+  tab version was not independently verified through an authenticated session.
 - `0.5.220` source was validated and merged in PR #36; `main` includes the
   accepted MCM single-writer fix. The final release ZIP has been checked
-  against the user-tested archive; publication is still pending. The maintainer confirmed on
+  against the user-tested archive; GitHub publication is still pending.
+  The maintainer confirmed on
   2026-10-25 that the MCM single-writer tester passed in-game, including the
   Settings/MCM binding conflict. This is scoped acceptance of that fix, not
   independent evidence of every other change. Version 0.5.220 also includes
@@ -17,8 +20,9 @@
   leaving serialization to MCM on close. A cleared native-MCM binding must be
   restored in MCM itself. The maintainer's latest in-game test passed; no
   local game or user bindings were modified by the development run.
-- Current Nexus Mods version: `0.5.219`, published per maintainer confirmation
+- Previous Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
+  Nexus `0.5.220` is now maintainer-confirmed as uploaded on 2026-10-25.
   The maintainer tested and accepted the keyboard
   fix in Fallout 4 OG 1.10.163; the deployed DLL matches the published GitHub
   ZIP and the F4SE log records held-opener isolation and key-up release for
