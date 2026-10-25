@@ -15,7 +15,7 @@ function fixture(version) {
 {
   const f=fixture(4);assert.equal(f.preview.supported(),true);assert.equal(f.preview.toggle(),true);
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
-  assert.equal(f.shows[0].id,'k2040-weapon-base');assert.equal(f.shows[0].formType,'WEAP');
+  assert.equal(f.shows[0].id,'k2040-weapon-base');assert.equal(f.shows[0].formType,'WEAP');assert.equal(f.shows[0].spin,0,'auto rotation disabled');
   assert.deepEqual([f.shows[0].x,f.shows[0].y,f.shows[0].w,f.shows[0].h],[87,61,520,245]);
   assert.match(f.message.textContent,/Receiver\/base mesh only/);
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
@@ -70,6 +70,7 @@ function fixture(version) {
   f.preview.sync(f.region,a,[a,b]);
   assert.equal(f.shows.at(-1).id,'k2040-weapon-parts');
   assert.deepEqual(f.shows.at(-1).nifPaths,[a,b]);
+  assert.equal(f.shows.at(-1).spin,0,'installed parts must not spin');
   assert.equal(f.shows.at(-1).brightness,.35);
   const count=f.shows.length;
   f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:a});

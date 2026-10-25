@@ -92,6 +92,10 @@
     this.statusClass = "";
     this.viewportFrame = 0;
     this.nativePreviewDisabledSent = false;
+    this.horizontalOptionScroll = 0;
+    this.horizontalCategoryScroll = 0;
+    this.renderedHorizontalCategoryIndex = null;
+    this.horizontalShouldRevealFocus = false;
   }
 
   Renderer.prototype.settings = function() {
@@ -190,6 +194,7 @@
     var category = this.findCategory(this.activeCategoryIndex);
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
+    this.horizontalShouldRevealFocus = this.activePane === "options";
     this.render();
   };
 
@@ -523,7 +528,50 @@
     return layout;
   };
 
+  // Horizontal rows are wider than the viewport for many weapon/OMOD sets.
+  // Never truncate the options: keep a scrollable strip and explicit page
+  // controls. Browser, keyboard and controller selection share the same focus.
+  Renderer.prototype.scrollHorizontalOptions = function(delta) {
+    var list = this.root && this.root.querySelector &&
+      this.root.querySelector(".presentation-horizontal .qm-option-list");
+    var width = list && list.clientWidth > 0 ? list.clientWidth : 645;
+    var count = Math.max(1, Math.floor((width + 6) / 221));
+    var options = this.visibleOptions(this.findCategory(this.activeCategoryIndex));
+    if (!options.length) return;
+    var index = options.findIndex(function(option) {
+      return option.optionIndex === this.lastFocusedOptionIndex;
+    }, this);
+    var next = Math.min(options.length - 1, Math.max(0, (index < 0 ? 0 : index) + delta * count));
+    this.activePane = "options";
+    this.lastFocusedOptionIndex = options[next].optionIndex;
+    this.horizontalShouldRevealFocus = true;
+    this.render();
+  };
+
+  Renderer.prototype.restoreHorizontalRows = function() {
+    if (!this.root || !this.root.querySelector) return;
+    var options = this.root.querySelector(".presentation-horizontal .qm-option-list");
+    var categories = this.root.querySelector(".presentation-horizontal .qm-category-list");
+    if (categories) categories.scrollLeft = this.horizontalCategoryScroll;
+    if (!options) return;
+    options.scrollLeft = this.horizontalOptionScroll;
+    if (this.activePane === "options" && this.horizontalShouldRevealFocus) {
+      var focused = options.querySelector(".qm-option-button.focused-option");
+      if (focused && focused.getBoundingClientRect && options.getBoundingClientRect) {
+        var outer = options.getBoundingClientRect();
+        var inner = focused.getBoundingClientRect();
+        // DOM rects are scaled with the menu, scrollLeft is in layout pixels.
+        var scale = Math.max(.1, outer.width / Math.max(1, options.clientWidth));
+        if (inner.right > outer.right) options.scrollLeft += (inner.right - outer.right) / scale + 8;
+        else if (inner.left < outer.left) options.scrollLeft -= (outer.left - inner.left) / scale + 8;
+      }
+    }
+    this.horizontalOptionScroll = options.scrollLeft;
+    this.horizontalShouldRevealFocus = false;
+  };
+
   Renderer.prototype.renderHorizontal = function(categories, category) {
+    var self = this;
     var layout = document.createElement("div");
     layout.className = "qm-layout qm-horizontal-layout";
     var categoryPane = document.createElement("nav");
@@ -533,7 +581,6 @@
     var weapon = this.payload && this.payload.weapon ? this.payload.weapon : {};
     if (!this.options.preview && weapon.previewBaseNifPath &&
         this.options.onPreviewToggle && this.options.previewSupported && this.options.previewSupported()) {
-      var self = this;
       var panel = document.createElement("section");
       panel.className = "qm-weapon-preview-panel";
       var button = document.createElement("button");
@@ -577,7 +624,43 @@
       }
       layout.appendChild(panel);
     }
-    layout.appendChild(this.makeOptionList(category, false));
+    var optionPane = this.makeOptionList(category, false);
+    var optionRow = document.createElement("div");
+    optionRow.className = "qm-horizontal-options-row";
+    var options = this.visibleOptions(category);
+    if (options.length > 1) {
+      var self = this;
+      var previous = document.createElement("button");
+      previous.type = "button";
+      previous.className = "qm-horizontal-page-button";
+      previous.textContent = "‹";
+      previous.title = "Previous attachments";
+      previous.setAttribute("aria-label", "Previous attachments");
+      previous.addEventListener("click", function() { self.scrollHorizontalOptions(-1); });
+      optionRow.appendChild(previous);
+    }
+    optionRow.appendChild(optionPane);
+    if (options.length > 1) {
+      var next = document.createElement("button");
+      next.type = "button";
+      next.className = "qm-horizontal-page-button";
+      next.textContent = "›";
+      next.title = "Next attachments";
+      next.setAttribute("aria-label", "Next attachments");
+      next.addEventListener("click", function() { self.scrollHorizontalOptions(1); });
+      optionRow.appendChild(next);
+    }
+    var list = optionPane.querySelector ? optionPane.querySelector(".qm-option-list") : null;
+    if (list) list.addEventListener("wheel", function(event) {
+      if (list.scrollWidth <= list.clientWidth) return;
+      var movement = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (!movement) return;
+      event.preventDefault();
+      event.stopPropagation();
+      list.scrollLeft += movement;
+      self.horizontalOptionScroll = list.scrollLeft;
+    }, { passive: false });
+    layout.appendChild(optionRow);
     return layout;
   };
 
@@ -855,6 +938,18 @@
 
   Renderer.prototype.render = function() {
     if (!this.root) return;
+    // Each render destroys the previous DOM. Remember both strips' scroll
+    // positions before that happens so offscreen options stay reachable.
+    if (this.root.querySelector) {
+      var oldOptions = this.root.querySelector(".presentation-horizontal .qm-option-list");
+      var oldCategories = this.root.querySelector(".presentation-horizontal .qm-category-list");
+      if (oldOptions) this.horizontalOptionScroll = oldOptions.scrollLeft || 0;
+      if (oldCategories) this.horizontalCategoryScroll = oldCategories.scrollLeft || 0;
+    }
+    if (this.renderedHorizontalCategoryIndex !== this.activeCategoryIndex) {
+      this.horizontalOptionScroll = 0;
+    }
+    this.renderedHorizontalCategoryIndex = this.activeCategoryIndex;
     this.ensureLabelPortal();
     this.ensureStatusPortal();
     if (this.labelPortal) this.labelPortal.textContent = "";
@@ -871,6 +966,7 @@
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
+    if (presentation === "horizontal") this.restoreHorizontalRows();
     this.appendStatusAndMeta(this.root);
     this.updateScreenLabels();
     this.updateScreenStatus();
@@ -880,9 +976,11 @@
   Renderer.prototype.selectCategory = function(categoryIndex) {
     var category = this.findCategory(categoryIndex);
     if (!category) return;
+    if (this.activeCategoryIndex !== category.categoryIndex) this.horizontalOptionScroll = 0;
     this.activeCategoryIndex = category.categoryIndex;
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
+    this.horizontalShouldRevealFocus = this.activePane === "options";
     this.radialOptionPage = 0;
     this.statusMessage = "";
     this.statusClass = "";
@@ -935,6 +1033,7 @@
     }
     index = index < 0 ? (delta > 0 ? 0 : options.length - 1) : (index + delta + options.length) % options.length;
     this.lastFocusedOptionIndex = options[index].optionIndex;
+    this.horizontalShouldRevealFocus = true;
     if (this.settings().presentation === "radial") {
       this.radialOptionPage = Math.floor(index / 6);
     }
@@ -944,6 +1043,7 @@
   Renderer.prototype.switchPane = function(direction) {
     if (direction > 0 && this.activePane === "categories") {
       this.activePane = "options";
+      this.horizontalShouldRevealFocus = true;
       if (this.settings().presentation === "radial") {
         var category = this.findCategory(this.activeCategoryIndex);
         var options = this.visibleOptions(category);

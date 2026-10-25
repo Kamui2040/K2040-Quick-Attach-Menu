@@ -175,7 +175,8 @@
         id: id, formType: "WEAP",
         x: rect[0], y: rect[1], w: rect[2], h: rect[3],
         clipX: rect[0], clipY: rect[1], clipW: rect[2], clipH: rect[3],
-        zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, brightness: this.brightness
+        zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, spin: 0,
+        brightness: this.brightness
       };
       if (this.composed && requestedPaths.length > 1) args.nifPaths = requestedPaths;
       else args.nifPath = requestedPath;

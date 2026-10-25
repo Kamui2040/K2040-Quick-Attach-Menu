@@ -19,6 +19,12 @@
 - Preview controls allow drag rotation and scroll-wheel zoom. Native rendering
   is hidden on view close, weapon refresh, Alt-Tab/blur, and page unload.
   Preview rendering never installs, removes, or re-equips attachments.
+- Horizontal Bar attachment overflow has previous/next page controls and
+  mouse-wheel scrolling; keyboard/controller selection scrolls into view.
+  Scroll position survives unrelated redraws instead of hiding later entries.
+- Constrained the model viewport to a less distorted aspect ratio and passed
+  `spin: 0` to PrismaUI for both receiver and installed-parts preview modes.
+  Horizontal stretch and unexpected rotation still need in-game retesting.
 - Static and cross-build checks do not establish rendering correctness.
   Target-game QA (including Alt-Tab, reload, close/reopen and weapon switching)
   must pass before enabling by default or releasing this experiment.

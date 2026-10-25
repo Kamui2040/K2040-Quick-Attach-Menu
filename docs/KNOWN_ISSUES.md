@@ -25,6 +25,16 @@ they do not recreate the workbench's attach-node transforms, material swaps,
 or assembled model and may produce overlapping parts. These are not release
 acceptance evidence.
 
+More recent target-game screenshots show the installed-parts toggle can
+render a recognisable weapon and some material details. The user also reported
+that the model was stretched horizontally and continuously rotating; the
+Horizontal Bar option strip displayed only the initial attachments and could
+not reach later offscreen choices. The preview now requests zero native spin
+and uses a narrower destination aspect ratio. Option-strip paging buttons,
+wheel scrolling, keyboard/controller focus reveal and redraw scroll persistence
+are static-tested with 12 options at normal and scaled sizes. No new in-game
+result has validated any of these corrections yet.
+
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,
 weapon switching, and compatibility QA before release or default enablement.

@@ -11,7 +11,13 @@
   paths and resolved engine texture resources. A subsequent opt-in multi-NIF
   composition comparison and 35% lighting test are not yet game-tested.
   Neither mode is guaranteed to reproduce workbench attachment transforms or
-  original materials. Updated rendering/Alt-Tab/gameplay acceptance remains pending. Stable release is
+  original materials. Subsequent user screenshots confirmed recognisable
+  installed parts and some texture detail, but reported horizontal stretching,
+  continuous rotation and inaccessible offscreen attachment choices in the
+  Horizontal Bar. The current candidate narrows the preview viewport,
+  requests `spin: 0`, adds explicit attachment paging and preserves horizontal
+  scroll on redraw; these corrections are static-tested, not game-accepted.
+  Updated rendering/Alt-Tab/gameplay acceptance remains pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

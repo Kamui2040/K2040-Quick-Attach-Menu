@@ -281,6 +281,35 @@
   gap: 8px;
 }
 
+.presentation-horizontal .qm-horizontal-options-row {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+}
+
+.presentation-horizontal .qm-horizontal-options-row .qm-pane {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.presentation-horizontal .qm-horizontal-page-button {
+  flex: 0 0 31px;
+  width: 31px;
+  border: 1px solid var(--qm-line);
+  background: var(--qm-panel);
+  color: var(--qm-accent);
+  cursor: pointer;
+  font-size: 23px;
+}
+
+.presentation-horizontal .qm-horizontal-page-button:hover,
+.presentation-horizontal .qm-horizontal-page-button:focus-visible {
+  background: var(--qm-active);
+  border-color: var(--qm-accent);
+}
+
 .presentation-horizontal .qm-category-list,
 .presentation-horizontal .qm-option-list {
   display: flex;
@@ -317,7 +346,8 @@
   display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
 }
 .qm-weapon-preview-region {
-  position: relative; width: 100%; height: clamp(180px, 34vh, 300px);
+  position: relative; width: min(460px, 78vw); max-width: 100%;
+  height: min(340px, 45vh); margin: 0 auto;
   border: 1px solid var(--qm-line);
   background: radial-gradient(ellipse at 50% 52%, rgba(160,185,190,.14), rgba(0,0,0,.42));
   cursor: grab; overflow: hidden;
