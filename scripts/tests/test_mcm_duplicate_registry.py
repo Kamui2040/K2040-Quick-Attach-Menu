@@ -43,18 +43,36 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         bridge = (ROOT / 'src/PrismaBridge.cpp').read_text()
         self.assertIn('PrismaBridge::OnNativeSettingsMouseCapture(', bridge)
 
-    def test_settings_mcm_reset_attempts_public_pause_sync(self):
+    def test_native_mcm_owns_persistence_and_verifies_remap(self):
         self.assertIn('GetMenuOpen(RE::BSFixedString("PauseMenu"))', SOURCE)
-        self.assertIn('Invoke("root.mcm.SetKeybind", &result, args, 4)', SOURCE)
-        self.assertIn('result.IsBoolean() && result.GetBoolean()', SOURCE)
+        self.assertIn('Invoke("root.mcm.RemapKeybind", &result, args, 4)', SOURCE)
+        self.assertIn('Invoke("root.mcm.GetKeybind", &result, args, 2)', SOURCE)
+        self.assertNotIn('Invoke("root.mcm.SetKeybind",', SOURCE)
+        self.assertIn('!result.IsBoolean() || !result.GetBoolean()', SOURCE)
         self.assertIn('g_mcmSyncTaskQueued.exchange(true', SOURCE)
         self.assertIn('tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });', SOURCE)
-        self.assertIn('registered->keycode == binding.keycode', SOURCE)
-        self.assertIn('registered->modifiers == binding.modifiers', SOURCE)
-        reset = SOURCE.split('bool ResetSharedHotkeyBindings()', 1)[1].split('void SetHotkeyCaptureActive(',1)[0]
+        self.assertIn('registered->keycode == binding.originalKeycode', SOURCE)
+        self.assertIn('live->keycode == binding.keycode && live->modifiers == binding.modifiers', SOURCE)
+        self.assertIn('live->keycode != binding.originalKeycode', SOURCE)
+        self.assertIn('confirmed->keycode == binding.keycode', SOURCE)
+        self.assertIn('LiveSyncResult::Superseded', SOURCE)
+
+        setter = SOURCE.split('bool SetSharedHotkeyBinding(',1)[1].split('bool ResetSharedHotkeyBindings(',1)[0]
+        self.assertLess(setter.index('if (GetModuleHandleW(L"mcm.dll"))'),
+                        setter.index('WriteSharedHotkeyBindings('))
+        self.assertIn('return StageNativeMcmLiveSync(id, keycode, modifiers);', setter)
+        reset = SOURCE.split('bool ResetSharedHotkeyBindings()',1)[1].split('void SetHotkeyCaptureActive(',1)[0]
+        self.assertLess(reset.index('if (GetModuleHandleW(L"mcm.dll"))'),
+                        reset.index('WriteSharedHotkeyBindings('))
+        self.assertIn('if (!quick || !builder || quick->keycode == 0 || builder->keycode == 0)', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
-        self.assertLess(reset.index('if (saved)'), reset.index('StageNativeMcmLiveSync(kOpenMenuKeybindId'))
+
+    def test_native_mcm_cleared_entries_are_not_reseeded(self):
+        seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split('bool WriteSharedHotkeyBindings(',1)[0]
+        self.assertIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertLess(seed.index('if (FindMcmKeybindObject(json,id)) continue;'),
+                        seed.index('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;'))
 
     def test_settings_capture_is_validated_before_touching_shared_registry(self):
         start = SOURCE.index('bool SetSharedHotkeyBinding(')

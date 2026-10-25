@@ -2610,10 +2610,10 @@ namespace k2040
             SetHotkeyCaptureActive(false);
             if (parts[1] == "all") {
                 ResetAllUserPreferences();
-                ResetSharedHotkeyBindings();
+                if (!ResetSharedHotkeyBindings()) log::Warn("Reset all could not remap MCM keybinds; existing bindings preserved.");
                 if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
             } else if (parts[1] == "controls") {
-                ResetSharedHotkeyBindings();
+                if (!ResetSharedHotkeyBindings()) log::Warn("Reset controls could not remap MCM keybinds; existing bindings preserved.");
                 if (!ResetControllerShortcuts()) log::Warn("Controller shortcut reset failed.");
                 RefreshBuilderPayload();
                 return;

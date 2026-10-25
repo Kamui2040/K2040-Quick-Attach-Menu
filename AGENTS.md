@@ -43,6 +43,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   modifier/lock-only capture codes at both browser and native Settings save
   boundaries before mutating MCM bindings. Do not treat MCM's in-memory
   keybind manager as synchronized merely because Keybinds.json was updated.
+- Native MCM owns live keybind registrations and saves them to Keybinds.json
+  on MCM menu close. When `mcm.dll` is loaded, never write that registry from
+  Prisma Settings or use `SetKeybind` (registration) to change an existing
+  binding. Queue `RemapKeybind`, verify with `GetKeybind`, and discard newer
+  MCM edits rather than overwriting them. MCM-cleared entries stay cleared.
 - Shared native MCM registry saves must preserve every other mod's binding.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged

@@ -9,6 +9,26 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## 0.5.220 native MCM keybind writer conflict (runtime QA pending)
+
+User runtime QA exposed an independent live MCM manager and disk registry
+competing over Quick Attach bindings. Settings Reset wrote defaults directly
+into `Data/MCM/Settings/Keybinds.json`, then native MCM saved its earlier
+in-memory binding when closing MCM, making previous assignments reappear.
+Clearing with Tab could then leave Quick Attach's native poller and MCM out of
+sync. The earlier Settings sync also called `root.mcm.SetKeybind`, which
+registers, rather than remaps, a binding in upstream MCM.
+
+The revised unreleased candidate uses native MCM exclusively for live keybind
+changes. Settings stages a request until PauseMenu is available, checks the
+original disk and live binding, calls `root.mcm.RemapKeybind`, verifies via
+`GetKeybind`, then lets MCM serialize its own registry when its menu closes.
+Settings shows unapplied changes as pending; neither Set nor Reset directly
+rewrites the native MCM file. Previously cleared MCM entries are not re-added
+on startup; MCM must restore them before Settings can remap them. A failed
+remap does not modify the registry. This code passed automated build/tests but
+has not yet passed Fallout 4 gameplay verification.
+
 ## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
 
 New in-game report: CEF also returned keycode `144` with Shift/Ctrl/Alt,

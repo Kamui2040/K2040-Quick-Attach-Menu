@@ -132,11 +132,11 @@ Only durable product decisions belong here. Current release state belongs in
 - Use one JSON string-escape implementation for menu payloads, preferences and
   diagnostic output. Untrusted display text may contain any C0 control byte,
   which must be escaped before it is passed to PrismaUI or written as JSON.
-- Native MCM's shared registry may be held open during gameplay. Attempt an
-  atomic replacement first; only when sharing/access blocks it, preserve a
-  verified backup and check for concurrent changes before writing the existing
-  handle. Flush and verify results, and reject unsafe writes. Keep the fallback
-  isolated from attachment state and authored menu behavior.
+- When native MCM is absent, other providers may need guarded writes to the
+  MCM-format registry. Attempt atomic replacement first; only if blocked by
+  sharing/access, verify a recovery copy and unchanged source before updating
+  the existing file handle, then flush and verify results. Native MCM is a
+  separate live authority: never use the file fallback while it is loaded.
 - Use one bounded, structural scanner for the native MCM keybinds array across
   runtime parsing, menu display, initialization/collision detection, and
   duplicate repair. Reject incomplete or malformed arrays rather than

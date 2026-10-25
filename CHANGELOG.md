@@ -1,14 +1,17 @@
 ## 0.5.220 (unreleased OMOD label source test candidate)
 
+- Native MCM now owns keybind persistence and Settings queues `RemapKeybind` (not `SetKeybind`) for existing bindings, validating original/current live assignments and confirmation through `GetKeybind`. Settings Reset no longer competes with MCM's save-on-close. Previously cleared MCM entries remain absent at startup instead of being re-created as Unbound records.
+
+
 - Settings Mouse 4/5 keybind recording now supplements unreliable CEF mouse events with native physical edge capture, supporting standalone Mouse 4/5 and Shift/Ctrl/Alt combinations without immediately reopening a menu or capturing a held opener.
-- Settings Reset and rebind operations now request native MCM in-memory synchronization through the public Pause-menu `root.mcm.SetKeybind` callback when available, with stale-record rejection; live game verification remains outstanding.
+- An earlier experimental Settings Reset/rebind integration tried MCM `SetKeybind` (registering a binding) and writing the registry independently; this was superseded after user QA exposed live/disk conflicts. The current candidate uses MCM's remapping and persistence path instead.
 
 
 - Settings hotkey capture now discards CEF's spurious keycode `144` (Windows NumLock) emitted when pressing Shift/Ctrl/Alt; modifier-only events can no longer be saved as a final key. A second native boundary check rejects invalid Settings capture keycodes before updating the shared MCM registry. Native MCM's own remapping capability is unchanged.
 
 
 - Corrected Settings key capture for left/right Shift/Ctrl/Alt virtual keys 160–165 that CEF/Proton may report instead of the generic modifier keycodes.
-- Fixed shared MCM keybind persistence under Wine/Proton when an open MCM registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
+- For non-native-MCM providers, fixed MCM-format keybind persistence under Wine/Proton when an open registry prevents atomic replacement: retain a verified recovery copy, check live bytes against the original snapshot, update and read back safely, or reject without modifying current data. Failed writes now log the Windows error code. Includes an isolated Win32/Wine locked-file reproduction.
 
 
 - Settings-page keybind recording now keeps listening when Shift/Ctrl/Alt/Meta is pressed even if PrismaUI/CEF reports the modifier with no numeric keycode. Invalid/unknown keyboard events no longer reset the displayed binding; modifier+mouse and modifier+keyboard capture are retained.

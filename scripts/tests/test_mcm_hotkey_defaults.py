@@ -10,8 +10,9 @@ class HotkeyRegistryContracts(unittest.TestCase):
     def test_default_binding_id_key_and_modifier(self):
         self.assertIn("{kOpenMenuKeybindId,'K',1u}", SOURCE)
         self.assertIn("{kOpenMenuBuilderKeybindId,'K',3u}", SOURCE)
-        self.assertIn("'K'), 0x1u", SOURCE)
-        self.assertIn("'K'), 0x3u", SOURCE)
+        self.assertIn("defaultQuick, 1u", SOURCE)
+        self.assertIn("defaultQuick, 3u", SOURCE)
+        self.assertIn("constexpr auto defaultQuick = static_cast<std::uint32_t>('K');", SOURCE)
 
     def test_registry_is_initialized_before_refresh(self):
         self.assertIn("void SeedDefaultMcmBindings()", SOURCE)
