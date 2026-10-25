@@ -313,6 +313,9 @@
 .qm-weapon-preview-toggle:hover, .qm-weapon-preview-toggle:focus-visible {
   background: var(--qm-active); border-color: var(--qm-accent);
 }
+.qm-weapon-preview-controls {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+}
 .qm-weapon-preview-region {
   position: relative; width: 100%; height: clamp(180px, 34vh, 300px);
   border: 1px solid var(--qm-line);

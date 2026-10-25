@@ -544,6 +544,28 @@
       button.addEventListener("click", function() { self.options.onPreviewToggle(); });
       panel.appendChild(button);
       if (active) {
+        var controls = document.createElement("div");
+        controls.className = "qm-weapon-preview-controls";
+        if (Array.isArray(weapon.previewComponentNifPaths) &&
+            weapon.previewComponentNifPaths.length > 1 && this.options.onPreviewPartsToggle) {
+          var parts = document.createElement("button");
+          parts.type = "button";
+          parts.className = "qm-weapon-preview-toggle";
+          parts.textContent = this.options.previewIsComposed && this.options.previewIsComposed()
+            ? "Show receiver only" : "Compare installed parts (experimental)";
+          parts.addEventListener("click", function() { self.options.onPreviewPartsToggle(); });
+          controls.appendChild(parts);
+        }
+        if (this.options.onPreviewLightingToggle) {
+          var lighting = document.createElement("button");
+          lighting.type = "button";
+          lighting.className = "qm-weapon-preview-toggle";
+          lighting.textContent = this.options.previewLowLighting && this.options.previewLowLighting()
+            ? "Lighting: 35% (switch to 100%)" : "Lighting: 100% (compare 35%)";
+          lighting.addEventListener("click", function() { self.options.onPreviewLightingToggle(); });
+          controls.appendChild(lighting);
+        }
+        panel.appendChild(controls);
         var region = document.createElement("div");
         region.className = "qm-weapon-preview-region";
         region.setAttribute("aria-label", "Base weapon model preview");

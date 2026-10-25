@@ -48,10 +48,20 @@
           modelPreview.toggle();
           renderer.render();
         },
+        previewIsComposed: function() { return !!modelPreview.composed; },
+        previewLowLighting: function() { return modelPreview.brightness < .6; },
+        onPreviewPartsToggle: function() {
+          modelPreview.setComposed(!modelPreview.composed);
+          renderer.render();
+        },
+        onPreviewLightingToggle: function() {
+          modelPreview.setBrightness(modelPreview.brightness < .6 ? 1 : .35);
+          renderer.render();
+        },
         onPreviewLayout: function() {
           var region = document.querySelector(".qm-weapon-preview-region");
-          var path = currentPayload && currentPayload.weapon ? currentPayload.weapon.previewBaseNifPath : "";
-          modelPreview.sync(region, path);
+          var weapon = currentPayload && currentPayload.weapon ? currentPayload.weapon : {};
+          modelPreview.sync(region, weapon.previewBaseNifPath || "", weapon.previewComponentNifPaths);
           if (region && !region._k2040PreviewEventsBound) {
             region._k2040PreviewEventsBound = true;
             region.addEventListener("mousedown", function(event) {

@@ -10,6 +10,12 @@
 - Handles PrismaUI 2.2.1.1's observed doubled `Meshes/` engine lookup with
   one bounded relative-path retry, preserving the native status/error reason
   if both paths fail. Never loops on an undrawable model.
+- Optional comparison mode submits validated NIFs from the resolved installed
+  object-instance OMODs through PrismaUI's multi-mesh API (up to 12 paths).
+  This is a diagnostic only: parts may not align like the workbench.
+- Temporary 100% / 35% brightness comparison is available to investigate
+  the first rendered model's washed-out appearance; engine texture resources
+  were present, but correct material shading has not been verified.
 - Preview controls allow drag rotation and scroll-wheel zoom. Native rendering
   is hidden on view close, weapon refresh, Alt-Tab/blur, and page unload.
   Preview rendering never installs, removes, or re-equips attachments.

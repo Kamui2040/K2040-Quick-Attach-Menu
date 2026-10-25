@@ -6,8 +6,12 @@
   identified a duplicated `meshes/Meshes/` lookup and Fallout 4's dummy WEAP
   receiver NIF. The revised experiment prefers the installed receiver OMOD's
   drawable NIF for dummy-based firearms, tries a bounded relative-path load
-  and reports native errors. This is NOT assembled workbench 3D. Updated
-  rendering/Alt-Tab/gameplay acceptance remains pending. Stable release is
+  and reports native errors. A subsequent screenshot confirmed receiver geometry
+  but it looked washed out; PrismaUI logs identified diffuse/normal texture
+  paths and resolved engine texture resources. A subsequent opt-in multi-NIF
+  composition comparison and 35% lighting test are not yet game-tested.
+  Neither mode is guaranteed to reproduce workbench attachment transforms or
+  original materials. Updated rendering/Alt-Tab/gameplay acceptance remains pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

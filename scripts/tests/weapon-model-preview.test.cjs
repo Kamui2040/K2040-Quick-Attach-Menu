@@ -60,4 +60,38 @@ function fixture(version) {
   const f=fixture(4);f.preview.toggle();f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');
   f.preview.toggle();assert.equal(f.hides.length,1);assert.equal(f.preview.active,false);
 }
+{
+  const f=fixture(4),a='Meshes/Weapons/pistol.nif',b='Meshes/Weapons/magazine.nif';
+  f.preview.toggle();
+  f.preview.sync(f.region,a,[a,b]);
+  f.preview.setBrightness(.35);
+  assert.equal(f.shows.at(-1).brightness,.35);
+  f.preview.setComposed(true);
+  f.preview.sync(f.region,a,[a,b]);
+  assert.equal(f.shows.at(-1).id,'k2040-weapon-parts');
+  assert.deepEqual(f.shows.at(-1).nifPaths,[a,b]);
+  assert.equal(f.shows.at(-1).brightness,.35);
+  const count=f.shows.length;
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:a});
+  assert.equal(f.preview.failed,false,'stale single preview error ignored');
+  f.emit({id:'k2040-weapon-parts',ok:false,phase:'error',nifPath:'joined paths'});
+  assert.equal(f.shows.length,count+1,'multi NIF failure retries once');
+  assert.deepEqual(f.shows.at(-1).nifPaths,['Weapons/pistol.nif','Weapons/magazine.nif']);
+  f.emit({id:'k2040-weapon-parts',ok:true,phase:'textured',nifPath:'joined paths'});
+  assert.equal(f.preview.failed,false);
+  f.preview.setComposed(false);
+  f.preview.sync(f.region,a,[a,b]);
+  assert.equal(f.shows.at(-1).id,'k2040-weapon-base');
+  assert.equal(f.shows.at(-1).nifPath,a);
+  f.preview.stop();
+}
+{
+  const f=fixture(4),a='Meshes/Weapons/pistol.nif';
+  f.preview.toggle();f.preview.sync(f.region,a,[a,'Meshes/../private.nif']);
+  f.preview.setComposed(true);
+  assert.equal(f.preview.composed,false,'unsafe or missing parts fail closed');
+  assert.equal(f.shows[0].nifPath,a);
+  assert.equal(f.shows[0].nifPaths,undefined);
+  f.preview.stop();
+}
 console.log('PASS: ModelPreview v4, legacy fallback, rect, drag, zoom, error, retry, unsafe path, cleanup');

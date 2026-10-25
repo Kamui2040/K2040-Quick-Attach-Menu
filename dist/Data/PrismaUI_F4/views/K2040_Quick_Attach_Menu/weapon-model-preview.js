@@ -19,6 +19,16 @@
     this.dragStart = null;
     this.relativePathRetry = false;
     this.nativeRequestedPath = "";
+    this.composed = false;
+    this.brightness = 1;
+    this.componentPaths = [];
+    this.showingId = "";
+  }
+
+  function safePath(path) {
+    return typeof path === "string" && path.length < 248 &&
+      /^Meshes\/.+\.nif$/i.test(path) &&
+      !path.split("/").some(function(part) { return part === "." || part === ".." || !part; });
   }
 
   WeaponModelPreview.prototype.bridge = function() {
@@ -35,8 +45,9 @@
     if (!api || api === this.boundBridge) return api;
     var self = this;
     api.onStatus(function(status) {
-      if (!status || status.id !== "k2040-weapon-base" || !self.active) return;
-      if (status.nifPath && String(status.nifPath).replace(/\\/g, "/").toLowerCase() !==
+      if (!status || status.id !== self.showingId || !self.active) return;
+      if (!self.composed && status.nifPath &&
+          String(status.nifPath).replace(/\\/g, "/").toLowerCase() !==
           self.nativeRequestedPath.toLowerCase()) return;
       if (status.ok === false) {
         // PrismaUI 2.2.1.1's engine loader logged `meshes/Meshes/...`
@@ -47,7 +58,7 @@
           self.error = "Trying compatible mesh path...";
           self.hideNative();
           self.updateMessage();
-          self.sync(self.region, self.nifPath);
+          self.sync(self.region, self.nifPath, self.componentPaths);
           return;
         }
         self.failed = true;
@@ -66,7 +77,7 @@
   WeaponModelPreview.prototype.hideNative = function() {
     var api = this.bridge() || this.boundBridge;
     if (api) {
-      try { api.hide({ id: "k2040-weapon-base" }); } catch (error) { /* fail closed */ }
+      try { api.hide({ id: this.showingId || "k2040-weapon-base" }); } catch (error) { /* fail closed */ }
     }
     this.lastRequest = "";
   };
@@ -81,6 +92,29 @@
     this.nifPath = "";
     this.nativeRequestedPath = "";
     this.relativePathRetry = false;
+    this.composed = false;
+    this.brightness = 1;
+    this.componentPaths = [];
+    this.showingId = "";
+  };
+
+  WeaponModelPreview.prototype.setComposed = function(enabled) {
+    if (enabled && this.componentPaths.length < 2) return;
+    if (this.composed === !!enabled) return;
+    this.hideNative();
+    this.composed = !!enabled;
+    this.failed = false;
+    this.error = "";
+    this.relativePathRetry = false;
+    this.showingId = "";
+  };
+
+  WeaponModelPreview.prototype.setBrightness = function(value) {
+    var next = clamp(Number(value) || 1, .2, 1);
+    if (next === this.brightness) return;
+    this.brightness = next;
+    this.lastRequest = "";
+    this.sync(this.region, this.nifPath, this.componentPaths);
   };
 
   WeaponModelPreview.prototype.toggle = function() {
@@ -99,18 +133,25 @@
     if (!this.region) return;
     var message = this.region.parentNode &&
       this.region.parentNode.querySelector(".qm-weapon-preview-message");
-    if (message) message.textContent = this.error ||
-      "Receiver/base mesh only — attachments may differ. Drag to rotate; scroll to zoom.";
+    if (message) message.textContent = this.error || (this.composed
+      ? "Experimental installed parts — placement and materials may differ from the workbench."
+      : "Receiver/base mesh only — attachments may differ. Drag to rotate; scroll to zoom.");
   };
 
-  WeaponModelPreview.prototype.sync = function(region, modelPath) {
+  WeaponModelPreview.prototype.sync = function(region, modelPath, partPaths) {
     if (!this.active) return;
     var api = this.bind();
-    if (!api || !region || !modelPath || !/^Meshes\/.+\.nif$/i.test(modelPath)) {
+    if (!api || !region || !safePath(modelPath)) {
       this.stop();
       return;
     }
     this.region = region;
+    var models = Array.isArray(partPaths) && partPaths.length > 1 && partPaths.length <= 12 &&
+      partPaths[0] === modelPath && partPaths.every(safePath) ? partPaths.slice() : [modelPath];
+    if (JSON.stringify(this.componentPaths) !== JSON.stringify(models)) {
+      this.componentPaths = models;
+      this.lastRequest = "";
+    }
     if (this.nifPath !== modelPath) {
       this.nifPath = modelPath;
       this.relativePathRetry = false;
@@ -121,16 +162,25 @@
     var r = region.getBoundingClientRect();
     var rect = [r.left, r.top, r.width, r.height].map(Math.round);
     if (rect[2] < 60 || rect[3] < 60) { this.hideNative(); return; }
-    var requestedPath = this.relativePathRetry ? modelPath.slice("Meshes/".length) : modelPath;
-    var request = JSON.stringify([requestedPath, rect, this.zoom, this.yaw, this.pitch]);
+    var requestedPaths = (this.composed ? this.componentPaths : [modelPath]).map(function(p) {
+      return this.relativePathRetry ? p.slice("Meshes/".length) : p;
+    }, this);
+    var requestedPath = requestedPaths[0];
+    var request = JSON.stringify([requestedPaths, rect, this.zoom, this.yaw, this.pitch,
+      this.brightness, this.composed]);
     if (request === this.lastRequest) return;
     try {
-      api.show({
-        id: "k2040-weapon-base", nifPath: requestedPath, formType: "WEAP",
+      var id = this.composed ? "k2040-weapon-parts" : "k2040-weapon-base";
+      var args = {
+        id: id, formType: "WEAP",
         x: rect[0], y: rect[1], w: rect[2], h: rect[3],
         clipX: rect[0], clipY: rect[1], clipW: rect[2], clipH: rect[3],
-        zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, brightness: 1
-      });
+        zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, brightness: this.brightness
+      };
+      if (this.composed && requestedPaths.length > 1) args.nifPaths = requestedPaths;
+      else args.nifPath = requestedPath;
+      this.showingId = id;
+      api.show(args);
       this.lastRequest = request;
       this.nativeRequestedPath = requestedPath;
     } catch (error) {
@@ -149,13 +199,13 @@
     this.yaw = (this.yaw + (x - this.dragStart.x) * 0.6 + 360) % 360;
     this.pitch = clamp(this.pitch + (y - this.dragStart.y) * 0.4, -70, 70);
     this.dragStart = { x: x, y: y };
-    this.sync(this.region, this.nifPath);
+    this.sync(this.region, this.nifPath, this.componentPaths);
   };
   WeaponModelPreview.prototype.endDrag = function() { this.dragStart = null; };
   WeaponModelPreview.prototype.scroll = function(deltaY) {
     if (!this.active) return;
     this.zoom = clamp(this.zoom + (deltaY < 0 ? 0.1 : -0.1), 0.6, 2.5);
-    this.sync(this.region, this.nifPath);
+    this.sync(this.region, this.nifPath, this.componentPaths);
   };
 
   global.K2040WeaponModelPreview = {

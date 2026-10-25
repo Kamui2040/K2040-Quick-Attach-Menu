@@ -1009,6 +1009,33 @@ namespace k2040
             info.previewBaseNifPath = ambiguous ? std::string{} : receiverMesh;
         }
 
+        // Optional diagnostic-only composed ModelPreview input. The native
+        // bridge supports multiple NIFs, but *does not* recreate Fallout 4's
+        // workbench attach-node transforms, material changes or preview pose.
+        // Use resolved, enabled OMODs from the equipped inventory stack only.
+        if (!info.previewBaseNifPath.empty()) {
+            info.previewComponentNifPaths.push_back(info.previewBaseNifPath);
+            if (info.installedObjectInstanceRawCount > 0 &&
+                info.installedObjectInstanceRawCount == info.installedObjectInstanceResolvedCount) {
+                for (const auto& installed : info.installedObjectInstanceMods) {
+                    auto* form = RE::TESForm::GetFormByID(installed.formId);
+                    auto* omod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+                    if (!omod) continue;
+                    const auto* model = omod->GetModel();
+                    const auto path = model ? NormalizeWeaponPreviewNifPath(model) : std::string{};
+                    if (path.empty() || IsDummyWeaponPreviewNifPath(path)) continue;
+                    if (std::find(info.previewComponentNifPaths.begin(),
+                            info.previewComponentNifPaths.end(), path) != info.previewComponentNifPaths.end()) continue;
+                    if (info.previewComponentNifPaths.size() >= 12) {
+                        // Fail closed to single component for unusual stacks.
+                        info.previewComponentNifPaths.resize(1);
+                        break;
+                    }
+                    info.previewComponentNifPaths.push_back(path);
+                }
+            }
+        }
+
         if (info.weapon.displayName.empty()) {
             info.weapon.displayName = "(unnamed weapon)";
         }

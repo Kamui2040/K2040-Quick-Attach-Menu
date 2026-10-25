@@ -16,6 +16,15 @@ exposes native status errors if both fail. This is a BASE/RECEIVER component,
 not an engine-assembled weapon with installed attachments, material swaps, or
 connect-point transforms. Unavailable/ambiguous models safely stay text-only.
 
+The next screenshot confirmed that the receiver geometry draws, but appears
+nearly white. PrismaUI logged six NIF shapes with normal/diffuse texture paths,
+and native engine texture SRV resolution. The material/shading discrepancy is
+not resolved. A separately opt-in installed-parts multi-NIF comparison and a
+35% brightness comparison are now included for controlled in-game diagnosis;
+they do not recreate the workbench's attach-node transforms, material swaps,
+or assembled model and may produce overlapping parts. These are not release
+acceptance evidence.
+
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,
 weapon switching, and compatibility QA before release or default enablement.

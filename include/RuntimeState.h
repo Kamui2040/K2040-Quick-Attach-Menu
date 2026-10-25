@@ -79,6 +79,9 @@ namespace k2040
         FormRef weapon;
         // Drawable base or installed receiver NIF: not a fully assembled weapon.
         std::string previewBaseNifPath;
+        // Experimental component set from the resolved equipped object-instance
+        // OMODs. Never used to authorize or perform attachment transactions.
+        std::vector<std::string> previewComponentNifPaths;
         uint32_t equippedSlotIndex = 0;
         bool equippedInventoryStackFound = false;
         uint32_t equippedInventoryStackIndex = 0;
