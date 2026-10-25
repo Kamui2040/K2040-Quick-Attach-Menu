@@ -1,11 +1,13 @@
 # Current Project State
 
-- GitHub release: `0.5.219` (published 2026-10-21). The maintainer
-  confirmed publishing `0.5.220` on Nexus Mods on 2026-10-25; the Nexus Files
-  tab version was not independently verified through an authenticated session.
+- Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
+  in-game-accepted ZIP and SHA-256 at
+  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).
+  The maintainer confirmed Nexus `0.5.220` on 2026-10-25; the Nexus Files tab
+  was not independently checked through an authenticated session.
 - `0.5.220` source was validated and merged in PR #36; `main` includes the
   accepted MCM single-writer fix. The final release ZIP has been checked
-  against the user-tested archive; GitHub publication is still pending.
+  against the user-tested archive and published unchanged on GitHub.
   The maintainer confirmed on
   2026-10-25 that the MCM single-writer tester passed in-game, including the
   Settings/MCM binding conflict. This is scoped acceptance of that fix, not
@@ -20,7 +22,7 @@
   leaving serialization to MCM on close. A cleared native-MCM binding must be
   restored in MCM itself. The maintainer's latest in-game test passed; no
   local game or user bindings were modified by the development run.
-- Previous Nexus Mods version: `0.5.219`, published per maintainer confirmation
+- Prior Nexus Mods version: `0.5.219`, published per maintainer confirmation
   on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
   Nexus `0.5.220` is now maintainer-confirmed as uploaded on 2026-10-25.
   The maintainer tested and accepted the keyboard

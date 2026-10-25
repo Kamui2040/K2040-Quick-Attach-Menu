@@ -47,7 +47,7 @@ matrix were not reported for this 0.5.215 check.
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.219` (published on GitHub, Nexus upload confirmed by maintainer; user-tested OG 1.10.163) |
+| Plugin | `0.5.220` (published on GitHub, Nexus upload confirmed by maintainer; keybind sync tested on OG 1.10.163; AE beta) |
 | Architecture | Windows x64 |
 
 Version 0.5.216 includes the opt-in Cheat mode that bypasses
