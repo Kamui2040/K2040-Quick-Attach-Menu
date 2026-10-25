@@ -25,7 +25,7 @@ assert.equal(layout.find('qm-weapon-preview-region'),null,'native viewport must 
 layout.find('qm-weapon-preview-toggle').listeners.click();assert.equal(toggles,1);
 active=true;layout=renderer.renderHorizontal([],null);
 assert(layout.find('qm-weapon-preview-region'),'viewport inserted when opted in');
-assert.match(layout.find('qm-weapon-preview-message').textContent,/Base mesh only/);
+assert.match(layout.find('qm-weapon-preview-message').textContent,/Receiver\/base mesh only/);
 supported=false;layout=renderer.renderHorizontal([],null);
 assert.equal(layout.find('qm-weapon-preview-toggle'),null,'older provider keeps original layout');
 supported=true;options.preview=true;layout=renderer.renderHorizontal([],null);

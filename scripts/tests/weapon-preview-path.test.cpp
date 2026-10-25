@@ -5,6 +5,12 @@
 int main()
 {
     using k2040::NormalizeWeaponPreviewNifPath;
+    using k2040::IsDummyWeaponPreviewNifPath;
+    assert(IsDummyWeaponPreviewNifPath("Meshes/Weapons/10mmPistol/10mmRecieverDummy.nif"));
+    assert(IsDummyWeaponPreviewNifPath("Weapons/HandMade/Recievers/DummyReciever.nif"));
+    assert(IsDummyWeaponPreviewNifPath("WEAPONS/Dummy.nif"));
+    assert(!IsDummyWeaponPreviewNifPath("Weapons/10mmPistol/10MMPistol.nif"));
+    assert(!IsDummyWeaponPreviewNifPath("Weapons/DummyDirectory/Receiver.nif"));
     assert(NormalizeWeaponPreviewNifPath("Weapons\\10mmPistol\\10mmPistol.nif") ==
         "Meshes/Weapons/10mmPistol/10mmPistol.nif");
     assert(NormalizeWeaponPreviewNifPath("meshes/Weapons/pistol.NIF") == "Meshes/Weapons/pistol.NIF");

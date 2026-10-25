@@ -9,7 +9,20 @@ namespace k2040
 {
     // ModelPreview API v4 accepts a single archive-relative NIF path. Reject
     // traversal and external paths before forwarding model data to PrismaUI.
-    // This path identifies the BASE weapon mesh, not an OMOD-assembled item.
+    // This path identifies a base/receiver part, not an OMOD-assembled item.
+    // Many Fallout 4 firearms have a receiver placeholder with no geometry.
+    // Do not ask ModelPreview to draw these mount-point-only dummy meshes.
+    [[nodiscard]] inline bool IsDummyWeaponPreviewNifPath(std::string_view path)
+    {
+        const auto separator = path.find_last_of("/\\");
+        const auto filename = path.substr(separator == std::string_view::npos ? 0 : separator + 1);
+        std::string lower(filename);
+        std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+        return lower.find("dummy") != std::string::npos;
+    }
+
     [[nodiscard]] inline std::string NormalizeWeaponPreviewNifPath(std::string_view source)
     {
         if (source.empty() || source.size() > 240) return {};

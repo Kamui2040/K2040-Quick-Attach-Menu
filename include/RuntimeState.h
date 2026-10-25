@@ -77,7 +77,7 @@ namespace k2040
     {
         bool hasWeapon = false;
         FormRef weapon;
-        // Base WEAP model only: not a workbench-assembled OMOD instance.
+        // Drawable base or installed receiver NIF: not a fully assembled weapon.
         std::string previewBaseNifPath;
         uint32_t equippedSlotIndex = 0;
         bool equippedInventoryStackFound = false;

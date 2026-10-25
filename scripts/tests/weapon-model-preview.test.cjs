@@ -17,19 +17,40 @@ function fixture(version) {
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
   assert.equal(f.shows[0].id,'k2040-weapon-base');assert.equal(f.shows[0].formType,'WEAP');
   assert.deepEqual([f.shows[0].x,f.shows[0].y,f.shows[0].w,f.shows[0].h],[87,61,520,245]);
-  assert.match(f.message.textContent,/Base weapon mesh only/);
+  assert.match(f.message.textContent,/Receiver\/base mesh only/);
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
   f.preview.beginDrag(15,20);f.preview.drag(32,34);assert.equal(f.shows.length,2);
   assert.notEqual(f.shows.at(-1).yaw,0);f.preview.endDrag();f.preview.scroll(-1);
   assert(f.shows.at(-1).zoom>1);
   f.emit({id:'unrelated',ok:false,phase:'error',nifPath:'Meshes/Weapons/pistol.nif'});assert.equal(f.preview.failed,false);
   f.emit({id:'k2040-weapon-base',ok:true,phase:'textured',nifPath:'Meshes/Weapons/pistol.nif'});assert.equal(f.preview.failed,false);
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Meshes/Weapons/pistol.nif',error:'file not found'});
+  assert.equal(f.preview.failed,false,'first load failure retries once with relative path');
+  assert.equal(f.shows.length,4);
+  assert.equal(f.shows.at(-1).nifPath,'Weapons/pistol.nif');
+  assert.equal(f.hides.length,1);
   f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Meshes/Weapons/pistol.nif'});
-  assert.equal(f.preview.failed,true);assert.match(f.message.textContent,/unavailable/);
-  assert.equal(f.hides.length,1);f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,3);
-  f.preview.stop();assert.equal(f.hides.length,2);assert.equal(f.preview.active,false);
-  f.preview.toggle();f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,4);
+  assert.equal(f.preview.failed,false,'stale prior status cannot poison retry');
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Weapons/pistol.nif',error:'no drawable shapes'});
+  assert.equal(f.preview.failed,true);assert.match(f.message.textContent,/no drawable shapes/);
+  assert.match(f.message.textContent,/Meshes\/Weapons\/pistol.nif/);
+  assert.equal(f.hides.length,2);
+  f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,4,'failed model is not repeatedly retried');
+  f.preview.stop();assert.equal(f.hides.length,3);assert.equal(f.preview.active,false);
+  f.preview.toggle();f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,5);
   f.preview.stop();
+}
+{
+  const f=fixture(4);
+  f.preview.toggle();f.preview.sync(f.region,'Meshes/Weapons/receiver.nif');
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Meshes/Weapons/receiver.nif'});
+  f.emit({id:'k2040-weapon-base',ok:true,phase:'textured',nifPath:'Weapons/receiver.nif'});
+  assert.equal(f.preview.failed,false,'successful relative request remains active');
+  assert.equal(f.preview.relativePathRetry,true);
+  assert.equal(f.shows.length,2);
+  assert(!f.message.textContent.includes('Trying compatible'));
+  f.preview.sync(f.region,'Meshes/Weapons/receiver.nif');assert.equal(f.shows.length,2,'no needless retries');
+  f.preview.stop();assert.equal(f.hides.length,2);
 }
 {
   const f=fixture(4);f.preview.toggle();f.preview.sync(f.region,'../../secret.nif');

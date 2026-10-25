@@ -3,9 +3,13 @@
 - Added an opt-in native 3D preview for the Horizontal Bar layout when the
   installed PrismaUI provider exposes ModelPreview API v4 (2.2.0+).
   Older PrismaUI providers retain their existing text-only menu.
-- Uses the equipped WEAP record's validated NIF path, not a substitute model
-  or the current OMOD-assembled inventory instance. The preview is labelled
-  **base mesh only**; installed attachments or material swaps may differ.
+- Uses the equipped WEAP's validated NIF when drawable; otherwise selects a
+  valid installed receiver OMOD model instead of Fallout 4's empty dummy
+  receiver. This is still just one part, **not** an assembled inventory model;
+  other installed attachments or material swaps may differ.
+- Handles PrismaUI 2.2.1.1's observed doubled `Meshes/` engine lookup with
+  one bounded relative-path retry, preserving the native status/error reason
+  if both paths fail. Never loops on an undrawable model.
 - Preview controls allow drag rotation and scroll-wheel zoom. Native rendering
   is hidden on view close, weapon refresh, Alt-Tab/blur, and page unload.
   Preview rendering never installs, removes, or re-equips attachments.

@@ -17,6 +17,8 @@
     this.region = null;
     this.nifPath = "";
     this.dragStart = null;
+    this.relativePathRetry = false;
+    this.nativeRequestedPath = "";
   }
 
   WeaponModelPreview.prototype.bridge = function() {
@@ -34,10 +36,23 @@
     var self = this;
     api.onStatus(function(status) {
       if (!status || status.id !== "k2040-weapon-base" || !self.active) return;
-      if (status.nifPath && String(status.nifPath).replace(/\\/g, "/").toLowerCase() !== self.nifPath.toLowerCase()) return;
+      if (status.nifPath && String(status.nifPath).replace(/\\/g, "/").toLowerCase() !==
+          self.nativeRequestedPath.toLowerCase()) return;
       if (status.ok === false) {
+        // PrismaUI 2.2.1.1's engine loader logged `meshes/Meshes/...`
+        // for documented prefixed requests. Try without the prefix ONCE.
+        // Do not continually retry a missing/undrawable model.
+        if (!self.relativePathRetry && self.nifPath.indexOf("Meshes/") === 0) {
+          self.relativePathRetry = true;
+          self.error = "Trying compatible mesh path...";
+          self.hideNative();
+          self.updateMessage();
+          self.sync(self.region, self.nifPath);
+          return;
+        }
         self.failed = true;
-        self.error = "3D preview unavailable for this model.";
+        var reason = String(status.error || "missing or undrawable NIF").slice(0, 150);
+        self.error = "3D preview unavailable: " + reason + " [" + self.nifPath + "]";
         self.hideNative();
       } else if (status.phase === "loaded" || status.phase === "textured") {
         self.error = "";
@@ -64,6 +79,8 @@
     this.dragStart = null;
     this.region = null;
     this.nifPath = "";
+    this.nativeRequestedPath = "";
+    this.relativePathRetry = false;
   };
 
   WeaponModelPreview.prototype.toggle = function() {
@@ -83,7 +100,7 @@
     var message = this.region.parentNode &&
       this.region.parentNode.querySelector(".qm-weapon-preview-message");
     if (message) message.textContent = this.error ||
-      "Base weapon mesh only — installed attachments may differ. Drag to rotate; scroll to zoom.";
+      "Receiver/base mesh only — attachments may differ. Drag to rotate; scroll to zoom.";
   };
 
   WeaponModelPreview.prototype.sync = function(region, modelPath) {
@@ -94,22 +111,28 @@
       return;
     }
     this.region = region;
-    this.nifPath = modelPath;
+    if (this.nifPath !== modelPath) {
+      this.nifPath = modelPath;
+      this.relativePathRetry = false;
+      this.lastRequest = "";
+    }
     this.updateMessage();
     if (this.failed) return;
     var r = region.getBoundingClientRect();
     var rect = [r.left, r.top, r.width, r.height].map(Math.round);
     if (rect[2] < 60 || rect[3] < 60) { this.hideNative(); return; }
-    var request = JSON.stringify([modelPath, rect, this.zoom, this.yaw, this.pitch]);
+    var requestedPath = this.relativePathRetry ? modelPath.slice("Meshes/".length) : modelPath;
+    var request = JSON.stringify([requestedPath, rect, this.zoom, this.yaw, this.pitch]);
     if (request === this.lastRequest) return;
     try {
       api.show({
-        id: "k2040-weapon-base", nifPath: modelPath, formType: "WEAP",
+        id: "k2040-weapon-base", nifPath: requestedPath, formType: "WEAP",
         x: rect[0], y: rect[1], w: rect[2], h: rect[3],
         clipX: rect[0], clipY: rect[1], clipW: rect[2], clipH: rect[3],
         zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, brightness: 1
       });
       this.lastRequest = request;
+      this.nativeRequestedPath = requestedPath;
     } catch (error) {
       this.failed = true;
       this.error = "3D preview could not start.";

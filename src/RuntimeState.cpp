@@ -983,6 +983,32 @@ namespace k2040
             CaptureObjectInstanceExtraProbe(player, weapon, info);
         }
 
+        // Weapon form TESModel is frequently an empty receiver mount-point
+        // placeholder. Prefer the installed receiver OMOD's drawable mesh in
+        // that case. This remains read-only and is NOT assembled workbench 3D.
+        if (IsDummyWeaponPreviewNifPath(info.previewBaseNifPath)) {
+            std::string receiverMesh;
+            bool ambiguous = false;
+            for (const auto& installed : info.installedObjectInstanceMods) {
+                auto* form = RE::TESForm::GetFormByID(installed.formId);
+                auto* omod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+                if (!omod) continue;
+                const auto consumes = ResolveAttachPointKeyword(omod->attachPoint.keywordIndex);
+                if (!AsciiEqualsInsensitive(consumes.editorId, "ap_gun_receiver")) continue;
+                const auto* mesh = omod->GetModel();
+                const auto path = mesh ? NormalizeWeaponPreviewNifPath(mesh) : std::string{};
+                if (path.empty() || IsDummyWeaponPreviewNifPath(path)) continue;
+                if (!receiverMesh.empty() && receiverMesh != path) {
+                    ambiguous = true;
+                    break;
+                }
+                receiverMesh = path;
+            }
+            // Ambiguous or unmodelled receiver: hide the 3D control rather
+            // than showing the incorrect gun or treating a dummy as drawable.
+            info.previewBaseNifPath = ambiguous ? std::string{} : receiverMesh;
+        }
+
         if (info.weapon.displayName.empty()) {
             info.weapon.displayName = "(unnamed weapon)";
         }

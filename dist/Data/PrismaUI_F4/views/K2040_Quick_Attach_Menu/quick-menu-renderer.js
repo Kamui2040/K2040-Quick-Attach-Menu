@@ -540,7 +540,7 @@
       button.className = "qm-weapon-preview-toggle";
       button.type = "button";
       var active = this.options.isPreviewActive && this.options.isPreviewActive();
-      button.textContent = active ? "Hide 3D base weapon" : "Show 3D base weapon (experimental)";
+      button.textContent = active ? "Hide 3D weapon component" : "Show 3D weapon component (experimental)";
       button.addEventListener("click", function() { self.options.onPreviewToggle(); });
       panel.appendChild(button);
       if (active) {
@@ -549,7 +549,7 @@
         region.setAttribute("aria-label", "Base weapon model preview");
         var message = document.createElement("div");
         message.className = "qm-weapon-preview-message";
-        message.textContent = "Base mesh only — installed attachments may differ. Drag to rotate; scroll to zoom.";
+        message.textContent = "Receiver/base mesh only — attachments may differ. Drag to rotate; scroll to zoom.";
         panel.appendChild(region);
         panel.appendChild(message);
       }
