@@ -1,12 +1,14 @@
 # Current Project State
 
 - Stable release: `0.5.219` (GitHub/Nexus, runtime accepted 2026-10-21).
-- `0.5.220` remains an unreleased candidate on PR #36. The maintainer
-  confirmed on 2026-10-25 that the latest MCM single-writer test passed in-game,
-  including the Settings/MCM binding conflict. This is user-tested acceptance
-  of that fix, not independent evidence of every other change in the PR.
-  The candidate also includes OMOD FULL labels, shared keybind parsing,
-  guarded non-native registry writes, and CEF modifier/Mouse 4/5 capture.
+- `0.5.220` source was validated and merged in PR #36; `main` includes the
+  accepted MCM single-writer fix. The final release ZIP has been checked
+  against the user-tested archive; publication is still pending. The maintainer confirmed on
+  2026-10-25 that the MCM single-writer tester passed in-game, including the
+  Settings/MCM binding conflict. This is scoped acceptance of that fix, not
+  independent evidence of every other change. Version 0.5.220 also includes
+  OMOD FULL labels, shared keybind parsing, guarded non-native registry saves
+  and CEF modifier/Mouse 4/5 capture.
 - User QA established a native MCM keybind conflict: Settings wrote defaults to
   `Keybinds.json` while MCM retained previous live assignments and later saved
   them back. Upstream MCM's `SetKeybind` registers, rather than remaps, a key.
