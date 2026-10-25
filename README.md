@@ -22,7 +22,7 @@ the installed OMOD's Add Keywords property agree. This addresses a rail
 attachment disappearing from the menu after removal. The original reporter
 retested the fix and confirmed that the reported issue is resolved in-game;
 broader compatibility testing remains separate.
-The maintainer's final 0.5.216 gameplay checks passed. **The current GitHub release is [0.5.219 with installation ZIP and checksum](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.219)**. It fixes MCM hotkeys reverting to None and prevents keyboard-menu closure from opening the Pip-Boy; the maintainer verified both in Fallout 4 1.10.163. The maintainer also confirmed publishing version 0.5.219 on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575).
+**The current release is [0.5.220 on GitHub](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220)**, with a verified installation ZIP and checksum. Version 0.5.220 is also published on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575) (maintainer-confirmed). It fixes Settings/MCM keybinding synchronization and improves Mouse 4/5 capture and generated attachment names. The maintainer tested the keybind fix on Fallout 4 1.10.163; Anniversary Edition support remains beta. [Report a bug](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues/new/choose) with exact game, F4SE, PrismaUI and mod versions.
 
 The unreleased generated-menu filter requires a matching weapon keyword,
 reachable attachment point, and a loaded crafting recipe creating each new

@@ -9,7 +9,7 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
-## Fixed in 0.5.220 test candidate: native MCM keybind writer conflict (user-tested)
+## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 
 User runtime QA exposed an independent live MCM manager and disk registry
 competing over Quick Attach bindings. Settings Reset wrote defaults directly
@@ -19,7 +19,7 @@ Clearing with Tab could then leave Quick Attach's native poller and MCM out of
 sync. The earlier Settings sync also called `root.mcm.SetKeybind`, which
 registers, rather than remaps, a binding in upstream MCM.
 
-The revised unreleased candidate uses native MCM exclusively for live keybind
+The published 0.5.220 implementation uses native MCM exclusively for live keybind
 changes. Settings stages a request until PauseMenu is available, checks the
 original disk and live binding, calls `root.mcm.RemapKeybind`, verifies via
 `GetKeybind`, then lets MCM serialize its own registry when its menu closes.
@@ -29,7 +29,7 @@ on startup; MCM must restore them before Settings can remap them. A failed
 remap does not modify the registry. The maintainer tested the revised
 single-writer candidate in-game and reported PASS on 2026-10-25. This confirms
 the reported conflict is fixed in the tested setup, not every possible MCM
-provider or key combination. Version 0.5.220 is not yet published.
+provider or key combination. Version 0.5.220 is published on GitHub and maintainer-confirmed on Nexus.
 
 ## 0.5.220 Settings keybind capture on modifier press (runtime QA pending)
 

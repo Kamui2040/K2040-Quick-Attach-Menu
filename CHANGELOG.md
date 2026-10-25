@@ -1,4 +1,4 @@
-## 0.5.220 (release prepared, publication pending)
+## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 
 - Generated weapon-attachment menus now prefer the OMOD display name over
   the loose-mod MISC name, falling back when the OMOD name is unavailable.
