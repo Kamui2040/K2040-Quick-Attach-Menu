@@ -62,10 +62,11 @@ function setup(presentation) {
   };
   const win = {
     K2040QuickMenuRenderer: { create: () => renderer },
-    addEventListener: (n, f) => { winEvents[n] = f; }
+    addEventListener: (n, f) => { winEvents[n] = f; },
+    setInterval: () => 1, clearInterval() {}
   };
   const doc = {
-    getElementById: () => ({}),
+    getElementById: () => ({style:{}}),
     addEventListener: (n, f) => { docEvents[n] = f; }
   };
   vm.runInNewContext(lastScript, { window: win, document: doc, Date: { now: () => now },
@@ -76,9 +77,13 @@ function setup(presentation) {
       detail: { button: value, state }, stopImmediatePropagation() {}
     });
   }
-  function key(value) {
-    docEvents.keydown({key:value,keyCode:0,repeat:false,
-      preventDefault(){},stopPropagation(){},stopImmediatePropagation(){}});
+  function key(value, overrides = {}) {
+    let consumed = false;
+    const defaults = {key:value,keyCode:0,repeat:false,
+      shiftKey:false,ctrlKey:false,altKey:false,metaKey:false};
+    docEvents.keydown({ ...defaults, ...overrides,
+      preventDefault(){consumed=true},stopPropagation(){},stopImmediatePropagation(){}});
+    return consumed;
   }
   return { win, renderer, actions, button, key, time: value => { now = value; } };
 }
@@ -160,6 +165,50 @@ for (const layout of ['cascade', 'hybrid']) {
   c.key('ArrowUp');assert.deepEqual(c.actions.at(-1),['pane',-1]);
   assert.equal(c.actions.filter(([name])=>name==='confirm').length,1,
     'WASD and arrow-key navigation must not apply an attachment');
+}
+// Browser confirmations only request the existing guarded action. No held
+// key repeat, modifier chord, or Escape can duplicate an installation.
+for (const layout of ['horizontal','cascade','hybrid','radial']) {
+  const c = setup(layout);
+  for (const name of ['Enter',' ','Spacebar','Space','e','E']) {
+    c.renderer.activePane='categories';
+    const before=c.actions.filter(([type])=>type==='confirm').length;
+    assert.equal(c.key(name),true,layout+': '+JSON.stringify(name)+' consumed');
+    assert.equal(c.renderer.activePane,'options','Confirm from category only enters attachments');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+1);
+    assert.equal(c.key(name,{repeat:true}),true,'repeat is still consumed');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+1,
+      'held '+JSON.stringify(name)+' must not reapply');
+    assert.equal(c.key(name),true,'fresh press on options is handled');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+2);
+  }
+  const count=c.actions.filter(([type])=>type==='confirm').length;
+  for (const key of [' ','Spacebar','Space','e','E']) {
+    for (const modifier of ['shiftKey','ctrlKey','altKey','metaKey']) {
+      assert.equal(c.key(key,{[modifier]:true}),false,'modified confirmation remains unbound');
+    }
+  }
+  assert.equal(c.key('Escape'),true,'Escape stays intercepted');
+  assert.equal(c.actions.filter(([type])=>type==='confirm').length,count,
+    'modified keys and Escape must not confirm');
+}
+// A user-configured opener must keep priority over bare confirm keys.
+{
+  const c=setup('horizontal'),open=[];
+  c.win.k2040HotkeyActionRequested=action=>open.push(action);
+  c.win.k2040SetPayload(JSON.stringify({settings:{presentation:'horizontal',
+    openMenuHotkeyKeycode:69,openMenuHotkeyModifiers:0,
+    openMenuBuilderHotkeyKeycode:32,openMenuBuilderHotkeyModifiers:0},
+    weapon:{hasWeapon:true},parser:{valid:true,categories:[{}]}}));
+  const count=c.actions.length;
+  assert.equal(c.key('e',{keyCode:69}),true);
+  assert.equal(c.key(' ',{keyCode:32}),true);
+  assert.deepEqual(open,['quick','builder']);
+  assert.equal(c.actions.length,count,'configured openers never confirm attachments');
+  assert.equal(c.key('e',{keyCode:69,repeat:true}),true);
+  assert.equal(open.length,2,'held opener does not repeat');
+  assert.equal(c.key('e',{keyCode:69,shiftKey:true}),false,
+    'modified unrelated chord does not confirm');
 }
 {
   const r = setup('radial');

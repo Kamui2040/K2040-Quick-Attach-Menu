@@ -19,8 +19,12 @@
   accessible, but the top category row still clipped later categories and W/S
   cycled horizontally rather than changing rows. The next candidate provides
   category paging/scroll and row-oriented WASD/arrow/controller navigation.
-  This new correction is automated-tested but still needs in-game acceptance.
-  Full material/geometry parity and Alt-Tab QA also remain pending. Stable release is
+  The maintainer accepted the r5 top-row and intuitive-navigation correction
+  in-game on 2026-10-26. A subsequent optional input improvement maps bare
+  Space and E to the same guarded Quick Menu Confirm action as Enter while
+  preserving user-configured opener precedence and ignoring repeats; only
+  this latest improvement remains untested in-game. Full material/geometry
+  parity and Alt-Tab QA also remain pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

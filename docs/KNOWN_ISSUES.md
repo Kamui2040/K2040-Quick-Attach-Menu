@@ -38,7 +38,10 @@ that the attachment strip could page, and that some equipped-part textures
 appeared. The top category strip still clipped later categories, and W/S did
 not match horizontal row geometry. The next candidate adds category paging,
 wheel scrolling, scroll-to-category and navigation with Left/Right along the
-active row and Up/Down between the two rows; this follow-up needs in-game QA.
+active row and Up/Down between the two rows; the maintainer confirmed r5
+navigation works in-game. Subsequent Space/E confirmation support still needs
+its own runtime QA, including held-key suppression, opener conflicts, and no
+fallthrough into normal Fallout 4 actions.
 
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,

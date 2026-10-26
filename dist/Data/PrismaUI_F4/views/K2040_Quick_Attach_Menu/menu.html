@@ -272,11 +272,16 @@
           return;
         }
         var key = event.key && event.key.length === 1 ? event.key.toLowerCase() : event.key;
-        if (key === "Escape" || key === " " || key === "Spacebar") {
+        if (key === "Escape") {
           consumeKey(event);
           return;
         }
-        if (key === "Enter") {
+        // Alternative Quick Menu Confirm keys. Only bare Space/E are
+        // accepted; modified chords remain available for configured hotkeys.
+        // Confirmation uses the same guarded action as Enter/controller.
+        var extraConfirm = (key === " " || key === "Spacebar" || key === "Space" || key === "e") &&
+          !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey;
+        if (key === "Enter" || extraConfirm) {
           consumeKey(event);
           enterKeyboardMode();
           if (!event.repeat) renderer.activateFocusedOption();

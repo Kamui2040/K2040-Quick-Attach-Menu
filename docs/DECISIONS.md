@@ -113,7 +113,10 @@ Only durable product decisions belong here. Current release state belongs in
   categories. LB/RB still moves categories or pages radial attachments, while
   Cancel backs out before closing. Compact Hybrid's semicircular category
   order reverses only visual Up/Down movement. Keyboard, D-pad and sticks
-  share directional dispatch; a separate mapped Confirm alone applies mods.
+  share directional dispatch. Enter, bare Space/E and the mapped controller
+  Confirm all use the same guarded Quick Menu action; held repeats cannot
+  reapply. Configured menu-opener shortcuts take precedence, and a separate
+  confirmation is always required after directional navigation.
 - In the Quick Menu, both sticks and the D-pad may highlight categories
   or attachments, but no navigation input installs an attachment. Require
   a separate game-mapped Activate/Confirm press; never assume A if Fallout 4
