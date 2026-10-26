@@ -39,9 +39,10 @@ appeared. The top category strip still clipped later categories, and W/S did
 not match horizontal row geometry. The next candidate adds category paging,
 wheel scrolling, scroll-to-category and navigation with Left/Right along the
 active row and Up/Down between the two rows; the maintainer confirmed r5
-navigation works in-game. Subsequent Space/E confirmation support still needs
-its own runtime QA, including held-key suppression, opener conflicts, and no
-fallthrough into normal Fallout 4 actions.
+navigation works in-game. E confirmed attachment changes successfully in
+r6 user testing; Space did not. r7 removes Space as a confirmation shortcut,
+leaving its prior inert/intercepted Quick Menu behavior intact. The r7 change
+still needs a focused in-game confirmation and held-key/opener check.
 
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,

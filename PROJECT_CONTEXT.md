@@ -20,11 +20,13 @@
   cycled horizontally rather than changing rows. The next candidate provides
   category paging/scroll and row-oriented WASD/arrow/controller navigation.
   The maintainer accepted the r5 top-row and intuitive-navigation correction
-  in-game on 2026-10-26. A subsequent optional input improvement maps bare
-  Space and E to the same guarded Quick Menu Confirm action as Enter while
-  preserving user-configured opener precedence and ignoring repeats; only
-  this latest improvement remains untested in-game. Full material/geometry
-  parity and Alt-Tab QA also remain pending. Stable release is
+  in-game on 2026-10-26. The maintainer tested r6 and confirmed E worked
+  as an extra confirmation key, but Space did not. The r7 correction removes
+  Space from Quick Menu confirmation, retaining Enter/E and leaving Space
+  safely consumed as it was before r6. User-configured opener precedence,
+  held-key suppression and MCM bindings are unchanged. This precise r7
+  correction is pending in-game recheck. Full material/geometry parity and
+  Alt-Tab QA also remain pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

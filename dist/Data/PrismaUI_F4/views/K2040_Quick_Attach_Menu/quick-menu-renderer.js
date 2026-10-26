@@ -512,8 +512,8 @@
       : this.settings().presentation === "radial"
         ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
         : this.settings().presentation === "horizontal"
-          ? "A/D or ←/→: Along row · W/S or ↑/↓: Change row · Enter/Space/E: Confirm · Wheel/‹ ›: Scroll"
-          : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter/Space/E to confirm · opener/Escape to close";
+          ? "A/D or ←/→: Along row · W/S or ↑/↓: Change row · Enter/E: Confirm · Wheel/‹ ›: Scroll"
+          : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter/E to confirm · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";

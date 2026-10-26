@@ -170,7 +170,7 @@ for (const layout of ['cascade', 'hybrid']) {
 // key repeat, modifier chord, or Escape can duplicate an installation.
 for (const layout of ['horizontal','cascade','hybrid','radial']) {
   const c = setup(layout);
-  for (const name of ['Enter',' ','Spacebar','Space','e','E']) {
+  for (const name of ['Enter','e','E']) {
     c.renderer.activePane='categories';
     const before=c.actions.filter(([type])=>type==='confirm').length;
     assert.equal(c.key(name),true,layout+': '+JSON.stringify(name)+' consumed');
@@ -183,9 +183,17 @@ for (const layout of ['horizontal','cascade','hybrid','radial']) {
     assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+2);
   }
   const count=c.actions.filter(([type])=>type==='confirm').length;
+  // Unconfigured Space remains intercepted but must never request Confirm.
+  for (const space of [' ','Spacebar','Space']) {
+    assert.equal(c.key(space),true,'Space stays inert and is consumed');
+    assert.equal(c.key(space,{repeat:true}),true,'held Space is also consumed');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,count,
+      'Space never confirms any menu action');
+  }
   for (const key of [' ','Spacebar','Space','e','E']) {
     for (const modifier of ['shiftKey','ctrlKey','altKey','metaKey']) {
-      assert.equal(c.key(key,{[modifier]:true}),false,'modified confirmation remains unbound');
+      assert.equal(c.key(key,{[modifier]:true}),key !== 'e' && key !== 'E',
+        'modified E cannot confirm; Space is consumed and inert');
     }
   }
   assert.equal(c.key('Escape'),true,'Escape stays intercepted');

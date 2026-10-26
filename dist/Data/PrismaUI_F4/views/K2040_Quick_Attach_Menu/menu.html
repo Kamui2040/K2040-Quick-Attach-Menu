@@ -276,10 +276,15 @@
           consumeKey(event);
           return;
         }
-        // Alternative Quick Menu Confirm keys. Only bare Space/E are
-        // accepted; modified chords remain available for configured hotkeys.
-        // Confirmation uses the same guarded action as Enter/controller.
-        var extraConfirm = (key === " " || key === "Spacebar" || key === "Space" || key === "e") &&
+        // Space stays inert in the Quick Menu, while configured opener
+        // shortcuts above retain priority. Never forward it to gameplay.
+        if (key === " " || key === "Spacebar" || key === "Space") {
+          consumeKey(event);
+          return;
+        }
+        // Bare E and Enter share the existing guarded Confirm action.
+        // Modified E chords remain available for configured hotkeys.
+        var extraConfirm = key === "e" &&
           !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey;
         if (key === "Enter" || extraConfirm) {
           consumeKey(event);

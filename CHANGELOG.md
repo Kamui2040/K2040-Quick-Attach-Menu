@@ -26,10 +26,12 @@
   A/D or Left/Right moves through the selected row; W/S or Up/Down changes
   between categories (upper row) and attachments (lower row). Enter or mapped
   controller Confirm remains the only way to apply an attachment.
-- Added bare **Space** and **E** as Quick Menu confirm alternatives alongside
-  Enter. On categories they enter options; on options they use the existing
-  guarded selection path. Key repeats and modifier chords do not trigger
-  additional installations; configured opener shortcuts retain precedence.
+- Added bare **E** as a Quick Menu confirm alternative alongside Enter.
+  On categories it opens options; on options it uses the existing guarded
+  selection path. The maintainer verified E works in-game; Space was tried
+  but did not work reliably and has been removed as a Confirm key (its
+  existing input-consumption behavior is retained). Key repeats do not
+  trigger additional installations, and configured openers retain precedence.
 - Constrained the model viewport to a less distorted aspect ratio and passed
   `spin: 0` to PrismaUI for both receiver and installed-parts preview modes.
   The maintainer's later in-game check confirmed unwanted spinning stopped;
