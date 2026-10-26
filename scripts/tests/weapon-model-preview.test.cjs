@@ -95,4 +95,43 @@ function fixture(version) {
   assert.equal(f.shows[0].nifPaths,undefined);
   f.preview.stop();
 }
+{
+  // Fail-closed handling of a weapon/installed-stack refresh without a full
+  // page teardown: old error/status, old GPU model and composed mode retire.
+  const f=fixture(4);
+  const receiverA='Meshes/Weapons/a.nif';
+  const receiverB='Meshes/Weapons/b.nif';
+  const barrelA='Meshes/Weapons/a-barrel.nif';
+  f.preview.toggle();
+  f.preview.sync(f.region,receiverA,[receiverA,barrelA]);
+  f.preview.setComposed(true);
+  f.preview.sync(f.region,receiverA,[receiverA,barrelA]);
+  assert.equal(f.shows.at(-1).id,'k2040-weapon-parts');
+  const beforeHide=f.hides.length;
+  f.preview.sync(f.region,receiverB,[receiverB]);
+  assert.equal(f.hides.length,beforeHide+1,'old composed GPU resource hidden on weapon change');
+  assert.equal(f.preview.composed,false,'single-mesh weapon cannot inherit prior composed mode');
+  assert.equal(f.shows.at(-1).id,'k2040-weapon-base');
+  assert.equal(f.shows.at(-1).nifPath,receiverB);
+  f.emit({id:'k2040-weapon-parts',ok:false,phase:'error',nifPath:'joined paths'});
+  assert.equal(f.preview.failed,false,'stale composed error ignored');
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:receiverB});
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Weapons/b.nif'});
+  assert.equal(f.preview.failed,true,'repeated native failure does not loop');
+  const oldShowCount=f.shows.length;
+  const newParts='Meshes/Weapons/c.nif';
+  f.preview.sync(f.region,newParts,[newParts]);
+  assert.equal(f.preview.failed,false,'new item clears former failure without menu close');
+  assert.equal(f.preview.error,'');
+  assert.equal(f.shows.length,oldShowCount+1);
+  assert.equal(f.shows.at(-1).nifPath,newParts);
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:'Weapons/b.nif'});
+  assert.equal(f.preview.failed,false,'late old-model error cannot poison new model');
+  f.preview.stop();
+  const endedShows=f.shows.length;
+  f.emit({id:'k2040-weapon-base',ok:false,phase:'error',nifPath:newParts});
+  assert.equal(f.preview.active,false);
+  assert.equal(f.preview.failed,false);
+  assert.equal(f.shows.length,endedShows,'closed view ignores late callbacks');
+}
 console.log('PASS: ModelPreview v4, legacy fallback, rect, drag, zoom, error, retry, unsafe path, cleanup');

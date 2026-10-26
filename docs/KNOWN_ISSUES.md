@@ -1,6 +1,6 @@
 # Known Issues and Limits
 
-## 0.5.221 experimental base-weapon 3D preview (not yet runtime-tested)
+## 0.5.221 experimental weapon-component 3D preview (partially user-tested)
 
 PrismaUI_F4 ModelPreview API v4 (introduced in 2.2.0) loads a native NIF
 into a view. The first 0.5.221 in-game screenshot showed an empty preview.
@@ -45,9 +45,26 @@ leaving its prior inert/intercepted Quick Menu behavior intact. The maintainer
 confirmed the r7 keyboard correction working in-game on 2026-10-26. This does
 not establish every modifier/opener conflict or lifecycle scenario as tested.
 
-The previous custom renderer failed Alt-Tab lifecycle testing. This revision
-still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,
-weapon switching, and compatibility QA before release or default enablement.
+PrismaUI ModelPreview v4 accepts NIF path lists and a `matSwap` string, not a
+live equipped-weapon object instance or a prepared NiAVObject. Static analysis
+of the installed provider confirms it tries to assemble NIF pieces using
+matching connect points and leaves unmatched parts at origin. This is useful
+but does **not** establish exact workbench attachment transforms, full
+OMOD-driven per-part MSWP mapping, or a safe live weapon-node transfer API.
+The optional matSwap property has not been safely mapped to a single verified
+installed form/material input, so the runtime does not yet submit it.
+CommonLibF4 exposes workbench ExamineMenu and Inventory3DManager, but using
+their assembled 3D node outside its native menu would require independently
+verified lifecycle, threading and render-target ownership. Do not call an
+unverified workbench relocation or copy a gameplay-owned model node for a
+preview. The model/material limitation remains unresolved.
+
+A static-tested lifecycle safeguard now retires stale GPU preview requests and
+load-failure state when weapon/OMOD composition changes; a missing multi-part
+set falls back to a single receiver. The previous custom renderer failed
+Alt-Tab lifecycle testing. This revision still needs in-game checks of the
+latest model replacement logic, Alt-Tab, close/reopen, game-load/weapon switch
+and texture/mod-added mesh compatibility before release or default enablement.
 No player's MCM settings or installed attachments are changed.
 
 ## Fixed in 0.5.219: opener-close input leak

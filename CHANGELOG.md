@@ -37,6 +37,11 @@
   `spin: 0` to PrismaUI for both receiver and installed-parts preview modes.
   The maintainer's later in-game check confirmed unwanted spinning stopped;
   full preview geometry and material appearance still need further work.
+- Hardened the preview adapter against equipped-weapon/installed-part changes
+  without a full page teardown: hide the previous native preview, clear stale
+  errors, and revert to receiver-only when the new stack has no extra meshes.
+  Focused regression coverage checks late status callbacks after replacement
+  and closing, without weakening the native attachment transaction checks.
 - Static and cross-build checks do not establish rendering correctness.
   Target-game QA (including Alt-Tab, reload, close/reopen and weapon switching)
   must pass before enabling by default or releasing this experiment.

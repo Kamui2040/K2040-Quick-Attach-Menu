@@ -148,14 +148,21 @@
     this.region = region;
     var models = Array.isArray(partPaths) && partPaths.length > 1 && partPaths.length <= 12 &&
       partPaths[0] === modelPath && partPaths.every(safePath) ? partPaths.slice() : [modelPath];
-    if (JSON.stringify(this.componentPaths) !== JSON.stringify(models)) {
-      this.componentPaths = models;
-      this.lastRequest = "";
-    }
-    if (this.nifPath !== modelPath) {
+    var weaponChanged = this.nifPath !== modelPath;
+    var partsChanged = JSON.stringify(this.componentPaths) !== JSON.stringify(models);
+    if (weaponChanged || partsChanged) {
+      // A new live stack invalidates the previous failed/load request even
+      // when its view stays open. Hide the old GPU preview before replacing it.
+      if (this.showingId) this.hideNative();
       this.nifPath = modelPath;
+      this.componentPaths = models;
+      this.failed = false;
+      this.error = "";
       this.relativePathRetry = false;
       this.lastRequest = "";
+      if (this.composed && models.length < 2) {
+        this.composed = false; // no old installed parts on the new weapon
+      }
     }
     this.updateMessage();
     if (this.failed) return;

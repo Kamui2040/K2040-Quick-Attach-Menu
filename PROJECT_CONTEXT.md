@@ -27,8 +27,16 @@
   held-key suppression and MCM bindings are unchanged. The maintainer
   confirmed the r7 correction working in-game on 2026-10-26: Enter/E
   confirmation remains usable and Space is not a confirmation key.
-  This acceptance is specific to the requested keyboard correction; full
-  material/geometry parity and Alt-Tab QA still remain pending. Stable release is
+  This acceptance is specific to the requested keyboard correction. Current
+  analysis of deployed PrismaUI 2.2.1.1 confirms the ModelPreview input can
+  accept `nifPaths` plus a `matSwap` string. Its composite loader attempts
+  matching NIF connect-point attachment, leaving unmatched parts at origin.
+  This is not equivalent to the live workbench instance or full MSWP handling;
+  CommonLibF4 exposes ExamineMenu and Inventory3DManager, but no independently
+  verified assembly/transfer API usable from this menu is established.
+  The adapter now retires stale native models/errors on an equipped-weapon
+  change even without page teardown (automated tests passed). Full material/
+  geometry parity and Alt-Tab/weapon-transition QA remain pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
