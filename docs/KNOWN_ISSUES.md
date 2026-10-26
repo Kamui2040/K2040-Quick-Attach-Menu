@@ -111,7 +111,20 @@ first-texture SRV log is insufficient to distinguish these causes. Verify
 actual texture bindings and exposure **per shape** using a provider-matched
 instrumented build before changing brightness, shaders or model detection.
 
-The material-specific shader/texture mismatch is not understood or corrected,
+An additional, reproducible FO4 material difference was confirmed: the
+10mmPistol.BGSM version 2 names `10mmPistol02_palette.DDS` in grayscale
+palette slot 3 with authored palette row 1.0; the Recon Scope and wooden
+grips do not use that slot. The current PrismaUI ModelPreview material/shader
+path ignores this slot. Offline sampling of the original receiver DDS through
+its palette's authored bottom row changes near-gray RGB ~175 to darker/warm
+RGB ~48; this is strong evidence for a missing palette stage, **not** in-game
+acceptance. A private, upstream-only eight-file implementation passed shader
+compilation (PS5 plus four VS5 variants) and diff validation. Its available
+source branch is not confirmed equivalent to the installed 2.2.1.1 provider,
+so no replacement DLL has been built or deployed. Version-matched provider
+build and target-runtime QA must precede any integration or release.
+
+The material-specific shader/texture mismatch is not fully corrected,
 and additional mod-added mesh/material combinations are unverified. Neither
 full vanilla-workbench visual parity nor the experimental feature's release
 acceptance can be claimed from the successful lifecycle tests.

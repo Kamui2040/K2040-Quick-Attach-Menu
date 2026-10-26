@@ -50,8 +50,13 @@
   per-model bounds/FOV/pivot-based camera fitting if that approach is found.
   A read-only vanilla texture archive comparison shows both 10mm receiver
   and Recon Scope diffuse assets are BC3, but the former is much brighter.
-  Per-mesh SRV fallback vs simplified-lighting clipping remains unverified;
-  distinguish these at the PrismaUI provider boundary before altering QAM.
+  A stronger original-asset finding is that 10mmPistol.BGSM v2 references
+  a grayscale palette in slot 3 (row 1.0), unlike Recon Scope or wood;
+  public PrismaUI ModelPreview ignores this slot. A private provider-level
+  palette remap patch passed offline DDS comparison and Microsoft HLSL
+  PS5/VS5 compilation, but no source-matched 2.2.1.1 native build or
+  target-runtime QA exists. QAM runtime logic remains unchanged. Per-mesh
+  SRV fallback vs lighting still warrants independent verification.
   Remaining 3D-preview material/shader fidelity is not accepted; do not mark
   the overall experimental preview release-ready.
   Stable release is 0.5.220; saves, bindings and inventory remain untouched.
