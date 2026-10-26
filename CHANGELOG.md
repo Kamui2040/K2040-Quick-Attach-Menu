@@ -30,8 +30,9 @@
   On categories it opens options; on options it uses the existing guarded
   selection path. The maintainer verified E works in-game; Space was tried
   but did not work reliably and has been removed as a Confirm key (its
-  existing input-consumption behavior is retained). Key repeats do not
-  trigger additional installations, and configured openers retain precedence.
+  existing input-consumption behavior is retained). The maintainer confirmed
+  the r7 correction working in-game. Key repeats do not trigger additional
+  installations, and configured openers retain precedence.
 - Constrained the model viewport to a less distorted aspect ratio and passed
   `spin: 0` to PrismaUI for both receiver and installed-parts preview modes.
   The maintainer's later in-game check confirmed unwanted spinning stopped;

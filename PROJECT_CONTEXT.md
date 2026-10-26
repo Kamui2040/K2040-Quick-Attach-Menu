@@ -24,9 +24,11 @@
   as an extra confirmation key, but Space did not. The r7 correction removes
   Space from Quick Menu confirmation, retaining Enter/E and leaving Space
   safely consumed as it was before r6. User-configured opener precedence,
-  held-key suppression and MCM bindings are unchanged. This precise r7
-  correction is pending in-game recheck. Full material/geometry parity and
-  Alt-Tab QA also remain pending. Stable release is
+  held-key suppression and MCM bindings are unchanged. The maintainer
+  confirmed the r7 correction working in-game on 2026-10-26: Enter/E
+  confirmation remains usable and Space is not a confirmation key.
+  This acceptance is specific to the requested keyboard correction; full
+  material/geometry parity and Alt-Tab QA still remain pending. Stable release is
   0.5.220; existing save, keybind, and inventory data must not be reset.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at

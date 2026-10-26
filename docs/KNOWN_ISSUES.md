@@ -41,8 +41,9 @@ wheel scrolling, scroll-to-category and navigation with Left/Right along the
 active row and Up/Down between the two rows; the maintainer confirmed r5
 navigation works in-game. E confirmed attachment changes successfully in
 r6 user testing; Space did not. r7 removes Space as a confirmation shortcut,
-leaving its prior inert/intercepted Quick Menu behavior intact. The r7 change
-still needs a focused in-game confirmation and held-key/opener check.
+leaving its prior inert/intercepted Quick Menu behavior intact. The maintainer
+confirmed the r7 keyboard correction working in-game on 2026-10-26. This does
+not establish every modifier/opener conflict or lifecycle scenario as tested.
 
 The previous custom renderer failed Alt-Tab lifecycle testing. This revision
 still requires fresh game-level model loading, rotation, Alt-Tab, close/reopen,
