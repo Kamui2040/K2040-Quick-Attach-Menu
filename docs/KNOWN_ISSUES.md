@@ -67,11 +67,39 @@ navigation checks passed in the target game on 2026-10-26. This supersedes
 the previous custom-renderer Alt-Tab failure for the tested r8 scenario.
 
 The same r8 test confirmed that the Recon Scope displays textures while most
-10mm weapon surfaces remain nearly white. Provider logs show the assembled
-six-part 10mm preview had five pieces attached at matching connect points
-and none left at origin; receiver, scope and other meshes expose distinct
-diffuse and BGSM paths. Diffuse engine texture resolution is logged. The
-material-specific shader/texture mismatch is not understood or corrected,
+10mm weapon surfaces remain nearly white. Earlier Pipe Pistol gameplay tests
+also showed some correctly rendered wood texture; this is a partial-material
+issue, **not** an absence of texture rendering across the whole preview.
+Provider logs show the assembled six-part 10mm preview had five pieces
+attached at matching connect points and none left at origin; receiver, scope
+and other meshes expose distinct diffuse and BGSM paths. Diffuse engine
+texture resolution is logged.
+
+The maintainer also suggested comparing the vanilla weapon-workbench highlight
+shader and existing fixes. Nexus [Crafting Highlight Fix](https://www.nexusmods.com/fallout4/mods/27479)
+(1.8.8 for OG 1.10.163) modifies the game's hardcoded workbench/image-space
+highlight path; the public source at
+https://github.com/reg2k/Crafting-Highlight-Fix shows a branch patch at
+`ApplyImageSpaceShader_Check`, not a PrismaUI ModelPreview shader change.
+PrismaUI instead reports its own linear-lit D3D11 preview and sRGB render
+target. The fix is available in the mod-manager library, but a contemporaneous
+load of it in the test profile was not independently verified. Do not assume
+that enabling/installing a workbench fix will repair this independent preview;
+no such result has been tested. Investigate per-material texture binding,
+alpha/shader flags, sRGB handling and material overrides first.
+
+The maintainer also recalls a much earlier 3D-rendering experiment that
+**did display weapons**, but had inconsistent weapon-dependent framing: some
+models appeared too zoomed in, others too far away. The earlier rendering
+implementation was not located in the current Git history, and its material
+fidelity and Alt-Tab behavior have not been independently reconstructed. Treat
+this as a promising historical lead, **not** proof that the older renderer
+solves the current white-material defect. If recovered, inspect its camera
+position, per-model bounds, pivot, scale, FOV and near/far clipping. Test
+automatic bounds-based framing across pistol, long gun and large/modded mesh
+cases without copying unsafe lifecycle behavior or changing weapon data.
+
+The material-specific shader/texture mismatch is not understood or corrected,
 and additional mod-added mesh/material combinations are unverified. Neither
 full vanilla-workbench visual parity nor the experimental feature's release
 acceptance can be claimed from the successful lifecycle tests.

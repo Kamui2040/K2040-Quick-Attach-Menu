@@ -40,8 +40,16 @@
   in-game on 2026-10-26. Current PrismaUI logging records the installed 10mm
   model as six pieces, five connected and none left at origin, and recognizes
   its diffuse/BGSM paths. However, much of the weapon appears white while the
-  Recon Scope displays texture. Remaining 3D-preview material/shader fidelity
-  is not accepted; do not mark the overall experimental preview release-ready.
+  Recon Scope displays texture, and the Pipe Pistol partially renders its wood
+  texture. A reference check of Nexus Crafting Highlight Fix found it patches
+  Fallout 4 workbench/image-space highlighting, whereas PrismaUI draws through
+  its own D3D11 preview target; no shared highlight cause is established.
+  The maintainer recalls an earlier weapon-rendering prototype that did render
+  weapon models but framed different weapons at widely varying zoom levels.
+  Its source and shader behavior have not been recovered; investigate
+  per-model bounds/FOV/pivot-based camera fitting if that approach is found.
+  Remaining 3D-preview material/shader fidelity is not accepted; do not mark
+  the overall experimental preview release-ready.
   Stable release is 0.5.220; saves, bindings and inventory remain untouched.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
