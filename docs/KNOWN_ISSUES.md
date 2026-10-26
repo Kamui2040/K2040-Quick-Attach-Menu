@@ -59,12 +59,22 @@ verified lifecycle, threading and render-target ownership. Do not call an
 unverified workbench relocation or copy a gameplay-owned model node for a
 preview. The model/material limitation remains unresolved.
 
-A static-tested lifecycle safeguard now retires stale GPU preview requests and
+The r8 lifecycle safeguard retires stale GPU preview requests and prior
 load-failure state when weapon/OMOD composition changes; a missing multi-part
-set falls back to a single receiver. The previous custom renderer failed
-Alt-Tab lifecycle testing. This revision still needs in-game checks of the
-latest model replacement logic, Alt-Tab, close/reopen, game-load/weapon switch
-and texture/mod-added mesh compatibility before release or default enablement.
+set falls back to a single receiver. The maintainer confirmed weapon and
+attachment switching, Alt-Tab, preview close/reopen, and prior keyboard/
+navigation checks passed in the target game on 2026-10-26. This supersedes
+the previous custom-renderer Alt-Tab failure for the tested r8 scenario.
+
+The same r8 test confirmed that the Recon Scope displays textures while most
+10mm weapon surfaces remain nearly white. Provider logs show the assembled
+six-part 10mm preview had five pieces attached at matching connect points
+and none left at origin; receiver, scope and other meshes expose distinct
+diffuse and BGSM paths. Diffuse engine texture resolution is logged. The
+material-specific shader/texture mismatch is not understood or corrected,
+and additional mod-added mesh/material combinations are unverified. Neither
+full vanilla-workbench visual parity nor the experimental feature's release
+acceptance can be claimed from the successful lifecycle tests.
 No player's MCM settings or installed attachments are changed.
 
 ## Fixed in 0.5.219: opener-close input leak

@@ -34,10 +34,15 @@
   This is not equivalent to the live workbench instance or full MSWP handling;
   CommonLibF4 exposes ExamineMenu and Inventory3DManager, but no independently
   verified assembly/transfer API usable from this menu is established.
-  The adapter now retires stale native models/errors on an equipped-weapon
-  change even without page teardown (automated tests passed). Full material/
-  geometry parity and Alt-Tab/weapon-transition QA remain pending. Stable release is
-  0.5.220; existing save, keybind, and inventory data must not be reset.
+  The adapter retires stale native models/errors on an equipped-weapon change
+  even without page teardown. The maintainer confirmed r8 weapon/attachment
+  switching, close/reopen, Alt-Tab and previous input/navigation QA passed
+  in-game on 2026-10-26. Current PrismaUI logging records the installed 10mm
+  model as six pieces, five connected and none left at origin, and recognizes
+  its diffuse/BGSM paths. However, much of the weapon appears white while the
+  Recon Scope displays texture. Remaining 3D-preview material/shader fidelity
+  is not accepted; do not mark the overall experimental preview release-ready.
+  Stable release is 0.5.220; saves, bindings and inventory remain untouched.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).

@@ -42,9 +42,12 @@
   errors, and revert to receiver-only when the new stack has no extra meshes.
   Focused regression coverage checks late status callbacks after replacement
   and closing, without weakening the native attachment transaction checks.
-- Static and cross-build checks do not establish rendering correctness.
-  Target-game QA (including Alt-Tab, reload, close/reopen and weapon switching)
-  must pass before enabling by default or releasing this experiment.
+- The maintainer confirmed the r8 weapon/attachment-transition, close/reopen,
+  Alt-Tab and existing input/navigation tests passed in-game on 2026-10-26.
+  The Recon Scope displays its texture, but most weapon parts remain white.
+  Live logs confirm matching connect-point assembly and readable diffuse/
+  material paths; the residual material/shader mismatch remains unresolved.
+  This scoped r8 acceptance does not make the 3D preview release-ready.
 
 ## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 
