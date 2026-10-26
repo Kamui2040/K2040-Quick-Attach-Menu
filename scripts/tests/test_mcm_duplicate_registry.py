@@ -68,11 +68,14 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
 
-    def test_native_mcm_cleared_entries_are_not_reseeded(self):
+    def test_cleared_entries_stay_unbound_but_are_re_registered(self):
         seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split('bool WriteSharedHotkeyBindings(',1)[0]
-        self.assertIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
+        self.assertNotIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertIn('selected = initialized ? 0 : key', seed)
+        self.assertIn('selected ? mods : 0', seed)
         self.assertLess(seed.index('if (FindMcmKeybindObject(json,id)) continue;'),
-                        seed.index('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;'))
+                        seed.index('selected = initialized ? 0 : key'))
 
     def test_settings_capture_is_validated_before_touching_shared_registry(self):
         start = SOURCE.index('bool SetSharedHotkeyBinding(')

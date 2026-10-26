@@ -364,13 +364,12 @@ namespace
                      {kOpenMenuKeybindId,'K',1u},
                      {kOpenMenuBuilderKeybindId,'K',3u}}) {
                 if (FindMcmKeybindObject(json,id)) continue;
-                // Native MCM owns a previously initialized registry. A
-                // missing entry means the user pressed Tab/Clear in MCM:
-                // do not recreate it (even Unbound) on next startup.
-                if (initialized && GetModuleHandleW(L"mcm.dll")) continue;
-                // If a previous user explicitly cleared a hotkey, do not
-                // resurrect its factory assignment on the next start.
-                std::uint32_t selected=initialized?0:key;
+                // A stale initialization marker with no keybind record must
+                // not make the MCM key picker permanently unusable. Restore
+                // an explicit Unbound (0) record for previously initialized
+                // shortcuts: Tab/Clear must never reactivate a default.
+                // Only first-time installations receive the factory chord.
+                std::uint32_t selected = initialized ? 0 : key;
                 // MCM may also register shortcuts from other mods. Avoid
                 // claiming a default already assigned in the same registry.
                 const auto array = k2040::ScanMcmKeybindArray(json, *keybinds);

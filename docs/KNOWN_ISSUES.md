@@ -9,6 +9,28 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## Next-release candidate: empty MCM hotkey registrations after reinstall
+
+A local MCM registry contained Quest Journal entries but no Quick Attach
+entries while the Quick Attach `hotkeys-initialized` marker still existed.
+Classic MCM's keybind picker can fail its first assignment when a registry
+record is absent. The existing startup logic intentionally skipped those
+records when native MCM was loaded, to avoid undoing a deliberate Tab/Clear.
+
+The next-release candidate restores a missing entry as explicit Unbound
+(keycode 0, modifiers 0) if the marker exists. Fresh installations without
+the marker still seed Shift+K and Ctrl+Shift+K, provided these chords are
+available; existing saved keys are untouched. This makes previously cleared
+shortcuts eligible for assignment on the next launch without silently turning
+them back on. It does not rewrite another mod's keybinds or reset a current
+user setting. The change is source-tested, but native MCM/game-level testing
+of first assignment, clearing, relaunch and MCM save-on-close remains pending.
+
+MCM Categorizer 1.0.1 is separately reported to hide child pages under the
+shared `K2040 Mods` root. An optional standalone-child MCM override is provided
+for controlled comparison; it is not enabled in the normal package and still
+needs runtime testing. Do not advertise full Categorizer support yet.
+
 ## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 
 User runtime QA exposed an independent live MCM manager and disk registry
