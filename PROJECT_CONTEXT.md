@@ -48,6 +48,10 @@
   weapon models but framed different weapons at widely varying zoom levels.
   Its source and shader behavior have not been recovered; investigate
   per-model bounds/FOV/pivot-based camera fitting if that approach is found.
+  A read-only vanilla texture archive comparison shows both 10mm receiver
+  and Recon Scope diffuse assets are BC3, but the former is much brighter.
+  Per-mesh SRV fallback vs simplified-lighting clipping remains unverified;
+  distinguish these at the PrismaUI provider boundary before altering QAM.
   Remaining 3D-preview material/shader fidelity is not accepted; do not mark
   the overall experimental preview release-ready.
   Stable release is 0.5.220; saves, bindings and inventory remain untouched.

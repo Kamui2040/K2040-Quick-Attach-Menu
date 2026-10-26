@@ -99,6 +99,18 @@ position, per-model bounds, pivot, scale, FOV and near/far clipping. Test
 automatic bounds-based framing across pistol, long gun and large/modded mesh
 cases without copying unsafe lifecycle behavior or changing weapon data.
 
+Read-only inspection of Fallout 4's installed texture archives confirms the
+10mm receiver diffuse (`10mmPistol02_d.DDS`) and Recon Scope diffuse
+(`ReconPistol_scope_1_d.DDS`) both use BC3/DXT5 compression. The first diffuse
+is substantially brighter and nearly grayscale (approximately 175 mean RGB),
+while the Recon Scope is darker (approximately 103, 107, 90 mean RGB). Their
+original texture values are not universally white. PrismaUI's simplified
+lighting can plausibly wash out brighter surfaces, but an unresolved per-shape
+GPU texture lookup also triggers the provider's gray fallback. The existing
+first-texture SRV log is insufficient to distinguish these causes. Verify
+actual texture bindings and exposure **per shape** using a provider-matched
+instrumented build before changing brightness, shaders or model detection.
+
 The material-specific shader/texture mismatch is not understood or corrected,
 and additional mod-added mesh/material combinations are unverified. Neither
 full vanilla-workbench visual parity nor the experimental feature's release
