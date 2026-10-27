@@ -27,7 +27,11 @@ class HotkeyRegistryContracts(unittest.TestCase):
             "bool WriteSharedHotkeyBindings", 1)[0]
         self.assertIn("if (FindMcmKeybindObject(json,id)) continue;", seed)
         self.assertIn("selected = initialized ? 0 : key", seed)
-        self.assertNotIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertIn('if (GetModuleHandleW(L"mcm.dll")) return;', seed)
+        self.assertIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
+        self.assertIn('NativeMcmChordOccupied(*records, defaultKey, defaultMods)', SOURCE)
+        self.assertIn('root.mcm.SetKeybind', SOURCE)
         self.assertIn("if (FindMcmKeybindObject(json,id)) continue;", seed)
         self.assertIn("selected ? mods : 0", seed)
         self.assertIn("hotkeys-initialized", seed)

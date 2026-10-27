@@ -9,27 +9,37 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
-## Next-release candidate: empty MCM hotkey registrations after reinstall
+## Next-release candidate: native MCM registration and duplicate recovery
 
-A local MCM registry contained Quest Journal entries but no Quick Attach
-entries while the Quick Attach `hotkeys-initialized` marker still existed.
-Classic MCM's keybind picker can fail its first assignment when a registry
-record is absent. The existing startup logic intentionally skipped those
-records when native MCM was loaded, to avoid undoing a deliberate Tab/Clear.
+Native MCM stores bindings keyed by physical (keycode, modifiers), not by
+(modName, action ID). A previously published Settings registration method
+could create a second record for the same Builder action. One observed user
+registry contained `openMenuBuilder` both at Unbound (0/0) and Mouse 5
+(260/0); MCM's first-match lookup then showed the wrong state. MCM's live
+registration map and its save-on-close behavior make disk-only repairs unsafe.
 
-The next-release candidate restores a missing entry as explicit Unbound
-(keycode 0, modifiers 0) if the marker exists. Fresh installations without
-the marker still seed Shift+K and Ctrl+Shift+K, provided these chords are
-available; existing saved keys are untouched. This makes previously cleared
-shortcuts eligible for assignment on the next launch without silently turning
-them back on. It does not rewrite another mod's keybinds or reset a current
-user setting. The change is source-tested, but native MCM/game-level testing
-of first assignment, clearing, relaunch and MCM save-on-close remains pending.
+The revised draft does **not** inject synthetic Unbound records into native
+MCM's JSON. On the first PauseMenu session of a fresh installation, it uses
+native MCM's live `SetKeybind` only if a default action is genuinely absent
+and the chosen default chord is free. The existing initialization marker
+means missing actions on later launches remain cleared, not reset. Explicit
+Settings capture may register a genuinely absent action through native MCM;
+existing actions are modified only through `RemapKeybind`. Before each write,
+`GetAllKeybinds` checks live duplicates and target-chord conflicts. For one
+stale 0/0 record plus exactly one real chord of the same action, the live
+manager clears only 0/0 and verifies the survivor retained its exact key.
+Multiple real keys for one ID are ambiguous: no automatic deletion occurs.
 
-MCM Categorizer 1.0.1 is separately reported to hide child pages under the
-shared `K2040 Mods` root. An optional standalone-child MCM override is provided
-for controlled comparison; it is not enabled in the normal package and still
-needs runtime testing. Do not advertise full Categorizer support yet.
+Classic MCM's own native hotkey picker may not support first assignment to an
+absent/cleared action. The Settings page can explicitly register the chosen
+shortcut instead. This still requires physical target-runtime QA for all
+first-run, clear/reassign, duplicate-recovery and native serialization paths.
+The proposal is not released and must not be merged until that evidence passes.
+
+MCM Categorizer (Nexus 66311) separately hides child pages under the shared
+`K2040 Mods` root in one user report. The optional standalone config fallback
+is a separate unverified compatibility candidate; the normal grouped layout
+is unchanged.
 
 ## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 

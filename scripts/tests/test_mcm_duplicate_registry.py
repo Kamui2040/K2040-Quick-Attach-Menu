@@ -45,16 +45,20 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
 
     def test_native_mcm_owns_persistence_and_verifies_remap(self):
         self.assertIn('GetMenuOpen(RE::BSFixedString("PauseMenu"))', SOURCE)
-        self.assertIn('Invoke("root.mcm.RemapKeybind", &result, args, 4)', SOURCE)
-        self.assertIn('Invoke("root.mcm.GetKeybind", &result, args, 2)', SOURCE)
-        self.assertNotIn('Invoke("root.mcm.SetKeybind",', SOURCE)
+        self.assertIn('"root.mcm.RemapKeybind"', SOURCE)
+        self.assertIn('"root.mcm.GetKeybind"', SOURCE)
+        self.assertIn('"root.mcm.GetAllKeybinds"', SOURCE)
+        self.assertIn('const char* method = absent ? "root.mcm.SetKeybind" : "root.mcm.RemapKeybind";', SOURCE)
+        self.assertIn('const bool absent = state == k2040::NativeMcmRecordState::Missing;', SOURCE)
+        self.assertIn('NativeMcmChordOccupied(*all, binding.keycode, binding.modifiers)', SOURCE)
+        self.assertIn('"root.mcm.ClearKeybind"', SOURCE)
         self.assertIn('!result.IsBoolean() || !result.GetBoolean()', SOURCE)
         self.assertIn('g_mcmSyncTaskQueued.exchange(true', SOURCE)
         self.assertIn('tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });', SOURCE)
         self.assertIn('registered->keycode == binding.originalKeycode', SOURCE)
         self.assertIn('live->keycode == binding.keycode && live->modifiers == binding.modifiers', SOURCE)
         self.assertIn('live->keycode != binding.originalKeycode', SOURCE)
-        self.assertIn('confirmed->keycode == binding.keycode', SOURCE)
+        self.assertIn('record.keycode == binding.keycode && record.modifiers == binding.modifiers', SOURCE)
         self.assertIn('LiveSyncResult::Superseded', SOURCE)
 
         setter = SOURCE.split('bool SetSharedHotkeyBinding(',1)[1].split('bool ResetSharedHotkeyBindings(',1)[0]
@@ -64,18 +68,21 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         reset = SOURCE.split('bool ResetSharedHotkeyBindings()',1)[1].split('void SetHotkeyCaptureActive(',1)[0]
         self.assertLess(reset.index('if (GetModuleHandleW(L"mcm.dll"))'),
                         reset.index('WriteSharedHotkeyBindings('))
-        self.assertIn('if (!quick || !builder || quick->keycode == 0 || builder->keycode == 0)', reset)
+        self.assertIn('if (GetModuleHandleW(L"mcm.dll"))', reset)
+        self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
 
-    def test_cleared_entries_stay_unbound_but_are_re_registered(self):
+    def test_cleared_native_entries_are_not_fabricated(self):
         seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split('bool WriteSharedHotkeyBindings(',1)[0]
         self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
-        self.assertNotIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
+        self.assertIn('if (GetModuleHandleW(L"mcm.dll")) return;', seed)
+        self.assertIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
         self.assertIn('selected = initialized ? 0 : key', seed)
         self.assertIn('selected ? mods : 0', seed)
-        self.assertLess(seed.index('if (FindMcmKeybindObject(json,id)) continue;'),
-                        seed.index('selected = initialized ? 0 : key'))
+        self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
+        self.assertIn('const auto marker = std::filesystem::path(', SOURCE)
+        self.assertIn('if (!std::filesystem::is_regular_file(marker))', SOURCE)
 
     def test_settings_capture_is_validated_before_touching_shared_registry(self):
         start = SOURCE.index('bool SetSharedHotkeyBinding(')

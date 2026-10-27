@@ -20,6 +20,15 @@ compatibility handling; an empty shared root may remain if those mods are
 installed. In-game testing with Categorizer is still required before claiming
 compatibility.
 
+### Native MCM recovery (unreleased)
+
+The draft registration repair uses MCM's live binding manager rather than
+synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
+cleared until an explicit Settings assignment. Automatic live repair is limited
+to one stale Unbound duplicate shadowing one unambiguous real binding; all
+other duplicate states require manual diagnosis. Native MCM, MCM Categorizer
+and F4SE Menu Framework need separate game-level compatibility tests.
+
 ## Optional K2040 Mods MCM grouping (included in 0.5.216)
 
 Quick Attach Menu bundles the canonical K2040_Mods parent in every
