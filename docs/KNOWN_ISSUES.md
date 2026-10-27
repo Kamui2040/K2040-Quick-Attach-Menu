@@ -9,6 +9,85 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
+## Next-release candidate: native MCM registration and duplicate recovery
+
+Native MCM stores bindings keyed by physical (keycode, modifiers), not by
+(modName, action ID). A previously published Settings registration method
+could create a second record for the same Builder action. One observed user
+registry contained `openMenuBuilder` both at Unbound (0/0) and Mouse 5
+(260/0); MCM's first-match lookup then showed the wrong state. MCM's live
+registration map and its save-on-close behavior make disk-only repairs unsafe.
+
+The revised draft does **not** inject synthetic Unbound records into native
+MCM's JSON. On the first PauseMenu session of a fresh installation, it uses
+native MCM's live `SetKeybind` only if a default action is genuinely absent
+and the chosen default chord is free. The existing initialization marker
+means missing actions on later launches remain cleared, not reset. Explicit
+Settings capture may register a genuinely absent action through native MCM;
+existing actions are modified only through `RemapKeybind`. Before each write,
+`GetAllKeybinds` checks live duplicates and target-chord conflicts. For one
+stale 0/0 record plus exactly one real chord of the same action, the live
+manager clears only 0/0 and verifies the survivor retained its exact key.
+Multiple real keys for one ID are ambiguous: no automatic deletion occurs.
+
+When diagnosing Amethyst installs, distinguish the manager's `overwrite`
+copy of `MCM/Settings/Keybinds.json` from Fallout 4's **deployed**
+`Data/MCM/Settings/Keybinds.json`: these are not necessarily the same file.
+Only the deployed game registry establishes what native MCM can load. Missing
+Quick Attach records observed after uninstalling the mod do not constitute
+evidence of lost registration during an installed run. The last successful
+manual repair removed only a stale Builder Unbound entry from the deployed
+registry; no automatic native cleanup acceptance was established by it.
+Diagnostic logs now report once per PauseMenu session whether MCM's live
+GetAllKeybinds bridge responded, so a silent unavailable interface is not
+mistaken for a successful recovery.
+
+The earlier r3 attempt still left the Builder at Unbound plus Mouse 5.
+Graphify traces native recovery from `PollHotkey()` through
+`TryNativeMcmLiveSyncOnGameThread()`. The failure log confirmed that the
+live bridge returned **one Quick Attach registration** at the time of its
+first check; later, MCM saved both the Builder Unbound (0/0) and Mouse 5
+(260/0) registrations. r3 only checked duplicates **once per PauseMenu**,
+so a duplicate appearing after the user captured a new key could never be
+repaired in that session. The revised candidate tracks changes to the live
+GetAllKeybinds map and inspects each changed map after two matching samples,
+without deleting any other action's entry or guessing between multiple real
+bindings. It remains unreleased; repeated-scan and actual MCM UI persistence
+require focused in-game testing.
+
+A subsequent source audit identified an upstream cause **within Quick Attach
+itself**: the non-native disk fallback seeded missing Quick Menu and Builder
+actions as keycode 0 when the hotkeys-initialized marker existed. It
+processed Quick Menu first and Builder second. Native MCM indexes by physical
+chord, so on load both records used (0,0) and Builder (the latter record)
+overwrote Quick Menu at that chord. Later assigning Mouse 4 to Quick Menu
+produced a single Quick entry, while assigning Mouse 5 to Builder added a
+second Builder entry without removing Builder's (0,0). This reconstructs
+the reported registry exactly. The earlier fallback guard only checked
+whether mcm.dll was **loaded**, not whether it was already **installed**,
+so early Quick Attach initialization could write the invalid data before
+native MCM loaded.
+
+The revised source now considers the installed native MCM DLL authoritative
+even before load, so neither startup nor Settings writes its registry.
+The fallback for F4SE Menu Framework alone no longer creates synthetic
+Unbound records, skips seeded actions on subsequent launches, and refuses
+default-chord collisions instead of inserting (0,0). The original
+writer/timestamp of the observed historical entry was not captured, but the
+exact producer and failure sequence are reproducible in the source tests.
+This prevention and remaining in-game acceptance still need verification.
+
+Classic MCM's own native hotkey picker may not support first assignment to an
+absent/cleared action. The Settings page can explicitly register the chosen
+shortcut instead. This still requires physical target-runtime QA for all
+first-run, clear/reassign, duplicate-recovery and native serialization paths.
+The proposal is not released and must not be merged until that evidence passes.
+
+MCM Categorizer (Nexus 66311) separately hides child pages under the shared
+`K2040 Mods` root in one user report. The optional standalone config fallback
+is a separate unverified compatibility candidate; the normal grouped layout
+is unchanged.
+
 ## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 
 User runtime QA exposed an independent live MCM manager and disk registry

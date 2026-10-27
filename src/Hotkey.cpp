@@ -1,4 +1,5 @@
 #include "McmKeybindRegistry.h"
+#include "NativeMcmBindingRecovery.h"
 #include "SettingsKeyCaptureValidation.h"
 #include "SettingsNativeMouseCapture.h"
 #include "Hotkey.h"
@@ -57,6 +58,7 @@ namespace
         std::uint32_t modifiers = 0;
         std::uint32_t originalKeycode = 0;
         std::uint32_t originalModifiers = 0;
+        bool registerMissing = false; // Only an explicit Settings capture can register an absent ID.
     };
     std::mutex g_mcmSyncMutex;
     std::optional<McmLiveBinding> g_mcmQuickPending;
@@ -321,19 +323,37 @@ namespace
         std::uint32_t modifiers = 0;
     };
 
+    bool NativeMcmOwnsRegistry()
+    {
+        // The plugin load order is not authoritative. MCM may not yet have
+        // loaded when our startup code runs, but its deployed DLL means the
+        // shared registry must not be seeded or written behind its back.
+        return std::filesystem::is_regular_file("Data/F4SE/Plugins/mcm.dll") ||
+               GetModuleHandleW(L"mcm.dll") != nullptr;
+    }
+
     void SeedDefaultMcmBindings()
     {
-        // Classic MCM's OptionsList.as dereferences GetKeybind(...).keycode
-        // without checking for null. A missing registry record leaves its
-        // hotkey picker unable to perform its very first assignment.
-        // Never reset a saved binding, including a deliberate Unbound (0).
+        // F4SE Menu Framework-only compatibility fallback. Native MCM owns
+        // its live registry, including the first registration and clearing.
+        // Never synthesize keycode 0 into either provider's shared registry:
+        // MCM indexes entries by chord, so two 0/0 records collide and the
+        // second (Builder) displaces Quick Menu's Unbound record.
         try {
             const auto config=std::filesystem::path("Data/MCM/Config/K2040_Quick_Attach_Menu/config.json");
             if (!std::filesystem::is_regular_file(config)) return;
-            if (!std::filesystem::is_regular_file("Data/F4SE/Plugins/mcm.dll") &&
-                !std::filesystem::is_regular_file("Data/F4SE/Plugins/F4SEMenuFramework.dll")) return;
+            // Check the installed native DLL, not just GetModuleHandleW:
+            // InitializeHotkey may run before mcm.dll is loaded, and the
+            // old runtime-only guard then created two synthetic 0/0 records.
+            // Native MCM first-time bindings are registered through its live
+            // Scaleform manager once the PauseMenu bridge becomes available.
+            if (NativeMcmOwnsRegistry()) return;
+            if (!std::filesystem::is_regular_file("Data/F4SE/Plugins/F4SEMenuFramework.dll") &&
+                !GetModuleHandleW(L"F4SEMenuFramework.dll")) return;
             const auto marker=std::filesystem::path("Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized");
-            const bool initialized=std::filesystem::is_regular_file(marker);
+            // A prior initialization means a missing action may have been
+            // deliberately cleared; never reconstruct it as Unbound 0/0.
+            if (std::filesystem::is_regular_file(marker)) return;
             const bool existing=std::filesystem::exists(kMcmKeybindRegistryPath);
             std::string json;
             if (existing) {
@@ -358,19 +378,15 @@ namespace
                 return;
             }
             bool changed=*reconciled;
+            bool complete=true;
             if (changed) k2040::log::Info("Removed older duplicate Quick Attach hotkeys; kept most recent assignments.");
             for (const auto [id,key,mods]:
                  {std::tuple<std::string_view,std::uint32_t,std::uint32_t>
                      {kOpenMenuKeybindId,'K',1u},
                      {kOpenMenuBuilderKeybindId,'K',3u}}) {
                 if (FindMcmKeybindObject(json,id)) continue;
-                // Native MCM owns a previously initialized registry. A
-                // missing entry means the user pressed Tab/Clear in MCM:
-                // do not recreate it (even Unbound) on next startup.
-                if (initialized && GetModuleHandleW(L"mcm.dll")) continue;
-                // If a previous user explicitly cleared a hotkey, do not
-                // resurrect its factory assignment on the next start.
-                std::uint32_t selected=initialized?0:key;
+                // First-time standalone framework defaults only. A blocked
+                // default must remain absent, not become a fabricated 0/0.
                 // MCM may also register shortcuts from other mods. Avoid
                 // claiming a default already assigned in the same registry.
                 const auto array = k2040::ScanMcmKeybindArray(json, *keybinds);
@@ -379,13 +395,16 @@ namespace
                     const auto object = std::string_view(json).substr(start, end - start);
                     const auto otherKey = ReadJsonUnsignedMember(object, "keycode");
                     const auto otherMod = ReadJsonUnsignedMember(object, "modifiers");
-                    if (otherKey && otherMod && *otherKey == selected && *otherMod == mods)
-                        selected = 0;
+                    if (otherKey && otherMod && *otherKey == key && *otherMod == mods) {
+                        complete = false;
+                        break;
+                    }
                 }
+                if (!complete) break; // Never manufacture a 0/0 collision.
                 const std::string record = std::string("{\"id\":\"") + std::string(id) +
-                  "\",\"keycode\":" + std::to_string(selected) +
+                  "\",\"keycode\":" + std::to_string(key) +
                   ",\"modName\":\"K2040_Quick_Attach_Menu\",\"modifiers\":" +
-                  std::to_string(selected ? mods : 0) + "}";
+                  std::to_string(mods) + "}";
                 json.insert(array->closingBracket,
                     std::string(array->objects.empty() ? "" : ",") + record);
                 changed=true;
@@ -404,7 +423,7 @@ namespace
                     std::filesystem::remove(temporary,ec);return;
                 }
             }
-            if(!initialized){
+            if(complete){
                 std::error_code ec;
                 std::filesystem::create_directories(marker.parent_path(),ec);
                 if(ec)return;
@@ -418,8 +437,8 @@ namespace
 
     bool WriteSharedHotkeyBindings(const std::vector<PendingSharedBinding>& bindings)
     {
-        // Unbind through classic MCM removes a record entirely. Seed an
-        // explicit Unbound record so PrismaUI can reassign immediately.
+        // Only seed fresh non-native framework defaults. Never invent an
+        // Unbound placeholder for a native-MCM-cleared action.
         SeedDefaultMcmBindings();
         std::ifstream file(kMcmKeybindRegistryPath, std::ios::binary);
         if (!file.is_open()) {
@@ -619,12 +638,14 @@ namespace
         // Capture its previous value for a stale-write guard. Do not write it:
         // native MCM serializes its own *live* keybinds on MCM close.
         const auto existing = ReadSharedHotkeyBinding(id);
-        if (!existing || existing->keycode == 0) {
-            k2040::log::Warn("Settings MCM remap requires an existing binding; use MCM to restore a cleared binding.");
-            return false;
-        }
+        // An absent action is not a valid target for RemapKeybind. Permit
+        // *explicit* Settings capture to register it using native MCM only
+        // after GetAllKeybinds confirms that no live record for this ID exists.
+        // Never synthesize an Unbound (0,0) placeholder in the shared file.
         const McmLiveBinding pending{ keycode, modifiers,
-            existing->keycode, existing->modifiers };
+            existing ? existing->keycode : 0,
+            existing ? existing->modifiers : 0,
+            !existing };
         {
             std::lock_guard lock(g_mcmSyncMutex);
             if (id == kOpenMenuKeybindId) g_mcmQuickPending = pending;
@@ -644,19 +665,176 @@ namespace
             g_mcmSyncTaskQueued.store(false, std::memory_order_release);
         };
         if (!GetModuleHandleW(L"mcm.dll")) { finish(); return; }
-        // Bound retries per Pause-menu session: if MCM's Scaleform bridge is
-        // absent/rejects a mapping, do not repeatedly overwrite subsequent
-        // native MCM user edits while its menu remains open.
+        // Bound Settings-request retries per Pause-menu session. Passive
+        // duplicate checks and fresh-registration checks are separate.
         static unsigned int attemptsThisPause = 0;
+        static k2040::NativeMcmChangeGate duplicateScan;
+        static bool warnedBridgeThisPause = false;
+        static bool loggedBridgeSuccessThisPause = false;
         auto* ui = RE::UI::GetSingleton();
         if (!ui || !ui->GetMenuOpen(RE::BSFixedString("PauseMenu"))) {
             attemptsThisPause = 0;
+            duplicateScan.Reset();
+            warnedBridgeThisPause = false;
+            loggedBridgeSuccessThisPause = false;
             finish();
             return;
         }
-        if (attemptsThisPause >= 3u) { finish(); return; }
         const auto menu = ui->GetMenu(RE::BSFixedString("PauseMenu"));
-        if (!menu || !menu->uiMovie) { finish(); return; }
+        if (!menu || !menu->uiMovie) {
+            if (!warnedBridgeThisPause) {
+                k2040::log::Warn("Native MCM live binding check deferred: PauseMenu movie unavailable.");
+                warnedBridgeThisPause = true;
+            }
+            finish();
+            return;
+        }
+
+        // Read MCM's *live* map. Editing disk here would race its save-on-close.
+        const auto readLive = [&]() -> std::optional<std::vector<k2040::NativeMcmRecord>> {
+            Scaleform::GFx::Value result;
+            if (!menu->uiMovie->Invoke("root.mcm.GetAllKeybinds", &result, nullptr, 0) ||
+                !result.IsArray()) {
+                if (!warnedBridgeThisPause) {
+                    k2040::log::Warn("Native MCM live binding check deferred: GetAllKeybinds bridge unavailable or invalid.");
+                    warnedBridgeThisPause = true;
+                }
+                return std::nullopt;
+            }
+            std::vector<k2040::NativeMcmRecord> records;
+            if (result.GetArraySize() > 2048u) return std::nullopt;
+            for (unsigned i = 0; i < result.GetArraySize(); ++i) {
+                Scaleform::GFx::Value entry;
+                if (!result.GetElement(i, &entry) || !entry.IsObject()) return std::nullopt;
+                Scaleform::GFx::Value owner, id, key, mods;
+                if (!entry.GetMember("modName", &owner) || !owner.IsString() ||
+                    !entry.GetMember("keybindID", &id) || !id.IsString() ||
+                    !entry.GetMember("keycode", &key) || !key.IsInt() ||
+                    !entry.GetMember("modifiers", &mods) || !mods.IsInt() ||
+                    key.GetInt() < 0 || mods.GetInt() < 0) return std::nullopt;
+                records.push_back({owner.GetString(), id.GetString(),
+                    static_cast<std::uint32_t>(key.GetInt()),
+                    static_cast<std::uint32_t>(mods.GetInt())});
+            }
+            if (!loggedBridgeSuccessThisPause) {
+                unsigned own = 0;
+                for (const auto& record : records)
+                    if (record.modName == kMcmModName &&
+                        (record.id == kOpenMenuKeybindId || record.id == kOpenMenuBuilderKeybindId))
+                        ++own;
+                k2040::log::Info("Native MCM live GetAllKeybinds bridge available; Quick Attach records: " +
+                    std::to_string(own) + ".");
+                loggedBridgeSuccessThisPause = true;
+            }
+            return records;
+        };
+
+        // Native MCM owns its map. Register fresh-install factory bindings
+        // only through that map, never by editing a registry that MCM might
+        // subsequently save over. A persistent marker distinguishes a fresh
+        // install from a deliberately cleared action on later launches.
+        const auto marker = std::filesystem::path(
+            "Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized");
+        if (!std::filesystem::is_regular_file(marker)) {
+            auto records = readLive();
+            if (!records) { finish(); return; }
+            bool complete = true;
+            for (const auto [id, defaultKey, defaultMods] :
+                {std::tuple<std::string_view, std::uint32_t, std::uint32_t>
+                    {kOpenMenuKeybindId, 'K', 1u},
+                    {kOpenMenuBuilderKeybindId, 'K', 3u}}) {
+                const auto state = k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id);
+                if (state == k2040::NativeMcmRecordState::Ambiguous ||
+                    state == k2040::NativeMcmRecordState::StaleUnboundDuplicate) {
+                    complete = false;
+                    break;
+                }
+                if (state != k2040::NativeMcmRecordState::Missing ||
+                    k2040::NativeMcmChordOccupied(*records, defaultKey, defaultMods)) continue;
+                Scaleform::GFx::Value args[4], result;
+                args[0] = "K2040_Quick_Attach_Menu";
+                const std::string bindId(id);
+                args[1] = bindId.c_str();
+                args[2] = static_cast<std::int32_t>(defaultKey);
+                args[3] = static_cast<std::int32_t>(defaultMods);
+                if (!menu->uiMovie->Invoke("root.mcm.SetKeybind", &result, args, 4) ||
+                    !result.IsBoolean() || !result.GetBoolean()) {
+                    complete = false;
+                    break;
+                }
+                records = readLive();
+                if (!records || k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id) !=
+                        k2040::NativeMcmRecordState::Unique) {
+                    complete = false;
+                    break;
+                }
+            }
+            if (complete) {
+                std::error_code ec;
+                std::filesystem::create_directories(marker.parent_path(), ec);
+                if (!ec) {
+                    std::ofstream out(marker, std::ios::binary | std::ios::trunc);
+                    if (out) out << "initialized=1\n";
+                }
+            }
+        }
+
+        // MCM's own hotkey UI can register additional chords *after* this
+        // PauseMenu opens. Inspect each new live snapshot after two identical
+        // observations; one startup scan misses exactly that failure mode.
+        // Only the sole stale 0/0 record shadowing one real chord is removable.
+        const auto records = readLive();
+        if (!records) { finish(); return; }
+        if (duplicateScan.ShouldScan(*records)) {
+            const auto describe = [&](std::string_view id) {
+                const auto state = k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id);
+                switch (state) {
+                case k2040::NativeMcmRecordState::Missing: return "missing";
+                case k2040::NativeMcmRecordState::Unique: return "unique";
+                case k2040::NativeMcmRecordState::StaleUnboundDuplicate: return "stale-unbound-duplicate";
+                case k2040::NativeMcmRecordState::Ambiguous: return "ambiguous";
+                }
+                return "unknown";
+            };
+            k2040::log::Info(std::string("Native MCM binding snapshot: quick=") +
+                describe(kOpenMenuKeybindId) + "; builder=" + describe(kOpenMenuBuilderKeybindId));
+            for (const auto id : {kOpenMenuKeybindId, kOpenMenuBuilderKeybindId}) {
+                const auto state = k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id);
+                if (state == k2040::NativeMcmRecordState::Ambiguous) {
+                    k2040::log::Warn("Ambiguous live MCM duplicate for " + std::string(id) +
+                        "; preserving all entries for manual recovery.");
+                    continue;
+                }
+                if (state != k2040::NativeMcmRecordState::StaleUnboundDuplicate) continue;
+                const auto survivor = k2040::SingleBoundNativeMcmRecord(*records, kMcmModName, id);
+                if (!survivor) continue;
+                Scaleform::GFx::Value args[2];
+                args[0] = static_cast<std::int32_t>(0);
+                args[1] = static_cast<std::int32_t>(0);
+                Scaleform::GFx::Value cleared;
+                if (!menu->uiMovie->Invoke("root.mcm.ClearKeybind", &cleared, args, 2) ||
+                    !cleared.IsBoolean() || !cleared.GetBoolean()) {
+                    k2040::log::Warn("MCM refused removal of stale Unbound duplicate for " + std::string(id));
+                    continue;
+                }
+                const auto after = readLive();
+                const auto retained = after
+                    ? k2040::SingleBoundNativeMcmRecord(*after, kMcmModName, id)
+                    : std::nullopt;
+                if (!after || k2040::ClassifyNativeMcmRecords(*after, kMcmModName, id) !=
+                        k2040::NativeMcmRecordState::Unique || !retained ||
+                    retained->keycode != survivor->keycode ||
+                    retained->modifiers != survivor->modifiers) {
+                    k2040::log::Warn("Native MCM duplicate cleanup could not be verified for " + std::string(id));
+                    continue;
+                }
+                k2040::log::Info("Removed stale Unbound duplicate through live native MCM: " + std::string(id));
+                // Defer any further action until the updated map stabilizes.
+                break;
+            }
+        }
+        if (!g_mcmSyncPending.load(std::memory_order_acquire)) { finish(); return; }
+        if (attemptsThisPause >= 3u) { finish(); return; }
         ++attemptsThisPause;
 
         // MCM's SetKeybind *registers* a keybind, whereas RemapKeybind
@@ -679,15 +857,29 @@ namespace
         };
         enum class LiveSyncResult { NotReady, Applied, Superseded };
         const auto sync = [&](std::string_view id, const McmLiveBinding& binding) {
+            const auto all = readLive();
+            if (!all) return LiveSyncResult::NotReady;
+            const auto state = k2040::ClassifyNativeMcmRecords(*all, kMcmModName, id);
+            if (state == k2040::NativeMcmRecordState::Ambiguous ||
+                state == k2040::NativeMcmRecordState::StaleUnboundDuplicate)
+                return LiveSyncResult::Superseded;
             const auto live = query(id);
             if (!live) return LiveSyncResult::NotReady;
-            if (live->keycode == binding.keycode && live->modifiers == binding.modifiers)
-                return LiveSyncResult::Applied; // already the requested MCM value
-            if (live->keycode != binding.originalKeycode ||
-                live->modifiers != binding.originalModifiers) {
-                k2040::log::Warn("MCM binding changed while Settings update was pending; avoiding overwrite.");
+            if (state == k2040::NativeMcmRecordState::Unique &&
+                live->keycode == binding.keycode && live->modifiers == binding.modifiers)
+                return LiveSyncResult::Applied;
+            // MCM's SetKeybind is registration, not remapping. Never use it for
+            // an existing action; it would create another logical duplicate.
+            const bool absent = state == k2040::NativeMcmRecordState::Missing;
+            if (absent != binding.registerMissing &&
+                !(binding.registerMissing && state == k2040::NativeMcmRecordState::Unique &&
+                  live->keycode == 0 && live->modifiers == 0))
                 return LiveSyncResult::Superseded;
-            }
+            if (!absent && (live->keycode != binding.originalKeycode ||
+                            live->modifiers != binding.originalModifiers))
+                return LiveSyncResult::Superseded;
+            if (k2040::NativeMcmChordOccupied(*all, binding.keycode, binding.modifiers))
+                return LiveSyncResult::Superseded;
             Scaleform::GFx::Value args[4];
             args[0] = "K2040_Quick_Attach_Menu";
             const std::string keybindId(id);
@@ -695,11 +887,18 @@ namespace
             args[2] = static_cast<std::int32_t>(binding.keycode);
             args[3] = static_cast<std::int32_t>(binding.modifiers);
             Scaleform::GFx::Value result;
-            if (!menu->uiMovie->Invoke("root.mcm.RemapKeybind", &result, args, 4) ||
+            const char* method = absent ? "root.mcm.SetKeybind" : "root.mcm.RemapKeybind";
+            if (!menu->uiMovie->Invoke(method, &result, args, 4) ||
                 !result.IsBoolean() || !result.GetBoolean()) return LiveSyncResult::NotReady;
-            const auto confirmed = query(id);
-            if (confirmed && confirmed->keycode == binding.keycode &&
-                confirmed->modifiers == binding.modifiers) return LiveSyncResult::Applied;
+            const auto after = readLive();
+            if (after && k2040::ClassifyNativeMcmRecords(*after, kMcmModName, id) ==
+                    k2040::NativeMcmRecordState::Unique &&
+                !k2040::NativeMcmChordOccupied(*all, binding.keycode, binding.modifiers)) {
+                for (const auto& record : *after)
+                    if (record.modName == kMcmModName && record.id == id &&
+                        record.keycode == binding.keycode && record.modifiers == binding.modifiers)
+                        return LiveSyncResult::Applied;
+            }
             return LiveSyncResult::NotReady;
         };
 
@@ -715,6 +914,8 @@ namespace
         // while the current on-disk binding still matches that exact request.
         const auto stillCurrent = [](std::string_view id, const McmLiveBinding& binding) {
             const auto registered = ReadSharedHotkeyBinding(id);
+            if (binding.registerMissing)
+                return !registered || (registered->keycode == 0 && registered->modifiers == 0);
             return registered && registered->keycode == binding.originalKeycode &&
                 registered->modifiers == binding.originalModifiers;
         };
@@ -731,7 +932,8 @@ namespace
             const auto unchanged = [](const McmLiveBinding& a, const McmLiveBinding& b) {
                 return a.keycode == b.keycode && a.modifiers == b.modifiers &&
                     a.originalKeycode == b.originalKeycode &&
-                    a.originalModifiers == b.originalModifiers;
+                    a.originalModifiers == b.originalModifiers &&
+                    a.registerMissing == b.registerMissing;
             };
             if ((quickDone || staleQuick) && quick && g_mcmQuickPending && unchanged(*quick, *g_mcmQuickPending))
                 g_mcmQuickPending.reset();
@@ -743,7 +945,7 @@ namespace
         if (staleQuick || staleBuilder)
             k2040::log::Warn("Cancelled stale Settings MCM synchronization because the registry changed.");
         if (quickDone || builderDone)
-            k2040::log::Info("MCM RemapKeybind and GetKeybind verified live Settings change; awaiting MCM serialization on close.");
+            k2040::log::Info("MCM live registration/remap verified; awaiting native serialization on close.");
         finish();
     }
 
@@ -1074,7 +1276,7 @@ namespace k2040
                 std::to_string(keycode) + "; retained existing MCM binding.");
             return false;
         }
-        if (GetModuleHandleW(L"mcm.dll")) {
+        if (NativeMcmOwnsRegistry()) {
             // MCM maintains a separate live manager. Writing Keybinds.json here
             // races its save-on-close and loses user edits, including Tab clear.
             return StageNativeMcmLiveSync(id, keycode, modifiers);
@@ -1087,15 +1289,16 @@ namespace k2040
     bool ResetSharedHotkeyBindings()
     {
         constexpr auto defaultQuick = static_cast<std::uint32_t>('K');
-        if (GetModuleHandleW(L"mcm.dll")) {
+        if (NativeMcmOwnsRegistry()) {
             // Stage both only if both registrations still exist. MCM owns the
             // live state and will persist it on close; no competing file write.
             const auto quick = ReadSharedHotkeyBinding(kOpenMenuKeybindId);
             const auto builder = ReadSharedHotkeyBinding(kOpenMenuBuilderKeybindId);
-            if (!quick || !builder || quick->keycode == 0 || builder->keycode == 0) {
-                log::Warn("Settings reset requires both live MCM registrations; no bindings changed.");
-                return false;
-            }
+            // Explicit Reset may restore a genuinely absent shortcut. Native
+            // registration occurs only after the live MCM map confirms absence.
+            // A duplicate with conflicting real keys must never be guessed.
+            if ((quick && quick->keycode == 0 && quick->modifiers != 0) ||
+                (builder && builder->keycode == 0 && builder->modifiers != 0)) return false;
             const bool quickQueued = StageNativeMcmLiveSync(kOpenMenuKeybindId, defaultQuick, 1u);
             const bool builderQueued = StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId, defaultQuick, 3u);
             return quickQueued && builderQueued;
@@ -1181,9 +1384,11 @@ namespace k2040
         // invoke Scaleform from this background polling thread.
         static auto nextMcmSyncAttempt = std::chrono::steady_clock::time_point{};
         const auto syncNow = std::chrono::steady_clock::now();
-        if (g_mcmSyncPending.load(std::memory_order_acquire) &&
-            syncNow >= nextMcmSyncAttempt) {
-            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(850);
+        if ((g_mcmSyncPending.load(std::memory_order_acquire) ||
+             GetModuleHandleW(L"mcm.dll")) && syncNow >= nextMcmSyncAttempt) {
+            // Recheck while MCM's picker is active: a Builder duplicate can
+            // appear after the first scan, before the PauseMenu is closed.
+            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(400);
             if (!g_mcmSyncTaskQueued.exchange(true, std::memory_order_acq_rel)) {
                 if (const auto* tasks = F4SE::GetTaskInterface()) {
                     tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });

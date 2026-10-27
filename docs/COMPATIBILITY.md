@@ -1,3 +1,34 @@
+## MCM Categorizer and the shared K2040 Mods menu (next-release candidate)
+
+The third-party MCM Categorizer (Nexus 66311) has been reported to show
+`K2040 Mods` without its merged child pages. Without Categorizer, the same
+mod's child page is visible. This points to a menu-rendering compatibility
+issue; the exact Categorizer code path and in-game fix are not yet verified.
+
+For players who use Categorizer, the next-release tooling can generate a
+**separate opt-in compatibility ZIP** with:
+
+`python3 scripts/package-mcm-categorizer-compat.py /path/outside-git/QAM-MCM-Categorizer-optional.zip`
+
+Install the override **after** Quick Attach Menu. It changes only Quick
+Attach's `MCM/Config/K2040_Quick_Attach_Menu/config.json` to display the
+settings as a standalone menu entry rather than as a child of `K2040 Mods`.
+The hotkey IDs, data storage and native handling are identical. The normal
+installer and shared parent remain unchanged, and the optional override
+should not be used without Categorizer. Other K2040 mods need their own
+compatibility handling; an empty shared root may remain if those mods are
+installed. In-game testing with Categorizer is still required before claiming
+compatibility.
+
+### Native MCM recovery (unreleased)
+
+The draft registration repair uses MCM's live binding manager rather than
+synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
+cleared until an explicit Settings assignment. Automatic live repair is limited
+to one stale Unbound duplicate shadowing one unambiguous real binding; all
+other duplicate states require manual diagnosis. Native MCM, MCM Categorizer
+and F4SE Menu Framework need separate game-level compatibility tests.
+
 ## Optional K2040 Mods MCM grouping (included in 0.5.216)
 
 Quick Attach Menu bundles the canonical K2040_Mods parent in every
