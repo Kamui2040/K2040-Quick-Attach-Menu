@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
+#include <tuple>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -14,6 +16,50 @@ namespace k2040
         std::string id;
         std::uint32_t keycode = 0;
         std::uint32_t modifiers = 0;
+        bool operator==(const NativeMcmRecord&) const = default;
+    };
+
+    // PauseMenu stays open while the player edits MCM hotkeys. A one-shot
+    // startup scan can miss duplicates created later by that UI. Recheck a
+    // changed, stable native snapshot, never a moving capture in progress.
+    // Order is irrelevant; native GetAllKeybinds is keyed by physical chord.
+    class NativeMcmChangeGate
+    {
+    public:
+        bool ShouldScan(std::vector<NativeMcmRecord> current)
+        {
+            const auto order = [](const NativeMcmRecord& a, const NativeMcmRecord& b) {
+                return std::tie(a.modName, a.id, a.keycode, a.modifiers) <
+                       std::tie(b.modName, b.id, b.keycode, b.modifiers);
+            };
+            std::sort(current.begin(), current.end(), order);
+            if (!seen_ || current != lastSeen_) {
+                lastSeen_ = std::move(current);
+                seen_ = true;
+                consecutive_ = 1;
+                return false;
+            }
+            if (consecutive_ < 2) ++consecutive_;
+            if (scanned_ && lastScanned_ == current) return false;
+            lastScanned_ = std::move(current);
+            scanned_ = true;
+            return consecutive_ >= 2;
+        }
+
+        void Reset()
+        {
+            lastSeen_.clear();
+            lastScanned_.clear();
+            seen_ = scanned_ = false;
+            consecutive_ = 0;
+        }
+
+    private:
+        std::vector<NativeMcmRecord> lastSeen_;
+        std::vector<NativeMcmRecord> lastScanned_;
+        bool seen_ = false;
+        bool scanned_ = false;
+        unsigned consecutive_ = 0;
     };
 
     enum class NativeMcmRecordState

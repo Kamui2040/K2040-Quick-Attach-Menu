@@ -48,6 +48,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   Prisma Settings or use `SetKeybind` (registration) to change an existing
   binding. Queue `RemapKeybind`, verify with `GetKeybind`, and discard newer
   MCM edits rather than overwriting them. MCM-cleared entries stay cleared.
+- MCM can change its live chord-keyed registry after PauseMenu opens. A
+  single startup duplicate check is insufficient: re-examine changed stable
+  live snapshots without modifying another mod's binding, and verify any
+  surviving chord after narrowly scoped cleanup. Never erase an ambiguous
+  Unbound or conflicting registration merely to make a picker display a key.
 - Shared native MCM registry saves must preserve every other mod's binding.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged

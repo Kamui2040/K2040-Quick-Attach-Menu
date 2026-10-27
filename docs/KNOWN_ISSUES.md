@@ -42,6 +42,20 @@ Diagnostic logs now report once per PauseMenu session whether MCM's live
 GetAllKeybinds bridge responded, so a silent unavailable interface is not
 mistaken for a successful recovery.
 
+The earlier r3 attempt still left the Builder at Unbound plus Mouse 5.
+Graphify traces native recovery from `PollHotkey()` through
+`TryNativeMcmLiveSyncOnGameThread()`. The failure log confirmed that the
+live bridge returned **one Quick Attach registration** at the time of its
+first check; later, MCM saved both the Builder Unbound (0/0) and Mouse 5
+(260/0) registrations. r3 only checked duplicates **once per PauseMenu**,
+so a duplicate appearing after the user captured a new key could never be
+repaired in that session. The revised candidate tracks changes to the live
+GetAllKeybinds map and inspects each changed map after two matching samples,
+without deleting any other action's entry or guessing between multiple real
+bindings. It remains unreleased; repeated-scan and actual MCM UI persistence
+require focused in-game testing. The exact native MCM UI operation which
+inserts the second logical Builder registration was not independently traced.
+
 Classic MCM's own native hotkey picker may not support first assignment to an
 absent/cleared action. The Settings page can explicitly register the chosen
 shortcut instead. This still requires physical target-runtime QA for all

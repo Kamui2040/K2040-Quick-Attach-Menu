@@ -654,13 +654,13 @@ namespace
         // Bound Settings-request retries per Pause-menu session. Passive
         // duplicate checks and fresh-registration checks are separate.
         static unsigned int attemptsThisPause = 0;
-        static bool checkedDuplicatesThisPause = false;
+        static k2040::NativeMcmChangeGate duplicateScan;
         static bool warnedBridgeThisPause = false;
         static bool loggedBridgeSuccessThisPause = false;
         auto* ui = RE::UI::GetSingleton();
         if (!ui || !ui->GetMenuOpen(RE::BSFixedString("PauseMenu"))) {
             attemptsThisPause = 0;
-            checkedDuplicatesThisPause = false;
+            duplicateScan.Reset();
             warnedBridgeThisPause = false;
             loggedBridgeSuccessThisPause = false;
             finish();
@@ -765,12 +765,25 @@ namespace
             }
         }
 
-        // The sole unambiguous legacy duplicate is an obsolete 0/0 record
-        // shadowing one real chord. Remove it through native MCM and verify
-        // that the real user assignment remains. Other duplicates fail closed.
-        if (!checkedDuplicatesThisPause) {
-            const auto records = readLive();
-            if (!records) { finish(); return; }
+        // MCM's own hotkey UI can register additional chords *after* this
+        // PauseMenu opens. Inspect each new live snapshot after two identical
+        // observations; one startup scan misses exactly that failure mode.
+        // Only the sole stale 0/0 record shadowing one real chord is removable.
+        const auto records = readLive();
+        if (!records) { finish(); return; }
+        if (duplicateScan.ShouldScan(*records)) {
+            const auto describe = [&](std::string_view id) {
+                const auto state = k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id);
+                switch (state) {
+                case k2040::NativeMcmRecordState::Missing: return "missing";
+                case k2040::NativeMcmRecordState::Unique: return "unique";
+                case k2040::NativeMcmRecordState::StaleUnboundDuplicate: return "stale-unbound-duplicate";
+                case k2040::NativeMcmRecordState::Ambiguous: return "ambiguous";
+                }
+                return "unknown";
+            };
+            k2040::log::Info(std::string("Native MCM binding snapshot: quick=") +
+                describe(kOpenMenuKeybindId) + "; builder=" + describe(kOpenMenuBuilderKeybindId));
             for (const auto id : {kOpenMenuKeybindId, kOpenMenuBuilderKeybindId}) {
                 const auto state = k2040::ClassifyNativeMcmRecords(*records, kMcmModName, id);
                 if (state == k2040::NativeMcmRecordState::Ambiguous) {
@@ -802,8 +815,9 @@ namespace
                     continue;
                 }
                 k2040::log::Info("Removed stale Unbound duplicate through live native MCM: " + std::string(id));
+                // Defer any further action until the updated map stabilizes.
+                break;
             }
-            checkedDuplicatesThisPause = true;
         }
         if (!g_mcmSyncPending.load(std::memory_order_acquire)) { finish(); return; }
         if (attemptsThisPause >= 3u) { finish(); return; }
@@ -1358,7 +1372,9 @@ namespace k2040
         const auto syncNow = std::chrono::steady_clock::now();
         if ((g_mcmSyncPending.load(std::memory_order_acquire) ||
              GetModuleHandleW(L"mcm.dll")) && syncNow >= nextMcmSyncAttempt) {
-            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(850);
+            // Recheck while MCM's picker is active: a Builder duplicate can
+            // appear after the first scan, before the PauseMenu is closed.
+            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(400);
             if (!g_mcmSyncTaskQueued.exchange(true, std::memory_order_acq_rel)) {
                 if (const auto* tasks = F4SE::GetTaskInterface()) {
                     tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });
