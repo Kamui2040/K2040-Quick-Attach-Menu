@@ -71,25 +71,26 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('LiveSyncResult::Superseded', SOURCE)
 
         setter = SOURCE.split('bool SetSharedHotkeyBinding(',1)[1].split('bool ResetSharedHotkeyBindings(',1)[0]
-        self.assertLess(setter.index('if (GetModuleHandleW(L"mcm.dll"))'),
+        self.assertLess(setter.index('if (NativeMcmOwnsRegistry())'),
                         setter.index('WriteSharedHotkeyBindings('))
         self.assertIn('return StageNativeMcmLiveSync(id, keycode, modifiers);', setter)
         reset = SOURCE.split('bool ResetSharedHotkeyBindings()',1)[1].split('void SetHotkeyCaptureActive(',1)[0]
-        self.assertLess(reset.index('if (GetModuleHandleW(L"mcm.dll"))'),
+        self.assertLess(reset.index('if (NativeMcmOwnsRegistry())'),
                         reset.index('WriteSharedHotkeyBindings('))
-        self.assertIn('if (GetModuleHandleW(L"mcm.dll"))', reset)
+        self.assertIn('if (NativeMcmOwnsRegistry())', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
         self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
 
-    def test_cleared_native_entries_are_not_fabricated(self):
-        seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split('bool WriteSharedHotkeyBindings(',1)[0]
+    def test_cleared_native_entries_are_never_fabricated_by_fallback(self):
+        seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split(
+            'bool WriteSharedHotkeyBindings(',1)[0]
+        self.assertIn('if (NativeMcmOwnsRegistry()) return;', seed)
+        self.assertIn('if (std::filesystem::is_regular_file(marker)) return;', seed)
         self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
-        self.assertIn('if (GetModuleHandleW(L"mcm.dll")) return;', seed)
-        self.assertIn('if (initialized && GetModuleHandleW(L"mcm.dll")) continue;', seed)
-        self.assertIn('selected = initialized ? 0 : key', seed)
-        self.assertIn('selected ? mods : 0', seed)
-        self.assertIn('if (FindMcmKeybindObject(json,id)) continue;', seed)
+        self.assertNotIn('selected = initialized ? 0 : key', seed)
+        self.assertNotIn('selected = 0', seed)
+        self.assertIn('if (!complete) break;', seed)
         self.assertIn('const auto marker = std::filesystem::path(', SOURCE)
         self.assertIn('if (!std::filesystem::is_regular_file(marker))', SOURCE)
 

@@ -53,8 +53,29 @@ repaired in that session. The revised candidate tracks changes to the live
 GetAllKeybinds map and inspects each changed map after two matching samples,
 without deleting any other action's entry or guessing between multiple real
 bindings. It remains unreleased; repeated-scan and actual MCM UI persistence
-require focused in-game testing. The exact native MCM UI operation which
-inserts the second logical Builder registration was not independently traced.
+require focused in-game testing.
+
+A subsequent source audit identified an upstream cause **within Quick Attach
+itself**: the non-native disk fallback seeded missing Quick Menu and Builder
+actions as keycode 0 when the hotkeys-initialized marker existed. It
+processed Quick Menu first and Builder second. Native MCM indexes by physical
+chord, so on load both records used (0,0) and Builder (the latter record)
+overwrote Quick Menu at that chord. Later assigning Mouse 4 to Quick Menu
+produced a single Quick entry, while assigning Mouse 5 to Builder added a
+second Builder entry without removing Builder's (0,0). This reconstructs
+the reported registry exactly. The earlier fallback guard only checked
+whether mcm.dll was **loaded**, not whether it was already **installed**,
+so early Quick Attach initialization could write the invalid data before
+native MCM loaded.
+
+The revised source now considers the installed native MCM DLL authoritative
+even before load, so neither startup nor Settings writes its registry.
+The fallback for F4SE Menu Framework alone no longer creates synthetic
+Unbound records, skips seeded actions on subsequent launches, and refuses
+default-chord collisions instead of inserting (0,0). The original
+writer/timestamp of the observed historical entry was not captured, but the
+exact producer and failure sequence are reproducible in the source tests.
+This prevention and remaining in-game acceptance still need verification.
 
 Classic MCM's own native hotkey picker may not support first assignment to an
 absent/cleared action. The Settings page can explicitly register the chosen

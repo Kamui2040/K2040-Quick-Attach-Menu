@@ -53,6 +53,13 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   live snapshots without modifying another mod's binding, and verify any
   surviving chord after narrowly scoped cleanup. Never erase an ambiguous
   Unbound or conflicting registration merely to make a picker display a key.
+- Native MCM ownership begins when its deployed mcm.dll exists, not only when
+  GetModuleHandleW reports that it has loaded. Do not write or seed its disk
+  registry during startup or through Settings while it may load later. Never
+  synthesize shared (keycode=0, modifiers=0) registrations for absent or
+  cleared actions: MCM's chord-keyed map makes the second action replace the
+  first at that chord. Framework-only fallback defaults must use real,
+  unoccupied chords, with missing/cleared actions preserved.
 - Shared native MCM registry saves must preserve every other mod's binding.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged
