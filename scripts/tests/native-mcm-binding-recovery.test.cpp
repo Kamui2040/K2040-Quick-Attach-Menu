@@ -18,7 +18,7 @@ int main()
     assert(classify({mouse5}) == NativeMcmRecordState::Unique);
     assert(classify({unbound}) == NativeMcmRecordState::Unique);
     assert(classify({unbound,mouse5,quick}) == NativeMcmRecordState::StaleUnboundDuplicate);
-    assert(classify({unbound,mouse5,other}) == NativeMcmRecordState::StaleUnboundDuplicate);
+    assert(classify({unbound,mouse5,other}) == NativeMcmRecordState::Ambiguous);
     assert(classify({unbound,mouse5,{"K2040_Quick_Attach_Menu","openMenuBuilder",75,3}}) ==
            NativeMcmRecordState::Ambiguous);
     assert(classify({unbound,unbound,mouse5}) == NativeMcmRecordState::Ambiguous);

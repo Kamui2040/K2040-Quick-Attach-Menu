@@ -30,6 +30,18 @@ stale 0/0 record plus exactly one real chord of the same action, the live
 manager clears only 0/0 and verifies the survivor retained its exact key.
 Multiple real keys for one ID are ambiguous: no automatic deletion occurs.
 
+When diagnosing Amethyst installs, distinguish the manager's `overwrite`
+copy of `MCM/Settings/Keybinds.json` from Fallout 4's **deployed**
+`Data/MCM/Settings/Keybinds.json`: these are not necessarily the same file.
+Only the deployed game registry establishes what native MCM can load. Missing
+Quick Attach records observed after uninstalling the mod do not constitute
+evidence of lost registration during an installed run. The last successful
+manual repair removed only a stale Builder Unbound entry from the deployed
+registry; no automatic native cleanup acceptance was established by it.
+Diagnostic logs now report once per PauseMenu session whether MCM's live
+GetAllKeybinds bridge responded, so a silent unavailable interface is not
+mistaken for a successful recovery.
+
 Classic MCM's own native hotkey picker may not support first assignment to an
 absent/cleared action. The Settings page can explicitly register the chosen
 shortcut instead. This still requires physical target-runtime QA for all

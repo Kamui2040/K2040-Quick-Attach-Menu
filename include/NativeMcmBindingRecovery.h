@@ -45,8 +45,15 @@ namespace k2040
         }
         if (count == 0) return NativeMcmRecordState::Missing;
         if (count == 1) return NativeMcmRecordState::Unique;
-        if (count == 2 && real == 1 && unbound == 1)
+        if (count == 2 && real == 1 && unbound == 1) {
+            // ClearKeybind(0,0) is global to the physical chord. If another
+            // action also claims that chord, the target cannot be proven safe.
+            for (const auto& record : records)
+                if (record.keycode == 0 && record.modifiers == 0 &&
+                    (record.modName != modName || record.id != id))
+                    return NativeMcmRecordState::Ambiguous;
             return NativeMcmRecordState::StaleUnboundDuplicate;
+        }
         return NativeMcmRecordState::Ambiguous;
     }
 

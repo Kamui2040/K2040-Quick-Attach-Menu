@@ -655,21 +655,38 @@ namespace
         // duplicate checks and fresh-registration checks are separate.
         static unsigned int attemptsThisPause = 0;
         static bool checkedDuplicatesThisPause = false;
+        static bool warnedBridgeThisPause = false;
+        static bool loggedBridgeSuccessThisPause = false;
         auto* ui = RE::UI::GetSingleton();
         if (!ui || !ui->GetMenuOpen(RE::BSFixedString("PauseMenu"))) {
             attemptsThisPause = 0;
             checkedDuplicatesThisPause = false;
+            warnedBridgeThisPause = false;
+            loggedBridgeSuccessThisPause = false;
             finish();
             return;
         }
         const auto menu = ui->GetMenu(RE::BSFixedString("PauseMenu"));
-        if (!menu || !menu->uiMovie) { finish(); return; }
+        if (!menu || !menu->uiMovie) {
+            if (!warnedBridgeThisPause) {
+                k2040::log::Warn("Native MCM live binding check deferred: PauseMenu movie unavailable.");
+                warnedBridgeThisPause = true;
+            }
+            finish();
+            return;
+        }
 
         // Read MCM's *live* map. Editing disk here would race its save-on-close.
         const auto readLive = [&]() -> std::optional<std::vector<k2040::NativeMcmRecord>> {
             Scaleform::GFx::Value result;
             if (!menu->uiMovie->Invoke("root.mcm.GetAllKeybinds", &result, nullptr, 0) ||
-                !result.IsArray()) return std::nullopt;
+                !result.IsArray()) {
+                if (!warnedBridgeThisPause) {
+                    k2040::log::Warn("Native MCM live binding check deferred: GetAllKeybinds bridge unavailable or invalid.");
+                    warnedBridgeThisPause = true;
+                }
+                return std::nullopt;
+            }
             std::vector<k2040::NativeMcmRecord> records;
             if (result.GetArraySize() > 2048u) return std::nullopt;
             for (unsigned i = 0; i < result.GetArraySize(); ++i) {
@@ -684,6 +701,16 @@ namespace
                 records.push_back({owner.GetString(), id.GetString(),
                     static_cast<std::uint32_t>(key.GetInt()),
                     static_cast<std::uint32_t>(mods.GetInt())});
+            }
+            if (!loggedBridgeSuccessThisPause) {
+                unsigned own = 0;
+                for (const auto& record : records)
+                    if (record.modName == kMcmModName &&
+                        (record.id == kOpenMenuKeybindId || record.id == kOpenMenuBuilderKeybindId))
+                        ++own;
+                k2040::log::Info("Native MCM live GetAllKeybinds bridge available; Quick Attach records: " +
+                    std::to_string(own) + ".");
+                loggedBridgeSuccessThisPause = true;
             }
             return records;
         };
