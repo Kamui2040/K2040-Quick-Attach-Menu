@@ -1,5 +1,21 @@
 # Known Issues and Limits
 
+## 0.5.221 experimental adaptive labels for curved presentations
+
+Radial Wheel and Compact Hybrid place screen-space HTML labels over curved
+SVG sectors. The earlier character-count wrapping could overflow narrow
+wedges because different fonts and characters render at different widths.
+Their optional UI-only prototype now measures text with Canvas 2D (with a
+bounded estimate fallback), fits up to three lines to the actual displayed
+arc width as the view resizes, and never reduces text below 11px. When a
+crowded category wedge cannot fit even a short label, it shows the visible
+sector number instead; hovering reveals the full name, and the wheel center
+shows the currently selected category or attachment name. Category identity,
+attachment availability, mouse/controller navigation and application
+behavior are unchanged. The visual result in PrismaUI/Proton is not yet
+in-game accepted. Cascade, Horizontal Bar and the 3D weapon-preview
+implementation are unaffected by this UI-only change.
+
 ## 0.5.221 experimental weapon-component 3D preview (partially user-tested)
 
 PrismaUI_F4 ModelPreview API v4 (introduced in 2.2.0) loads a native NIF

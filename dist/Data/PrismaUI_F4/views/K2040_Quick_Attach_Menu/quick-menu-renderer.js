@@ -56,23 +56,88 @@
     ].join(" ");
   }
 
-  function wrapWheelLabel(value, limit, maximumLines) {
-    var text = String(value || "").trim();
-    if (text.length <= limit) return [text];
-    var words = text.split(/\s+/);
-    var lines = [];
-    var line = "";
-    for (var i = 0; i < words.length; i += 1) {
-      var candidate = line ? line + " " + words[i] : words[i];
-      if (candidate.length > limit && line && lines.length < maximumLines - 1) {
-        lines.push(line);
-        line = words[i];
-      } else {
-        line = candidate;
-      }
+  // Label widths are measured in the same unscaled wheel coordinates as
+  // each SVG segment. Character counts alone are unreliable for mod names
+  // (narrow glyphs, wide glyphs, and localized labels vary considerably).
+  var wheelTextContext = null;
+  var wheelTextContextTried = false;
+  function wheelTextWidth(value, fontSize) {
+    if (!wheelTextContextTried && typeof document !== "undefined" && document.createElement) {
+      wheelTextContextTried = true;
+      try {
+        var canvas = document.createElement("canvas");
+        wheelTextContext = canvas.getContext && canvas.getContext("2d");
+      } catch (ignored) { wheelTextContext = null; }
     }
-    if (line) lines.push(line);
-    return lines;
+    if (wheelTextContext && wheelTextContext.measureText) {
+      wheelTextContext.font = "700 " + fontSize + 'px "Arial Narrow", Arial, sans-serif';
+      var measured = wheelTextContext.measureText(value).width;
+      if (isFinite(measured) && (measured > 0 || !value)) return measured;
+    }
+    // Safe fallback for static tests and browsers without Canvas 2D.
+    var units = 0;
+    Array.from(value).forEach(function(ch) {
+      units += /[MW@#%]/.test(ch) ? .9 : /[ilI1.,:;|! '…]/.test(ch) ? .32 : .61;
+    });
+    return units * fontSize;
+  }
+
+  function fitWheelLines(value, width, fontSize, maxLines) {
+    var rest = String(value || "").trim().replace(/\s+/g, " ");
+    var lines = [];
+    for (var i = 0; i < maxLines && rest; i += 1) {
+      if (wheelTextWidth(rest, fontSize) <= width) {
+        lines.push(rest);
+        rest = "";
+        break;
+      }
+      var letters = Array.from(rest);
+      var lo = 1, hi = letters.length;
+      while (lo < hi) {
+        var mid = Math.ceil((lo + hi) / 2);
+        if (wheelTextWidth(letters.slice(0, mid).join(""), fontSize) <= width) lo = mid;
+        else hi = mid - 1;
+      }
+      var count = wheelTextWidth(letters.slice(0, lo).join(""), fontSize) <= width ? lo : 0;
+      if (!count) return { lines:["…"], complete:false };
+      var part = letters.slice(0, count).join("");
+      var split = part.lastIndexOf(" ");
+      if (split >= Math.max(1, Math.floor(count / 3))) count = split + 1;
+      part = letters.slice(0, count).join("").trim();
+      rest = letters.slice(count).join("").trim();
+      if (i === maxLines - 1 && rest) {
+        // The full label is always available in the wheel center. Do not
+        // overlap neighboring sectors to show an unbounded attachment name.
+        while (part && wheelTextWidth(part + "…", fontSize) > width)
+          part = Array.from(part).slice(0, -1).join("");
+        part += "…";
+      }
+      lines.push(part);
+    }
+    return { lines:lines, complete:!rest };
+  }
+
+  function fitWheelLabel(value, availableWidth, maximumHeight, optionLabel, ordinal) {
+    var width = Math.max(12, availableWidth);
+    var minSize = optionLabel ? 11 : 11;
+    var maxSize = optionLabel ? 13 : 13.5;
+    var maxLines = 3;
+    var last = null;
+    for (var size = maxSize; size >= minSize; size -= .5) {
+      var linesAllowed = Math.max(1, Math.min(maxLines, Math.floor(maximumHeight / (size * 1.1))));
+      var fitted = fitWheelLines(value, width, size, linesAllowed);
+      last = { lines:fitted.lines, fontSize:size, complete:fitted.complete };
+      if (fitted.complete) break;
+    }
+    if (!last || !last.lines.length) last = { lines:["…"], fontSize:minSize, complete:false };
+    var visibleLetters = last.lines.join("").replace(/…/g, "").trim();
+    if ((!last.complete && visibleLetters.length < 3) && ordinal != null) {
+      // Even an abbreviated word is illegible in very narrow hybrid wedges.
+      // Use a stable sector number; the center shows its complete label.
+      var number = String(ordinal + 1);
+      last.lines = [number];
+    }
+    return last;
   }
 
   function Renderer(root, options) {
@@ -260,15 +325,31 @@
     var wheelWidth = wheelRect.width / parentScaleX;
     var wheelHeight = wheelRect.height / parentScaleY;
     var labels = portal.querySelectorAll(".qm-wheel-html-label");
-    var previewFontScale = this.options.preview ? this.previewZoom : 1;
     for (var i = 0; i < labels.length; i += 1) {
       var geometry = labels[i]._qmWheelGeometry;
       if (!geometry) continue;
-      labels[i].style.left = (wheelLeft + geometry.x / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
-      labels[i].style.top = (wheelTop + geometry.y / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
-      labels[i].style.width = Math.max(32, geometry.width / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
-      labels[i].style.minHeight = Math.max(24, geometry.height / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
-      labels[i].style.fontSize = (geometry.fontSize * previewFontScale).toFixed(2) + "px";
+      var label = labels[i];
+      var actualWidth = Math.max(12, geometry.width / geometry.viewWidth * wheelWidth);
+      var actualHeight = Math.max(24, geometry.height / geometry.viewHeight * wheelHeight);
+      // The HTML label portal is outside the scaled SVG. Refit using the
+      // actual destination rectangle whenever scale or viewport changes.
+      var fitted = fitWheelLabel(geometry.fullLabel, actualWidth, actualHeight,
+        geometry.optionLabel, geometry.ordinal);
+      label.style.left = (wheelLeft + geometry.x / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
+      label.style.top = (wheelTop + geometry.y / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
+      label.style.width = actualWidth.toFixed(2) + "px";
+      label.style.minHeight = actualHeight.toFixed(2) + "px";
+      label.style.fontSize = fitted.fontSize.toFixed(2) + "px";
+      var lineKey = fitted.lines.join("\n");
+      if (label._qmDisplayedLines !== lineKey) {
+        label.textContent = "";
+        for (var j = 0; j < fitted.lines.length; j += 1) {
+          var line = document.createElement("span");
+          line.textContent = fitted.lines[j];
+          label.appendChild(line);
+        }
+        label._qmDisplayedLines = lineKey;
+      }
     }
   };
 
@@ -760,56 +841,52 @@
   };
 
   Renderer.prototype.appendWheelLabel = function(labelLayer, geometry, label, optionLabel, stateClass) {
-    var innerRadius = geometry.innerRadius;
-    var outerRadius = geometry.outerRadius;
-    var thickness = outerRadius - innerRadius;
+    var thickness = geometry.outerRadius - geometry.innerRadius;
     var middleAngle = (geometry.start + geometry.end) / 2;
-    var middleRadius = (innerRadius + outerRadius) / 2;
-    var menuScale = this.effectiveScale || clamp(this.settings().scale, .5, 1.5, 1);
-    var baseSize = optionLabel ? 13 : 13.5;
-    var minimumSize = optionLabel ? 12 : 12.5;
+    var middleRadius = (geometry.innerRadius + geometry.outerRadius) / 2;
     var spanRadians = Math.abs(geometry.end - geometry.start) * Math.PI / 180;
-    var availableAtMiddle = Math.max(24, spanRadians * middleRadius - 12);
-    var characterLimit = Math.max(6, Math.floor(availableAtMiddle * menuScale / (baseSize * .50)));
-    var lines = wrapWheelLabel(label, characterLimit, 3);
-
-    var labelCentre = middleRadius;
-    var labelPoint = polar(geometry.cx, geometry.cy, labelCentre, middleAngle);
-    var safeArc = Math.max(32, spanRadians * labelCentre - 12);
-    var longestLine = 1;
-    for (var i = 0; i < lines.length; i += 1) {
-      longestLine = Math.max(longestLine, lines[i].length);
-    }
-    var scaledBaseSize = baseSize * Math.max(1, menuScale);
-    var estimatedWidth = Math.max(1, longestLine * scaledBaseSize * .50);
-    var fontSize = Math.max(minimumSize, Math.min(scaledBaseSize, scaledBaseSize * safeArc * menuScale / estimatedWidth));
+    // Chord length at the inner part of the ring, not characters per wedge.
+    // Allow an actual inset from both neighboring segment boundaries.
+    var labelRadius = geometry.innerRadius + thickness * .42;
+    var safeArc = Math.max(12,
+      2 * labelRadius * Math.sin(Math.min(Math.PI * .85, spanRadians) / 2) - 14);
+    var availableHeight = Math.max(24, thickness * .59);
+    var fitted = fitWheelLabel(label, safeArc, availableHeight,
+      optionLabel, geometry.ordinal);
+    var labelPoint = polar(geometry.cx, geometry.cy, middleRadius, middleAngle);
     var rotation = ((middleAngle + 90 + 180) % 360 + 360) % 360 - 180;
     if (rotation > 90) rotation -= 180;
     else if (rotation < -90) rotation += 180;
 
     var labelBox = document.createElement("div");
-    labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") + (stateClass ? " " + stateClass : "");
+    labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") +
+      (stateClass ? " " + stateClass : "");
     labelBox.setAttribute("data-full-label", label);
+    labelBox.setAttribute("title", label);
     labelBox.style.transform = "translate(-50%, -50%) rotate(" + rotation.toFixed(2) + "deg)";
     labelBox._qmWheelGeometry = {
       x: labelPoint.x,
       y: labelPoint.y,
       width: safeArc,
-      height: Math.max(24, thickness * .54),
-      fontSize: fontSize,
+      height: availableHeight,
+      fontSize: fitted.fontSize,
+      fullLabel: label,
+      optionLabel: optionLabel,
+      ordinal: geometry.ordinal,
       viewWidth: geometry.viewWidth,
       viewHeight: geometry.viewHeight
     };
-    for (var j = 0; j < lines.length; j += 1) {
+    for (var j = 0; j < fitted.lines.length; j += 1) {
       var line = document.createElement("span");
-      line.textContent = lines[j];
+      line.textContent = fitted.lines[j];
       labelBox.appendChild(line);
     }
+    labelBox._qmDisplayedLines = fitted.lines.join("\n");
     labelLayer.appendChild(labelBox);
     return labelBox;
   };
 
-  Renderer.prototype.makeCategorySegment = function(svg, labelLayer, category, start, end, cx, cy, innerRadius, outerRadius) {
+  Renderer.prototype.makeCategorySegment = function(svg, labelLayer, category, start, end, cx, cy, innerRadius, outerRadius, ordinal) {
     var self = this;
     var label = this.displayName(category.label) || "Unnamed category";
     var active = category.categoryIndex === this.activeCategoryIndex;
@@ -822,10 +899,26 @@
     path.setAttribute("d", annularPath(cx, cy, innerRadius, outerRadius, start, end));
     group.appendChild(path);
     var labelBox = this.appendWheelLabel(labelLayer,
-      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
+      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end,
+        ordinal:ordinal, viewWidth:Number(svg.getAttribute("data-view-width")),
+        viewHeight:Number(svg.getAttribute("data-view-height")) },
       label, false, stateClass);
-    group.addEventListener("mouseenter", function() { labelBox.classList.add("hovered"); });
-    group.addEventListener("mouseleave", function() { labelBox.classList.remove("hovered"); });
+    group.addEventListener("mouseenter", function() {
+      labelBox.classList.add("hovered");
+      // A numbered or shortened sector must reveal its full name BEFORE
+      // selection, without changing category focus or game state.
+      var fullName = self.root.querySelector(".qm-hybrid-center-label") ||
+        self.root.querySelector(".qm-radial-controller-selected");
+      if (fullName) fullName.textContent = label;
+    });
+    group.addEventListener("mouseleave", function() {
+      labelBox.classList.remove("hovered");
+      var hybridName = self.root.querySelector(".qm-hybrid-center-label");
+      if (hybridName) {
+        var selected = self.findCategory(self.activeCategoryIndex);
+        hybridName.textContent = selected ? self.displayName(selected.label) : "Choose category";
+      } else self.updateRadialCaption();
+    });
     group.addEventListener("click", function() {
       self.activePane = "categories";
       self.selectCategory(category.categoryIndex);
@@ -836,10 +929,8 @@
   Renderer.prototype.makeOptionSegment = function(svg, labelLayer, category, option, start, end, cx, cy, innerRadius, outerRadius) {
     var self = this;
     var label = this.displayName(option.label) || "Unnamed attachment";
-    // The center caption preserves the full name for mouse and controller.
-    // Keep all radial wedge labels short enough to fit without overlap.
-    var shortLabel = this.settings().presentation === "radial" && label.length > 18
-      ? label.slice(0, 17).trimEnd() + "…" : label;
+    // Preserve the actual label; geometry fitting decides when to abbreviate.
+    // The center caption still shows the complete selected attachment name.
     var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
     var focused = this.activePane === "options" && option.optionIndex === this.lastFocusedOptionIndex;
     var stateClass = (option.isInstalled ? "installed" : "") +
@@ -853,7 +944,7 @@
     group.appendChild(path);
     var labelBox = this.appendWheelLabel(labelLayer,
       { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
-      shortLabel, true, stateClass);
+      label, true, stateClass);
     group.addEventListener("mouseenter", function() {
       labelBox.classList.add("hovered");
       self.lastFocusedOptionIndex = option.optionIndex;
@@ -899,8 +990,12 @@
     if (!this.root) return;
     var name = this.root.querySelector(".qm-radial-controller-selected");
     if (!name) return;
-    var option = this.focusedOption(this.findCategory(this.activeCategoryIndex));
-    name.textContent = option ? this.displayName(option.label) : "No attachment selected";
+    var category = this.findCategory(this.activeCategoryIndex);
+    var option = this.focusedOption(category);
+    name.textContent = (this.options.controllerActive && this.activePane === "categories")
+      ? (category ? this.displayName(category.label) : "No category selected")
+      : (option ? this.displayName(option.label)
+        : category ? this.displayName(category.label) : "No attachment selected");
   };
 
   Renderer.prototype.renderRadial = function(categories, category) {
@@ -922,7 +1017,7 @@
     for (var i = 0; i < categories.length; i += 1) {
       var categoryStart = -90 + i * categorySweep + 1.5;
       var categoryEnd = -90 + (i + 1) * categorySweep - 1.5;
-      this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 300, 300, 108, 190);
+      this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 300, 300, 108, 190, i);
     }
     var controllerOptions = this.options.controllerActive;
     var pageInfo = this.radialPageInfo(category);
@@ -941,21 +1036,24 @@
       }
     }
     layout.appendChild(svg);
-    if (category && options.length && (this.activePane === "options" || !controllerOptions)) {
+    if (category) {
       var self = this;
-      // Full labels live in the center where they cannot overlap wedges.
+      // Full selected names are always visible, including controller category
+      // focus where the outer option ring is intentionally absent.
       var focused = options.find(function(option) {
         return option.optionIndex === self.lastFocusedOptionIndex;
-      }) || options[0];
+      }) || options[0] || null;
       var caption = document.createElement("div");
       caption.className = "qm-radial-controller-caption";
       var name = document.createElement("div");
       name.className = "qm-radial-controller-selected";
-      name.textContent = this.displayName(focused.label);
+      name.textContent = (controllerOptions && this.activePane === "categories")
+        ? this.displayName(category.label) : (focused
+          ? this.displayName(focused.label) : this.displayName(category.label));
       caption.appendChild(name);
       var pager = document.createElement("div");
       pager.className = "qm-radial-controller-pager";
-      if (pageInfo.count > 1 && !controllerOptions) {
+      if (pageInfo.count > 1 && !controllerOptions && options.length) {
         var previous = document.createElement("button");
         previous.type = "button";
         previous.className = "qm-radial-page-button";
@@ -970,7 +1068,7 @@
       var number = document.createElement("span");
       number.textContent = "Page " + (pageInfo.index + 1) + " / " + pageInfo.count;
       pager.appendChild(number);
-      if (pageInfo.count > 1 && !controllerOptions) {
+      if (pageInfo.count > 1 && !controllerOptions && options.length) {
         var next = document.createElement("button");
         next.type = "button";
         next.className = "qm-radial-page-button";
@@ -1020,9 +1118,13 @@
     for (var i = 0; i < categories.length; i += 1) {
       var start = 97 + i * segmentSweep + 1.4;
       var end = 97 + (i + 1) * segmentSweep - 1.4;
-      this.makeCategorySegment(svg, labelLayer, categories[i], start, end, 225, 215, 108, 190);
+      this.makeCategorySegment(svg, labelLayer, categories[i], start, end, 225, 215, 108, 190, i);
     }
     wheel.appendChild(svg);
+    var centerName = document.createElement("div");
+    centerName.className = "qm-hybrid-center-label";
+    centerName.textContent = category ? this.displayName(category.label) : "Choose category";
+    wheel.appendChild(centerName);
     layout.appendChild(wheel);
     var optionsPane = document.createElement("div");
     optionsPane.className = "qm-hybrid-options";
