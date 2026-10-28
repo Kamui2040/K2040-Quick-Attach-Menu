@@ -124,6 +124,24 @@ source branch is not confirmed equivalent to the installed 2.2.1.1 provider,
 so no replacement DLL has been built or deployed. Version-matched provider
 build and target-runtime QA must precede any integration or release.
 
+A subsequent source-level aspect audit found a separate presentation defect:
+the PrismaUI ModelPreview renderer creates a square target and uses an
+aspect-1 perspective camera, but Quick Attach passed its approximately
+460x340-pixel region directly as the native destination. That nonuniform
+blit stretches the model horizontally. The next preview candidate centers
+a square destination within the existing interactive region, preserving
+proportions, mouse drag, scroll zoom and other preview controls. The
+wide/tall/unchanged rectangle transitions pass JavaScript regression tests;
+the visual result still needs target-game acceptance. The texture/palette
+issue is independent of this aspect correction.
+
+The private provider-source experiment additionally records diffuse SRV
+versus gray fallback and palette SRV separately per mesh, after bindings
+settle or at 60 render attempts. It passes local Microsoft shader
+compilation for five permutations, but is still not a source-matched
+provider DLL and is not installed or distributable with Quick Attach.
+The private patch and diagnostics remain outside Git.
+
 The material-specific shader/texture mismatch is not fully corrected,
 and additional mod-added mesh/material combinations are unverified. Neither
 full vanilla-workbench visual parity nor the experimental feature's release

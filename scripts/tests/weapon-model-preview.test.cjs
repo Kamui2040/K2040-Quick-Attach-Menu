@@ -16,7 +16,7 @@ function fixture(version) {
   const f=fixture(4);assert.equal(f.preview.supported(),true);assert.equal(f.preview.toggle(),true);
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
   assert.equal(f.shows[0].id,'k2040-weapon-base');assert.equal(f.shows[0].formType,'WEAP');assert.equal(f.shows[0].spin,0,'auto rotation disabled');
-  assert.deepEqual([f.shows[0].x,f.shows[0].y,f.shows[0].w,f.shows[0].h],[87,61,520,245]);
+  assert.deepEqual([f.shows[0].x,f.shows[0].y,f.shows[0].w,f.shows[0].h],[225,61,245,245]);
   assert.match(f.message.textContent,/Receiver\/base mesh only/);
   f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');assert.equal(f.shows.length,1);
   f.preview.beginDrag(15,20);f.preview.drag(32,34);assert.equal(f.shows.length,2);
@@ -135,3 +135,19 @@ function fixture(version) {
   assert.equal(f.shows.length,endedShows,'closed view ignores late callbacks');
 }
 console.log('PASS: ModelPreview v4, legacy fallback, rect, drag, zoom, error, retry, unsafe path, cleanup');
+
+{
+  const f=fixture(4);
+  f.preview.toggle();
+  f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');
+  assert.deepEqual([f.shows[0].x,f.shows[0].y,f.shows[0].w,f.shows[0].h],
+                   [225,61,245,245], 'wide native overlay uses a centered square');
+  f.region.getBoundingClientRect=()=>({left:20,top:40,width:160,height:400});
+  f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');
+  assert.deepEqual([f.shows.at(-1).x,f.shows.at(-1).y,f.shows.at(-1).w,f.shows.at(-1).h],
+                   [20,160,160,160], 'tall native overlay uses a centered square');
+  assert.equal(f.shows.length,2);
+  f.preview.sync(f.region,'Meshes/Weapons/pistol.nif');
+  assert.equal(f.shows.length,2,'no unnecessary preview refresh');
+  f.preview.stop();
+}

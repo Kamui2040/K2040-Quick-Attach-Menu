@@ -167,7 +167,13 @@
     this.updateMessage();
     if (this.failed) return;
     var r = region.getBoundingClientRect();
-    var rect = [r.left, r.top, r.width, r.height].map(Math.round);
+    // ModelPreview draws into a square D3D11 target with an aspect-1 camera.
+    // Filling a wide destination rectangle stretches that image horizontally.
+    // Keep the native overlay square, centered in the existing input region.
+    var side = Math.min(r.width, r.height);
+    var rect = [Math.round(r.left + (r.width - side) / 2),
+                Math.round(r.top + (r.height - side) / 2),
+                Math.round(side), Math.round(side)];
     if (rect[2] < 60 || rect[3] < 60) { this.hideNative(); return; }
     var requestedPaths = (this.composed ? this.componentPaths : [modelPath]).map(function(p) {
       return this.relativePathRetry ? p.slice("Meshes/".length) : p;
