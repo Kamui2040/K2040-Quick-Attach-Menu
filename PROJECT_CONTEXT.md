@@ -1,5 +1,73 @@
 # Current Project State
 
+- 0.5.221 is an unreleased, opt-in Horizontal Bar weapon-component NIF preview
+  experiment using PrismaUI ModelPreview API v4 (provider 2.2.0+). The first
+  in-game screenshot showed an empty model and a generic error; PrismaUI log
+  identified a duplicated `meshes/Meshes/` lookup and Fallout 4's dummy WEAP
+  receiver NIF. The revised experiment prefers the installed receiver OMOD's
+  drawable NIF for dummy-based firearms, tries a bounded relative-path load
+  and reports native errors. A subsequent screenshot confirmed receiver geometry
+  but it looked washed out; PrismaUI logs identified diffuse/normal texture
+  paths and resolved engine texture resources. A subsequent opt-in multi-NIF
+  composition comparison and 35% lighting test are not yet game-tested.
+  Neither mode is guaranteed to reproduce workbench attachment transforms or
+  original materials. Subsequent user screenshots confirmed recognisable
+  installed parts and some texture detail, but reported horizontal stretching,
+  continuous rotation and inaccessible offscreen attachment choices in the
+  Horizontal Bar. Subsequent in-game r4 screenshots and maintainer feedback
+  confirmed the unwanted spinning stopped and the attachment row became
+  accessible, but the top category row still clipped later categories and W/S
+  cycled horizontally rather than changing rows. The next candidate provides
+  category paging/scroll and row-oriented WASD/arrow/controller navigation.
+  The maintainer accepted the r5 top-row and intuitive-navigation correction
+  in-game on 2026-10-26. The maintainer tested r6 and confirmed E worked
+  as an extra confirmation key, but Space did not. The r7 correction removes
+  Space from Quick Menu confirmation, retaining Enter/E and leaving Space
+  safely consumed as it was before r6. User-configured opener precedence,
+  held-key suppression and MCM bindings are unchanged. The maintainer
+  confirmed the r7 correction working in-game on 2026-10-26: Enter/E
+  confirmation remains usable and Space is not a confirmation key.
+  This acceptance is specific to the requested keyboard correction. Current
+  analysis of deployed PrismaUI 2.2.1.1 confirms the ModelPreview input can
+  accept `nifPaths` plus a `matSwap` string. Its composite loader attempts
+  matching NIF connect-point attachment, leaving unmatched parts at origin.
+  This is not equivalent to the live workbench instance or full MSWP handling;
+  CommonLibF4 exposes ExamineMenu and Inventory3DManager, but no independently
+  verified assembly/transfer API usable from this menu is established.
+  The adapter retires stale native models/errors on an equipped-weapon change
+  even without page teardown. The maintainer confirmed r8 weapon/attachment
+  switching, close/reopen, Alt-Tab and previous input/navigation QA passed
+  in-game on 2026-10-26. Current PrismaUI logging records the installed 10mm
+  model as six pieces, five connected and none left at origin, and recognizes
+  its diffuse/BGSM paths. However, much of the weapon appears white while the
+  Recon Scope displays texture, and the Pipe Pistol partially renders its wood
+  texture. A reference check of Nexus Crafting Highlight Fix found it patches
+  Fallout 4 workbench/image-space highlighting, whereas PrismaUI draws through
+  its own D3D11 preview target; no shared highlight cause is established.
+  The maintainer recalls an earlier weapon-rendering prototype that did render
+  weapon models but framed different weapons at widely varying zoom levels.
+  Its source and shader behavior have not been recovered; investigate
+  per-model bounds/FOV/pivot-based camera fitting if that approach is found.
+  A read-only vanilla texture archive comparison shows both 10mm receiver
+  and Recon Scope diffuse assets are BC3, but the former is much brighter.
+  A stronger original-asset finding is that 10mmPistol.BGSM v2 references
+  a grayscale palette in slot 3 (row 1.0), unlike Recon Scope or wood;
+  public PrismaUI ModelPreview ignores this slot. A private provider-level
+  palette remap patch passed offline DDS comparison and Microsoft HLSL
+  PS5/VS5 compilation, but no source-matched 2.2.1.1 native build or
+  target-runtime QA exists. The maintainer's 2026-10-28 r9 screenshots
+  confirm natural 10mm and Pipe Pistol proportions after the square
+  preview correction; that acceptance is limited to those two weapons.
+  Their metal parts remain pale. A read-only archive audit identified
+  palettes in nine 10mm and eight pipe-weapon materials, with both
+  palette assets present as 64x16 BC1 DDS textures. The private parser
+  recognizes all 287 palette-bearing vanilla materials among 6,616 BGSMs,
+  with zero errors in isolated C++ source validation. The QAM renderer is
+  unchanged. Per-mesh SRV binding and palette sampling still require
+  a source-matched PrismaUI build and in-game verification.
+  Remaining 3D-preview material/shader fidelity is not accepted; do not mark
+  the overall experimental preview release-ready.
+  Stable release is 0.5.220; saves, bindings and inventory remain untouched.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).

@@ -972,6 +972,13 @@ namespace k2040
                 << "\"persistentIdentityValid\":" << (weaponInfo.weapon.persistentIdentityValid ? "true" : "false") << ","
                 << "\"persistentIdentityStatus\":\"" << JsonEscape(weaponInfo.weapon.persistentIdentityStatus) << "\","
                 << "\"status\":\"" << JsonEscape(weaponInfo.status) << "\","
+                << "\"previewBaseNifPath\":\"" << JsonEscape(weaponInfo.previewBaseNifPath) << "\","
+                << "\"previewComponentNifPaths\":[";
+        for (std::size_t i = 0; i < weaponInfo.previewComponentNifPaths.size(); ++i) {
+            if (i) json << ',';
+            json << '"' << JsonEscape(weaponInfo.previewComponentNifPaths[i]) << '"';
+        }
+        json << "],"
                 << "\"baseAttachParentSlotCount\":" << weaponInfo.baseAttachParentSlots.size() << ","
                 << "\"baseAttachParentSlots\":";
 

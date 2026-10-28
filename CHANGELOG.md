@@ -1,3 +1,54 @@
+## 0.5.221 (experimental 3D base-weapon preview — unreleased)
+
+- Added an opt-in native 3D preview for the Horizontal Bar layout when the
+  installed PrismaUI provider exposes ModelPreview API v4 (2.2.0+).
+  Older PrismaUI providers retain their existing text-only menu.
+- Uses the equipped WEAP's validated NIF when drawable; otherwise selects a
+  valid installed receiver OMOD model instead of Fallout 4's empty dummy
+  receiver. This is still just one part, **not** an assembled inventory model;
+  other installed attachments or material swaps may differ.
+- Handles PrismaUI 2.2.1.1's observed doubled `Meshes/` engine lookup with
+  one bounded relative-path retry, preserving the native status/error reason
+  if both paths fail. Never loops on an undrawable model.
+- Optional comparison mode submits validated NIFs from the resolved installed
+  object-instance OMODs through PrismaUI's multi-mesh API (up to 12 paths).
+  This is a diagnostic only: parts may not align like the workbench.
+- Temporary 100% / 35% brightness comparison is available to investigate
+  the first rendered model's washed-out appearance; engine texture resources
+  were present, but correct material shading has not been verified.
+- Preview controls allow drag rotation and scroll-wheel zoom. Native rendering
+  is hidden on view close, weapon refresh, Alt-Tab/blur, and page unload.
+  Preview rendering never installs, removes, or re-equips attachments.
+- Horizontal Bar category and attachment rows both have previous/next
+  controls and independent mouse-wheel scrolling; keyboard/controller focus
+  brings offscreen entries into view. Scroll positions survive unrelated redraws.
+- Horizontal Bar keyboard/arrow/controller navigation follows the actual rows:
+  A/D or Left/Right moves through the selected row; W/S or Up/Down changes
+  between categories (upper row) and attachments (lower row). Enter or mapped
+  controller Confirm remains the only way to apply an attachment.
+- Added bare **E** as a Quick Menu confirm alternative alongside Enter.
+  On categories it opens options; on options it uses the existing guarded
+  selection path. The maintainer verified E works in-game; Space was tried
+  but did not work reliably and has been removed as a Confirm key (its
+  existing input-consumption behavior is retained). The maintainer confirmed
+  the r7 correction working in-game. Key repeats do not trigger additional
+  installations, and configured openers retain precedence.
+- Constrained the model viewport to a less distorted aspect ratio and passed
+  `spin: 0` to PrismaUI for both receiver and installed-parts preview modes.
+  The maintainer's later in-game check confirmed unwanted spinning stopped;
+  full preview geometry and material appearance still need further work.
+- Hardened the preview adapter against equipped-weapon/installed-part changes
+  without a full page teardown: hide the previous native preview, clear stale
+  errors, and revert to receiver-only when the new stack has no extra meshes.
+  Focused regression coverage checks late status callbacks after replacement
+  and closing, without weakening the native attachment transaction checks.
+- The maintainer confirmed the r8 weapon/attachment-transition, close/reopen,
+  Alt-Tab and existing input/navigation tests passed in-game on 2026-10-26.
+  The Recon Scope displays its texture, but most weapon parts remain white.
+  Live logs confirm matching connect-point assembly and readable diffuse/
+  material paths; the residual material/shader mismatch remains unresolved.
+  This scoped r8 acceptance does not make the 3D preview release-ready.
+
 ## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 
 - Generated weapon-attachment menus now prefer the OMOD display name over

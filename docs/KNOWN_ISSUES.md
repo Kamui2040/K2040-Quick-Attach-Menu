@@ -1,5 +1,169 @@
 # Known Issues and Limits
 
+## 0.5.221 experimental weapon-component 3D preview (partially user-tested)
+
+PrismaUI_F4 ModelPreview API v4 (introduced in 2.2.0) loads a native NIF
+into a view. The first 0.5.221 in-game screenshot showed an empty preview.
+Live PrismaUI logs showed `meshes/Meshes/Weapons/...` being read (duplicate
+prefix), and WEAP model records supplied non-drawable receiver dummy meshes
+(e.g. `10mmRecieverDummy.nif` and `DummyReciever.nif`).
+
+The revised optional Horizontal Bar preview reads only the equipped weapon's
+live installed receiver OMOD when its WEAP model is an empty dummy, choosing a
+verified, unambiguous drawable receiver NIF where available. It sends the
+normal documented path first, retries the relative path once on failure and
+exposes native status errors if both fail. This is a BASE/RECEIVER component,
+not an engine-assembled weapon with installed attachments, material swaps, or
+connect-point transforms. Unavailable/ambiguous models safely stay text-only.
+
+The next screenshot confirmed that the receiver geometry draws, but appears
+nearly white. PrismaUI logged six NIF shapes with normal/diffuse texture paths,
+and native engine texture SRV resolution. The material/shading discrepancy is
+not resolved. A separately opt-in installed-parts multi-NIF comparison and a
+35% brightness comparison are now included for controlled in-game diagnosis;
+they do not recreate the workbench's attach-node transforms, material swaps,
+or assembled model and may produce overlapping parts. These are not release
+acceptance evidence.
+
+More recent target-game screenshots show the installed-parts toggle can
+render a recognisable weapon and some material details. The user also reported
+that the model was stretched horizontally and continuously rotating; the
+Horizontal Bar option strip displayed only the initial attachments and could
+not reach later offscreen choices. The preview now requests zero native spin
+and uses a narrower destination aspect ratio. Option-strip paging buttons,
+wheel scrolling, keyboard/controller focus reveal and redraw scroll persistence
+are static-tested with 12 options at normal and scaled sizes. The maintainer's
+r4 gameplay screenshots subsequently confirmed the model stopped spinning,
+that the attachment strip could page, and that some equipped-part textures
+appeared. The top category strip still clipped later categories, and W/S did
+not match horizontal row geometry. The next candidate adds category paging,
+wheel scrolling, scroll-to-category and navigation with Left/Right along the
+active row and Up/Down between the two rows; the maintainer confirmed r5
+navigation works in-game. E confirmed attachment changes successfully in
+r6 user testing; Space did not. r7 removes Space as a confirmation shortcut,
+leaving its prior inert/intercepted Quick Menu behavior intact. The maintainer
+confirmed the r7 keyboard correction working in-game on 2026-10-26. This does
+not establish every modifier/opener conflict or lifecycle scenario as tested.
+
+PrismaUI ModelPreview v4 accepts NIF path lists and a `matSwap` string, not a
+live equipped-weapon object instance or a prepared NiAVObject. Static analysis
+of the installed provider confirms it tries to assemble NIF pieces using
+matching connect points and leaves unmatched parts at origin. This is useful
+but does **not** establish exact workbench attachment transforms, full
+OMOD-driven per-part MSWP mapping, or a safe live weapon-node transfer API.
+The optional matSwap property has not been safely mapped to a single verified
+installed form/material input, so the runtime does not yet submit it.
+CommonLibF4 exposes workbench ExamineMenu and Inventory3DManager, but using
+their assembled 3D node outside its native menu would require independently
+verified lifecycle, threading and render-target ownership. Do not call an
+unverified workbench relocation or copy a gameplay-owned model node for a
+preview. The model/material limitation remains unresolved.
+
+The r8 lifecycle safeguard retires stale GPU preview requests and prior
+load-failure state when weapon/OMOD composition changes; a missing multi-part
+set falls back to a single receiver. The maintainer confirmed weapon and
+attachment switching, Alt-Tab, preview close/reopen, and prior keyboard/
+navigation checks passed in the target game on 2026-10-26. This supersedes
+the previous custom-renderer Alt-Tab failure for the tested r8 scenario.
+
+The same r8 test confirmed that the Recon Scope displays textures while most
+10mm weapon surfaces remain nearly white. Earlier Pipe Pistol gameplay tests
+also showed some correctly rendered wood texture; this is a partial-material
+issue, **not** an absence of texture rendering across the whole preview.
+Provider logs show the assembled six-part 10mm preview had five pieces
+attached at matching connect points and none left at origin; receiver, scope
+and other meshes expose distinct diffuse and BGSM paths. Diffuse engine
+texture resolution is logged.
+
+The maintainer also suggested comparing the vanilla weapon-workbench highlight
+shader and existing fixes. Nexus [Crafting Highlight Fix](https://www.nexusmods.com/fallout4/mods/27479)
+(1.8.8 for OG 1.10.163) modifies the game's hardcoded workbench/image-space
+highlight path; the public source at
+https://github.com/reg2k/Crafting-Highlight-Fix shows a branch patch at
+`ApplyImageSpaceShader_Check`, not a PrismaUI ModelPreview shader change.
+PrismaUI instead reports its own linear-lit D3D11 preview and sRGB render
+target. The fix is available in the mod-manager library, but a contemporaneous
+load of it in the test profile was not independently verified. Do not assume
+that enabling/installing a workbench fix will repair this independent preview;
+no such result has been tested. Investigate per-material texture binding,
+alpha/shader flags, sRGB handling and material overrides first.
+
+The maintainer also recalls a much earlier 3D-rendering experiment that
+**did display weapons**, but had inconsistent weapon-dependent framing: some
+models appeared too zoomed in, others too far away. The earlier rendering
+implementation was not located in the current Git history, and its material
+fidelity and Alt-Tab behavior have not been independently reconstructed. Treat
+this as a promising historical lead, **not** proof that the older renderer
+solves the current white-material defect. If recovered, inspect its camera
+position, per-model bounds, pivot, scale, FOV and near/far clipping. Test
+automatic bounds-based framing across pistol, long gun and large/modded mesh
+cases without copying unsafe lifecycle behavior or changing weapon data.
+
+Read-only inspection of Fallout 4's installed texture archives confirms the
+10mm receiver diffuse (`10mmPistol02_d.DDS`) and Recon Scope diffuse
+(`ReconPistol_scope_1_d.DDS`) both use BC3/DXT5 compression. The first diffuse
+is substantially brighter and nearly grayscale (approximately 175 mean RGB),
+while the Recon Scope is darker (approximately 103, 107, 90 mean RGB). Their
+original texture values are not universally white. PrismaUI's simplified
+lighting can plausibly wash out brighter surfaces, but an unresolved per-shape
+GPU texture lookup also triggers the provider's gray fallback. The existing
+first-texture SRV log is insufficient to distinguish these causes. Verify
+actual texture bindings and exposure **per shape** using a provider-matched
+instrumented build before changing brightness, shaders or model detection.
+
+An additional, reproducible FO4 material difference was confirmed: the
+10mmPistol.BGSM version 2 names `10mmPistol02_palette.DDS` in grayscale
+palette slot 3 with authored palette row 1.0; the Recon Scope and wooden
+grips do not use that slot. The current PrismaUI ModelPreview material/shader
+path ignores this slot. Offline sampling of the original receiver DDS through
+its palette's authored bottom row changes near-gray RGB ~175 to darker/warm
+RGB ~48; this is strong evidence for a missing palette stage, **not** in-game
+acceptance. A private, upstream-only eight-file implementation passed shader
+compilation (PS5 plus four VS5 variants) and diff validation. Its available
+source branch is not confirmed equivalent to the installed 2.2.1.1 provider,
+so no replacement DLL has been built or deployed. Version-matched provider
+build and target-runtime QA must precede any integration or release.
+
+A subsequent source-level aspect audit found a separate presentation defect:
+the PrismaUI ModelPreview renderer creates a square target and uses an
+aspect-1 perspective camera, but Quick Attach passed its approximately
+460x340-pixel region directly as the native destination. That nonuniform
+blit stretches the model horizontally. The next preview candidate centers
+a square destination within the existing interactive region, preserving
+proportions, mouse drag, scroll zoom and other preview controls. The
+wide/tall/unchanged rectangle transitions pass JavaScript regression tests.
+The maintainer's 2026-10-28 r9 screenshots show the 10mm Pistol and Pipe
+Pistol naturally proportioned and centered; those two cases are accepted.
+Other weapon types and material fidelity are not accepted by these images.
+The texture/palette issue is independent of this aspect correction.
+
+A read-only vanilla asset audit found palette textures in nine of thirteen
+matching 10mm BGSMs and eight of sixteen matching pipe-weapon BGSMs, but
+none of the two matching Recon Scope BGSMs. Wood uses a separate path.
+The 10mm and pipe palettes both exist in the original Fallout 4 texture
+archives as 64x16 BC1 DDS atlases with dark/warm color rows. Missing loose
+DDS files do not imply missing game assets. Those palette references are
+ignored by the installed ModelPreview material shader, consistent with
+white metal and partially visible wood/scope texture details.
+
+The private provider-source correction propagates BGSM palette path/row,
+samples a second D3D11 texture, and reports real diffuse SRV versus gray
+fallback plus palette SRV per mesh after a bounded settling period. The
+initial 165-byte BGSM-tail assumption covered only 25 of 287 palette-bearing
+vanilla materials. The revised bounded parser covers all 287 across ten
+observed tail sizes (128-174 bytes), and isolated compilation of the actual
+C++ parser processed 6,616 BGSM files with zero errors. Five shader
+permutations compiled with Microsoft fxc. The provider fix still requires
+source-matched construction and target-runtime QA before any acceptance.
+No modified provider or game assets are distributed with Quick Attach;
+the private patch and its diagnostics remain outside Git.
+
+The material-specific shader/texture mismatch is not fully corrected,
+and additional mod-added mesh/material combinations are unverified. Neither
+full vanilla-workbench visual parity nor the experimental feature's release
+acceptance can be claimed from the successful lifecycle tests.
+No player's MCM settings or installed attachments are changed.
+
 ## Fixed in 0.5.219: opener-close input leak
 
 A shortcut overlapping a vanilla game command could also trigger the vanilla

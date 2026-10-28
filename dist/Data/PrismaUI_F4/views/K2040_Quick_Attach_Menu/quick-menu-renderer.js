@@ -92,6 +92,11 @@
     this.statusClass = "";
     this.viewportFrame = 0;
     this.nativePreviewDisabledSent = false;
+    this.horizontalOptionScroll = 0;
+    this.horizontalCategoryScroll = 0;
+    this.renderedHorizontalCategoryIndex = null;
+    this.horizontalShouldRevealFocus = false;
+    this.horizontalShouldRevealCategory = false;
   }
 
   Renderer.prototype.settings = function() {
@@ -190,6 +195,7 @@
     var category = this.findCategory(this.activeCategoryIndex);
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
+    this.horizontalShouldRevealFocus = this.activePane === "options";
     this.render();
   };
 
@@ -495,13 +501,19 @@
     var confirm = this.options.controllerConfirmButton || "Confirm";
     var cancel = this.options.controllerCancelButton || "Back";
     hints.textContent = this.options.controllerActive
-      ? (this.activePane === "categories"
-          ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
-          : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
-            (this.settings().presentation === "radial" ? "Page" : "Category"))
+      ? (this.settings().presentation === "horizontal"
+          ? (this.activePane === "categories"
+              ? "Stick/D-pad ←/→: Categories · ↓/" + confirm + ": Attachments · " + cancel + ": Close"
+              : "Stick/D-pad ←/→: Attachments · ↑/" + cancel + ": Categories · " + confirm + ": Apply")
+          : (this.activePane === "categories"
+              ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
+              : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
+                (this.settings().presentation === "radial" ? "Page" : "Category")))
       : this.settings().presentation === "radial"
         ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
-        : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+        : this.settings().presentation === "horizontal"
+          ? "A/D or ←/→: Along row · W/S or ↑/↓: Change row · Enter/E: Confirm · Wheel/‹ ›: Scroll"
+          : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter/E to confirm · opener/Escape to close";
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";
@@ -523,14 +535,227 @@
     return layout;
   };
 
+  // Horizontal rows are wider than the viewport for many weapon/OMOD sets.
+  // Never truncate the options: keep a scrollable strip and explicit page
+  // controls. Browser, keyboard and controller selection share the same focus.
+  Renderer.prototype.scrollHorizontalOptions = function(delta) {
+    var list = this.root && this.root.querySelector &&
+      this.root.querySelector(".presentation-horizontal .qm-option-list");
+    var width = list && list.clientWidth > 0 ? list.clientWidth : 645;
+    var count = Math.max(1, Math.floor((width + 6) / 221));
+    var options = this.visibleOptions(this.findCategory(this.activeCategoryIndex));
+    if (!options.length) return;
+    var index = options.findIndex(function(option) {
+      return option.optionIndex === this.lastFocusedOptionIndex;
+    }, this);
+    var next = Math.min(options.length - 1, Math.max(0, (index < 0 ? 0 : index) + delta * count));
+    this.activePane = "options";
+    this.lastFocusedOptionIndex = options[next].optionIndex;
+    this.horizontalShouldRevealFocus = true;
+    this.render();
+  };
+
+  Renderer.prototype.scrollHorizontalCategories = function(delta) {
+    var list = this.root && this.root.querySelector &&
+      this.root.querySelector(".presentation-horizontal .qm-category-list");
+    var width = list && list.clientWidth > 0 ? list.clientWidth : 780;
+    var count = Math.max(1, Math.floor((width + 6) / 156));
+    this.moveHorizontalCategory(delta * count);
+  };
+
+  Renderer.prototype.moveHorizontalCategory = function(delta) {
+    var categories = this.visibleCategories();
+    if (!categories.length) return;
+    var current = categories.findIndex(function(category) {
+      return category.categoryIndex === this.activeCategoryIndex;
+    }, this);
+    var next = Math.max(0, Math.min(categories.length - 1,
+      (current < 0 ? 0 : current) + delta));
+    this.activePane = "categories";
+    this.horizontalShouldRevealCategory = true;
+    this.selectCategory(categories[next].categoryIndex);
+  };
+
+  Renderer.prototype.moveHorizontalOption = function(delta) {
+    var category = this.findCategory(this.activeCategoryIndex);
+    var options = this.visibleOptions(category);
+    if (!options.length) return;
+    var current = options.findIndex(function(option) {
+      return option.optionIndex === this.lastFocusedOptionIndex;
+    }, this);
+    var next = Math.max(0, Math.min(options.length - 1,
+      (current < 0 ? 0 : current) + delta));
+    this.activePane = "options";
+    this.lastFocusedOptionIndex = options[next].optionIndex;
+    this.horizontalShouldRevealFocus = true;
+    this.render();
+  };
+
+  Renderer.prototype.restoreHorizontalRows = function() {
+    if (!this.root || !this.root.querySelector) return;
+    var options = this.root.querySelector(".presentation-horizontal .qm-option-list");
+    var categories = this.root.querySelector(".presentation-horizontal .qm-category-list");
+    if (categories) {
+      categories.scrollLeft = this.horizontalCategoryScroll;
+      if (this.horizontalShouldRevealCategory) {
+        var active = categories.querySelector(".qm-category-button.active");
+        if (active && active.getBoundingClientRect && categories.getBoundingClientRect) {
+          var outerCategory = categories.getBoundingClientRect();
+          var innerCategory = active.getBoundingClientRect();
+          var scaleCategory = Math.max(.1,
+            outerCategory.width / Math.max(1, categories.clientWidth));
+          if (innerCategory.right > outerCategory.right) {
+            categories.scrollLeft += (innerCategory.right - outerCategory.right) / scaleCategory + 8;
+          } else if (innerCategory.left < outerCategory.left) {
+            categories.scrollLeft -= (outerCategory.left - innerCategory.left) / scaleCategory + 8;
+          }
+        }
+      }
+      this.horizontalCategoryScroll = categories.scrollLeft;
+    }
+    this.horizontalShouldRevealCategory = false;
+    if (!options) return;
+    options.scrollLeft = this.horizontalOptionScroll;
+    if (this.activePane === "options" && this.horizontalShouldRevealFocus) {
+      var focused = options.querySelector(".qm-option-button.focused-option");
+      if (focused && focused.getBoundingClientRect && options.getBoundingClientRect) {
+        var outer = options.getBoundingClientRect();
+        var inner = focused.getBoundingClientRect();
+        // DOM rects are scaled with the menu, scrollLeft is in layout pixels.
+        var scale = Math.max(.1, outer.width / Math.max(1, options.clientWidth));
+        if (inner.right > outer.right) options.scrollLeft += (inner.right - outer.right) / scale + 8;
+        else if (inner.left < outer.left) options.scrollLeft -= (outer.left - inner.left) / scale + 8;
+      }
+    }
+    this.horizontalOptionScroll = options.scrollLeft;
+    this.horizontalShouldRevealFocus = false;
+  };
+
   Renderer.prototype.renderHorizontal = function(categories, category) {
+    var self = this;
     var layout = document.createElement("div");
     layout.className = "qm-layout qm-horizontal-layout";
     var categoryPane = document.createElement("nav");
     categoryPane.className = "qm-pane qm-horizontal-categories";
-    categoryPane.appendChild(this.makeCategoryList(categories));
-    layout.appendChild(categoryPane);
-    layout.appendChild(this.makeOptionList(category, false));
+    var categoryList = this.makeCategoryList(categories);
+    categoryPane.appendChild(categoryList);
+    var categoryRow = document.createElement("div");
+    categoryRow.className = "qm-horizontal-categories-row";
+    if (categories.length > 1) {
+      var previousCategory = document.createElement("button");
+      previousCategory.type = "button";
+      previousCategory.className = "qm-horizontal-page-button";
+      previousCategory.textContent = "‹";
+      previousCategory.title = "Previous categories";
+      previousCategory.setAttribute("aria-label", "Previous categories");
+      previousCategory.addEventListener("click", function() { self.scrollHorizontalCategories(-1); });
+      categoryRow.appendChild(previousCategory);
+    }
+    categoryRow.appendChild(categoryPane);
+    if (categories.length > 1) {
+      var nextCategory = document.createElement("button");
+      nextCategory.type = "button";
+      nextCategory.className = "qm-horizontal-page-button";
+      nextCategory.textContent = "›";
+      nextCategory.title = "Next categories";
+      nextCategory.setAttribute("aria-label", "Next categories");
+      nextCategory.addEventListener("click", function() { self.scrollHorizontalCategories(1); });
+      categoryRow.appendChild(nextCategory);
+    }
+    categoryList.addEventListener("wheel", function(event) {
+      if (categoryList.scrollWidth <= categoryList.clientWidth) return;
+      var movement = Math.abs(event.deltaX) >= Math.abs(event.deltaY)
+        ? event.deltaX : event.deltaY;
+      if (!movement) return;
+      event.preventDefault();
+      event.stopPropagation();
+      categoryList.scrollLeft += movement;
+      self.horizontalCategoryScroll = categoryList.scrollLeft;
+    }, { passive: false });
+    layout.appendChild(categoryRow);
+    var weapon = this.payload && this.payload.weapon ? this.payload.weapon : {};
+    if (!this.options.preview && weapon.previewBaseNifPath &&
+        this.options.onPreviewToggle && this.options.previewSupported && this.options.previewSupported()) {
+      var panel = document.createElement("section");
+      panel.className = "qm-weapon-preview-panel";
+      var button = document.createElement("button");
+      button.className = "qm-weapon-preview-toggle";
+      button.type = "button";
+      var active = this.options.isPreviewActive && this.options.isPreviewActive();
+      button.textContent = active ? "Hide 3D weapon component" : "Show 3D weapon component (experimental)";
+      button.addEventListener("click", function() { self.options.onPreviewToggle(); });
+      panel.appendChild(button);
+      if (active) {
+        var controls = document.createElement("div");
+        controls.className = "qm-weapon-preview-controls";
+        if (Array.isArray(weapon.previewComponentNifPaths) &&
+            weapon.previewComponentNifPaths.length > 1 && this.options.onPreviewPartsToggle) {
+          var parts = document.createElement("button");
+          parts.type = "button";
+          parts.className = "qm-weapon-preview-toggle";
+          parts.textContent = this.options.previewIsComposed && this.options.previewIsComposed()
+            ? "Show receiver only" : "Compare installed parts (experimental)";
+          parts.addEventListener("click", function() { self.options.onPreviewPartsToggle(); });
+          controls.appendChild(parts);
+        }
+        if (this.options.onPreviewLightingToggle) {
+          var lighting = document.createElement("button");
+          lighting.type = "button";
+          lighting.className = "qm-weapon-preview-toggle";
+          lighting.textContent = this.options.previewLowLighting && this.options.previewLowLighting()
+            ? "Lighting: 35% (switch to 100%)" : "Lighting: 100% (compare 35%)";
+          lighting.addEventListener("click", function() { self.options.onPreviewLightingToggle(); });
+          controls.appendChild(lighting);
+        }
+        panel.appendChild(controls);
+        var region = document.createElement("div");
+        region.className = "qm-weapon-preview-region";
+        region.setAttribute("aria-label", "Base weapon model preview");
+        var message = document.createElement("div");
+        message.className = "qm-weapon-preview-message";
+        message.textContent = "Receiver/base mesh only — attachments may differ. Drag to rotate; scroll to zoom.";
+        panel.appendChild(region);
+        panel.appendChild(message);
+      }
+      layout.appendChild(panel);
+    }
+    var optionPane = this.makeOptionList(category, false);
+    var optionRow = document.createElement("div");
+    optionRow.className = "qm-horizontal-options-row";
+    var options = this.visibleOptions(category);
+    if (options.length > 1) {
+      var self = this;
+      var previous = document.createElement("button");
+      previous.type = "button";
+      previous.className = "qm-horizontal-page-button";
+      previous.textContent = "‹";
+      previous.title = "Previous attachments";
+      previous.setAttribute("aria-label", "Previous attachments");
+      previous.addEventListener("click", function() { self.scrollHorizontalOptions(-1); });
+      optionRow.appendChild(previous);
+    }
+    optionRow.appendChild(optionPane);
+    if (options.length > 1) {
+      var next = document.createElement("button");
+      next.type = "button";
+      next.className = "qm-horizontal-page-button";
+      next.textContent = "›";
+      next.title = "Next attachments";
+      next.setAttribute("aria-label", "Next attachments");
+      next.addEventListener("click", function() { self.scrollHorizontalOptions(1); });
+      optionRow.appendChild(next);
+    }
+    var list = optionPane.querySelector ? optionPane.querySelector(".qm-option-list") : null;
+    if (list) list.addEventListener("wheel", function(event) {
+      if (list.scrollWidth <= list.clientWidth) return;
+      var movement = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (!movement) return;
+      event.preventDefault();
+      event.stopPropagation();
+      list.scrollLeft += movement;
+      self.horizontalOptionScroll = list.scrollLeft;
+    }, { passive: false });
+    layout.appendChild(optionRow);
     return layout;
   };
 
@@ -808,6 +1033,18 @@
 
   Renderer.prototype.render = function() {
     if (!this.root) return;
+    // Each render destroys the previous DOM. Remember both strips' scroll
+    // positions before that happens so offscreen options stay reachable.
+    if (this.root.querySelector) {
+      var oldOptions = this.root.querySelector(".presentation-horizontal .qm-option-list");
+      var oldCategories = this.root.querySelector(".presentation-horizontal .qm-category-list");
+      if (oldOptions) this.horizontalOptionScroll = oldOptions.scrollLeft || 0;
+      if (oldCategories) this.horizontalCategoryScroll = oldCategories.scrollLeft || 0;
+    }
+    if (this.renderedHorizontalCategoryIndex !== this.activeCategoryIndex) {
+      this.horizontalOptionScroll = 0;
+    }
+    this.renderedHorizontalCategoryIndex = this.activeCategoryIndex;
     this.ensureLabelPortal();
     this.ensureStatusPortal();
     if (this.labelPortal) this.labelPortal.textContent = "";
@@ -824,17 +1061,22 @@
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
+    if (presentation === "horizontal") this.restoreHorizontalRows();
     this.appendStatusAndMeta(this.root);
     this.updateScreenLabels();
     this.updateScreenStatus();
+    if (this.options.onPreviewLayout) this.options.onPreviewLayout();
   };
 
   Renderer.prototype.selectCategory = function(categoryIndex) {
     var category = this.findCategory(categoryIndex);
     if (!category) return;
+    if (this.activeCategoryIndex !== category.categoryIndex) this.horizontalOptionScroll = 0;
     this.activeCategoryIndex = category.categoryIndex;
+    this.horizontalShouldRevealCategory = true;
     var option = this.focusedOption(category);
     this.lastFocusedOptionIndex = option ? option.optionIndex : 0;
+    this.horizontalShouldRevealFocus = this.activePane === "options";
     this.radialOptionPage = 0;
     this.statusMessage = "";
     this.statusClass = "";
@@ -887,6 +1129,7 @@
     }
     index = index < 0 ? (delta > 0 ? 0 : options.length - 1) : (index + delta + options.length) % options.length;
     this.lastFocusedOptionIndex = options[index].optionIndex;
+    this.horizontalShouldRevealFocus = true;
     if (this.settings().presentation === "radial") {
       this.radialOptionPage = Math.floor(index / 6);
     }
@@ -896,6 +1139,7 @@
   Renderer.prototype.switchPane = function(direction) {
     if (direction > 0 && this.activePane === "categories") {
       this.activePane = "options";
+      this.horizontalShouldRevealFocus = true;
       if (this.settings().presentation === "radial") {
         var category = this.findCategory(this.activeCategoryIndex);
         var options = this.visibleOptions(category);
@@ -913,6 +1157,21 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
+    if (this.settings().presentation === "horizontal") {
+      // Two visible rows: Left/Right (A/D) move within the active row;
+      // Up/Down (W/S) move between rows without changing attachments.
+      if (direction === "left" || direction === "right") {
+        var step = direction === "left" ? -1 : 1;
+        if (this.activePane === "categories") this.moveHorizontalCategory(step);
+        else this.moveHorizontalOption(step);
+      } else if (direction === "down" && this.activePane === "categories") {
+        this.switchPane(1);
+      } else if (direction === "up" && this.activePane === "options") {
+        this.horizontalShouldRevealCategory = true;
+        this.switchPane(-1);
+      }
+      return;
+    }
     if (direction === "left") {
       this.switchPane(-1);
     } else if (direction === "right") {

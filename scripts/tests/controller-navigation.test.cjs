@@ -20,6 +20,17 @@ function setup(presentation) {
     render() {},
     settings: () => ({ presentation }),
     navigateDirection: direction => {
+      if (presentation === 'horizontal') {
+        if (direction === 'left' || direction === 'right') {
+          actions.push([renderer.activePane === 'categories' ? 'category' : 'option',
+            direction === 'left' ? -1 : 1]);
+        } else if (direction === 'down' && renderer.activePane === 'categories') {
+          actions.push(['pane', 1]);renderer.activePane = 'options';
+        } else if (direction === 'up' && renderer.activePane === 'options') {
+          actions.push(['pane', -1]);renderer.activePane = 'categories';
+        }
+        return;
+      }
       if (direction === 'left' || direction === 'right') {
         const delta = direction === 'left' ? -1 : 1;
         actions.push(['pane', delta]);
@@ -51,10 +62,11 @@ function setup(presentation) {
   };
   const win = {
     K2040QuickMenuRenderer: { create: () => renderer },
-    addEventListener: (n, f) => { winEvents[n] = f; }
+    addEventListener: (n, f) => { winEvents[n] = f; },
+    setInterval: () => 1, clearInterval() {}
   };
   const doc = {
-    getElementById: () => ({}),
+    getElementById: () => ({style:{}}),
     addEventListener: (n, f) => { docEvents[n] = f; }
   };
   vm.runInNewContext(lastScript, { window: win, document: doc, Date: { now: () => now },
@@ -65,10 +77,18 @@ function setup(presentation) {
       detail: { button: value, state }, stopImmediatePropagation() {}
     });
   }
-  return { win, renderer, actions, button, time: value => { now = value; } };
+  function key(value, overrides = {}) {
+    let consumed = false;
+    const defaults = {key:value,keyCode:0,repeat:false,
+      shiftKey:false,ctrlKey:false,altKey:false,metaKey:false};
+    docEvents.keydown({ ...defaults, ...overrides,
+      preventDefault(){consumed=true},stopPropagation(){},stopImmediatePropagation(){}});
+    return consumed;
+  }
+  return { win, renderer, actions, button, key, time: value => { now = value; } };
 }
 
-for (const layout of ['cascade', 'hybrid', 'horizontal']) {
+for (const layout of ['cascade', 'hybrid']) {
   const c = setup(layout);
   c.win.k2040ControllerStickSector('0');
   assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? 1 : -1],
@@ -113,6 +133,91 @@ for (const layout of ['cascade', 'hybrid', 'horizontal']) {
     layout + ': held confirmation must not reapply');
 }
 
+{
+  const c = setup('horizontal');
+  c.win.k2040ControllerStickSector('18');
+  assert.deepEqual(c.actions.at(-1),['category',1], 'stick right advances top row');
+  c.time(10300);c.win.k2040ControllerStickSector('36');
+  assert.deepEqual(c.actions.at(-1),['pane',1], 'stick down enters attachments');
+  c.time(10600);c.win.k2040ControllerStickSector('18');
+  assert.deepEqual(c.actions.at(-1),['option',1], 'stick right advances attachment');
+  c.time(10900);c.win.k2040ControllerStickSector('0');
+  assert.deepEqual(c.actions.at(-1),['pane',-1], 'stick up returns to categories');
+  c.win.k2040ControllerStickSector('-1');
+  c.button('DRight');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.button('DDown');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.button('DLeft');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.button('DUp');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,0);
+  c.win.k2040ControllerConfirmButton('X');c.button('A');
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,0);
+  c.button('X');assert.equal(c.actions.filter(([name])=>name==='confirm').length,1);
+  // Confirm above enters the options pane; reset to top for a full two-row
+  // keyboard traversal beginning on the visible category strip.
+  c.renderer.activePane='categories';
+  c.key('d');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.key('s');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.key('a');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.key('w');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  c.key('ArrowRight');assert.deepEqual(c.actions.at(-1),['category',1]);
+  c.key('ArrowDown');assert.deepEqual(c.actions.at(-1),['pane',1]);
+  c.key('ArrowLeft');assert.deepEqual(c.actions.at(-1),['option',-1]);
+  c.key('ArrowUp');assert.deepEqual(c.actions.at(-1),['pane',-1]);
+  assert.equal(c.actions.filter(([name])=>name==='confirm').length,1,
+    'WASD and arrow-key navigation must not apply an attachment');
+}
+// Browser confirmations only request the existing guarded action. No held
+// key repeat, modifier chord, or Escape can duplicate an installation.
+for (const layout of ['horizontal','cascade','hybrid','radial']) {
+  const c = setup(layout);
+  for (const name of ['Enter','e','E']) {
+    c.renderer.activePane='categories';
+    const before=c.actions.filter(([type])=>type==='confirm').length;
+    assert.equal(c.key(name),true,layout+': '+JSON.stringify(name)+' consumed');
+    assert.equal(c.renderer.activePane,'options','Confirm from category only enters attachments');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+1);
+    assert.equal(c.key(name,{repeat:true}),true,'repeat is still consumed');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+1,
+      'held '+JSON.stringify(name)+' must not reapply');
+    assert.equal(c.key(name),true,'fresh press on options is handled');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,before+2);
+  }
+  const count=c.actions.filter(([type])=>type==='confirm').length;
+  // Unconfigured Space remains intercepted but must never request Confirm.
+  for (const space of [' ','Spacebar','Space']) {
+    assert.equal(c.key(space),true,'Space stays inert and is consumed');
+    assert.equal(c.key(space,{repeat:true}),true,'held Space is also consumed');
+    assert.equal(c.actions.filter(([type])=>type==='confirm').length,count,
+      'Space never confirms any menu action');
+  }
+  for (const key of [' ','Spacebar','Space','e','E']) {
+    for (const modifier of ['shiftKey','ctrlKey','altKey','metaKey']) {
+      assert.equal(c.key(key,{[modifier]:true}),key !== 'e' && key !== 'E',
+        'modified E cannot confirm; Space is consumed and inert');
+    }
+  }
+  assert.equal(c.key('Escape'),true,'Escape stays intercepted');
+  assert.equal(c.actions.filter(([type])=>type==='confirm').length,count,
+    'modified keys and Escape must not confirm');
+}
+// A user-configured opener must keep priority over bare confirm keys.
+{
+  const c=setup('horizontal'),open=[];
+  c.win.k2040HotkeyActionRequested=action=>open.push(action);
+  c.win.k2040SetPayload(JSON.stringify({settings:{presentation:'horizontal',
+    openMenuHotkeyKeycode:69,openMenuHotkeyModifiers:0,
+    openMenuBuilderHotkeyKeycode:32,openMenuBuilderHotkeyModifiers:0},
+    weapon:{hasWeapon:true},parser:{valid:true,categories:[{}]}}));
+  const count=c.actions.length;
+  assert.equal(c.key('e',{keyCode:69}),true);
+  assert.equal(c.key(' ',{keyCode:32}),true);
+  assert.deepEqual(open,['quick','builder']);
+  assert.equal(c.actions.length,count,'configured openers never confirm attachments');
+  assert.equal(c.key('e',{keyCode:69,repeat:true}),true);
+  assert.equal(open.length,2,'held opener does not repeat');
+  assert.equal(c.key('e',{keyCode:69,shiftKey:true}),false,
+    'modified unrelated chord does not confirm');
+}
 {
   const r = setup('radial');
   r.win.k2040ControllerStickSector('10');

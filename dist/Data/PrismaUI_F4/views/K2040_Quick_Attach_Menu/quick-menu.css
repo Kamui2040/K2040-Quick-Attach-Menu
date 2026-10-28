@@ -281,6 +281,37 @@
   gap: 8px;
 }
 
+.presentation-horizontal .qm-horizontal-categories-row,
+.presentation-horizontal .qm-horizontal-options-row {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+}
+
+.presentation-horizontal .qm-horizontal-categories-row .qm-pane,
+.presentation-horizontal .qm-horizontal-options-row .qm-pane {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.presentation-horizontal .qm-horizontal-page-button {
+  flex: 0 0 31px;
+  width: 31px;
+  border: 1px solid var(--qm-line);
+  background: var(--qm-panel);
+  color: var(--qm-accent);
+  cursor: pointer;
+  font-size: 23px;
+}
+
+.presentation-horizontal .qm-horizontal-page-button:hover,
+.presentation-horizontal .qm-horizontal-page-button:focus-visible {
+  background: var(--qm-active);
+  border-color: var(--qm-accent);
+}
+
 .presentation-horizontal .qm-category-list,
 .presentation-horizontal .qm-option-list {
   display: flex;
@@ -301,6 +332,32 @@
   width: 215px;
   min-width: 215px;
   margin: 0;
+}
+
+/* Experimental, opt-in base NIF model preview (PrismaUI ModelPreview v4 only).
+   The game workbench assembles installed OMOD geometry; this does not. */
+.qm-weapon-preview-panel { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.qm-weapon-preview-toggle {
+  align-self: center; padding: 7px 12px; border: 1px solid var(--qm-line);
+  background: var(--qm-panel); color: var(--qm-accent); cursor: pointer;
+}
+.qm-weapon-preview-toggle:hover, .qm-weapon-preview-toggle:focus-visible {
+  background: var(--qm-active); border-color: var(--qm-accent);
+}
+.qm-weapon-preview-controls {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+}
+.qm-weapon-preview-region {
+  position: relative; width: min(460px, 78vw); max-width: 100%;
+  height: min(340px, 45vh); margin: 0 auto;
+  border: 1px solid var(--qm-line);
+  background: radial-gradient(ellipse at 50% 52%, rgba(160,185,190,.14), rgba(0,0,0,.42));
+  cursor: grab; overflow: hidden;
+}
+.qm-weapon-preview-region:active { cursor: grabbing; }
+.qm-weapon-preview-message {
+  text-align: center; padding: 3px; font-size: 11px; pointer-events: none;
+  background: rgba(0,0,0,.70); color: var(--qm-muted);
 }
 
 /* Controller-only radial pages keep full attachment names outside the wheel.

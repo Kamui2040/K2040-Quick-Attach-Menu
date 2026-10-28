@@ -31,7 +31,7 @@ function setup(layout, count = 2) {
   });
   return { r, installs: () => installs };
 }
-for (const layout of ['cascade', 'radial', 'hybrid', 'horizontal']) {
+for (const layout of ['cascade', 'radial', 'hybrid']) {
   const { r, installs } = setup(layout);
   r.selectCategory(1);
   // The semicircular Compact Hybrid wheel has bottom-to-top indices;
@@ -90,5 +90,34 @@ for (const layout of ['cascade', 'radial', 'hybrid', 'horizontal']) {
   const center = i => (97 + (i + .5) * (166 / 3)) * Math.PI / 180;
   assert.ok(Math.sin(center(2)) < Math.sin(center(1)));
   assert.ok(Math.sin(center(1)) < Math.sin(center(0)));
+}
+{
+  const { r, installs } = setup('horizontal', 8);
+  r.selectCategory(1);
+  r.navigateDirection('left');
+  assert.equal(r.activeCategoryIndex, 0, 'horizontal left changes top category');
+  r.navigateDirection('right');
+  assert.equal(r.activeCategoryIndex, 1, 'horizontal right changes top category');
+  r.navigateDirection('up');
+  assert.equal(r.activePane, 'categories', 'horizontal up at top row does not cycle categories');
+  r.navigateDirection('down');
+  assert.equal(r.activePane, 'options', 'horizontal down moves to options');
+  assert.equal(r.lastFocusedOptionIndex, 0);
+  r.navigateDirection('right');
+  assert.equal(r.lastFocusedOptionIndex, 1, 'horizontal right moves to next attachment');
+  r.navigateDirection('left');
+  assert.equal(r.lastFocusedOptionIndex, 0, 'horizontal left moves to previous attachment');
+  r.navigateDirection('down');
+  assert.equal(r.lastFocusedOptionIndex, 0, 'horizontal down on bottom row does not cycle options');
+  r.navigateDirection('up');
+  assert.equal(r.activePane, 'categories', 'horizontal up returns to categories');
+  r.navigateShoulder(1);
+  assert.equal(r.activeCategoryIndex, 2, 'shoulder navigation still moves category');
+  r.navigateDirection('down');
+  r.navigateShoulder(-1);
+  assert.equal(r.activePane, 'options', 'shoulder navigation preserves option pane');
+  assert.equal(installs(), 0, 'navigation never installs attachments');
+  r.activateFocusedOption();
+  assert.equal(installs(), 1, 'explicit Confirm alone installs');
 }
 console.log('PASS: real renderer unified controller navigation and hybrid visual order, 4 layouts');

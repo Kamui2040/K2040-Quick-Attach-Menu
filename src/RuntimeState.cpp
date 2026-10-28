@@ -1,5 +1,6 @@
 #include "AttachmentLabels.h"
 #include "RuntimeState.h"
+#include "WeaponPreviewPath.h"
 #include "LiveAPResolver.h"
 #include "OmodTargetResolver.h"
 
@@ -968,6 +969,9 @@ namespace k2040
         info.weapon = MakeFormRef(weapon);
         info.equippedSlotIndex = matchedEquipIndex;
         info.weapon.displayName = SafeDisplayName(weapon);
+        if (const auto* model = weapon->GetModel()) {
+            info.previewBaseNifPath = NormalizeWeaponPreviewNifPath(model);
+        }
         info.baseAttachParentSlots = CollectAttachParentSlots(weapon->attachParents);
         info.defaultTemplateMods = CollectDefaultTemplateMods(weapon->objectTemplate, info.defaultTemplateProvidedSlots);
         info.currentAvailableSlotsPreview = info.baseAttachParentSlots;
@@ -977,6 +981,59 @@ namespace k2040
             CaptureInstanceProbe(*matchedInstance, info);
             CaptureWeaponInstanceDataProbe(matchedInstance->instanceData.get(), info);
             CaptureObjectInstanceExtraProbe(player, weapon, info);
+        }
+
+        // Weapon form TESModel is frequently an empty receiver mount-point
+        // placeholder. Prefer the installed receiver OMOD's drawable mesh in
+        // that case. This remains read-only and is NOT assembled workbench 3D.
+        if (IsDummyWeaponPreviewNifPath(info.previewBaseNifPath)) {
+            std::string receiverMesh;
+            bool ambiguous = false;
+            for (const auto& installed : info.installedObjectInstanceMods) {
+                auto* form = RE::TESForm::GetFormByID(installed.formId);
+                auto* omod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+                if (!omod) continue;
+                const auto consumes = ResolveAttachPointKeyword(omod->attachPoint.keywordIndex);
+                if (!AsciiEqualsInsensitive(consumes.editorId, "ap_gun_receiver")) continue;
+                const auto* mesh = omod->GetModel();
+                const auto path = mesh ? NormalizeWeaponPreviewNifPath(mesh) : std::string{};
+                if (path.empty() || IsDummyWeaponPreviewNifPath(path)) continue;
+                if (!receiverMesh.empty() && receiverMesh != path) {
+                    ambiguous = true;
+                    break;
+                }
+                receiverMesh = path;
+            }
+            // Ambiguous or unmodelled receiver: hide the 3D control rather
+            // than showing the incorrect gun or treating a dummy as drawable.
+            info.previewBaseNifPath = ambiguous ? std::string{} : receiverMesh;
+        }
+
+        // Optional diagnostic-only composed ModelPreview input. The native
+        // bridge supports multiple NIFs, but *does not* recreate Fallout 4's
+        // workbench attach-node transforms, material changes or preview pose.
+        // Use resolved, enabled OMODs from the equipped inventory stack only.
+        if (!info.previewBaseNifPath.empty()) {
+            info.previewComponentNifPaths.push_back(info.previewBaseNifPath);
+            if (info.installedObjectInstanceRawCount > 0 &&
+                info.installedObjectInstanceRawCount == info.installedObjectInstanceResolvedCount) {
+                for (const auto& installed : info.installedObjectInstanceMods) {
+                    auto* form = RE::TESForm::GetFormByID(installed.formId);
+                    auto* omod = form ? form->As<RE::BGSMod::Attachment::Mod>() : nullptr;
+                    if (!omod) continue;
+                    const auto* model = omod->GetModel();
+                    const auto path = model ? NormalizeWeaponPreviewNifPath(model) : std::string{};
+                    if (path.empty() || IsDummyWeaponPreviewNifPath(path)) continue;
+                    if (std::find(info.previewComponentNifPaths.begin(),
+                            info.previewComponentNifPaths.end(), path) != info.previewComponentNifPaths.end()) continue;
+                    if (info.previewComponentNifPaths.size() >= 12) {
+                        // Fail closed to single component for unusual stacks.
+                        info.previewComponentNifPaths.resize(1);
+                        break;
+                    }
+                    info.previewComponentNifPaths.push_back(path);
+                }
+            }
         }
 
         if (info.weapon.displayName.empty()) {
