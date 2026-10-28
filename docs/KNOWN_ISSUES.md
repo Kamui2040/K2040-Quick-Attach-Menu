@@ -131,16 +131,32 @@ aspect-1 perspective camera, but Quick Attach passed its approximately
 blit stretches the model horizontally. The next preview candidate centers
 a square destination within the existing interactive region, preserving
 proportions, mouse drag, scroll zoom and other preview controls. The
-wide/tall/unchanged rectangle transitions pass JavaScript regression tests;
-the visual result still needs target-game acceptance. The texture/palette
-issue is independent of this aspect correction.
+wide/tall/unchanged rectangle transitions pass JavaScript regression tests.
+The maintainer's 2026-10-28 r9 screenshots show the 10mm Pistol and Pipe
+Pistol naturally proportioned and centered; those two cases are accepted.
+Other weapon types and material fidelity are not accepted by these images.
+The texture/palette issue is independent of this aspect correction.
 
-The private provider-source experiment additionally records diffuse SRV
-versus gray fallback and palette SRV separately per mesh, after bindings
-settle or at 60 render attempts. It passes local Microsoft shader
-compilation for five permutations, but is still not a source-matched
-provider DLL and is not installed or distributable with Quick Attach.
-The private patch and diagnostics remain outside Git.
+A read-only vanilla asset audit found palette textures in nine of thirteen
+matching 10mm BGSMs and eight of sixteen matching pipe-weapon BGSMs, but
+none of the two matching Recon Scope BGSMs. Wood uses a separate path.
+The 10mm and pipe palettes both exist in the original Fallout 4 texture
+archives as 64x16 BC1 DDS atlases with dark/warm color rows. Missing loose
+DDS files do not imply missing game assets. Those palette references are
+ignored by the installed ModelPreview material shader, consistent with
+white metal and partially visible wood/scope texture details.
+
+The private provider-source correction propagates BGSM palette path/row,
+samples a second D3D11 texture, and reports real diffuse SRV versus gray
+fallback plus palette SRV per mesh after a bounded settling period. The
+initial 165-byte BGSM-tail assumption covered only 25 of 287 palette-bearing
+vanilla materials. The revised bounded parser covers all 287 across ten
+observed tail sizes (128-174 bytes), and isolated compilation of the actual
+C++ parser processed 6,616 BGSM files with zero errors. Five shader
+permutations compiled with Microsoft fxc. The provider fix still requires
+source-matched construction and target-runtime QA before any acceptance.
+No modified provider or game assets are distributed with Quick Attach;
+the private patch and its diagnostics remain outside Git.
 
 The material-specific shader/texture mismatch is not fully corrected,
 and additional mod-added mesh/material combinations are unverified. Neither

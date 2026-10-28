@@ -55,8 +55,16 @@
   public PrismaUI ModelPreview ignores this slot. A private provider-level
   palette remap patch passed offline DDS comparison and Microsoft HLSL
   PS5/VS5 compilation, but no source-matched 2.2.1.1 native build or
-  target-runtime QA exists. QAM runtime logic remains unchanged. Per-mesh
-  SRV fallback vs lighting still warrants independent verification.
+  target-runtime QA exists. The maintainer's 2026-10-28 r9 screenshots
+  confirm natural 10mm and Pipe Pistol proportions after the square
+  preview correction; that acceptance is limited to those two weapons.
+  Their metal parts remain pale. A read-only archive audit identified
+  palettes in nine 10mm and eight pipe-weapon materials, with both
+  palette assets present as 64x16 BC1 DDS textures. The private parser
+  recognizes all 287 palette-bearing vanilla materials among 6,616 BGSMs,
+  with zero errors in isolated C++ source validation. The QAM renderer is
+  unchanged. Per-mesh SRV binding and palette sampling still require
+  a source-matched PrismaUI build and in-game verification.
   Remaining 3D-preview material/shader fidelity is not accepted; do not mark
   the overall experimental preview release-ready.
   Stable release is 0.5.220; saves, bindings and inventory remain untouched.
