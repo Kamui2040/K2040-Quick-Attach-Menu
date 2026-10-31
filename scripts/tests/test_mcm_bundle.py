@@ -47,9 +47,23 @@ class BundledMcmTests(unittest.TestCase):
         self.assertEqual(parent["pages"],[])  # No central registry mutation.
 
     def test_parent_mismatch_blocks_packaging(self):
-        with mock.patch.object(PACKAGER,"CANONICAL_PARENT_SHA256","0"*64):
-            with self.assertRaisesRegex(ValueError,"canonical template"):
-                PACKAGER.payload()
+        # Keep the parent validation test independent of a Windows cross-build.
+        # The packager must still require a real DLL for actual release archives.
+        with tempfile.TemporaryDirectory() as temp:
+            staged = Path(temp)/"Data"
+            for required in (PACKAGER.PARENT, PACKAGER.CHILD, PACKAGER.KEYBINDS,
+                             PACKAGER.DEFAULTS, PACKAGER.INI):
+                relative = Path(required).relative_to("Data")
+                destination = staged/relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes((ROOT/"dist"/required).read_bytes())
+            dll = staged/Path(PACKAGER.DLL).relative_to("Data")
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            dll.write_bytes(b"test-only placeholder; never packaged")
+            with mock.patch.object(PACKAGER,"DIST",staged):
+                with mock.patch.object(PACKAGER,"CANONICAL_PARENT_SHA256","0"*64):
+                    with self.assertRaisesRegex(ValueError,"canonical template"):
+                        PACKAGER.payload()
 
     def test_archive_is_reproducible_and_does_not_bundle_user_settings(self):
         if not (ROOT/"dist/Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll").is_file():
