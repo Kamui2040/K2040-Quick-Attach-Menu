@@ -1,5 +1,11 @@
 # Current Project State
 
+- The unreleased weapon-preview browser adapter now sends ordered
+  component-specific NIF paths only when ModelPreview API v5 is available
+  and experimental composed mode is enabled. It keeps the documented v4
+  fallback and receiver-only path unchanged. Per-component MSWP precedence
+  and OMOD color remapping are not yet resolved, so the adapter deliberately
+  omits invented material swaps. No in-game acceptance is claimed.
 - 0.5.221 is an unreleased, opt-in Horizontal Bar weapon-component NIF preview
   experiment using PrismaUI ModelPreview API v4 (provider 2.2.0+). The first
   in-game screenshot showed an empty model and a generic error; PrismaUI log

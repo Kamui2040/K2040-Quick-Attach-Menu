@@ -48,6 +48,15 @@ fi
 [[ -f "$sdk/Windows Kits/10/Lib/$kit_version/um/x64/kernel32.lib" ]] || fail "Windows SDK x64 kernel32.lib missing"
 [[ -f "$sdk/Windows Kits/10/Lib/$kit_version/ucrt/x64/ucrt.lib" ]] || fail "Windows SDK x64 ucrt.lib missing"
 [[ -f "$sdk/Windows Kits/10/Include/$kit_version/um/Windows.h" ]] || fail "Windows SDK header Windows.h missing"
+# clang-cl on Linux does not automatically discover MSVC's STL or the
+# Windows Kits headers. Provide deterministic, licensed SDK include
+# paths instead of depending on an interactive shell's INCLUDE value.
+msvc_include="$sdk/VC/Tools/MSVC/$msvc_version/include"
+kit_include="$sdk/Windows Kits/10/Include/$kit_version"
+for dir in "$msvc_include" "$kit_include/ucrt" "$kit_include/shared" "$kit_include/um" "$kit_include/winrt"; do
+    [[ -d "$dir" ]] || fail "Required MSVC/Windows Kit header directory missing"
+done
+export INCLUDE="$msvc_include;$kit_include/ucrt;$kit_include/shared;$kit_include/um;$kit_include/winrt"
 mkdir -p "$temp_root"
 tools_dir=$(mktemp -d "$temp_root/llvm-tools.XXXXXXXX") || fail "Cannot create a temporary directory"
 trap 'rm -rf -- "$tools_dir"' EXIT

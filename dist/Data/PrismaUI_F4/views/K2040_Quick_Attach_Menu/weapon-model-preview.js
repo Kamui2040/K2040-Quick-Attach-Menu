@@ -1,4 +1,5 @@
-// Optional PrismaUI 2.2+ ModelPreview v4 adapter. Never changes game objects.
+// Optional PrismaUI 2.2+ ModelPreview adapter (v4 fallback, v5 opt-in).
+// Never changes game objects or guesses per-OMOD material swaps.
 (function(global) {
   "use strict";
 
@@ -53,7 +54,8 @@
         // PrismaUI 2.2.1.1's engine loader logged `meshes/Meshes/...`
         // for documented prefixed requests. Try without the prefix ONCE.
         // Do not continually retry a missing/undrawable model.
-        if (!self.relativePathRetry && self.nifPath.indexOf("Meshes/") === 0) {
+        if (!self.relativePathRetry && self.nifPath.indexOf("Meshes/") === 0 &&
+            !(self.composed && Number(api.version) >= 5)) {
           self.relativePathRetry = true;
           self.error = "Trying compatible mesh path...";
           self.hideNative();
@@ -179,8 +181,9 @@
       return this.relativePathRetry ? p.slice("Meshes/".length) : p;
     }, this);
     var requestedPath = requestedPaths[0];
+    var v5Composed = this.composed && requestedPaths.length > 1 && Number(api.version) >= 5;
     var request = JSON.stringify([requestedPaths, rect, this.zoom, this.yaw, this.pitch,
-      this.brightness, this.composed]);
+      this.brightness, this.composed, v5Composed]);
     if (request === this.lastRequest) return;
     try {
       var id = this.composed ? "k2040-weapon-parts" : "k2040-weapon-base";
@@ -191,8 +194,18 @@
         zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, spin: 0,
         brightness: this.brightness
       };
-      if (this.composed && requestedPaths.length > 1) args.nifPaths = requestedPaths;
-      else args.nifPath = requestedPath;
+      if (v5Composed) {
+        // PrismaUI v5 takes mesh-root-relative paths, each with its own
+        // optional material-swap map. QAM does not yet have verified MSWP
+        // precedence; omit matSwap rather than inventing or flattening it.
+        args.nifComponents = requestedPaths.map(function(path) {
+          return { nifPath: /^Meshes\//i.test(path) ? path.slice("Meshes/".length) : path };
+        });
+      } else if (this.composed && requestedPaths.length > 1) {
+        args.nifPaths = requestedPaths; // published v4 provider, unchanged
+      } else {
+        args.nifPath = requestedPath;
+      }
       this.showingId = id;
       api.show(args);
       this.lastRequest = request;
