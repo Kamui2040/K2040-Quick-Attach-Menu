@@ -4,6 +4,9 @@
   "use strict";
 
   function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+  function meshRelative(path) {
+    return String(path || "").replace(/\\/g, "/").replace(/^Meshes\//i, "").toLowerCase();
+  }
 
   function WeaponModelPreview(host) {
     this.host = host;
@@ -19,6 +22,7 @@
     this.nifPath = "";
     this.dragStart = null;
     this.relativePathRetry = false;
+    this.forceLegacyBase = false;
     this.nativeRequestedPath = "";
     this.composed = false;
     this.brightness = 1;
@@ -47,10 +51,39 @@
     var self = this;
     api.onStatus(function(status) {
       if (!status || status.id !== self.showingId || !self.active) return;
-      if (!self.composed && status.nifPath &&
-          String(status.nifPath).replace(/\\/g, "/").toLowerCase() !==
-          self.nativeRequestedPath.toLowerCase()) return;
+      if (!self.composed && status.nifPath) {
+        // Root-relative comparison is valid for v5 only. v4's fallback
+        // deliberately changes the requested path after the initial error,
+        // so its older prefixed status must not poison the new attempt.
+        var actual = String(status.nifPath).replace(/\\/g, "/").toLowerCase();
+        var expected = String(self.nativeRequestedPath).replace(/\\/g, "/").toLowerCase();
+        if (Number(api.version) >= 5 && !self.forceLegacyBase) {
+          if (meshRelative(actual) !== meshRelative(expected)) return;
+        } else if (actual !== expected) return;
+      }
       if (status.ok === false) {
+        var reason = String(status.error || "missing or undrawable NIF").slice(0, 150);
+        // A structurally invalid installed-part stack must never leave a
+        // blank/stale weapon image on-screen. Retain a visible receiver view
+        // while preserving the explicit incomplete-assembly diagnostic.
+        if (self.composed && Number(api.version) >= 5) {
+          self.composed = false;
+          self.hideNative();
+          self.error = "Installed-part preview unavailable: " + reason + ". Showing receiver.";
+          self.failed = false;
+          self.sync(self.region, self.nifPath, self.componentPaths);
+          return;
+        }
+        // First single-component v5 error: fall back to the documented v4
+        // path and its existing one-time path normalization retry.
+        if (!self.composed && Number(api.version) >= 5 && !self.forceLegacyBase) {
+          self.forceLegacyBase = true;
+          self.hideNative();
+          self.error = "Material preview unavailable: using legacy receiver.";
+          self.failed = false;
+          self.sync(self.region, self.nifPath, self.componentPaths);
+          return;
+        }
         // PrismaUI 2.2.1.1's engine loader logged `meshes/Meshes/...`
         // for documented prefixed requests. Try without the prefix ONCE.
         // Do not continually retry a missing/undrawable model.
@@ -64,7 +97,6 @@
           return;
         }
         self.failed = true;
-        var reason = String(status.error || "missing or undrawable NIF").slice(0, 150);
         self.error = "3D preview unavailable: " + reason + " [" + self.nifPath + "]";
         self.hideNative();
       } else if (status.phase === "loaded" || status.phase === "textured") {
@@ -94,6 +126,7 @@
     this.nifPath = "";
     this.nativeRequestedPath = "";
     this.relativePathRetry = false;
+    this.forceLegacyBase = false;
     this.composed = false;
     this.brightness = 1;
     this.componentPaths = [];
@@ -161,6 +194,7 @@
       this.failed = false;
       this.error = "";
       this.relativePathRetry = false;
+      this.forceLegacyBase = false;
       this.lastRequest = "";
       if (this.composed && models.length < 2) {
         this.composed = false; // no old installed parts on the new weapon
@@ -177,13 +211,14 @@
                 Math.round(r.top + (r.height - side) / 2),
                 Math.round(side), Math.round(side)];
     if (rect[2] < 60 || rect[3] < 60) { this.hideNative(); return; }
+    var v5Request = Number(api.version) >= 5 && (this.composed || !this.forceLegacyBase);
     var requestedPaths = (this.composed ? this.componentPaths : [modelPath]).map(function(p) {
-      return this.relativePathRetry ? p.slice("Meshes/".length) : p;
+      return !v5Request && this.relativePathRetry ? p.slice("Meshes/".length) : p;
     }, this);
     var requestedPath = requestedPaths[0];
-    var v5Composed = this.composed && requestedPaths.length > 1 && Number(api.version) >= 5;
+    var v5Composed = this.composed && requestedPaths.length > 1 && v5Request;
     var request = JSON.stringify([requestedPaths, rect, this.zoom, this.yaw, this.pitch,
-      this.brightness, this.composed, v5Composed]);
+      this.brightness, this.composed, v5Request, this.forceLegacyBase]);
     if (request === this.lastRequest) return;
     try {
       var id = this.composed ? "k2040-weapon-parts" : "k2040-weapon-base";
@@ -194,7 +229,7 @@
         zoom: this.zoom, yaw: this.yaw, pitch: this.pitch, spin: 0,
         brightness: this.brightness
       };
-      if (v5Composed) {
+      if (v5Request) {
         // PrismaUI v5 takes mesh-root-relative paths, each with its own
         // optional material-swap map. QAM does not yet have verified MSWP
         // precedence; omit matSwap rather than inventing or flattening it.

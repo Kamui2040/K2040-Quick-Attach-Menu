@@ -52,6 +52,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged
   source, post-write verification, error logging and fail-closed behavior.
+- Native MCM owns missing-key registration and persistent keybinds even before
+  its DLL is loaded. Do not seed synthetic unbound (0/0) entries when mcm.dll
+  is installed, and never silently resurrect a cleared Builder binding.
+  Reconcile a stale Builder unbound duplicate only after checking MCM's live
+  keybind snapshot and distinguishing it from another mod's chord.
 - Native MCM keybind definitions must use a type its keybind manager supports. Use inert `RunConsoleCommand` for Quick Attach openers and keep native polling authoritative; `CallExternalFunction` is not a valid MCM keybind registry action.
 - Never release a Prisma menu's gameplay-input layer while a keyboard/mouse opener that closed it is still held: the physical key may reach the underlying Pip-Boy. Defer only this mod's release until physical key-up with a bounded failsafe, queue engine cleanup to the game thread, cancel stale work on reopen and always release on game transition.
 - Before calling any runtime-specific native relocation, verify its exact

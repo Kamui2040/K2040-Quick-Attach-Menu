@@ -1,5 +1,16 @@
 # Current Project State
 
+- Experimental ModelPreview v5 requests now cover both receiver-only and
+  composed weapon views so authored palette rendering is reachable without
+  choosing composition first. Valid connection-point-only OMOD meshes remain
+  assembly hosts; on a failed composed request the view falls back to the
+  receiver, and a failed v5 receiver request has one bounded v4 fallback.
+  No vanilla-workbench visual or target-runtime acceptance is claimed.
+- The unreleased Builder keybind source now includes the previously tested
+  native-MCM startup and live-registration recovery logic. The previous
+  experimental branch omitted that accepted fix; duplicate zero-chord
+  keybinds must not be generated again. The MCM code and browser regressions
+  passed offline, with a combined target-runtime check still needed.
 - The unreleased weapon-preview browser adapter now sends ordered
   component-specific NIF paths only when ModelPreview API v5 is available
   and experimental composed mode is enabled. It keeps the documented v4
