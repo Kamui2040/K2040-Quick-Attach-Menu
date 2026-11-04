@@ -1,5 +1,14 @@
 # Current Project State
 
+- Unreleased stable-base fix for the Hunting Rifle (Fallout4.esm) ECO
+  attachment-swap refusal: installed default-template OMOD collections and
+  their nested leaf OMODs share attachment points, causing the 0.5.220 live
+  replacement guard to report duplicate installed identity. Collection OMODs
+  are now excluded from replacement identity and dependent-removal choices in
+  both ECO-authored and generated menus; live structural graph inputs and
+  genuine ambiguity checks are retained. Windows x64 cross-build, Python,
+  browser/controller and portable C++ regressions passed; target-runtime
+  validation remains pending. Not released.
 - Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).
