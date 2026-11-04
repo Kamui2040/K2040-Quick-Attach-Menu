@@ -25,7 +25,16 @@ class QuickMenuMovementContract(unittest.TestCase):
         settings = (ROOT / "dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html").read_text()
         self.assertIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", bridge)
         self.assertIn("viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen", bridge)
-        self.assertIn("~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement)", bridge)
+        isolation = bridge.split("bool ActivateQuickMenuGameplayIsolation(bool allowMovement)", 1)[1].split("void ReleaseQuickMenuGameplayIsolation()", 1)[0]
+        self.assertIn("~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement)", isolation)
+        self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kMovement,\n            allowMovement,", isolation)
+        begin_open = bridge.split("bool PrismaBridge::BeginOpenFromHotkey()", 1)[1].split("std::string PrismaBridge::BuildMenuPayload", 1)[0]
+        release = bridge.split("void ReleaseQuickMenuGameplayIsolation()", 1)[1].split("void FinishDeferredQuickMenuGameplayIsolationRelease", 1)[0]
+        self.assertIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", begin_open)
+        self.assertNotIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", release)
+        self.assertIn("ActivateQuickMenuGameplayIsolation(viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen)", bridge)
+        switch_view = bridge.split("void PrismaBridge::SwitchView(ViewMode mode)", 1)[1].split("void PrismaBridge::", 1)[0]
+        self.assertLess(switch_view.index("viewMode_ = mode;"), switch_view.index("FocusAndShowMenuView();"))
         self.assertIn('"allow-movement":"allowMovementWhileOpen"', settings)
         self.assertIn('"set:" + command', settings)
         self.assertIn('renderer.settings().allowMovementWhileOpen && ["w", "a", "s", "d"]', menu)

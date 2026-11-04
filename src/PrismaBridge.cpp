@@ -338,17 +338,19 @@ namespace
             static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kAll) &
             ~static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kCursor));
 
-        auto blockedUserEvents = RE::UserEvents::USER_EVENT_FLAG::kAll;
+        const auto nonMovementUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kAll) &
+            ~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement));
         const auto quickMenu = k2040::GetQuickMenuPreferences();
-        if (allowMovement) {
-            blockedUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
-                static_cast<std::uint32_t>(blockedUserEvents) &
-                ~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement));
-        }
         const bool userEventsDisabled = inputManager->EnableUserEvent(
             g_quickMenuInputLayer->layerID,
-            blockedUserEvents,
+            nonMovementUserEvents,
             false,
+            RE::UserEvents::SENDER_ID::kMenu);
+        const bool movementConfigured = inputManager->EnableUserEvent(
+            g_quickMenuInputLayer->layerID,
+            RE::UserEvents::USER_EVENT_FLAG::kMovement,
+            allowMovement,
             RE::UserEvents::SENDER_ID::kMenu);
         const bool otherEventsDisabled = inputManager->EnableOtherEvent(
             g_quickMenuInputLayer->layerID,
@@ -356,7 +358,7 @@ namespace
             false,
             RE::UserEvents::SENDER_ID::kMenu);
 
-        if (!userEventsDisabled || !otherEventsDisabled) {
+        if (!userEventsDisabled || !movementConfigured || !otherEventsDisabled) {
             k2040::log::Warn("Could not disable all gameplay input for the quick menu.");
             if (g_quickMenuGameplayIsolationActive) ReleaseQuickMenuGameplayIsolation();
             else g_quickMenuInputLayer.reset();
@@ -379,7 +381,6 @@ namespace
         g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseAt.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
-        g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen;
         if (g_quickMenuTimeAdjusted) {
             if (auto* timer = RE::BSTimer::GetSingleton()) {
                 const float currentMultiplier = RE::BSTimer::QGlobalTimeMultiplier();
@@ -941,6 +942,7 @@ namespace k2040
         // an earlier menu must never tear down the new menu's isolation.
         g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
+        g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen;
 
         // Isolate gameplay before weapon probing and payload construction so
         // the opening K press cannot reach the Pip-Boy during that work.

@@ -7,7 +7,8 @@ const assert = require('node:assert/strict');
 const rendererFile = path.join(__dirname,
   '../../dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-renderer.js');
 const host = {};
-vm.runInNewContext(fs.readFileSync(rendererFile, 'utf8'), { window: host });
+const document = { createElement: () => ({ children: [], setAttribute() {}, appendChild(child) { this.children.push(child); } }) };
+vm.runInNewContext(fs.readFileSync(rendererFile, 'utf8'), { window: host, document });
 const make = host.K2040QuickMenuRenderer.create;
 function category(index, count = 2) {
   return {
@@ -98,6 +99,14 @@ for (const layout of ['cascade', 'radial', 'hybrid']) {
   r.scrollItemIntoView(null, item(0, 1));
   r.scrollItemIntoView(row, null);
 
+  const scaledRow = { scrollLeft: 0, clientWidth: 100, getBoundingClientRect: () => ({ left: 0, right: 50 }) };
+  const scaledItem = { getBoundingClientRect: () => ({
+    left: 90 - scaledRow.scrollLeft * .5, right: 110 - scaledRow.scrollLeft * .5
+  }) };
+  r.scrollItemIntoView(scaledRow, scaledItem);
+  assert.ok(Math.abs(scaledRow.scrollLeft - 120) < .01,
+    '50 percent menu scale converts screen-pixel clipping to CSS scroll units');
+
   const categoryRow = { scrollLeft: 0, getBoundingClientRect: () => ({ left: 0, right: 100 }) };
   const optionRow = { scrollLeft: 0, getBoundingClientRect: () => ({ left: 0, right: 100 }) };
   const categoryItem = { getBoundingClientRect: () => ({ left: 110 - categoryRow.scrollLeft, right: 130 - categoryRow.scrollLeft }) };
@@ -108,6 +117,28 @@ for (const layout of ['cascade', 'radial', 'hybrid']) {
   r.scrollItemIntoView(optionRow, optionItem);
   assert.equal(categoryRow.scrollLeft, 30, 'option navigation leaves category row unchanged');
   assert.equal(optionRow.scrollLeft, 0, 'visible option row remains unchanged');
+}
+{
+  function hint(presentation, activePane, allowMovementWhileOpen, controllerActive) {
+    const r = make({}, { controllerActive, controllerConfirmButton: 'A', controllerCancelButton: 'B' });
+    r.render = () => {};
+    r.setPayload({ settings: { presentation, allowMovementWhileOpen }, parser: { categories: [] } });
+    r.activePane = activePane;
+    const container = document.createElement('div');
+    r.appendStatusAndMeta(container);
+    return container.children[1].textContent;
+  }
+  const keyboard = hint('horizontal', 'categories', false, false);
+  assert.match(keyboard, /W\/S.*switch rows.*A\/D.*move/i,
+    'horizontal keyboard hints describe row switching and within-row movement');
+  const movement = hint('horizontal', 'options', true, false);
+  assert.match(movement, /WASD.*move.*↑\/↓.*switch rows.*E\/Enter/i,
+    'movement mode hints preserve WASD and arrows for menu navigation');
+  assert.doesNotMatch(movement, /A\/D/);
+  assert.match(hint('horizontal', 'categories', false, true), /Left\/Right: Category.*Down.*Options/i,
+    'horizontal controller hints match row navigation');
+  assert.match(hint('horizontal', 'options', false, true), /Left\/Right: Attachment.*Up: Categories/i,
+    'horizontal controller hints describe returning to the category row');
 }
 {
   const { r, installs } = setup('radial', 8);

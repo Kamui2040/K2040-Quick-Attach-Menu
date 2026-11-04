@@ -494,14 +494,27 @@
     hints.className = "qm-hints";
     var confirm = this.options.controllerConfirmButton || "Confirm";
     var cancel = this.options.controllerCancelButton || "Back";
-    hints.textContent = this.options.controllerActive
-      ? (this.activePane === "categories"
-          ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
-          : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
-            (this.settings().presentation === "radial" ? "Page" : "Category"))
-      : this.settings().presentation === "radial"
-        ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
-        : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+    var presentation = this.settings().presentation;
+    var horizontal = presentation === "horizontal";
+    var movementAllowed = !!this.settings().allowMovementWhileOpen;
+    if (this.options.controllerActive && horizontal) {
+      hints.textContent = this.activePane === "categories"
+        ? "Stick/D-pad: Category · Left/Right: Category · Down/" + confirm + ": Options · LB/RB: Category · " + cancel + ": Close"
+        : "Stick/D-pad: Attachment · Left/Right: Attachment · Up: Categories · " + confirm + ": Install · " + cancel + ": Back · LB/RB: Category";
+    } else if (this.options.controllerActive) {
+      hints.textContent = this.activePane === "categories"
+        ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
+        : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
+          (presentation === "radial" ? "Page" : "Category");
+    } else if (horizontal) {
+      hints.textContent = movementAllowed
+        ? "WASD: Move · ↑/↓: Switch rows · ←/→: Move · E/Enter: Select/apply · opener/Escape: Close"
+        : "W/S or ↑/↓: Switch rows · A/D or ←/→: Move · E/Enter: Select/apply · opener/Escape: Close";
+    } else if (presentation === "radial") {
+      hints.textContent = "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · E/Enter: Apply · Escape: Close";
+    } else {
+      hints.textContent = "W/S or ↑/↓ to move · A/D or ←/→ to switch · E/Enter to apply · opener/Escape to close";
+    }
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";
@@ -837,8 +850,10 @@
     if (!container || !item) return;
     var containerBounds = container.getBoundingClientRect();
     var itemBounds = item.getBoundingClientRect();
-    if (itemBounds.left < containerBounds.left) container.scrollLeft -= containerBounds.left - itemBounds.left;
-    else if (itemBounds.right > containerBounds.right) container.scrollLeft += itemBounds.right - containerBounds.right;
+    var scaleX = container.clientWidth > 0 ? (containerBounds.right - containerBounds.left) / container.clientWidth : 1;
+    if (!isFinite(scaleX) || scaleX <= 0) scaleX = 1;
+    if (itemBounds.left < containerBounds.left) container.scrollLeft -= (containerBounds.left - itemBounds.left) / scaleX;
+    else if (itemBounds.right > containerBounds.right) container.scrollLeft += (itemBounds.right - containerBounds.right) / scaleX;
   };
 
   Renderer.prototype.selectCategory = function(categoryIndex) {
