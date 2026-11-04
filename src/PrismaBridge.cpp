@@ -59,6 +59,7 @@ namespace
     bool g_pauseHoldMenuEventSinkRegistered = false;
     RE::BSTSmartPointer<RE::BSInputEnableLayer> g_quickMenuInputLayer;
     bool g_quickMenuGameplayIsolationActive = false;
+    bool g_allowMovementForCurrentQuickMenuOpen = false;
     // Match the Quest Journal's held-opener guard: do not expose the K key to
     // Fallout when a closing shortcut unfocuses the Prisma window mid-press.
     // The polling thread only queues tasks; layer ownership stays on the game thread.
@@ -317,12 +318,10 @@ namespace
         return true;
     }
 
-    bool ActivateQuickMenuGameplayIsolation()
-    {
-        if (g_quickMenuInputLayer && g_quickMenuGameplayIsolationActive) {
-            return true;
-        }
+    void ReleaseQuickMenuGameplayIsolation();
 
+    bool ActivateQuickMenuGameplayIsolation(bool allowMovement)
+    {
         auto* inputManager = RE::BSInputEnableManager::GetSingleton();
         if (!inputManager) {
             k2040::log::Warn("Could not activate quick-menu gameplay isolation because an engine service is unavailable.");
@@ -339,9 +338,16 @@ namespace
             static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kAll) &
             ~static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kCursor));
 
+        auto blockedUserEvents = RE::UserEvents::USER_EVENT_FLAG::kAll;
+        const auto quickMenu = k2040::GetQuickMenuPreferences();
+        if (allowMovement) {
+            blockedUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
+                static_cast<std::uint32_t>(blockedUserEvents) &
+                ~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement));
+        }
         const bool userEventsDisabled = inputManager->EnableUserEvent(
             g_quickMenuInputLayer->layerID,
-            RE::UserEvents::USER_EVENT_FLAG::kAll,
+            blockedUserEvents,
             false,
             RE::UserEvents::SENDER_ID::kMenu);
         const bool otherEventsDisabled = inputManager->EnableOtherEvent(
@@ -352,12 +358,13 @@ namespace
 
         if (!userEventsDisabled || !otherEventsDisabled) {
             k2040::log::Warn("Could not disable all gameplay input for the quick menu.");
-            g_quickMenuInputLayer.reset();
+            if (g_quickMenuGameplayIsolationActive) ReleaseQuickMenuGameplayIsolation();
+            else g_quickMenuInputLayer.reset();
             return false;
         }
 
         g_quickMenuGameplayIsolationActive = true;
-        if (!UpdateQuickMenuTimeAdjustment(k2040::GetQuickMenuPreferences().menuSlowdown)) {
+        if (!UpdateQuickMenuTimeAdjustment(quickMenu.menuSlowdown)) {
             g_quickMenuGameplayIsolationActive = false;
             g_quickMenuInputLayer.reset();
             return false;
@@ -372,6 +379,7 @@ namespace
         g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseAt.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
+        g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen;
         if (g_quickMenuTimeAdjusted) {
             if (auto* timer = RE::BSTimer::GetSingleton()) {
                 const float currentMultiplier = RE::BSTimer::QGlobalTimeMultiplier();
@@ -936,7 +944,7 @@ namespace k2040
 
         // Isolate gameplay before weapon probing and payload construction so
         // the opening K press cannot reach the Pip-Boy during that work.
-        return ActivateQuickMenuGameplayIsolation();
+        return ActivateQuickMenuGameplayIsolation(viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen);
     }
 
     std::string PrismaBridge::BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const
@@ -1233,6 +1241,7 @@ namespace k2040
                  << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
                  << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
+                 << "\"allowMovementWhileOpen\":" << (quickMenu.allowMovementWhileOpen ? "true" : "false") << ","
                  << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
                  << "\"menuSource\":\"" << JsonEscape(settings.menuSource) << "\","
@@ -1480,7 +1489,7 @@ namespace k2040
         constexpr bool requestedPauseGame = false;
         constexpr bool requestedDisableFocusMenu = true;
 
-        if (!ActivateQuickMenuGameplayIsolation()) {
+        if (!ActivateQuickMenuGameplayIsolation(viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen)) {
             api_->Hide(menuView_);
             menuOpen_ = false;
             log::Warn("Prisma menu focus cancelled because gameplay isolation could not be established.");
@@ -2564,6 +2573,9 @@ namespace k2040
                 const auto value = boolValue(parts[2]); if (!value) return;
                 updateLogging = preferences.loggingEnabled != *value;
                 preferences.loggingEnabled = *value;
+            } else if (parts.size() == 3 && parts[1] == "allow-movement") {
+                const auto value = boolValue(parts[2]); if (!value) return;
+                preferences.allowMovementWhileOpen = *value;
             } else if (parts.size() == 3 && parts[1] == "menu-slowdown") {
                 const auto value = ParseFiniteDouble(parts[2]);
                 if (!value) return;
@@ -2646,6 +2658,7 @@ namespace k2040
                     preferences.closeAfterApply = legacy.closeAfterApply;
                     preferences.cheatMode = false;
                     preferences.loggingEnabled = true;
+                    preferences.allowMovementWhileOpen = false;
                     preferences.menuSlowdown = 1.0;
                 } else if (parts[1] == "labels") {
                     SetBracketedTextPreferences({ legacy.hideBracketedText, legacy.hideBracketedText, legacy.hideBracketedText });

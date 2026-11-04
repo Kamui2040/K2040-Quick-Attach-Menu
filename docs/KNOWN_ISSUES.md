@@ -1,5 +1,15 @@
 # Known Issues and Limits
 
+## Hunting Rifle attachment swap fix (runtime confirmed)
+
+The installed default-template OMOD collection and its nested leaf OMODs
+shared attachment points, making the live replacement guard report duplicate
+installed identity. The fix excludes collection OMODs from replacement
+identity and dependent-removal choices while retaining structural graph inputs
+and genuine ambiguity checks. The maintainer confirmed this specific Hunting
+Rifle issue working in Fallout 4 on 2026-11-04. This does not establish
+compatibility for every weapon, mod setup, or runtime.
+
 ## Fixed in 0.5.219: opener-close input leak
 
 A shortcut overlapping a vanilla game command could also trigger the vanilla

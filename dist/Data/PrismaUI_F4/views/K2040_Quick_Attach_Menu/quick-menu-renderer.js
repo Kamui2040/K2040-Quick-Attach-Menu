@@ -824,9 +824,21 @@
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
+    if (presentation === "horizontal") {
+      this.scrollItemIntoView(layout.querySelector(".qm-category-list"), layout.querySelector(".qm-category-button.active"));
+      this.scrollItemIntoView(layout.querySelector(".qm-option-list"), layout.querySelector(".qm-option-button.focused-option"));
+    }
     this.appendStatusAndMeta(this.root);
     this.updateScreenLabels();
     this.updateScreenStatus();
+  };
+
+  Renderer.prototype.scrollItemIntoView = function(container, item) {
+    if (!container || !item) return;
+    var containerBounds = container.getBoundingClientRect();
+    var itemBounds = item.getBoundingClientRect();
+    if (itemBounds.left < containerBounds.left) container.scrollLeft -= containerBounds.left - itemBounds.left;
+    else if (itemBounds.right > containerBounds.right) container.scrollLeft += itemBounds.right - containerBounds.right;
   };
 
   Renderer.prototype.selectCategory = function(categoryIndex) {
@@ -913,6 +925,18 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
+    if (this.settings().presentation === "horizontal") {
+      if (direction === "left" || direction === "right") {
+        var horizontalDelta = direction === "left" ? -1 : 1;
+        if (this.activePane === "categories") this.moveCategory(horizontalDelta);
+        else this.moveOption(horizontalDelta);
+      } else if (direction === "up") {
+        this.switchPane(-1);
+      } else if (direction === "down") {
+        this.switchPane(1);
+      }
+      return;
+    }
     if (direction === "left") {
       this.switchPane(-1);
     } else if (direction === "right") {

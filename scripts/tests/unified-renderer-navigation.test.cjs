@@ -31,7 +31,7 @@ function setup(layout, count = 2) {
   });
   return { r, installs: () => installs };
 }
-for (const layout of ['cascade', 'radial', 'hybrid', 'horizontal']) {
+for (const layout of ['cascade', 'radial', 'hybrid']) {
   const { r, installs } = setup(layout);
   r.selectCategory(1);
   // The semicircular Compact Hybrid wheel has bottom-to-top indices;
@@ -67,6 +67,47 @@ for (const layout of ['cascade', 'radial', 'hybrid', 'horizontal']) {
   assert.equal(installs(), 0, layout + ': directional/shoulder/back controls never install');
   r.activateFocusedOption();
   assert.equal(installs(), 1, layout + ': only explicit confirm installs');
+}
+{
+  const { r, installs } = setup('horizontal');
+  r.selectCategory(1);
+  r.navigateDirection('right');
+  assert.equal(r.activeCategoryIndex, 2, 'horizontal Right selects next category');
+  r.navigateDirection('left');
+  assert.equal(r.activeCategoryIndex, 1, 'horizontal Left selects previous category');
+  r.navigateDirection('down');
+  assert.equal(r.activePane, 'options', 'horizontal Down switches to options row');
+  r.navigateDirection('right');
+  assert.equal(r.lastFocusedOptionIndex, 1, 'horizontal Right selects next option');
+  r.navigateDirection('up');
+  assert.equal(r.activePane, 'categories', 'horizontal Up switches to categories row');
+  assert.equal(installs(), 0, 'horizontal navigation never applies attachments');
+}
+{
+  const { r } = setup('horizontal');
+  const row = { scrollLeft: 20, getBoundingClientRect: () => ({ left: 0, right: 100 }) };
+  const item = (offsetLeft, offsetWidth) => ({ getBoundingClientRect: () => ({
+    left: offsetLeft - row.scrollLeft, right: offsetLeft - row.scrollLeft + offsetWidth
+  }) });
+  r.scrollItemIntoView(row, item(5, 10));
+  assert.equal(row.scrollLeft, 5, 'row scrolls left to reveal focused item');
+  r.scrollItemIntoView(row, item(40, 10));
+  assert.equal(row.scrollLeft, 5, 'visible item does not disturb row scroll');
+  r.scrollItemIntoView(row, item(130, 20));
+  assert.equal(row.scrollLeft, 50, 'row scrolls right to reveal focused item');
+  r.scrollItemIntoView(null, item(0, 1));
+  r.scrollItemIntoView(row, null);
+
+  const categoryRow = { scrollLeft: 0, getBoundingClientRect: () => ({ left: 0, right: 100 }) };
+  const optionRow = { scrollLeft: 0, getBoundingClientRect: () => ({ left: 0, right: 100 }) };
+  const categoryItem = { getBoundingClientRect: () => ({ left: 110 - categoryRow.scrollLeft, right: 130 - categoryRow.scrollLeft }) };
+  const optionItem = { getBoundingClientRect: () => ({ left: 10 - optionRow.scrollLeft, right: 30 - optionRow.scrollLeft }) };
+  r.scrollItemIntoView(categoryRow, categoryItem);
+  assert.equal(categoryRow.scrollLeft, 30, 'category row reveals its selected category');
+  assert.equal(optionRow.scrollLeft, 0, 'category navigation leaves option row unchanged');
+  r.scrollItemIntoView(optionRow, optionItem);
+  assert.equal(categoryRow.scrollLeft, 30, 'option navigation leaves category row unchanged');
+  assert.equal(optionRow.scrollLeft, 0, 'visible option row remains unchanged');
 }
 {
   const { r, installs } = setup('radial', 8);
