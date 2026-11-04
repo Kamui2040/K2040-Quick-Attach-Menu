@@ -55,3 +55,6 @@ external/prismaui_f4/*.7z
 # Python validation tool caches
 __pycache__/
 *.pyc
+
+# Local Git worktrees
+.worktrees/
