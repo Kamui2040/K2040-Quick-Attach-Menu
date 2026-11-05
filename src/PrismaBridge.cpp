@@ -338,18 +338,27 @@ namespace
             static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kAll) &
             ~static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kCursor));
 
-        const auto nonMovementUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
+        const auto allowedUserEvents = allowMovement ?
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement) |
+                static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kLooking) :
+            0u;
+        const auto blockedUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
             static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kAll) &
-            ~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement));
+            ~allowedUserEvents);
         const auto quickMenu = k2040::GetQuickMenuPreferences();
         const bool userEventsDisabled = inputManager->EnableUserEvent(
             g_quickMenuInputLayer->layerID,
-            nonMovementUserEvents,
+            blockedUserEvents,
             false,
             RE::UserEvents::SENDER_ID::kMenu);
         const bool movementConfigured = inputManager->EnableUserEvent(
             g_quickMenuInputLayer->layerID,
             RE::UserEvents::USER_EVENT_FLAG::kMovement,
+            allowMovement,
+            RE::UserEvents::SENDER_ID::kMenu);
+        const bool lookingConfigured = inputManager->EnableUserEvent(
+            g_quickMenuInputLayer->layerID,
+            RE::UserEvents::USER_EVENT_FLAG::kLooking,
             allowMovement,
             RE::UserEvents::SENDER_ID::kMenu);
         const bool otherEventsDisabled = inputManager->EnableOtherEvent(
@@ -358,7 +367,7 @@ namespace
             false,
             RE::UserEvents::SENDER_ID::kMenu);
 
-        if (!userEventsDisabled || !movementConfigured || !otherEventsDisabled) {
+        if (!userEventsDisabled || !movementConfigured || !lookingConfigured || !otherEventsDisabled) {
             k2040::log::Warn("Could not disable all gameplay input for the quick menu.");
             if (g_quickMenuGameplayIsolationActive) ReleaseQuickMenuGameplayIsolation();
             else g_quickMenuInputLayer.reset();
@@ -1498,6 +1507,11 @@ namespace k2040
             return;
         }
 
+        if (viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen &&
+            !PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Hidden)) {
+            log::Warn("Prisma provider does not support a hidden cursor; Quick Menu remains usable with the cursor visible.");
+        }
+
         std::uint32_t cursorOwnerCountBeforeFocus = 0;
         if (const auto* cursor = RE::MenuCursor::GetSingleton()) {
             cursorOwnerCountBeforeFocus = cursor->registeredCursors;
@@ -1519,6 +1533,7 @@ namespace k2040
         log::Info(std::string("Prisma HasAnyActiveFocus() after Focus: ") + (anyFocus ? "true" : "false"));
 
         if (!focused || !hasFocus) {
+            PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
             SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
             UnregisterMenuCursorFallback();
@@ -1528,6 +1543,7 @@ namespace k2040
             return;
         }
         if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
+            PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
             SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
@@ -1872,6 +1888,7 @@ namespace k2040
 
         if (previousView != 0 && api_->IsValid(previousView)) {
             api_->Invoke(previousView, "try { if (window.k2040StopFocusHeartbeat) { window.k2040StopFocusHeartbeat(); } } catch(e) { console.error(e); }");
+            PRISMA_UI_API::SetViewCursorPolicy(previousView, PRISMA_UI_API::CursorPolicy::Default);
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }
@@ -1952,6 +1969,7 @@ namespace k2040
         }
 
         api_->Invoke(menuView_, "try { if (window.k2040StopFocusHeartbeat) { window.k2040StopFocusHeartbeat(); } } catch(e) { console.error(e); }");
+        PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
         api_->Unfocus(menuView_);
         log::Info("Prisma menu view Unfocus() called.");
 
@@ -2008,6 +2026,7 @@ namespace k2040
         ReleaseBuilderMenuModeGuard();
 
         if (api_ && previousView != 0 && api_->IsValid(previousView)) {
+            PRISMA_UI_API::SetViewCursorPolicy(previousView, PRISMA_UI_API::CursorPolicy::Default);
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }

@@ -1,7 +1,8 @@
 # Current Project State
 
 - Unreleased `0.5.221` includes the maintainer-tested Hunting Rifle safety fix,
-  intuitive horizontal row navigation, optional movement passthrough, and
+  intuitive horizontal row navigation, optional movement and mouse-look
+  passthrough with a hidden menu cursor, and
   compact-row scrolling for focused items. A follow-up makes mouse-hovered
   horizontal categories and attachments scroll fully into view as well. The
   menu changes still need focused in-game QA; no release or deployment has

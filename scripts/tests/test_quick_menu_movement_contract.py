@@ -26,8 +26,12 @@ class QuickMenuMovementContract(unittest.TestCase):
         self.assertIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", bridge)
         self.assertIn("viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen", bridge)
         isolation = bridge.split("bool ActivateQuickMenuGameplayIsolation(bool allowMovement)", 1)[1].split("void ReleaseQuickMenuGameplayIsolation()", 1)[0]
-        self.assertIn("~static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement)", isolation)
+        self.assertIn("const auto allowedUserEvents = allowMovement ?", isolation)
+        self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kLooking", isolation)
+        self.assertIn("~allowedUserEvents", isolation)
+        self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kAll", isolation)
         self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kMovement,\n            allowMovement,", isolation)
+        self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kLooking,\n            allowMovement,", isolation)
         begin_open = bridge.split("bool PrismaBridge::BeginOpenFromHotkey()", 1)[1].split("std::string PrismaBridge::BuildMenuPayload", 1)[0]
         release = bridge.split("void ReleaseQuickMenuGameplayIsolation()", 1)[1].split("void FinishDeferredQuickMenuGameplayIsolationRelease", 1)[0]
         self.assertIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", begin_open)
@@ -39,6 +43,25 @@ class QuickMenuMovementContract(unittest.TestCase):
         self.assertIn('"set:" + command', settings)
         self.assertIn('renderer.settings().allowMovementWhileOpen && ["w", "a", "s", "d"]', menu)
         self.assertIn('key === "ArrowRight" || key === "d"', menu)
+
+    def test_hidden_cursor_is_scoped_to_quick_menu_and_restored(self):
+        bridge = (ROOT / "src/PrismaBridge.cpp").read_text()
+        focus = bridge.split("void PrismaBridge::FocusAndShowMenuView()", 1)[1].split("void PrismaBridge::", 1)[0]
+        switch_view = bridge.split("void PrismaBridge::SwitchView(ViewMode mode)", 1)[1].split("void PrismaBridge::", 1)[0]
+        close = bridge.split("void PrismaBridge::CloseMenuInternal(bool preserveGameplayIsolation)", 1)[1].split("void PrismaBridge::ResetForGameTransition", 1)[0]
+        transition = bridge.split("void PrismaBridge::ResetForGameTransition", 1)[1].split("void PrismaBridge::", 1)[0]
+        self.assertIn("SetViewCursorPolicy", focus)
+        self.assertIn("CursorPolicy::Hidden", focus)
+        self.assertIn("viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen", focus)
+        self.assertIn("SetViewCursorPolicy", switch_view)
+        self.assertIn("CursorPolicy::Default", switch_view)
+        self.assertIn("SetViewCursorPolicy", close)
+        self.assertIn("CursorPolicy::Default", close)
+        self.assertIn("SetViewCursorPolicy", transition)
+        self.assertIn("CursorPolicy::Default", transition)
+        self.assertIn("SetViewCursorPolicy", focus)
+        self.assertIn("CursorPolicy::Default", focus)
+        self.assertIn("does not support a hidden cursor", focus)
 
 
 if __name__ == "__main__":
