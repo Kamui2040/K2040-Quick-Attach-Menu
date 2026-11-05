@@ -50,6 +50,10 @@ matrix were not reported for this 0.5.215 check.
 | Plugin | `0.5.220` (published on GitHub, Nexus upload confirmed by maintainer; keybind sync tested on OG 1.10.163; AE beta) |
 | Architecture | Windows x64 |
 
+Version 0.5.221 is a development candidate, not a supported release. Its
+Hunting Rifle fix has focused in-game confirmation. Navigation and clipping
+changes still need wider testing; mouse-look needs another in-game test.
+
 Version 0.5.216 includes the opt-in Cheat mode that bypasses
 loose-mod inventory requirements for otherwise-valid attachments.
 No workbench crafting components are used by the Quick Menu even
@@ -77,64 +81,6 @@ ordinary sights, and a suppressor may not take effect, until the
 player manually switches weapons away and back. The tester accepts
 this workaround for release. The specific cause is not yet proven,
 and OG 1.10.163 behavior is not implicated by this AE report.
-
-Unreleased 0.5.213 refines Builder and Settings controller focus so
-Left/Right follows horizontal rows, including the Builder top toolbar,
-weapon controls, Settings theme/presentation choice grids and side-by-side
-reset confirmation buttons. Up/Down remains for vertical lists and between
-rows. LT alone does not navigate; it is an optional Quick Menu opening
-binding or modifier. These changes need focused in-game controller QA.
-
-Unreleased 0.5.212 enables controller actions in Builder and Settings
-using the same game-mapped confirm/cancel buttons as Quick Menu, plus a
-shared DOM focus layer. Modal/dialog/dropdown navigation is explicit.
-Sliders require Confirm to enter editing, and Builder category navigation
-is selection-only. Text and hotkey capture, colour-hex entry and drag
-reordering still require keyboard/mouse. This build requires focused
-Prisma/Proton controller runtime testing before compatibility acceptance.
-
-Unreleased 0.5.211 unifies directional/controller navigation across
-all four Quick Menu presentations and corrects the previously inverted
-Compact Hybrid category wheel. Left/Right consistently change between
-category and attachment focus, while Cancel backs out before closing.
-LB/RB switch categories or page radial attachments. Directional movement
-cannot install attachments. Automated browser/renderer checks pass;
-initial user testing on the target setup reports this revision working.
-The result is provisional; not every layout, custom input mapping,
-repeat pattern or Steam Input/Proton configuration has been verified.
-
-Unreleased 0.5.210 adds native thumbstick navigation in every Quick
-Menu presentation and explicit game-mapped confirmation. Steam Input
-and XInput must expose a gamepad to Fallout 4. The gamepad mapping is
-read from the live ControlMap on the game thread, falling back to
-menu Accept and default A where needed. Focused in-game tester feedback confirms the 0.5.210 controller behavior
-works in the tested configuration. Remapped buttons, all layouts, repeat
-behavior and the broader Steam Input/Proton matrix are not yet fully
-validated. That earlier 0.5.210 build kept Builder and Settings
-keyboard/mouse-only; 0.5.212 adds first-pass controller support.
-
-Unreleased 0.5.209 revises the AE-only experimental re-equip to
-coalesce multiple successful OMOD transactions and re-equip the
-last verified equipped stack only after the Quick Menu closes.
-Focused user testing on AE 1.11.240 confirms the previously reported
-repeated-change visual refresh issue is resolved when closing the
-Quick Menu. This is not full ammunition, animation or multi-weapon
-regression coverage. The flag remains opt-in, while OG 1.10.163
-retains its immediate legacy refresh.
-
-Unreleased 0.5.207 offers an experimental automatic re-equip
-fallback solely for Fallout 4 AE 1.11.240. Opt in on a disposable
-test save with AEAutoReequipAfterApply=true under Behavior in the
-plugin INI. OG 1.10.163 keeps the original native refresh.
-This workaround has not passed runtime QA and may affect magazines
-or weapon animations.
-
-The unreleased 0.5.206 test build skips invalid post-modification
-equipped-weapon refresh on AE 1.11.240. Its old Address Library ID
-1153963 is absent and maps to non-executable data. Re-equipping
-may be necessary for the new visual weapon configuration.
-A tested AE-safe immediate refresh is still unavailable.
-The change needs in-game validation and is not released.
 
 The read-only scripts/check-relocations.py validation helper accepts an
 installed Fallout 4 Windows x64 executable, an AE Address Library using
@@ -213,21 +159,10 @@ pause, and retained Cascade visibility after an attachment change. The exact
 and build retain the original-game path and its previously validated address,
 but that runtime family is unverified for this release.
 
-Version 0.5.198 received focused external confirmation that the reported
-Tactical Reload false safety block is resolved. The broader attachment
-regression matrix was not independently repeated for that release.
-
-The unreleased 0.5.199 candidate adds guarded provider installation into an
-empty, live-reachable attachment point. Target-runtime validation is required
-before this path can be considered successful.
-
-The unreleased 0.5.201 follow-up checks for a loaded COBJ recipe creating each
-new generated OMOD, in addition to explicit MNAM and reachable attachment
-point checks. It retains installed forms for recovery. This safety-first filter
-may suppress unusual loose-mod-only entries with no crafting recipe and does
-not yet replicate all of the workbench's per-recipe visibility conditions.
-It also revises controller focus traversal and its Settings binding editor.
-Target-runtime QA remains mandatory before release.
+The runtime checks above describe earlier releases and do not replace focused
+regression testing for a new game, F4SE, PrismaUI, or CommonLibF4 version. The
+0.5.220 release has focused confirmation for its keybinding fix on Fallout 4
+`1.10.163`; Anniversary Edition remains beta.
 
 ## PrismaUI SDK provenance
 

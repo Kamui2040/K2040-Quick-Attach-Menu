@@ -10,6 +10,13 @@ and genuine ambiguity checks. The maintainer confirmed this specific Hunting
 Rifle issue working in Fallout 4 on 2026-11-04. This does not establish
 compatibility for every weapon, mod setup, or runtime.
 
+## 0.5.221 mouse-look retest pending
+
+The first test of mouse-look while Quick Menu is open failed: the cursor stayed
+visible and aiming did not work. The development candidate now uses a different
+PrismaUI input path and hides the menu cursor in movement mode. This change still
+needs an in-game retest. Version 0.5.221 has not been released.
+
 ## Fixed in 0.5.219: opener-close input leak
 
 A shortcut overlapping a vanilla game command could also trigger the vanilla

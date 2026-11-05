@@ -1,83 +1,12 @@
 # K2040's Quick Attach Menu
 
-K2040's Quick Attach Menu lets you change compatible weapon attachments from a
-fast in-game menu instead of returning to a workbench.
+Change compatible weapon attachments from a quick in-game menu instead of
+returning to a workbench. ECO-authored menus are supported when available; ECO
+is optional.
 
-The menu can use an ECO-authored weapon menu when one is available, or build a
-compatible menu from the equipped weapon at runtime. ECO is optional.
+**Current release:** [0.5.220 on GitHub](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220), with a verified installation ZIP and checksum. The maintainer also confirmed the Nexus Mods upload. This release fixes keybinding sync and improves mouse-button capture and attachment names.
 
-The unreleased 0.5.206 safety candidate skips the invalid
-immediate weapon-model refresh on Fallout 4 1.11.240. Attachment
-transactions remain unchanged; manually re-equip the weapon if
-its visible model does not reflect a change immediately.
-The candidate still requires in-game validation.
-
-The unreleased default-material handling displays an empty material slot as
-already having the default material applied. A reset from a non-default
-material requires a workbench until a safe direct-removal path is validated.
-
-The 0.5.216 stable GitHub release recognizes attachment-target keywords
-added by currently installed weapon parts, but only when the live instance and
-the installed OMOD's Add Keywords property agree. This addresses a rail
-attachment disappearing from the menu after removal. The original reporter
-retested the fix and confirmed that the reported issue is resolved in-game;
-broader compatibility testing remains separate.
-**The current release is [0.5.220 on GitHub](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220)**, with a verified installation ZIP and checksum. Version 0.5.220 is also published on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575) (maintainer-confirmed). It fixes Settings/MCM keybinding synchronization and improves Mouse 4/5 capture and generated attachment names. The maintainer tested the keybind fix on Fallout 4 1.10.163; Anniversary Edition support remains beta. [Report a bug](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues/new/choose) with exact game, F4SE, PrismaUI and mod versions.
-
-The unreleased generated-menu filter requires a matching weapon keyword,
-reachable attachment point, and a loaded crafting recipe creating each new
-attachment. This reduces exposure of internal/scripted options, but exact
-workbench conditions and unusual loose-mod-only entries are still being
-validated. Already-installed parts remain visible for recovery.
-
-Unreleased 0.5.214 tester: Settings > Behavior has an optional Cheat
-mode switch (off by default). It allows compatible weapon attachments
-to be installed without carrying loose mods or obtaining crafting
-components, while leaving loose-mod inventory unchanged. Normal
-inventory rules return when it is disabled. This does not bypass
-attachment compatibility, provider ordering, default-material safety,
-or other guarded operations. Generated attachments still require
-a loaded crafting recipe and matching weapon association to appear.
-It is not the same as per-weapon Force unsafe swaps. Focused AE
-in-game tests confirm Cheat mode works and that normal item requirements
-return when the switch is disabled. One accepted side effect: if you
-install a part for free, turn Cheat mode off, then replace that part,
-normal attachment-return rules can give you its loose mod. To avoid
-that, replace it while Cheat mode is still on or discard the returned
-item. The maintainer reports the tested weapon, attachment and
-original-game compatibility behavior passes. Wider public testing is
-welcome; not every modded weapon combination has been verified.
-
-### 0.5.215 MCM and theme tester
-
-Quick Attach Menu ships the shared K2040 Mods MCM parent and its own
-Quick Attach Menu child page **in the same archive**. No separate MCM
-Hub download is needed. With native MCM installed, its settings appear
-under **MCM > K2040 Mods > Quick Attach Menu**.
-
-The two hotkeys remain Shift+K and Ctrl+Shift+K by default. MCM and the
-mod's PrismaUI Controls page edit the same keyboard bindings. The
-controller shortcut is saved under Quick Attach's own settings and
-supports one button or a held-button combination such as LB+RB.
-
-Every K2040 mod distributes the identical shared parent
-`Data/MCM/Config/K2040_Mods/config.json`. Amethyst may flag that
-shared file as a conflict when Quick Attach and Prisma Minimap are
-installed together. Either copy is safe to win **only when its SHA-256
-is** `8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb`.
-Do not install an older separate Hub package with centralized pages
-or hotkey actions.
-
-MCM itself remains optional. Without MCM, native hotkeys, controller
-shortcuts and the PrismaUI Settings page continue to work.
-
-Classic Pip-Boy uses the game's current HUD colour and condensed HUD-style
-font fallbacks. The new Fallout 76 theme uses amber, ivory and charcoal.
-No commercial game fonts are included. Cheat mode remains
-**Experimental — use at your own risk.**
-
-These changes still require actual MCM/Proton gameplay testing before
-release. F4SE Menu Framework grouping is not yet verified.
+**Development candidate:** 0.5.221 includes the Hunting Rifle fix confirmed in-game by the maintainer, clearer Quick Menu navigation, and scrolling for clipped items. Mouse-look while the menu is open is being retested after an initial test failed. These changes are not in the current release.
 
 ## Features
 
@@ -99,9 +28,6 @@ release. F4SE Menu Framework grouping is not yet verified.
 - An off-by-default, per-weapon Force unsafe swaps escape hatch for diagnosed
   dependency cycles.
 
-Version 0.5.198 is intentionally text-only. Attachment icons and weapon-preview
-rendering are not included in this release.
-
 ## Requirements
 
 - Fallout 4 runtime `1.10.163` or `1.11.240`
@@ -114,15 +40,9 @@ the mod's own Settings page remain available.
 Other Fallout 4 runtimes, Fallout 4 VR, and mismatched F4SE or PrismaUI builds
 are not supported by this release.
 
-Version 0.5.198 received focused external confirmation that the reported
-Tactical Reload false safety block was resolved. The broader attachment
-regression matrix was not independently repeated for this release. Version
-0.5.197 passed focused runtime testing on Fallout 4 `1.11.240`; its original-game
-compatibility path remains included but was not rerun on `1.10.163`.
-
 ## Reporting bugs
 
-Use the [GitHub bug report form](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues/new/choose) and include the **exact installed versions** of Fallout 4, F4SE, PrismaUI_F4, and Quick Attach Menu, along with steps to reproduce the problem. Screenshots, relevant weapon mods and diagnostic logs are helpful when available; remove private information before posting logs.
+Use the [GitHub bug report form](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/issues/new/choose). Include the game, F4SE, PrismaUI_F4, and mod versions, plus steps to reproduce the issue. Remove private information from logs before sharing them.
 
 ## Installation
 
@@ -140,13 +60,11 @@ Pressing the other opener while one menu is active switches directly to that
 menu. Keybindings can be changed through MCM or the Settings page reached from
 the Builder.
 
-Only the **Quick Menu** has a controller shortcut under Settings > Controls.
-Select a button and optional modifier, then Apply with keyboard/mouse. It
-defaults to unassigned, and leaves MCM/keyboard assignments alone. Choose a
-combination unlikely to conflict with gameplay. In the unreleased 0.5.212
-tester, Builder and Settings support controller focus navigation and
-explicit choice selection; text entry and drag reordering still need a
-keyboard/mouse.
+The Quick Menu controller shortcut is under **Settings > Controls**. Choose a
+button and optional modifier, then select **Apply**. It is unassigned by
+default. Choose a combination that does not conflict with gameplay. Builder
+and Settings also support controller navigation; text entry and drag reordering
+require a keyboard or mouse.
 
 Keyboard-and-mouse radial mode also displays at most six attachments
 per page. Use the arrows in the wheel center, scroll the mouse wheel,
@@ -160,48 +78,14 @@ shows the full selected name. The ring cannot apply an attachment until A
 is pressed.
 
 For the radial Quick Menu, use either thumbstick (left takes precedence).
-Point at a category, press A to open it, point at an attachment, and press A to
-confirm. B returns to the category ring, then closes. The D-pad still works as
-a fallback; D-right no longer acts as the radial entry key. Steam Input under
-Proton must expose the controller through XInput. This analog path still
-requires focused target-runtime testing.
+Point at a category and press A to open it. Point at an attachment and press A
+to apply it. Press B to return to categories or close the menu.
 
-Unreleased 0.5.210 controller tester: both sticks and the D-pad navigate
-every Quick Menu layout. Moving a stick only highlights an entry;
-installing an attachment still requires a separate Confirm press.
-The tester reads the current Fallout 4 gamepad Activate binding
-and uses menu Accept or A if that cannot be resolved. Cancel similarly
-uses the mapped menu button where available. Radial keeps its two-step
-category/attachment navigation and LB/RB paging. These updates are
-supported by initial focused in-game testing; Builder and Settings
-receive controller actions beginning with the unreleased 0.5.212 tester.
-
-Unreleased 0.5.211 navigation tester: controller and keyboard movement use
-the same rules in each Quick Menu presentation. Up/Down move visually through
-the current category/attachment choices, Right enters attachments, Left
-returns to categories, and Back/Cancel returns before closing. In Compact
-Hybrid the category wheel follows its visible bottom-to-top ordering.
-LB/RB change categories except in Radial attachment mode, where they
-change attachment pages. Pointing/moving never installs an attachment;
-press the mapped Activate/Confirm button separately. This revision still
-needs in-game confirmation.
-
-Unreleased 0.5.213 controller refinement: Left/Right moves across
-horizontally arranged Builder toolbar and weapon controls, Settings
-choice grids and confirmation rows; Up/Down moves through vertical
-lists and between control rows. LT has no default navigation role.
-It can be configured as the Quick Menu opener or held as a modifier
-for a combination shortcut.
-
-Unreleased 0.5.212 tester: Builder and Settings now support controller
-focus navigation with sticks/D-pad, mapped Confirm/Cancel, and LB/RB.
-Custom dropdowns use Confirm to open/choose and Back to close without
-applying a new choice. On Builder categories, navigation only selects;
-a separate X/Y shortcut explicitly hides/shows. In Settings, press
-Confirm on a slider to enter editing; Left/Right adjusts it and Back
-exits. Import and reset confirmation dialogs respect Back. Text
-renaming, custom hex typing, keyboard hotkey capture and drag reorder
-still need a keyboard or mouse. In-game testing is pending.
+Version 0.5.221 adds simpler keyboard navigation in the development candidate:
+A/D or Left/Right move across the current row; W/S or Up/Down switch rows; and
+E/Enter confirms the selection. When **Allow movement while open** is enabled,
+use the arrow keys to navigate so WASD can move the player. This candidate is
+not yet released; mouse-look is awaiting another in-game test.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
