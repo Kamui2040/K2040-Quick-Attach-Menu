@@ -422,6 +422,11 @@
       self.activePane = "categories";
       self.selectCategory(category.categoryIndex);
     });
+    button.addEventListener("mouseenter", function() {
+      if (self.settings().presentation === "horizontal") {
+        self.scrollItemIntoView(button.parentNode, button);
+      }
+    });
     return button;
   };
 
@@ -442,6 +447,9 @@
     button.appendChild(name);
     button.addEventListener("mouseenter", function() {
       self.lastFocusedOptionIndex = option.optionIndex;
+      if (self.settings().presentation === "horizontal") {
+        self.scrollItemIntoView(button.parentNode, button);
+      }
       if (self.options.onHover) self.options.onHover(category, option);
     });
     button.addEventListener("click", function() {

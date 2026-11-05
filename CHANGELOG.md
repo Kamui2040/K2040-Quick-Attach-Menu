@@ -1,3 +1,19 @@
+## 0.5.221 (unreleased Quick Menu usability candidate)
+
+- Quick Menu horizontal navigation follows its visible rows: A/D or
+  Left/Right move within a row, W/S or Up/Down switch rows, and E/Enter
+  accepts the focused attachment.
+- Added an off-by-default **Allow movement while open** preference. When
+  enabled, WASD reaches gameplay and arrow keys continue to navigate the menu;
+  Builder and Settings keep gameplay input blocked.
+- Keep compact horizontal rows and scroll focused or hovered categories and
+  attachments fully into view, including items at either edge.
+- Fixed Builder category dragging so beginning a drag no longer rerenders the
+  row and loses the dragged item.
+- The maintainer confirmed the Hunting Rifle attachment-swap safety fix in
+  Fallout 4 on 2026-11-04. Navigation, movement passthrough and clipping still
+  require focused in-game QA.
+
 ## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 
 - Generated weapon-attachment menus now prefer the OMOD display name over

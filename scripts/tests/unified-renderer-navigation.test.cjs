@@ -119,6 +119,41 @@ for (const layout of ['cascade', 'radial', 'hybrid']) {
   assert.equal(optionRow.scrollLeft, 0, 'visible option row remains unchanged');
 }
 {
+  const { r } = setup('horizontal');
+  const originalCreateElement = document.createElement;
+  document.createElement = () => ({
+    children: [],
+    dataset: {},
+    listeners: {},
+    appendChild(child) { this.children.push(child); child.parentNode = this; },
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+  });
+  function overflowingRow() {
+    return {
+      scrollLeft: 0,
+      clientWidth: 100,
+      getBoundingClientRect() { return { left: 0, right: 100 }; }
+    };
+  }
+  try {
+    const categoryRow = overflowingRow();
+    const categoryButton = r.makeCategoryButton(category(2));
+    categoryButton.parentNode = categoryRow;
+    categoryButton.getBoundingClientRect = () => ({ left: 120 - categoryRow.scrollLeft, right: 170 - categoryRow.scrollLeft });
+    if (categoryButton.listeners.mouseenter) categoryButton.listeners.mouseenter();
+    assert.equal(categoryRow.scrollLeft, 70, 'hover reveals the full category button');
+
+    const optionRow = overflowingRow();
+    const optionButton = r.makeOptionButton(category(0), category(0).options[0]);
+    optionButton.parentNode = optionRow;
+    optionButton.getBoundingClientRect = () => ({ left: 120 - optionRow.scrollLeft, right: 170 - optionRow.scrollLeft });
+    if (optionButton.listeners.mouseenter) optionButton.listeners.mouseenter();
+    assert.equal(optionRow.scrollLeft, 70, 'hover reveals the full attachment button');
+  } finally {
+    document.createElement = originalCreateElement;
+  }
+}
+{
   function hint(presentation, activePane, allowMovementWhileOpen, controllerActive) {
     const r = make({}, { controllerActive, controllerConfirmButton: 'A', controllerCancelButton: 'B' });
     r.render = () => {};

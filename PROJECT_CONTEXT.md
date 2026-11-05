@@ -1,5 +1,11 @@
 # Current Project State
 
+- Unreleased `0.5.221` includes the maintainer-tested Hunting Rifle safety fix,
+  intuitive horizontal row navigation, optional movement passthrough, and
+  compact-row scrolling for focused items. A follow-up makes mouse-hovered
+  horizontal categories and attachments scroll fully into view as well. The
+  menu changes still need focused in-game QA; no release or deployment has
+  occurred.
 - Hunting Rifle (Fallout4.esm) ECO attachment-swap fix was tested in Fallout 4
   by the maintainer on 2026-11-04 and confirmed working. This confirms the
   reported rifle issue in the tested setup, not all weapon/mod combinations.
