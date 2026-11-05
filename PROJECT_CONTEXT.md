@@ -1,27 +1,28 @@
 # Current Project State
 
-- GitHub release `0.5.221` includes the maintainer-tested Hunting Rifle safety fix,
-  intuitive horizontal row navigation, optional movement and mouse-look
-  passthrough with a hidden menu cursor, and
-  compact-row scrolling for focused items. A follow-up makes mouse-hovered
-  horizontal categories and attachments scroll fully into view as well. The
-  first mouse-look test failed: the cursor remained visible and aiming stayed
-  blocked. The updated candidate uses Prisma's click-through overlay input when
-  supported and hides the menu cursor. The tester later reported the movement
-  and ordering changes worked as expected; the release ZIP matches that tested
-  candidate.
+- Stable GitHub release: `0.5.222` (published 2026-11-05 with the installation
+  ZIP, SHA-256 and optional MCM Categorizer compatibility file at
+  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222).
+  Nexus notes are prepared; its Files entry still needs upload. Nexus remains
+  at version 0.5.220.
+- Version `0.5.222` includes native MCM binding recovery and an optional
+  one-file standalone config for users whose MCM Categorizer hides the Quick
+  Attach page under the shared K2040 Mods parent. Native MCM binding recovery
+  was confirmed in game, including after restarting. The Categorizer override
+  still needs confirmation with Categorizer enabled; other mod combinations
+  were not independently checked.
+- Previous GitHub release: `0.5.221` (published 2026-11-05 with the verified
+  in-game-accepted ZIP and SHA-256 at
+  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221).
+  It includes the maintainer-tested Hunting Rifle safety fix, intuitive
+  horizontal row navigation, optional movement and mouse-look passthrough,
+  and compact-row scrolling. Its release ZIP matches the tester-confirmed
+  package.
 - Hunting Rifle (Fallout4.esm) ECO attachment-swap fix was tested in Fallout 4
-  by the maintainer on 2026-11-04 and confirmed working. This confirms the
-  reported rifle issue in the tested setup, not all weapon/mod combinations.
+  by the maintainer on 2026-11-04 and confirmed working in the reported setup.
   The fix excludes installed default-template OMOD collections from duplicate
   replacement identity and dependent-removal choices while retaining live
   structural graph inputs and genuine ambiguity checks.
-- `0.5.221` was published on GitHub on 2026-11-05 with its installation ZIP and
-  SHA-256. Nexus release notes are prepared; its Files tab still needs the
-  upload. The published Nexus version remains 0.5.220.
-- Stable GitHub release: `0.5.221` (published 2026-11-05 with the verified
-  in-game-accepted ZIP and SHA-256 at
-  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221).
 - Previous GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).

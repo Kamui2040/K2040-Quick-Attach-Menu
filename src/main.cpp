@@ -21,7 +21,7 @@
 namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
-    constexpr std::uint32_t kPluginVersionPacked = 0x000500DD; // 0.5.221
+    constexpr std::uint32_t kPluginVersionPacked = 0x000500DE; // 0.5.222
 
     class ToggleQuickMenuHandler final : public Scaleform::GFx::FunctionHandler
     {

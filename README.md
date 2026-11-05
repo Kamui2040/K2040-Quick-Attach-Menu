@@ -4,7 +4,7 @@ Change compatible weapon attachments from a quick in-game menu instead of
 returning to a workbench. ECO-authored menus are supported when available; ECO
 is optional.
 
-**Current GitHub release:** [0.5.221](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221), with an installation ZIP and checksum. Nexus notes are prepared; the Nexus files entry still needs its upload.
+**Current GitHub release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222), with an installation ZIP, checksum and optional MCM Categorizer compatibility file. Nexus notes are prepared; its Files entry still needs an upload.
 
 ## Features
 
@@ -47,6 +47,12 @@ Use the [GitHub bug report form](https://github.com/Kamui2040/K2040-Quick-Attach
 Install the archive with a mod manager. The archive already contains
 the shared K2040 Mods parent, so do not download the Hub separately.
 Start Fallout 4 through F4SE. Native MCM is optional.
+
+If MCM Categorizer hides the Quick Attach page under **K2040 Mods**, download
+the optional **MCM Categorizer compatibility** file from the same GitHub
+release and install it after the main archive. Do not install it when the
+normal Quick Attach page is visible. It moves only Quick Attach to a standalone
+entry; other K2040 pages keep their current grouping.
 
 Default controls:
 

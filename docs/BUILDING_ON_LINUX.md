@@ -1,12 +1,12 @@
 # Build and restore Quick Attach Menu on Linux
 
-The [current GitHub release v0.5.221](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221) contains the installation ZIP and SHA-256 checksum. **Installing the release does not require a compiler or Windows SDK.** Use a mod manager and the matching Fallout 4, F4SE, and PrismaUI versions listed in [COMPATIBILITY.md](COMPATIBILITY.md).
+The [current GitHub release v0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222) contains the installation ZIP, SHA-256 checksum and optional MCM Categorizer compatibility file. **Installing the release does not require a compiler or Windows SDK.** Use a mod manager and the matching Fallout 4, F4SE, and PrismaUI versions listed in [COMPATIBILITY.md](COMPATIBILITY.md).
 
 These instructions set up a Linux environment to build the Windows x64 F4SE plugin from a fresh GitHub clone.
 
 ## Required build inputs
 
-- Git, Bash, Python 3, Node.js, native C++23 compiler, xmake 3.x and LLVM tools `clang-cl`, `lld-link` and `llvm-rc`. Successful tests used xmake 3.1.1+20260827, LLVM 23.1.0, Python 3.15.0 and Node 26.11.1.
+- Git, Bash, Python 3, Node.js, native C++23 compiler, xmake 3.x and LLVM tools `clang-cl`, `lld-link` and `llvm-rc`. The 0.5.222 build and checks passed with xmake 3.0.6+20260117, LLVM 22.1.8, Python 3.14.8, Node 22.23.1 and GCC 16.2.1. LLVM 23.1.5 also built the DLL.
 - A legally obtained MSVC/Windows SDK tree with `VC/Tools/MSVC/<version>/...` and `Windows Kits/10/...`. Validated x64 inputs: MSVC 14.44.35207 or 14.51.36231 with SDK 10.0.26100.0. These Microsoft files are not stored in this repository.
 - DCCStudios/CommonLibF4 and its pinned commonlib-shared submodule.
 
@@ -33,7 +33,7 @@ export K2040_WINDOWS_SDK_ROOT="/absolute/path/to/licensed-msvc-and-windows-sdk"
 
 For SDK trees containing multiple versions, set `K2040_MSVC_VERSION` and `K2040_WINSDK_VERSION` to the desired existing folder names. The helper checks required headers, import libraries, and pinned dependencies. It creates temporary Linux aliases for `clang-cl.exe` and `link.exe`, selects `llvm-rc`, then builds a Windows x64 `releasedbg` DLL. It checks the DLL and does not install it. Expected path: `dist/Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll`.
 
-A fresh checkout was verified with MSVC 14.44.35207 and Windows SDK 10.0.26100.0.
+A fresh checkout was verified with MSVC 14.44.35207 and Windows SDK 10.0.26100.0. The build helper searches Clang's own intrinsic headers before the MSVC and SDK headers so inline Windows runtime code compiles correctly.
 
 ## Test and package after rebuilding
 

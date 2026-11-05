@@ -62,6 +62,13 @@ msvc_lib="$windows_sdk/VC/Tools/MSVC/$msvc_version/lib/x64"
 um_lib="$windows_sdk/Windows Kits/10/Lib/$kit_version/um/x64"
 ucrt_lib="$windows_sdk/Windows Kits/10/Lib/$kit_version/ucrt/x64"
 cd "$repo"
+# clang-cl does not discover the MSVC standard library from --sdk alone.
+# Put Clang's intrinsic headers first, then MSVC and Windows SDK headers.
+clang_builtin_include="$(clang-cl -print-resource-dir)/include"
+msvc_include="$sdk/VC/Tools/MSVC/$msvc_version/include"
+kit_include="$sdk/Windows Kits/10/Include/$kit_version"
+[[ -d "$clang_builtin_include" ]] || fail "Clang resource headers are missing"
+export CPLUS_INCLUDE_PATH="$clang_builtin_include:$msvc_include:$kit_include/ucrt:$kit_include/um:$kit_include/shared${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}"
 if ! xmake f -c -p windows -a x64 -m releasedbg \
     '--toolchain=clang-cl[llvm]' \
     --sdk="$windows_sdk" --ar="$tools_dir/link.exe" \

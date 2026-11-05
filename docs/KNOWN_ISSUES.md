@@ -27,7 +27,7 @@ with a bounded timeout. The maintainer verified the 0.5.219 correction in-game
 on OG 1.10.163. Wider runtime/mod-input compatibility is not exhaustively
 verified.
 
-## Next-release candidate: native MCM registration and duplicate recovery
+## Fixed in 0.5.222: native MCM registration and duplicate recovery
 
 Native MCM stores bindings keyed by physical (keycode, modifiers), not by
 (modName, action ID). A previously published Settings registration method
@@ -36,7 +36,7 @@ registry contained `openMenuBuilder` both at Unbound (0/0) and Mouse 5
 (260/0); MCM's first-match lookup then showed the wrong state. MCM's live
 registration map and its save-on-close behavior make disk-only repairs unsafe.
 
-The revised draft does **not** inject synthetic Unbound records into native
+The revised implementation does **not** inject synthetic Unbound records into native
 MCM's JSON. On the first PauseMenu session of a fresh installation, it uses
 native MCM's live `SetKeybind` only if a default action is genuinely absent
 and the chosen default chord is free. The existing initialization marker
@@ -47,6 +47,8 @@ existing actions are modified only through `RemapKeybind`. Before each write,
 stale 0/0 record plus exactly one real chord of the same action, the live
 manager clears only 0/0 and verifies the survivor retained its exact key.
 Multiple real keys for one ID are ambiguous: no automatic deletion occurs.
+The maintainer confirmed MCM binding recovery in game, including after
+restarting; other mod combinations were not independently checked.
 
 When diagnosing Amethyst installs, distinguish the manager's `overwrite`
 copy of `MCM/Settings/Keybinds.json` from Fallout 4's **deployed**
@@ -67,11 +69,11 @@ live bridge returned **one Quick Attach registration** at the time of its
 first check; later, MCM saved both the Builder Unbound (0/0) and Mouse 5
 (260/0) registrations. r3 only checked duplicates **once per PauseMenu**,
 so a duplicate appearing after the user captured a new key could never be
-repaired in that session. The revised candidate tracks changes to the live
+repaired in that session. The revised implementation tracks changes to the live
 GetAllKeybinds map and inspects each changed map after two matching samples,
 without deleting any other action's entry or guessing between multiple real
-bindings. It remains unreleased; repeated-scan and actual MCM UI persistence
-require focused in-game testing.
+bindings. The maintainer confirmed the resulting bindings in game. This does
+not cover every first-run, clear/reassign or third-party mod combination.
 
 A subsequent source audit identified an upstream cause **within Quick Attach
 itself**: the non-native disk fallback seeded missing Quick Menu and Builder
@@ -93,18 +95,20 @@ Unbound records, skips seeded actions on subsequent launches, and refuses
 default-chord collisions instead of inserting (0,0). The original
 writer/timestamp of the observed historical entry was not captured, but the
 exact producer and failure sequence are reproducible in the source tests.
-This prevention and remaining in-game acceptance still need verification.
+The maintainer confirmed the correction in game; the historical write itself
+was not logged.
 
 Classic MCM's own native hotkey picker may not support first assignment to an
 absent/cleared action. The Settings page can explicitly register the chosen
-shortcut instead. This still requires physical target-runtime QA for all
-first-run, clear/reassign, duplicate-recovery and native serialization paths.
-The proposal is not released and must not be merged until that evidence passes.
+shortcut instead. The maintainer confirmed the tested MCM binding and
+persistence paths in game. Other first-run, clear/reassign, duplicate-recovery
+and native serialization combinations remain outside that confirmation.
 
-MCM Categorizer (Nexus 66311) separately hides child pages under the shared
-`K2040 Mods` root in one user report. The optional standalone config fallback
-is a separate unverified compatibility candidate; the normal grouped layout
-is unchanged.
+MCM Categorizer (Nexus 66311) can hide child pages under the shared
+`K2040 Mods` root. Version 0.5.222 includes an optional one-file standalone
+config workaround. Install it after the main archive only if the Quick Attach
+page is hidden; otherwise keep the normal grouped layout. The workaround has
+not yet been confirmed in Quick Attach's game setup.
 
 ## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 
