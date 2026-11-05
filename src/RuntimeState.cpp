@@ -2313,7 +2313,10 @@ namespace k2040
                 continue;
             }
 
-            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+            // An OMOD containing nested attachment records is a structural
+            // collection, not a second installed choice at this AP. ECO-authored
+            // and generated menus must apply the same identity check.
+            if (IsAttachmentCollectionOmod(installed.omod.formId)) {
                 log::Info(
                     "Ignoring installed attachment collection container for replacement identity: OMOD=" +
                     ToHexFormId(installed.omod.formId) +
@@ -2494,7 +2497,9 @@ namespace k2040
                     ", source=" + installed.omod.sourcePlugin);
                 continue;
             }
-            if (menu.runtimeGenerated && IsAttachmentCollectionOmod(installed.omod.formId)) {
+            // Retain collections as graph inputs, never as leaf OMOD removals.
+            // This is independent of whether the menu uses ECO categories.
+            if (IsAttachmentCollectionOmod(installed.omod.formId)) {
                 continue;
             }
             const bool reachableNow = ContainsFormId(

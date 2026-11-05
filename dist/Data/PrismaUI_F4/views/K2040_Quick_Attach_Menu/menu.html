@@ -211,12 +211,13 @@
           consumeKey(event);
           return;
         }
-        if (key === "Enter") {
+        if (key === "Enter" || key === "e") {
           consumeKey(event);
           enterKeyboardMode();
           if (!event.repeat) renderer.activateFocusedOption();
           return;
         }
+        if (renderer.settings().allowMovementWhileOpen && ["w", "a", "s", "d"].indexOf(key) >= 0) return;
         if (renderer.settings().presentation === "radial" &&
             (key === "PageUp" || key === "PageDown")) {
           consumeKey(event);

@@ -422,6 +422,11 @@
       self.activePane = "categories";
       self.selectCategory(category.categoryIndex);
     });
+    button.addEventListener("mouseenter", function() {
+      if (self.settings().presentation === "horizontal") {
+        self.scrollItemIntoView(button.parentNode, button);
+      }
+    });
     return button;
   };
 
@@ -442,6 +447,9 @@
     button.appendChild(name);
     button.addEventListener("mouseenter", function() {
       self.lastFocusedOptionIndex = option.optionIndex;
+      if (self.settings().presentation === "horizontal") {
+        self.scrollItemIntoView(button.parentNode, button);
+      }
       if (self.options.onHover) self.options.onHover(category, option);
     });
     button.addEventListener("click", function() {
@@ -494,14 +502,27 @@
     hints.className = "qm-hints";
     var confirm = this.options.controllerConfirmButton || "Confirm";
     var cancel = this.options.controllerCancelButton || "Back";
-    hints.textContent = this.options.controllerActive
-      ? (this.activePane === "categories"
-          ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
-          : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
-            (this.settings().presentation === "radial" ? "Page" : "Category"))
-      : this.settings().presentation === "radial"
-        ? "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · Enter: Apply · Escape: Close"
-        : "W/S or ↑/↓ to move · A/D or ←/→ to switch · Enter to apply · opener/Escape to close";
+    var presentation = this.settings().presentation;
+    var horizontal = presentation === "horizontal";
+    var movementAllowed = !!this.settings().allowMovementWhileOpen;
+    if (this.options.controllerActive && horizontal) {
+      hints.textContent = this.activePane === "categories"
+        ? "Stick/D-pad: Category · Left/Right: Category · Down/" + confirm + ": Options · LB/RB: Category · " + cancel + ": Close"
+        : "Stick/D-pad: Attachment · Left/Right: Attachment · Up: Categories · " + confirm + ": Install · " + cancel + ": Back · LB/RB: Category";
+    } else if (this.options.controllerActive) {
+      hints.textContent = this.activePane === "categories"
+        ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
+        : "Stick/D-pad: Attachment · " + confirm + ": Install · Left/" + cancel + ": Back · LB/RB: " +
+          (presentation === "radial" ? "Page" : "Category");
+    } else if (horizontal) {
+      hints.textContent = movementAllowed
+        ? "WASD: Move · ↑/↓: Switch rows · ←/→: Move · E/Enter: Select/apply · opener/Escape: Close"
+        : "W/S or ↑/↓: Switch rows · A/D or ←/→: Move · E/Enter: Select/apply · opener/Escape: Close";
+    } else if (presentation === "radial") {
+      hints.textContent = "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · E/Enter: Apply · Escape: Close";
+    } else {
+      hints.textContent = "W/S or ↑/↓ to move · A/D or ←/→ to switch · E/Enter to apply · opener/Escape to close";
+    }
     container.appendChild(hints);
     var version = document.createElement("div");
     version.className = "qm-version";
@@ -824,9 +845,23 @@
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
+    if (presentation === "horizontal") {
+      this.scrollItemIntoView(layout.querySelector(".qm-category-list"), layout.querySelector(".qm-category-button.active"));
+      this.scrollItemIntoView(layout.querySelector(".qm-option-list"), layout.querySelector(".qm-option-button.focused-option"));
+    }
     this.appendStatusAndMeta(this.root);
     this.updateScreenLabels();
     this.updateScreenStatus();
+  };
+
+  Renderer.prototype.scrollItemIntoView = function(container, item) {
+    if (!container || !item) return;
+    var containerBounds = container.getBoundingClientRect();
+    var itemBounds = item.getBoundingClientRect();
+    var scaleX = container.clientWidth > 0 ? (containerBounds.right - containerBounds.left) / container.clientWidth : 1;
+    if (!isFinite(scaleX) || scaleX <= 0) scaleX = 1;
+    if (itemBounds.left < containerBounds.left) container.scrollLeft -= (containerBounds.left - itemBounds.left) / scaleX;
+    else if (itemBounds.right > containerBounds.right) container.scrollLeft += (itemBounds.right - containerBounds.right) / scaleX;
   };
 
   Renderer.prototype.selectCategory = function(categoryIndex) {
@@ -913,6 +948,18 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
+    if (this.settings().presentation === "horizontal") {
+      if (direction === "left" || direction === "right") {
+        var horizontalDelta = direction === "left" ? -1 : 1;
+        if (this.activePane === "categories") this.moveCategory(horizontalDelta);
+        else this.moveOption(horizontalDelta);
+      } else if (direction === "up") {
+        this.switchPane(-1);
+      } else if (direction === "down") {
+        this.switchPane(1);
+      }
+      return;
+    }
     if (direction === "left") {
       this.switchPane(-1);
     } else if (direction === "right") {

@@ -52,6 +52,7 @@ namespace k2040
         bool closeAfterApply = false;
         bool cheatMode = false;
         bool loggingEnabled = true;
+        bool allowMovementWhileOpen = false;
         double menuSlowdown = 1.0;
         double builderPanelWidth = 0.0;
         double builderPanelHeight = 0.0;

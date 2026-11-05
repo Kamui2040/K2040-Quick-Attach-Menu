@@ -27,6 +27,10 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Use resolved object-instance OMODs for installed identity.
 - Do not call `BGSMod::Attachment::Mod::GetData` on NG/AE; CommonLib marks it inlined there. Use the inherited `BGSMod::Container::GetData` when only attachment/property container data is needed.
 - Install providers before children and remove children before providers.
+- A nested attachment-collection OMOD remains a structural graph input, not
+  an independently installed leaf for replacement identity or dependent-removal
+  planning. Apply this rule to ECO-authored and generated menus equally, and
+  still reject genuine duplicate or mismatched installed leaf OMODs.
 - Persist form identity by source plugin and local FormID/FormKey.
 - Treat every browser selection and imported profile as untrusted input.
 - Revalidate the live equipped stack, inventory, graph, and selected operation

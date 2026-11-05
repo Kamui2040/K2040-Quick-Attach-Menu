@@ -9,7 +9,7 @@ const html = fs.readFileSync(path.join(__dirname,
 const lastScript = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</script>'));
 assert.ok(lastScript.includes('prisma-controller-action'));
 
-function setup(presentation) {
+function setup(presentation, allowMovementWhileOpen = false) {
   const actions = [];
   const winEvents = {};
   const docEvents = {};
@@ -18,9 +18,17 @@ function setup(presentation) {
     options: { controllerActive: false, keyboardActive: false },
     activePane: 'categories',
     render() {},
-    settings: () => ({ presentation }),
+    settings: () => ({ presentation, allowMovementWhileOpen }),
     navigateDirection: direction => {
-      if (direction === 'left' || direction === 'right') {
+      if (presentation === 'horizontal') {
+        if (direction === 'left' || direction === 'right') {
+          const delta = direction === 'left' ? -1 : 1;
+          actions.push(renderer.activePane === 'categories' ? ['category', delta] : ['option', delta]);
+        } else {
+          actions.push(['pane', direction === 'up' ? -1 : 1]);
+          renderer.activePane = direction === 'up' ? 'categories' : 'options';
+        }
+      } else if (direction === 'left' || direction === 'right') {
         const delta = direction === 'left' ? -1 : 1;
         actions.push(['pane', delta]);
         renderer.activePane = delta > 0 ? 'options' : 'categories';
@@ -65,10 +73,14 @@ function setup(presentation) {
       detail: { button: value, state }, stopImmediatePropagation() {}
     });
   }
-  return { win, renderer, actions, button, time: value => { now = value; } };
+  function key(value, repeat = false) {
+    const event = { key: value, repeat, keyCode: 0, preventDefault() {}, stopPropagation() {} };
+    docEvents.keydown(event);
+  }
+  return { win, renderer, actions, button, key, time: value => { now = value; } };
 }
 
-for (const layout of ['cascade', 'hybrid', 'horizontal']) {
+for (const layout of ['cascade', 'hybrid']) {
   const c = setup(layout);
   c.win.k2040ControllerStickSector('0');
   assert.deepEqual(c.actions.at(-1), ['category', layout === 'hybrid' ? 1 : -1],
@@ -143,3 +155,29 @@ for (const layout of ['cascade', 'hybrid', 'horizontal']) {
   assert.equal(r.actions.filter(([name]) => name === 'confirm').length, 1);
 }
 console.log('PASS: controller navigation-only input and runtime-mapped explicit confirmation, 4 layouts');
+{
+  const c = setup('horizontal');
+  c.key('ArrowRight');
+  assert.deepEqual(c.actions.at(-1), ['category', 1], 'keyboard Right moves along category row');
+  c.key('a');
+  assert.deepEqual(c.actions.at(-1), ['category', -1], 'A moves along category row');
+  c.key('ArrowDown');
+  assert.deepEqual(c.actions.at(-1), ['pane', 1], 'keyboard Down switches to options row');
+  c.key('d');
+  assert.deepEqual(c.actions.at(-1), ['option', 1], 'D moves along option row');
+  c.key('e');
+  assert.equal(c.actions.filter(([name]) => name === 'confirm').length, 1, 'E accepts focused option');
+  c.key('Enter');
+  c.key('Enter', true);
+  assert.equal(c.actions.filter(([name]) => name === 'confirm').length, 2,
+    'Enter accepts and repeated keydown is ignored');
+  assert.equal(c.actions.some(([name]) => name === 'install'), false, 'navigation never directly installs');
+}
+{
+  const c = setup('horizontal', true);
+  const before = c.actions.length;
+  for (const key of ['w', 'a', 's', 'd']) c.key(key);
+  assert.equal(c.actions.length, before, 'WASD passes through when gameplay movement is enabled');
+  c.key('ArrowRight');
+  assert.deepEqual(c.actions.at(-1), ['category', 1], 'arrow navigation remains available with movement enabled');
+}

@@ -49,8 +49,8 @@ class ControllerInputContract(unittest.TestCase):
         self.assertNotIn('if (!radial) renderer.switchPane(1);', self.html)
 
     def test_versions_in_sync(self):
-        self.assertIn('0x000500DC; // 0.5.220', (ROOT / "src/main.cpp").read_text())
-        self.assertEqual((ROOT / "xmake.lua").read_text().count('0.5.220'), 3)
+        self.assertIn('0x000500DD; // 0.5.221', (ROOT / "src/main.cpp").read_text())
+        self.assertEqual((ROOT / "xmake.lua").read_text().count('0.5.221'), 3)
 
 if __name__ == "__main__":
     unittest.main()

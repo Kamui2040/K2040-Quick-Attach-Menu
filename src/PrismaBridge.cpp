@@ -59,6 +59,7 @@ namespace
     bool g_pauseHoldMenuEventSinkRegistered = false;
     RE::BSTSmartPointer<RE::BSInputEnableLayer> g_quickMenuInputLayer;
     bool g_quickMenuGameplayIsolationActive = false;
+    bool g_allowMovementForCurrentQuickMenuOpen = false;
     // Match the Quest Journal's held-opener guard: do not expose the K key to
     // Fallout when a closing shortcut unfocuses the Prisma window mid-press.
     // The polling thread only queues tasks; layer ownership stays on the game thread.
@@ -317,12 +318,10 @@ namespace
         return true;
     }
 
-    bool ActivateQuickMenuGameplayIsolation()
-    {
-        if (g_quickMenuInputLayer && g_quickMenuGameplayIsolationActive) {
-            return true;
-        }
+    void ReleaseQuickMenuGameplayIsolation();
 
+    bool ActivateQuickMenuGameplayIsolation(bool allowMovement)
+    {
         auto* inputManager = RE::BSInputEnableManager::GetSingleton();
         if (!inputManager) {
             k2040::log::Warn("Could not activate quick-menu gameplay isolation because an engine service is unavailable.");
@@ -339,10 +338,28 @@ namespace
             static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kAll) &
             ~static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kCursor));
 
+        const auto allowedUserEvents = allowMovement ?
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement) |
+                static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kLooking) :
+            0u;
+        const auto blockedUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kAll) &
+            ~allowedUserEvents);
+        const auto quickMenu = k2040::GetQuickMenuPreferences();
         const bool userEventsDisabled = inputManager->EnableUserEvent(
             g_quickMenuInputLayer->layerID,
-            RE::UserEvents::USER_EVENT_FLAG::kAll,
+            blockedUserEvents,
             false,
+            RE::UserEvents::SENDER_ID::kMenu);
+        const bool movementConfigured = inputManager->EnableUserEvent(
+            g_quickMenuInputLayer->layerID,
+            RE::UserEvents::USER_EVENT_FLAG::kMovement,
+            allowMovement,
+            RE::UserEvents::SENDER_ID::kMenu);
+        const bool lookingConfigured = inputManager->EnableUserEvent(
+            g_quickMenuInputLayer->layerID,
+            RE::UserEvents::USER_EVENT_FLAG::kLooking,
+            allowMovement,
             RE::UserEvents::SENDER_ID::kMenu);
         const bool otherEventsDisabled = inputManager->EnableOtherEvent(
             g_quickMenuInputLayer->layerID,
@@ -350,14 +367,15 @@ namespace
             false,
             RE::UserEvents::SENDER_ID::kMenu);
 
-        if (!userEventsDisabled || !otherEventsDisabled) {
+        if (!userEventsDisabled || !movementConfigured || !lookingConfigured || !otherEventsDisabled) {
             k2040::log::Warn("Could not disable all gameplay input for the quick menu.");
-            g_quickMenuInputLayer.reset();
+            if (g_quickMenuGameplayIsolationActive) ReleaseQuickMenuGameplayIsolation();
+            else g_quickMenuInputLayer.reset();
             return false;
         }
 
         g_quickMenuGameplayIsolationActive = true;
-        if (!UpdateQuickMenuTimeAdjustment(k2040::GetQuickMenuPreferences().menuSlowdown)) {
+        if (!UpdateQuickMenuTimeAdjustment(quickMenu.menuSlowdown)) {
             g_quickMenuGameplayIsolationActive = false;
             g_quickMenuInputLayer.reset();
             return false;
@@ -933,10 +951,11 @@ namespace k2040
         // an earlier menu must never tear down the new menu's isolation.
         g_deferredQuickMenuReleaseKey.store(0, std::memory_order_release);
         g_deferredQuickMenuReleaseQueued.store(false, std::memory_order_release);
+        g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen;
 
         // Isolate gameplay before weapon probing and payload construction so
         // the opening K press cannot reach the Pip-Boy during that work.
-        return ActivateQuickMenuGameplayIsolation();
+        return ActivateQuickMenuGameplayIsolation(viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen);
     }
 
     std::string PrismaBridge::BuildMenuPayload(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu) const
@@ -1233,6 +1252,7 @@ namespace k2040
                  << "\"controllerSupported\":" << (controllerApi_ ? "true" : "false") << ","
                  << "\"controllerQuickShortcut\":\"" << JsonEscape(GetControllerShortcut("quick")) << "\","
                  << "\"loggingEnabled\":" << (quickMenu.loggingEnabled ? "true" : "false") << ","
+                 << "\"allowMovementWhileOpen\":" << (quickMenu.allowMovementWhileOpen ? "true" : "false") << ","
                  << "\"menuSlowdown\":" << quickMenu.menuSlowdown << ","
                  << "\"hideInvalidOptions\":" << (settings.hideInvalidOptions ? "true" : "false") << ","
                  << "\"menuSource\":\"" << JsonEscape(settings.menuSource) << "\","
@@ -1480,11 +1500,19 @@ namespace k2040
         constexpr bool requestedPauseGame = false;
         constexpr bool requestedDisableFocusMenu = true;
 
-        if (!ActivateQuickMenuGameplayIsolation()) {
+        if (!ActivateQuickMenuGameplayIsolation(viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen)) {
             api_->Hide(menuView_);
             menuOpen_ = false;
             log::Warn("Prisma menu focus cancelled because gameplay isolation could not be established.");
             return;
+        }
+
+        const bool mouseLookRequested = viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen;
+        const bool mouseLookInputReady = mouseLookRequested &&
+            PRISMA_UI_API::HasPrismaCapability(PRISMA_UI_API::PrismaCapability::InputRegions) &&
+            api_->SetInputRegions(menuView_, nullptr, 0);
+        if (mouseLookRequested && !mouseLookInputReady) {
+            log::Warn("Prisma provider lacks click-through input regions; mouse-look passthrough is unavailable for this open.");
         }
 
         std::uint32_t cursorOwnerCountBeforeFocus = 0;
@@ -1492,22 +1520,30 @@ namespace k2040
             cursorOwnerCountBeforeFocus = cursor->registeredCursors;
         }
 
-        const bool focused = api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
+        const bool focused = mouseLookInputReady ?
+            api_->FocusOverlay(menuView_, requestedPauseGame, requestedDisableFocusMenu) :
+            api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
         const bool hasFocus = api_->HasFocus(menuView_);
         const bool anyFocus = api_->HasAnyActiveFocus();
 
-        if (focused && hasFocus) {
+        if (focused && hasFocus && mouseLookRequested &&
+            !PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Hidden)) {
+            log::Warn("Prisma provider does not support a hidden cursor; Quick Menu continues without plugin cursor fallback.");
+        } else if (focused && hasFocus && !mouseLookRequested) {
             EnsureMenuCursorAfterFocus(cursorOwnerCountBeforeFocus);
         }
 
         pendingFocus_ = false;
 
-        log::Info("Prisma menu view Focus() requested with pauseGame=false, disableFocusMenu=true.");
+        log::Info(mouseLookInputReady ?
+            "Prisma menu view FocusOverlay() requested with click-through mouse input." :
+            "Prisma menu view Focus() requested with pauseGame=false, disableFocusMenu=true.");
         log::Info(std::string("Prisma menu view Focus() returned: ") + (focused ? "true" : "false"));
         log::Info(std::string("Prisma menu view HasFocus() after Focus: ") + (hasFocus ? "true" : "false"));
         log::Info(std::string("Prisma HasAnyActiveFocus() after Focus: ") + (anyFocus ? "true" : "false"));
 
         if (!focused || !hasFocus) {
+            PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
             SetMenuHotkeyUiForwardingActive(false);
             ReleaseBuilderMenuModeGuard();
             UnregisterMenuCursorFallback();
@@ -1517,6 +1553,7 @@ namespace k2040
             return;
         }
         if (viewMode_ != ViewMode::QuickMenu && !ActivateBuilderMenuModeGuard()) {
+            PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
             SetMenuHotkeyUiForwardingActive(false);
             api_->Unfocus(menuView_);
             api_->Hide(menuView_);
@@ -1861,6 +1898,7 @@ namespace k2040
 
         if (previousView != 0 && api_->IsValid(previousView)) {
             api_->Invoke(previousView, "try { if (window.k2040StopFocusHeartbeat) { window.k2040StopFocusHeartbeat(); } } catch(e) { console.error(e); }");
+            PRISMA_UI_API::SetViewCursorPolicy(previousView, PRISMA_UI_API::CursorPolicy::Default);
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }
@@ -1941,6 +1979,7 @@ namespace k2040
         }
 
         api_->Invoke(menuView_, "try { if (window.k2040StopFocusHeartbeat) { window.k2040StopFocusHeartbeat(); } } catch(e) { console.error(e); }");
+        PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Default);
         api_->Unfocus(menuView_);
         log::Info("Prisma menu view Unfocus() called.");
 
@@ -1997,6 +2036,7 @@ namespace k2040
         ReleaseBuilderMenuModeGuard();
 
         if (api_ && previousView != 0 && api_->IsValid(previousView)) {
+            PRISMA_UI_API::SetViewCursorPolicy(previousView, PRISMA_UI_API::CursorPolicy::Default);
             if (api_->HasFocus(previousView)) {
                 api_->Unfocus(previousView);
             }
@@ -2564,6 +2604,9 @@ namespace k2040
                 const auto value = boolValue(parts[2]); if (!value) return;
                 updateLogging = preferences.loggingEnabled != *value;
                 preferences.loggingEnabled = *value;
+            } else if (parts.size() == 3 && parts[1] == "allow-movement") {
+                const auto value = boolValue(parts[2]); if (!value) return;
+                preferences.allowMovementWhileOpen = *value;
             } else if (parts.size() == 3 && parts[1] == "menu-slowdown") {
                 const auto value = ParseFiniteDouble(parts[2]);
                 if (!value) return;
@@ -2646,6 +2689,7 @@ namespace k2040
                     preferences.closeAfterApply = legacy.closeAfterApply;
                     preferences.cheatMode = false;
                     preferences.loggingEnabled = true;
+                    preferences.allowMovementWhileOpen = false;
                     preferences.menuSlowdown = 1.0;
                 } else if (parts[1] == "labels") {
                     SetBracketedTextPreferences({ legacy.hideBracketedText, legacy.hideBracketedText, legacy.hideBracketedText });
