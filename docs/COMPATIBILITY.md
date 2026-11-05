@@ -1,12 +1,12 @@
-## MCM Categorizer and the shared K2040 Mods menu (next-release candidate)
+## MCM Categorizer workaround (optional; needs in-game confirmation)
 
 The third-party MCM Categorizer (Nexus 66311) has been reported to show
 `K2040 Mods` without its merged child pages. Without Categorizer, the same
 mod's child page is visible. This points to a menu-rendering compatibility
 issue; the exact Categorizer code path and in-game fix are not yet verified.
 
-For players who use Categorizer, the next-release tooling can generate a
-**separate opt-in compatibility ZIP** with:
+For players who use Categorizer, the release includes a separate
+**opt-in compatibility ZIP** with:
 
 `python3 scripts/package-mcm-categorizer-compat.py /path/outside-git/QAM-MCM-Categorizer-optional.zip`
 
@@ -17,10 +17,11 @@ The hotkey IDs, data storage and native handling are identical. The normal
 installer and shared parent remain unchanged, and the optional override
 should not be used without Categorizer. Other K2040 mods need their own
 compatibility handling; an empty shared root may remain if those mods are
-installed. In-game testing with Categorizer is still required before claiming
-compatibility.
+installed. The override affects only Quick Attach: its page becomes a
+standalone entry while Quest Journal and Minimap remain under K2040 Mods. This
+workaround has not yet been confirmed in Quick Attach's game setup.
 
-### Native MCM recovery (unreleased)
+### Native MCM recovery (included in 0.5.222)
 
 The draft registration repair uses MCM's live binding manager rather than
 synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
@@ -78,12 +79,13 @@ matrix were not reported for this 0.5.215 check.
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.220` (published on GitHub, Nexus upload confirmed by maintainer; keybind sync tested on OG 1.10.163; AE beta) |
+| Plugin | `0.5.222` (MCM Categorizer workaround is optional; AE beta) |
 | Architecture | Windows x64 |
 
-Version 0.5.221 is a development candidate, not a supported release. Its
-Hunting Rifle fix has focused in-game confirmation. Navigation and clipping
-changes still need wider testing; mouse-look needs another in-game test.
+Version 0.5.222 includes an optional MCM Categorizer workaround. Use it only
+if the Quick Attach page is hidden beneath the shared K2040 Mods parent. The
+native MCM binding recovery was confirmed in game, including after restarting;
+the Categorizer workaround still needs in-game confirmation.
 
 Version 0.5.216 includes the opt-in Cheat mode that bypasses
 loose-mod inventory requirements for otherwise-valid attachments.

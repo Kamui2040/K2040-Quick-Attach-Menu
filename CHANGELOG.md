@@ -1,3 +1,13 @@
+## 0.5.222 (GitHub release, 2026-11-05; Nexus notes prepared)
+
+- Fixed native MCM startup and binding recovery so missing or duplicate Quick
+  Attach entries no longer leave the Builder binding stuck at Unbound.
+- Added an optional one-file MCM Categorizer workaround. It shows Quick Attach
+  as a standalone page if Categorizer hides it under the shared K2040 Mods
+  menu. The normal grouped layout stays in the main installer.
+- The native MCM binding recovery was confirmed in game, including after
+  restarting. The Categorizer workaround still needs in-game confirmation.
+
 ## 0.5.221 (GitHub release, 2026-11-05; Nexus notes prepared)
 
 - Quick Menu horizontal navigation follows its visible rows: A/D or
