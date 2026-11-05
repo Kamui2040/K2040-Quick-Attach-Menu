@@ -1,4 +1,4 @@
-## 0.5.221 (unreleased Quick Menu usability candidate)
+## 0.5.221 (GitHub release, 2026-11-05; Nexus notes prepared)
 
 - Quick Menu horizontal navigation follows its visible rows: A/D or
   Left/Right move within a row, W/S or Up/Down switch rows, and E/Enter
@@ -9,11 +9,11 @@
   input blocked.
 - Keep compact horizontal rows and scroll focused or hovered categories and
   attachments fully into view, including items at either edge.
-- Fixed Builder category dragging so beginning a drag no longer rerenders the
-  row and loses the dragged item.
+- Fixed category reordering so dragged categories stay where placed, and kept
+  focused or hovered items fully visible, including at the edges of a row.
 - The maintainer confirmed the Hunting Rifle attachment-swap safety fix in
-  Fallout 4 on 2026-11-04. Navigation, movement and mouse-look passthrough,
-  cursor behavior, and clipping still require focused in-game QA.
+  Fallout 4 on 2026-11-04. The tester reported the movement and ordering
+  changes worked as expected. The release package matches the tested candidate.
 
 ## 0.5.220 (published on GitHub and Nexus Mods, 2026-10-25)
 

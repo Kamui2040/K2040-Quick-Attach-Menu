@@ -4,9 +4,7 @@ Change compatible weapon attachments from a quick in-game menu instead of
 returning to a workbench. ECO-authored menus are supported when available; ECO
 is optional.
 
-**Current release:** [0.5.220 on GitHub](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220), with a verified installation ZIP and checksum. The maintainer also confirmed the Nexus Mods upload. This release fixes keybinding sync and improves mouse-button capture and attachment names.
-
-**Development candidate:** 0.5.221 includes the Hunting Rifle fix confirmed in-game by the maintainer, clearer Quick Menu navigation, and scrolling for clipped items. Mouse-look while the menu is open is being retested after an initial test failed. These changes are not in the current release.
+**Current GitHub release:** [0.5.221](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221), with an installation ZIP and checksum. Nexus notes are prepared; the Nexus files entry still needs its upload.
 
 ## Features
 
@@ -81,11 +79,11 @@ For the radial Quick Menu, use either thumbstick (left takes precedence).
 Point at a category and press A to open it. Point at an attachment and press A
 to apply it. Press B to return to categories or close the menu.
 
-Version 0.5.221 adds simpler keyboard navigation in the development candidate:
+Version 0.5.221 adds simpler keyboard navigation:
 A/D or Left/Right move across the current row; W/S or Up/Down switch rows; and
 E/Enter confirms the selection. When **Allow movement while open** is enabled,
-use the arrow keys to navigate so WASD can move the player. This candidate is
-not yet released; mouse-look is awaiting another in-game test.
+WASD and mouse look reach gameplay, the cursor is hidden, and arrow keys keep
+menu navigation available.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.

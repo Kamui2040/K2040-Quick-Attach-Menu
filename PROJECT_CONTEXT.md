@@ -1,22 +1,28 @@
 # Current Project State
 
-- Unreleased `0.5.221` includes the maintainer-tested Hunting Rifle safety fix,
+- GitHub release `0.5.221` includes the maintainer-tested Hunting Rifle safety fix,
   intuitive horizontal row navigation, optional movement and mouse-look
   passthrough with a hidden menu cursor, and
   compact-row scrolling for focused items. A follow-up makes mouse-hovered
   horizontal categories and attachments scroll fully into view as well. The
   first mouse-look test failed: the cursor remained visible and aiming stayed
-  blocked. The current candidate uses Prisma's click-through overlay input when
-  supported; retest is pending. No release or deployment has occurred.
+  blocked. The updated candidate uses Prisma's click-through overlay input when
+  supported and hides the menu cursor. The tester later reported the movement
+  and ordering changes worked as expected; the release ZIP matches that tested
+  candidate.
 - Hunting Rifle (Fallout4.esm) ECO attachment-swap fix was tested in Fallout 4
   by the maintainer on 2026-11-04 and confirmed working. This confirms the
   reported rifle issue in the tested setup, not all weapon/mod combinations.
   The fix excludes installed default-template OMOD collections from duplicate
   replacement identity and dependent-removal choices while retaining live
   structural graph inputs and genuine ambiguity checks.
-- The Hunting Rifle fix remains unreleased in the 0.5.221 development
-  candidate; the 0.5.220 release remains unchanged.
-- Stable GitHub release: `0.5.220` (published 2026-10-25 with the verified
+- `0.5.221` was published on GitHub on 2026-11-05 with its installation ZIP and
+  SHA-256. Nexus release notes are prepared; its Files tab still needs the
+  upload. The published Nexus version remains 0.5.220.
+- Stable GitHub release: `0.5.221` (published 2026-11-05 with the verified
+  in-game-accepted ZIP and SHA-256 at
+  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221).
+- Previous GitHub release: `0.5.220` (published 2026-10-25 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.220).
   The maintainer confirmed Nexus `0.5.220` on 2026-10-25; the Nexus Files tab
@@ -38,9 +44,8 @@
   leaving serialization to MCM on close. A cleared native-MCM binding must be
   restored in MCM itself. The maintainer's latest in-game test passed; no
   local game or user bindings were modified by the development run.
-- Prior Nexus Mods version: `0.5.219`, published per maintainer confirmation
-  on 2026-10-21 at https://www.nexusmods.com/fallout4/mods/109575.
-  Nexus `0.5.220` is now maintainer-confirmed as uploaded on 2026-10-25.
+- Previous Nexus Mods version: `0.5.220`, confirmed by the maintainer on
+  2026-10-25 at https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard
   fix in Fallout 4 OG 1.10.163; the deployed DLL matches the published GitHub
   ZIP and the F4SE log records held-opener isolation and key-up release for
