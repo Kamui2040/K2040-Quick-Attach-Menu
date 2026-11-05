@@ -63,6 +63,16 @@ class QuickMenuMovementContract(unittest.TestCase):
         self.assertIn("CursorPolicy::Default", focus)
         self.assertIn("does not support a hidden cursor", focus)
 
+    def test_mouse_look_uses_click_through_overlay_and_skips_cursor_fallback(self):
+        bridge = (ROOT / "src/PrismaBridge.cpp").read_text()
+        focus = bridge.split("void PrismaBridge::FocusAndShowMenuView()", 1)[1].split("void PrismaBridge::", 1)[0]
+        self.assertIn("const bool mouseLookRequested = viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen;", focus)
+        self.assertIn("HasPrismaCapability(PRISMA_UI_API::PrismaCapability::InputRegions)", focus)
+        self.assertIn("api_->SetInputRegions(menuView_, nullptr, 0)", focus)
+        self.assertIn("api_->FocusOverlay(menuView_, requestedPauseGame, requestedDisableFocusMenu)", focus)
+        self.assertIn("focused && hasFocus && !mouseLookRequested", focus)
+        self.assertLess(focus.index("api_->FocusOverlay("), focus.index("SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Hidden)"))
+
 
 if __name__ == "__main__":
     unittest.main()

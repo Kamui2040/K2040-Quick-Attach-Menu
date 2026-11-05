@@ -1507,9 +1507,12 @@ namespace k2040
             return;
         }
 
-        if (viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen &&
-            !PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Hidden)) {
-            log::Warn("Prisma provider does not support a hidden cursor; Quick Menu remains usable with the cursor visible.");
+        const bool mouseLookRequested = viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen;
+        const bool mouseLookInputReady = mouseLookRequested &&
+            PRISMA_UI_API::HasPrismaCapability(PRISMA_UI_API::PrismaCapability::InputRegions) &&
+            api_->SetInputRegions(menuView_, nullptr, 0);
+        if (mouseLookRequested && !mouseLookInputReady) {
+            log::Warn("Prisma provider lacks click-through input regions; mouse-look passthrough is unavailable for this open.");
         }
 
         std::uint32_t cursorOwnerCountBeforeFocus = 0;
@@ -1517,17 +1520,24 @@ namespace k2040
             cursorOwnerCountBeforeFocus = cursor->registeredCursors;
         }
 
-        const bool focused = api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
+        const bool focused = mouseLookInputReady ?
+            api_->FocusOverlay(menuView_, requestedPauseGame, requestedDisableFocusMenu) :
+            api_->Focus(menuView_, requestedPauseGame, requestedDisableFocusMenu);
         const bool hasFocus = api_->HasFocus(menuView_);
         const bool anyFocus = api_->HasAnyActiveFocus();
 
-        if (focused && hasFocus) {
+        if (focused && hasFocus && mouseLookRequested &&
+            !PRISMA_UI_API::SetViewCursorPolicy(menuView_, PRISMA_UI_API::CursorPolicy::Hidden)) {
+            log::Warn("Prisma provider does not support a hidden cursor; Quick Menu continues without plugin cursor fallback.");
+        } else if (focused && hasFocus && !mouseLookRequested) {
             EnsureMenuCursorAfterFocus(cursorOwnerCountBeforeFocus);
         }
 
         pendingFocus_ = false;
 
-        log::Info("Prisma menu view Focus() requested with pauseGame=false, disableFocusMenu=true.");
+        log::Info(mouseLookInputReady ?
+            "Prisma menu view FocusOverlay() requested with click-through mouse input." :
+            "Prisma menu view Focus() requested with pauseGame=false, disableFocusMenu=true.");
         log::Info(std::string("Prisma menu view Focus() returned: ") + (focused ? "true" : "false"));
         log::Info(std::string("Prisma menu view HasFocus() after Focus: ") + (hasFocus ? "true" : "false"));
         log::Info(std::string("Prisma HasAnyActiveFocus() after Focus: ") + (anyFocus ? "true" : "false"));

@@ -4,7 +4,7 @@
 
 **Goal:** Let the existing movement-while-open preference pass game look input and hide the cursor while arrow keys continue to navigate Quick Menu.
 
-**Architecture:** Extend the existing Quick Menu input mask to allow `kMovement` and `kLooking` only when the saved preference is active for that open. Apply Prisma's optional per-view hidden cursor policy while that Quick Menu is focused, and restore the default policy on every focus exit path.
+**Architecture:** Extend the existing Quick Menu input mask to allow `kMovement` and `kLooking` only when the saved preference is active for that open. If Prisma advertises V10 `InputRegions`, set an empty mouse-input region list and focus through `FocusOverlay` so mouse input passes to gameplay while keyboard input stays on the page. Hide the cursor and omit native cursor fallback in this mode; restore the default policy on every focus exit path.
 
 **Tech Stack:** C++20/CommonLibF4, PrismaUI_F4 API, Python `unittest` contract checks.
 
@@ -24,7 +24,7 @@
 - Combat and activation stay blocked while movement/look are enabled. Task 1 adds native input-mask assertions.
 - Quick Menu close/switch/focus failure/game transition cannot leave a hidden cursor on a later view. Task 1 covers all cleanup sites with source contract assertions.
 - Builder/Settings never enable look passthrough or hidden cursor. Task 1 tests the Quick Menu-only mode condition.
-- Prisma providers without the optional cursor-policy export remain usable. Task 1 asserts the failure is handled without aborting menu focus.
+- Providers without input-region capability retain normal menu focus and log that mouse-look passthrough is unavailable. Providers without the optional cursor-policy export still omit the native cursor fallback in movement mode.
 
 ---
 
@@ -43,7 +43,7 @@
 
 - [x] **Step 1: Add failing contract assertions**
 
-Assert movement mode enables movement and looking only; the disabled event mask still contains activation and combat; the cursor is hidden only for Quick Menu movement mode; the policy is reset on focus failure, close, page switch and game transition; optional-policy failure does not abort opening.
+Assert movement mode enables movement and looking only; the disabled event mask still contains activation and combat; mouse-look mode uses empty input regions with `FocusOverlay`; it skips native cursor fallback; the policy is reset on focus failure, close, page switch and game transition.
 
 - [x] **Step 2: Run the focused contract test**
 
@@ -52,14 +52,16 @@ Expected: new look and cursor lifecycle assertions fail before implementation.
 
 - [x] **Step 3: Implement the minimal native change**
 
-In `PrismaBridge.cpp`, include `kLooking` in the allow mask only when the captured Quick Menu movement preference is true. Set the active view's cursor policy to `Hidden` before focus, log but tolerate an unavailable optional export, and restore `Default` for all focus-exit paths.
+In `PrismaBridge.cpp`, include `kLooking` in the allow mask only when the captured Quick Menu movement preference is true. Use `SetInputRegions(..., nullptr, 0)` and `FocusOverlay` when the provider supports it; set the active view's cursor policy to `Hidden` after focus, omit the native cursor fallback, and restore `Default` for all focus-exit paths.
 
 - [x] **Step 4: Run focused and full validation**
 
 Run: `python3 -m unittest scripts.tests.test_quick_menu_movement_contract -v`, all Python and JavaScript suites, `git diff --check`, Windows x64 build and package validation.
 Expected: all automated checks and the build/package checks pass; runtime mouse behavior remains pending manual QA.
 
-**Validation completed:** 75 Python tests, all existing JavaScript suites, the
-native controller chord test, Windows x64 build/PE validation, archive check,
-and `git diff --check` passed. In-game mouse-look/cursor behavior remains for
-manual QA.
+**Current implementation validation:** 76 Python tests, all existing
+JavaScript suites, the native controller chord test, Windows x64 build/PE
+validation, archive check, and `git diff --check` passed. The first in-game
+test showed normal focus did not pass mouse input through and the game cursor
+fallback remained visible. The click-through overlay fix awaits renewed manual
+QA.
