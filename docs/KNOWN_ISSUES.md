@@ -1,5 +1,24 @@
 # Known Issues and Limits
 
+## Unreleased 0.5.223 candidate: crouching and parser safety (game QA pending)
+
+A user reports that opening Quick Attach with default Shift+K while crouched
+forces the player to stand. The menu's input isolation previously disabled the
+sneaking user-event flag; the development candidate leaves it enabled for all
+menu modes while keeping attack, activation and other gameplay actions blocked.
+The Shift key is also Fallout 4's default Sprint control, so the reported
+behavior still needs comparative runtime testing: Shift alone while crouched,
+Shift+K with Quick Menu, Builder, movement enabled/disabled and a remapped
+opener. Verify that opening/closing the menu preserves crouch and that pressing
+the crouch key while focused does not cause unwanted gameplay changes.
+
+The same candidate bounds JSON recursion and preferences file sizes, supports
+escaped Unicode and numeric exponents, and validates plugin GRUP/OMOD size
+boundaries before reading. Invalid plugin scans cannot cache partial metadata.
+These are source/build-validated hardening measures, not a confirmed fix for
+every installed mod or game runtime. Do not merge or release without OG gameplay
+QA and review of any compatibility reports.
+
 ## Hunting Rifle attachment swap fix (runtime confirmed)
 
 The installed default-template OMOD collection and its nested leaf OMODs

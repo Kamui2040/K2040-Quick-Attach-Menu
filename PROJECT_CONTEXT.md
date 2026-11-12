@@ -1,5 +1,14 @@
 # Current Project State
 
+- Unreleased `0.5.223` development candidate (`fix/input-parser-hardening`):
+  preserves the sneaking user-event flag when opening a Prisma menu and hardens
+  preferences JSON and OMOD file parsing. Source tests, native Windows x64 build,
+  package validation and a read-only installed-plugin bounds scan passed.
+  In-game verification on Fallout 4 OG remains required. The default Shift+K
+  chord also overlaps the game's Sprint key; do not attribute the reported
+  forced-standing behavior solely to the input layer until this is checked.
+  This candidate has not been merged or released.
+
 - Stable GitHub release: `0.5.222` (published 2026-11-05 with the installation
   ZIP, SHA-256 and optional MCM Categorizer compatibility file at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222).

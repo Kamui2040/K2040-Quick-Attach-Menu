@@ -26,7 +26,10 @@ class QuickMenuMovementContract(unittest.TestCase):
         self.assertIn("g_allowMovementForCurrentQuickMenuOpen = k2040::GetQuickMenuPreferences().allowMovementWhileOpen", bridge)
         self.assertIn("viewMode_ == ViewMode::QuickMenu && g_allowMovementForCurrentQuickMenuOpen", bridge)
         isolation = bridge.split("bool ActivateQuickMenuGameplayIsolation(bool allowMovement)", 1)[1].split("void ReleaseQuickMenuGameplayIsolation()", 1)[0]
-        self.assertIn("const auto allowedUserEvents = allowMovement ?", isolation)
+        self.assertIn("AllowedQuickMenuUserEvents(", isolation)
+        self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kSneaking", isolation)
+        self.assertIn("const bool sneakingConfigured = inputManager->EnableUserEvent(", isolation)
+        self.assertIn("!sneakingConfigured", isolation)
         self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kLooking", isolation)
         self.assertIn("~allowedUserEvents", isolation)
         self.assertIn("RE::UserEvents::USER_EVENT_FLAG::kAll", isolation)

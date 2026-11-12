@@ -1,5 +1,6 @@
 #include "JsonEscape.h"
 #include "UserSettings.h"
+#include "JsonPreferencesParser.h"
 
 #include "Logger.h"
 #include "Settings.h"
@@ -34,6 +35,7 @@ namespace
     constexpr int kWeaponMenuProfileSchemaVersion = 1;
     constexpr std::string_view kWeaponMenuProfileFormat = "K2040QuickAttachWeaponMenu";
     constexpr std::uintmax_t kMaximumWeaponMenuProfileBytes = 1024u * 1024u;
+    constexpr std::uintmax_t kMaximumUserSettingsBytes = 8u * 1024u * 1024u;
     constexpr std::size_t kMaximumWeaponMenuProfileFiles = 256;
 
     enum class ExpectedFormType
@@ -208,251 +210,10 @@ namespace
         std::vector<WeaponPreferences> weapons;
     };
 
-    struct JsonValue;
-    using JsonObject = std::map<std::string, JsonValue>;
-    using JsonArray = std::vector<JsonValue>;
-
-    struct JsonValue
-    {
-        using Value = std::variant<std::nullptr_t, bool, double, std::string, JsonArray, JsonObject>;
-        Value value = nullptr;
-
-        const JsonObject* AsObject() const { return std::get_if<JsonObject>(&value); }
-        const JsonArray* AsArray() const { return std::get_if<JsonArray>(&value); }
-        const std::string* AsString() const { return std::get_if<std::string>(&value); }
-        const bool* AsBool() const { return std::get_if<bool>(&value); }
-        const double* AsNumber() const { return std::get_if<double>(&value); }
-    };
-
-    class JsonParser
-    {
-    public:
-        explicit JsonParser(std::string text) : text_(std::move(text)) {}
-
-        std::optional<JsonValue> Parse()
-        {
-            SkipWhitespace();
-            auto value = ParseValue();
-            if (!value) {
-                return std::nullopt;
-            }
-
-            SkipWhitespace();
-            return pos_ == text_.size() ? value : std::nullopt;
-        }
-
-    private:
-        std::optional<JsonValue> ParseValue()
-        {
-            SkipWhitespace();
-            if (pos_ >= text_.size()) {
-                return std::nullopt;
-            }
-
-            const char c = text_[pos_];
-            if (c == '{') return ParseObject();
-            if (c == '[') return ParseArray();
-            if (c == '"') {
-                auto s = ParseString();
-                if (!s) return std::nullopt;
-                JsonValue v;
-                v.value = *s;
-                return v;
-            }
-            if (c == 't' && ConsumeLiteral("true")) {
-                JsonValue v;
-                v.value = true;
-                return v;
-            }
-            if (c == 'f' && ConsumeLiteral("false")) {
-                JsonValue v;
-                v.value = false;
-                return v;
-            }
-            if (c == 'n' && ConsumeLiteral("null")) {
-                JsonValue v;
-                v.value = nullptr;
-                return v;
-            }
-            if (c == '-' || std::isdigit(static_cast<unsigned char>(c))) {
-                return ParseNumber();
-            }
-
-            return std::nullopt;
-        }
-
-        std::optional<JsonValue> ParseObject()
-        {
-            if (!Consume('{')) return std::nullopt;
-
-            JsonObject object;
-            SkipWhitespace();
-            if (Consume('}')) {
-                JsonValue v;
-                v.value = std::move(object);
-                return v;
-            }
-
-            while (true) {
-                SkipWhitespace();
-                auto key = ParseString();
-                if (!key) return std::nullopt;
-                if (!Consume(':')) return std::nullopt;
-                auto value = ParseValue();
-                if (!value) return std::nullopt;
-                if (object.find(*key) != object.end()) return std::nullopt;
-                object.emplace(std::move(*key), std::move(*value));
-                SkipWhitespace();
-                if (Consume('}')) break;
-                if (!Consume(',')) return std::nullopt;
-            }
-
-            JsonValue v;
-            v.value = std::move(object);
-            return v;
-        }
-
-        std::optional<JsonValue> ParseArray()
-        {
-            if (!Consume('[')) return std::nullopt;
-
-            JsonArray array;
-            SkipWhitespace();
-            if (Consume(']')) {
-                JsonValue v;
-                v.value = std::move(array);
-                return v;
-            }
-
-            while (true) {
-                auto value = ParseValue();
-                if (!value) return std::nullopt;
-                array.push_back(std::move(*value));
-                SkipWhitespace();
-                if (Consume(']')) break;
-                if (!Consume(',')) return std::nullopt;
-            }
-
-            JsonValue v;
-            v.value = std::move(array);
-            return v;
-        }
-
-        std::optional<JsonValue> ParseNumber()
-        {
-            const auto start = pos_;
-            if (pos_ < text_.size() && text_[pos_] == '-') {
-                ++pos_;
-            }
-
-            const auto intStart = pos_;
-            while (pos_ < text_.size() && std::isdigit(static_cast<unsigned char>(text_[pos_]))) {
-                ++pos_;
-            }
-            if (pos_ == intStart) {
-                return std::nullopt;
-            }
-
-            if (pos_ < text_.size() && text_[pos_] == '.') {
-                ++pos_;
-                const auto fracStart = pos_;
-                while (pos_ < text_.size() && std::isdigit(static_cast<unsigned char>(text_[pos_]))) {
-                    ++pos_;
-                }
-                if (pos_ == fracStart) {
-                    return std::nullopt;
-                }
-            }
-
-            try {
-                JsonValue v;
-                v.value = std::stod(text_.substr(start, pos_ - start));
-                return v;
-            } catch (...) {
-                return std::nullopt;
-            }
-        }
-
-        std::optional<std::string> ParseString()
-        {
-            if (!Consume('"')) return std::nullopt;
-
-            std::string result;
-            while (pos_ < text_.size()) {
-                const char c = text_[pos_++];
-                if (c == '"') {
-                    return result;
-                }
-
-                if (static_cast<unsigned char>(c) < 0x20) {
-                    return std::nullopt;
-                }
-
-                if (c == '\\') {
-                    if (pos_ >= text_.size()) return std::nullopt;
-                    const char escaped = text_[pos_++];
-                    switch (escaped) {
-                    case '"': result.push_back('"'); break;
-                    case '\\': result.push_back('\\'); break;
-                    case '/': result.push_back('/'); break;
-                    case 'b': result.push_back('\b'); break;
-                    case 'f': result.push_back('\f'); break;
-                    case 'n': result.push_back('\n'); break;
-                    case 'r': result.push_back('\r'); break;
-                    case 't': result.push_back('\t'); break;
-                    case 'u':
-                    {
-                        if (pos_ + 4 > text_.size()) return std::nullopt;
-                        const auto hex = text_.substr(pos_, 4);
-                        pos_ += 4;
-                        char* end = nullptr;
-                        const auto codepoint = std::strtoul(hex.c_str(), &end, 16);
-                        if (!end || *end != '\0' || codepoint > 0x7F) {
-                            return std::nullopt;
-                        }
-                        result.push_back(static_cast<char>(codepoint));
-                        break;
-                    }
-                    default:
-                        return std::nullopt;
-                    }
-                } else {
-                    result.push_back(c);
-                }
-            }
-
-            return std::nullopt;
-        }
-
-        bool Consume(char expected)
-        {
-            SkipWhitespace();
-            if (pos_ < text_.size() && text_[pos_] == expected) {
-                ++pos_;
-                return true;
-            }
-            return false;
-        }
-
-        bool ConsumeLiteral(std::string_view literal)
-        {
-            if (text_.compare(pos_, literal.size(), literal) == 0) {
-                pos_ += literal.size();
-                return true;
-            }
-            return false;
-        }
-
-        void SkipWhitespace()
-        {
-            while (pos_ < text_.size() && std::isspace(static_cast<unsigned char>(text_[pos_]))) {
-                ++pos_;
-            }
-        }
-
-        std::string text_;
-        std::size_t pos_ = 0;
-    };
+    using k2040::json::JsonObject;
+    using k2040::json::JsonArray;
+    using k2040::json::JsonValue;
+    using k2040::json::JsonParser;
 
     PreferencesDocument g_document;
     k2040::UserSettingsDiagnostics g_diagnostics;
@@ -1638,6 +1399,10 @@ namespace
         const std::string& text,
         std::string& error)
     {
+        if (text.size() > kMaximumWeaponMenuProfileBytes) {
+            error = "export exceeds the maximum supported profile size";
+            return false;
+        }
         std::error_code directoryError;
         std::filesystem::create_directories(path.parent_path(), directoryError);
         if (directoryError) {
@@ -1703,6 +1468,13 @@ namespace
         }
 
         const auto text = Serialize();
+        if (text.size() > kMaximumUserSettingsBytes) {
+            g_diagnostics.saved = false;
+            g_diagnostics.dirty = g_dirty;
+            g_diagnostics.blockedSaveReason = "save failed: preferences exceed the maximum supported file size";
+            k2040::log::Warn(g_diagnostics.blockedSaveReason);
+            return false;
+        }
         {
             std::ofstream file(temp, std::ios::out | std::ios::trunc | std::ios::binary);
             if (!file.is_open()) {
@@ -1794,6 +1566,15 @@ namespace k2040
         if (!preferencesFileExists) {
             SetLoadState(UserSettingsLoadState::Missing, "missing; using empty defaults");
             log::Info(std::string("User preferences missing; using empty defaults: ") + g_diagnostics.path.string());
+            return;
+        }
+
+        std::error_code sizeError;
+        const auto preferencesSize = std::filesystem::file_size(g_diagnostics.path, sizeError);
+        if (sizeError || preferencesSize > kMaximumUserSettingsBytes) {
+            SetLoadState(UserSettingsLoadState::ReadError,
+                "preferences file is unreadable or exceeds the maximum supported size; automatic save blocked");
+            log::Warn("User preferences size check failed; automatic save blocked.");
             return;
         }
 
