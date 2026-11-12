@@ -17,10 +17,16 @@ class OrbitV2VisualContract(unittest.TestCase):
         css = (UI / "quick-menu.css").read_text()
         self.assertIn("Orbit V2", css)
         self.assertNotIn(".qm-orbit-ring::before", css)
-        selected = css.split(".presentation-orbit .qm-orbit-option.orbit-selected {", 1)[1].split("}", 1)[0]
-        self.assertIn("background: var(--qm-panel-strong)", selected)
+        selected = css.split(".presentation-orbit .qm-orbit-option.qm-option-button.orbit-selected {", 1)[1].split("}", 1)[0]
+        self.assertIn("background: var(--qm-orbit-focused-bg", selected)
         self.assertIn("border-left: 3px solid var(--qm-accent)", selected)
         self.assertNotIn("background: var(--qm-active)", selected)
+        self.assertIn("--qm-orbit-secondary-bg", css)
+        self.assertIn(".presentation-orbit .qm-orbit-option.qm-option-button:hover", css)
+        self.assertNotIn("opacity: 1 !important", css)
+        renderer = (UI / "quick-menu-renderer.js").read_text()
+        self.assertNotIn("button.style.opacity = String(position.opacity)", renderer)
+        self.assertIn('rgba(panel, Math.max(.15, opacity - .10))', renderer)
 
     def test_single_attachment_has_no_scroll_prompt(self):
         renderer = (UI / "quick-menu-renderer.js").read_text()

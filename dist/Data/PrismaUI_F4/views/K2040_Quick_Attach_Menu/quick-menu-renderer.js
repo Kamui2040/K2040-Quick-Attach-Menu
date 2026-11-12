@@ -321,6 +321,9 @@
       target.style.setProperty("--qm-installed", installed);
       target.style.setProperty("--qm-panel", rgba(panel, opacity));
       target.style.setProperty("--qm-panel-strong", rgba(panel, Math.min(1, opacity + .05)));
+      // Orbit uses background alpha, not element alpha, so text remains readable.
+      target.style.setProperty("--qm-orbit-focused-bg", rgba(panel, opacity));
+      target.style.setProperty("--qm-orbit-secondary-bg", rgba(panel, Math.max(.15, opacity - .10)));
       target.style.setProperty("--qm-row", theme === "pipboy" ? "transparent" : rgba(panel, opacity));
       target.style.setProperty("--qm-active", theme === "pipboy" ? accent :
         theme === "fallout76" ? rgba(accent, .14) : rgba(accent, Math.min(.48, .19 + opacity * .22)));
@@ -949,7 +952,6 @@
         button.style.top = position.top + "%";
         button.style.left = position.left + "px";
         button.style.transform = "translateY(-50%) scale(" + position.scale.toFixed(3) + ")";
-        button.style.opacity = String(position.opacity);
         button.setAttribute("aria-current", selected ? "true" : "false");
         var adornment = document.createElement("span");
         adornment.className = "qm-orbit-option-state";

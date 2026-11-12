@@ -47,6 +47,6 @@ assert.equal(geometry.orbitRowPosition(0).left>geometry.orbitRowPosition(1).left
   'selected attachment is still the outer point of the curve');
 assert.ok(geometry.orbitRowPosition(1).top-geometry.orbitRowPosition(0).top>=16,
   'Orbit V2 rows leave more vertical breathing room');
-assert.ok(geometry.orbitRowPosition(2).opacity>0.5,
-  'secondary attachments remain readable');
+assert.equal('opacity' in geometry.orbitRowPosition(2), false,
+  'row geometry must not fade text independently of the configured background');
 console.log('PASS: measured wedge fitting, Unicode/long words, center-focus curved rows and category window');

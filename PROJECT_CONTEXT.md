@@ -1,5 +1,11 @@
 # Current Project State
 
+- Orbit V2 opacity correction: selected attachment backgrounds follow the user
+  opacity setting exactly; other visible attachment backgrounds are ten
+  percentage points less opaque. Row text is not faded. Theme/hover selectors
+  preserve the same opacity, including Fallout 76. Game-runtime confirmation
+  remains pending; this is a focused UI-only correction to the V2 draft.
+
 - Unreleased Orbit V2 visual refinement (feature/orbit-v2-clarity)
   reduces overlapping rings, category-button emphasis, and attachment-row
   clutter while retaining the existing Orbit presentation ID, placement

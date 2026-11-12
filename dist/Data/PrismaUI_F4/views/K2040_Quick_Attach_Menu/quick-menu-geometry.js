@@ -149,8 +149,7 @@
     return {
       top: 50 + offset * 16.5,
       left: 45 + (2 - distance) * 12,
-      scale: 1.02 - distance * .055,
-      opacity: 1 - distance * .18
+      scale: 1.02 - distance * .055
     };
   }
 
