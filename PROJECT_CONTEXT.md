@@ -1,5 +1,17 @@
 # Current Project State
 
+- Unreleased `0.5.223` development candidate (`fix/input-parser-hardening`):
+  preserves the sneaking user-event flag when opening a Prisma menu and hardens
+  preferences JSON and OMOD file parsing. Source tests, native Windows x64 build,
+  package validation and a read-only installed-plugin bounds scan passed.
+  On 2026-11-12 the maintainer confirmed the reported crouched Shift+K
+  scenario works in-game with this candidate. This confirms the focused
+  regression test only; Builder, movement-toggle, controller, profile import,
+  and wider attachment compatibility remain unverified for this candidate.
+  Shift still overlaps Fallout 4's default Sprint key, so comparative input
+  testing may be useful if related reports recur. The candidate remains a
+  draft PR and has not been merged or released.
+
 - Stable GitHub release: `0.5.222` (published 2026-11-05 with the installation
   ZIP, SHA-256 and optional MCM Categorizer compatibility file at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222).

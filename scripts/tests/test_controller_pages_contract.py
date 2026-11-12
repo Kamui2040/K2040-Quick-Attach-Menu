@@ -1,5 +1,6 @@
 """Builder/Settings controller bindings, dialogs, dropdowns and version tests."""
 from pathlib import Path
+from version_contract import assert_version_consistency
 import unittest
 ROOT = Path(__file__).resolve().parents[2]
 ASSET = ROOT / "dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu"
@@ -70,7 +71,6 @@ class ControllerPagesContract(unittest.TestCase):
         self.assertIn('var horizontal = mode === "settings";', self.helper)
 
     def test_build_version_sync(self):
-        self.assertIn("0x000500DE; // 0.5.222",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.222"),3)
+        assert_version_consistency(self, ROOT)
 
 if __name__=="__main__":unittest.main()

@@ -3,6 +3,7 @@
 #include <RE/Fallout.h>
 
 #include "PrismaBridge.h"
+#include "QuickMenuInputPolicy.h"
 
 #include "AttachmentRuntimeModel.h"
 #include "Hotkey.h"
@@ -338,10 +339,11 @@ namespace
             static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kAll) &
             ~static_cast<std::uint32_t>(RE::OtherInputEvents::OTHER_EVENT_FLAG::kCursor));
 
-        const auto allowedUserEvents = allowMovement ?
-            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement) |
-                static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kLooking) :
-            0u;
+        const auto allowedUserEvents = k2040::AllowedQuickMenuUserEvents(
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kMovement),
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kLooking),
+            static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kSneaking),
+            allowMovement);
         const auto blockedUserEvents = static_cast<RE::UserEvents::USER_EVENT_FLAG>(
             static_cast<std::uint32_t>(RE::UserEvents::USER_EVENT_FLAG::kAll) &
             ~allowedUserEvents);
@@ -361,13 +363,21 @@ namespace
             RE::UserEvents::USER_EVENT_FLAG::kLooking,
             allowMovement,
             RE::UserEvents::SENDER_ID::kMenu);
+        // Reopening/switching an existing menu layer must also undo any stale
+        // sneaking disable. Do not alter the actor's sneak state directly.
+        const bool sneakingConfigured = inputManager->EnableUserEvent(
+            g_quickMenuInputLayer->layerID,
+            RE::UserEvents::USER_EVENT_FLAG::kSneaking,
+            true,
+            RE::UserEvents::SENDER_ID::kMenu);
         const bool otherEventsDisabled = inputManager->EnableOtherEvent(
             g_quickMenuInputLayer->layerID,
             otherGameplayEvents,
             false,
             RE::UserEvents::SENDER_ID::kMenu);
 
-        if (!userEventsDisabled || !movementConfigured || !lookingConfigured || !otherEventsDisabled) {
+        if (!userEventsDisabled || !movementConfigured || !lookingConfigured ||
+            !sneakingConfigured || !otherEventsDisabled) {
             k2040::log::Warn("Could not disable all gameplay input for the quick menu.");
             if (g_quickMenuGameplayIsolationActive) ReleaseQuickMenuGameplayIsolation();
             else g_quickMenuInputLayer.reset();

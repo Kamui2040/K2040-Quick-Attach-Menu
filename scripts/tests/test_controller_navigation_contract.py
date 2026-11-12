@@ -1,5 +1,6 @@
 """Native controller-binding and stick-neutral contracts (static checks)."""
 from pathlib import Path
+from version_contract import assert_version_consistency
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,8 +50,7 @@ class ControllerInputContract(unittest.TestCase):
         self.assertNotIn('if (!radial) renderer.switchPane(1);', self.html)
 
     def test_versions_in_sync(self):
-        self.assertIn('0x000500DE; // 0.5.222', (ROOT / "src/main.cpp").read_text())
-        self.assertEqual((ROOT / "xmake.lua").read_text().count('0.5.222'), 3)
+        assert_version_consistency(self, ROOT)
 
 if __name__ == "__main__":
     unittest.main()

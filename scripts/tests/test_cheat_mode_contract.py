@@ -1,5 +1,6 @@
 """Cheat mode must relax inventory rules only, never weapon safety."""
 from pathlib import Path
+from version_contract import assert_version_consistency
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -74,8 +75,7 @@ class CheatModeContract(unittest.TestCase):
         self.assertIn('Cheat mode active',self.renderer)
 
     def test_version(self):
-        self.assertIn('0x000500DE; // 0.5.222',(ROOT/'src/main.cpp').read_text())
-        self.assertEqual((ROOT/'xmake.lua').read_text().count('0.5.222'),3)
+        assert_version_consistency(self, ROOT)
 
 if __name__=="__main__":
     unittest.main()

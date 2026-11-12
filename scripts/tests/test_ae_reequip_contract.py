@@ -1,6 +1,7 @@
 """Source-level AE-only guard checks, not runtime QA."""
 import unittest
 from pathlib import Path
+from version_contract import assert_version_consistency
 ROOT = Path(__file__).resolve().parents[2]
 class AEReequipContract(unittest.TestCase):
     @classmethod
@@ -59,7 +60,6 @@ class AEReequipContract(unittest.TestCase):
                         self.bridge.index("Queued first-person presentation refresh after post-close weapon work."))
     def test_version_sync(self):
 
-        self.assertIn("0x000500DE; // 0.5.222",(ROOT/"src/main.cpp").read_text())
-        self.assertEqual((ROOT/"xmake.lua").read_text().count("0.5.222"),3)
+        assert_version_consistency(self, ROOT)
 if __name__=="__main__":
     unittest.main()

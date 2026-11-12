@@ -1,5 +1,25 @@
 # Known Issues and Limits
 
+## Unreleased 0.5.223 candidate: crouching test passed; wider QA pending
+
+A user reports that opening Quick Attach with default Shift+K while crouched
+forces the player to stand. The menu's input isolation previously disabled the
+sneaking user-event flag; the development candidate leaves it enabled for all
+menu modes while keeping attack, activation and other gameplay actions blocked.
+The maintainer confirmed on 2026-11-12 that the reported crouched Shift+K
+scenario now works in-game with the test candidate. This is focused runtime
+acceptance, not evidence that every input mode or attachment operation passed.
+The Shift key also controls Sprint by default. If related reports recur,
+compare Shift alone, Builder, movement enabled/disabled, remapped/controller
+openers, close/reopen behavior and pressing crouch while the view is focused.
+
+The same candidate bounds JSON recursion and preferences file sizes, supports
+escaped Unicode and numeric exponents, and validates plugin GRUP/OMOD size
+boundaries before reading. Invalid plugin scans cannot cache partial metadata.
+These are source/build-validated hardening measures, not a confirmed fix for
+every installed mod or game runtime. Do not merge or release without OG gameplay
+QA and review of any compatibility reports.
+
 ## Hunting Rifle attachment swap fix (runtime confirmed)
 
 The installed default-template OMOD collection and its nested leaf OMODs
