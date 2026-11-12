@@ -1,16 +1,17 @@
 # Known Issues and Limits
 
-## Unreleased 0.5.223 candidate: crouching and parser safety (game QA pending)
+## Unreleased 0.5.223 candidate: crouching test passed; wider QA pending
 
 A user reports that opening Quick Attach with default Shift+K while crouched
 forces the player to stand. The menu's input isolation previously disabled the
 sneaking user-event flag; the development candidate leaves it enabled for all
 menu modes while keeping attack, activation and other gameplay actions blocked.
-The Shift key is also Fallout 4's default Sprint control, so the reported
-behavior still needs comparative runtime testing: Shift alone while crouched,
-Shift+K with Quick Menu, Builder, movement enabled/disabled and a remapped
-opener. Verify that opening/closing the menu preserves crouch and that pressing
-the crouch key while focused does not cause unwanted gameplay changes.
+The maintainer confirmed on 2026-11-12 that the reported crouched Shift+K
+scenario now works in-game with the test candidate. This is focused runtime
+acceptance, not evidence that every input mode or attachment operation passed.
+The Shift key also controls Sprint by default. If related reports recur,
+compare Shift alone, Builder, movement enabled/disabled, remapped/controller
+openers, close/reopen behavior and pressing crouch while the view is focused.
 
 The same candidate bounds JSON recursion and preferences file sizes, supports
 escaped Unicode and numeric exponents, and validates plugin GRUP/OMOD size

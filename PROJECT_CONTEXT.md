@@ -4,10 +4,13 @@
   preserves the sneaking user-event flag when opening a Prisma menu and hardens
   preferences JSON and OMOD file parsing. Source tests, native Windows x64 build,
   package validation and a read-only installed-plugin bounds scan passed.
-  In-game verification on Fallout 4 OG remains required. The default Shift+K
-  chord also overlaps the game's Sprint key; do not attribute the reported
-  forced-standing behavior solely to the input layer until this is checked.
-  This candidate has not been merged or released.
+  On 2026-11-12 the maintainer confirmed the reported crouched Shift+K
+  scenario works in-game with this candidate. This confirms the focused
+  regression test only; Builder, movement-toggle, controller, profile import,
+  and wider attachment compatibility remain unverified for this candidate.
+  Shift still overlaps Fallout 4's default Sprint key, so comparative input
+  testing may be useful if related reports recur. The candidate remains a
+  draft PR and has not been merged or released.
 
 - Stable GitHub release: `0.5.222` (published 2026-11-05 with the installation
   ZIP, SHA-256 and optional MCM Categorizer compatibility file at
