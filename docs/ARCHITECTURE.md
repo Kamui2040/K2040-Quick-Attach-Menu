@@ -278,6 +278,12 @@ operation is revalidated against the live weapon, exact equipped stack,
 inventory, and hypothetical post-change attachment graph before it can change
 anything.
 
+Loose-mod return preparation and rollback use overflow-safe uint32 count
+checks. If a return would exceed the representable inventory count, the
+transaction fails before modifying the equipped object instance. Rollback
+only adds or removes one item when the observed count differs from the
+original by exactly one; all other discrepancies fail closed.
+
 An identity-keyed per-weapon Force Unsafe Swaps preference defaults off. When
 enabled, it bypasses only the final dependency-cycle ordering refusal after the
 normal graph analysis and cycle diagnostics have run. It does not bypass menu,
