@@ -1,5 +1,13 @@
 # Current Project State
 
+- Unreleased `0.5.226` optional unified-settings adapter candidate
+  (`feature/unified-settings-adapter`) exports the versioned
+  `K2040_GetSettingsAdapterV1` for the new shared K2040 settings hub. It
+  opens the existing Prisma Settings panel without moving or copying
+  configuration ownership. Existing gameplay shortcuts and standalone menu
+  operation are preserved. A Windows x64 build and in-game hub-to-settings
+  transition must pass before merge/release. This work is stacked on the
+  unmerged 0.5.225 candidate.
 - Unreleased `0.5.225` transaction-count safety candidate
   (`fix/transaction-count-bounds`) builds on the unmerged Orbit candidate.
   Inventory return and rollback arithmetic now rejects impossible uint32 counts

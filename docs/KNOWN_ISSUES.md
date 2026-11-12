@@ -1,5 +1,15 @@
 # Known Issues and Limits
 
+## Unreleased 0.5.226 — optional shared settings adapter
+
+The optional native ABI entry point exposes this mod's existing settings
+panel to K2040 Unified Settings. It does not create a new gameplay binding
+or transfer settings ownership to the hub. The hub must close its focused
+view before invoking the adapter on the F4SE game thread; competing game menus
+and other focused Prisma panels remain blocking conditions. Native build and
+source tests do not establish runtime acceptability: check game UI focus,
+standalone fallback, controller navigation and no-weapon settings access.
+
 ## Unreleased 0.5.225: overflow-safe loose-mod inventory transactions
 
 Prepared return counts and rollback correction previously compared uint32 item
