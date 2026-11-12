@@ -463,54 +463,46 @@
   overflow-y: auto;
 }
 
-/* Orbit: original circular category selector and center-weighted curved rail.
-   Text, colours and controls reuse this mod's themes and renderer only. */
+/* Orbit V2 keeps the radial category selector and curved scrolling options,
+   but gives focus to the selected item instead of stacking bright outlines. */
 .presentation-orbit .qm-orbit-layout {
   position: relative;
-  width: 810px;
-  height: 530px;
+  width: 760px;
+  height: 500px;
   max-width: none;
 }
 .presentation-orbit .qm-orbit-wheel {
   position: absolute;
   left: 0;
-  top: 5px;
-  width: 470px;
-  height: 520px;
+  top: 0;
+  width: 430px;
+  height: 500px;
 }
 .presentation-orbit .qm-orbit-ring {
   position: absolute;
-  width: 348px;
-  height: 348px;
-  left: 61px;
-  top: 86px;
-  border: 2px solid var(--qm-line);
+  width: 342px;
+  height: 342px;
+  left: 44px;
+  top: 79px;
+  border: 1px solid var(--qm-line-soft);
   border-radius: 50%;
-  background: radial-gradient(circle, var(--qm-panel) 0%, var(--qm-panel) 41%, transparent 70%);
-  box-shadow: 0 0 0 9px var(--qm-line-soft), inset 0 0 28px var(--qm-hud-shadow, rgba(0,0,0,.18));
+  background: radial-gradient(circle, var(--qm-accent-faint, transparent), transparent 65%);
   pointer-events: none;
-}
-.presentation-orbit .qm-orbit-ring::before {
-  content: "";
-  position: absolute;
-  inset: 29px;
-  border: 1px dashed var(--qm-line);
-  border-radius: 50%;
 }
 .presentation-orbit .qm-orbit-category {
   position: absolute;
-  width: 88px;
-  height: 88px;
+  width: 70px;
+  height: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 6px;
+  padding: 7px 5px;
   text-align: center;
   background: var(--qm-panel);
-  border: 2px solid var(--qm-line);
+  border: 1px solid var(--qm-line-soft);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 4px 16px rgba(0,0,0,.45);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .24);
   cursor: pointer;
   outline: none;
   z-index: 2;
@@ -518,9 +510,10 @@
 .presentation-orbit .qm-orbit-category:hover,
 .presentation-orbit .qm-orbit-category.active,
 .presentation-orbit .qm-orbit-category:focus-visible {
+  color: var(--qm-accent);
   border-color: var(--qm-accent);
-  background: var(--qm-active);
-  box-shadow: 0 0 0 3px var(--qm-line-soft), 0 4px 22px var(--qm-hud-glow, rgba(102,196,255,.30));
+  background: var(--qm-panel-strong);
+  box-shadow: 0 0 0 3px var(--qm-accent-faint, var(--qm-line-soft));
   z-index: 4;
 }
 .presentation-orbit .qm-orbit-category-name {
@@ -528,14 +521,13 @@
   flex-direction: column;
   align-items: center;
   max-width: 100%;
-  max-height: 72px;
-  line-height: 1.08;
+  max-height: 52px;
+  line-height: 1.1;
   font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
   font-weight: 700;
   overflow: hidden;
   overflow-wrap: anywhere;
   text-transform: none;
-  text-shadow: 0 1px 3px #000;
 }
 .presentation-orbit .qm-orbit-category-name span {
   display: block;
@@ -543,90 +535,90 @@
 }
 .presentation-orbit .qm-orbit-hub {
   position: absolute;
-  left: 235px;
-  top: 260px;
+  left: 215px;
+  top: 250px;
   display: flex;
-  width: 230px;
-  height: 230px;
+  width: 176px;
+  height: 176px;
   padding: 18px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 7px;
   border-radius: 50%;
-  border: 2px solid var(--qm-accent);
+  border: 1px solid var(--qm-line-soft);
   background: var(--qm-panel-strong);
-  box-shadow: inset 0 0 24px var(--qm-hud-shadow, rgba(102,196,255,.16)), 0 8px 24px rgba(0,0,0,.42);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .28);
   text-align: center;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 1;
 }
 .presentation-orbit .qm-orbit-hub-eyebrow {
-  font-size: 10px;
-  letter-spacing: .15em;
+  font-size: 9px;
+  letter-spacing: .12em;
   color: var(--qm-muted);
 }
 .presentation-orbit .qm-orbit-hub-name {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   overflow-wrap: anywhere;
-  text-shadow: 0 1px 2px #000;
 }
 .presentation-orbit .qm-orbit-hub-caption {
-  color: var(--qm-installed);
+  color: var(--qm-muted);
   font-size: 10px;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .presentation-orbit .qm-orbit-track {
   position: absolute;
-  left: 415px;
-  top: 5px;
-  width: 395px;
-  height: 520px;
+  left: 425px;
+  top: 0;
+  width: 335px;
+  height: 500px;
   overflow: hidden;
   pointer-events: auto;
 }
 .presentation-orbit .qm-orbit-guide {
   position: absolute;
-  left: 26px;
-  top: 42px;
-  width: 100px;
-  height: 436px;
-  border-left: 2px solid var(--qm-line);
-  border-radius: 50%;
-  box-shadow: -2px 0 12px var(--qm-hud-shadow, rgba(0,0,0,.22));
+  left: 34px;
+  top: 82px;
+  width: 1px;
+  height: 336px;
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(to bottom, transparent, var(--qm-line-soft) 30%, var(--qm-line-soft) 70%, transparent);
   pointer-events: none;
 }
-.presentation-orbit .qm-orbit-option {
+.presentation-orbit .qm-orbit-option.qm-option-button {
   position: absolute;
   display: block;
-  width: 285px;
-  min-height: 57px;
-  padding: 10px 12px;
+  width: 232px;
+  min-height: 55px;
+  padding: 10px 12px 15px;
   margin: 0;
-  border-radius: 10px;
+  border: 1px solid var(--qm-line-soft);
+  border-radius: 8px;
+  background: var(--qm-orbit-secondary-bg, var(--qm-panel));
   transform-origin: left center;
-  transition: opacity 90ms linear, border-color 90ms linear;
+  transition: background-color 90ms linear, border-color 90ms linear;
   overflow: hidden;
   z-index: 1;
 }
 .presentation-orbit .qm-orbit-option .qm-option-name {
   display: block;
   max-width: 100%;
-  padding-right: 52px;
+  padding-right: 48px;
   white-space: normal;
   overflow: hidden;
   overflow-wrap: anywhere;
   text-overflow: ellipsis;
   line-height: 1.2;
   max-height: 2.4em;
-  text-shadow: 0 1px 2px #000;
 }
 .presentation-orbit .qm-orbit-option-state {
   position: absolute;
-  right: 6px;
+  right: 9px;
   bottom: 5px;
   color: var(--qm-muted);
   font-size: 8px;
@@ -636,61 +628,71 @@
 .presentation-orbit .qm-orbit-option.installed .qm-orbit-option-state {
   color: var(--qm-installed);
 }
-.presentation-orbit .qm-orbit-option.orbit-selected {
-  min-height: 62px;
+.presentation-orbit .qm-orbit-option.qm-option-button.orbit-selected {
+  min-height: 57px;
   font-size: 15px;
   font-weight: 700;
-  background: var(--qm-active);
-  border: 2px solid var(--qm-accent);
-  box-shadow: inset 3px 0 0 var(--qm-accent), 0 0 18px var(--qm-hud-glow, rgba(102,196,255,.30));
+  color: var(--qm-text);
+  background: var(--qm-orbit-focused-bg, var(--qm-panel-strong));
+  border: 1px solid var(--qm-accent);
+  border-left: 3px solid var(--qm-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
   z-index: 5;
 }
 .presentation-orbit .qm-orbit-option.orbit-selected.installed {
   border-color: var(--qm-installed);
 }
-.presentation-orbit .qm-orbit-option:hover {
+/* Override generic theme hover fills without changing a row's opacity.
+   100% selected / 90% others at full opacity; no text fading. */
+.presentation-orbit .qm-orbit-option.qm-option-button:hover {
+  background: var(--qm-orbit-secondary-bg, var(--qm-panel));
   border-color: var(--qm-accent);
-  opacity: 1 !important;
   z-index: 6;
+}
+.presentation-orbit .qm-orbit-option.qm-option-button.orbit-selected:hover,
+.presentation-orbit .qm-orbit-option.qm-option-button.orbit-selected:focus-visible {
+  background: var(--qm-orbit-focused-bg, var(--qm-panel-strong));
 }
 .presentation-orbit .qm-orbit-empty {
   position: absolute;
-  top: 49%;
-  left: 75px;
-  padding: 16px;
-  width: 270px;
+  top: 47%;
+  left: 60px;
+  padding: 12px;
+  width: 245px;
   color: var(--qm-muted);
   background: var(--qm-panel);
-  border: 1px solid var(--qm-line);
+  border: 1px solid var(--qm-line-soft);
 }
 .presentation-orbit .qm-orbit-list-help {
   position: absolute;
-  left: 99px;
-  bottom: 8px;
+  left: 70px;
+  bottom: 12px;
   color: var(--qm-muted);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
   pointer-events: none;
 }
 .theme-pipboy.presentation-orbit .qm-orbit-hub,
 .theme-pipboy.presentation-orbit .qm-orbit-category {
-  border-color: var(--qm-hud-color);
+  border-color: var(--qm-line-soft);
   background: var(--qm-panel);
   color: var(--qm-hud-color);
 }
 .theme-pipboy.presentation-orbit .qm-orbit-category.active,
 .theme-pipboy.presentation-orbit .qm-orbit-category:hover {
-  background: var(--qm-hud-color);
-  color: var(--qm-dark-text);
+  border-color: var(--qm-hud-color);
+  background: var(--qm-panel-strong);
+  color: var(--qm-hud-color);
 }
 .theme-pipboy.presentation-orbit .qm-orbit-option.orbit-selected {
-  background: var(--qm-hud-color);
-  color: var(--qm-dark-text);
+  border-color: var(--qm-hud-color);
+  background: var(--qm-orbit-focused-bg, var(--qm-panel-strong));
+  color: var(--qm-hud-color);
 }
 .theme-high-contrast.presentation-orbit .qm-orbit-category,
 .theme-high-contrast.presentation-orbit .qm-orbit-option {
-  border-width: 3px;
+  border-width: 2px;
 }
 
 /* Classic Pip-Boy is a structural skin, not a green recolor. */

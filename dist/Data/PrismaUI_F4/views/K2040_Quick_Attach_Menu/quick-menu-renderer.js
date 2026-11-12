@@ -321,6 +321,9 @@
       target.style.setProperty("--qm-installed", installed);
       target.style.setProperty("--qm-panel", rgba(panel, opacity));
       target.style.setProperty("--qm-panel-strong", rgba(panel, Math.min(1, opacity + .05)));
+      // Orbit uses background alpha, not element alpha, so text remains readable.
+      target.style.setProperty("--qm-orbit-focused-bg", rgba(panel, opacity));
+      target.style.setProperty("--qm-orbit-secondary-bg", rgba(panel, Math.max(.15, opacity - .10)));
       target.style.setProperty("--qm-row", theme === "pipboy" ? "transparent" : rgba(panel, opacity));
       target.style.setProperty("--qm-active", theme === "pipboy" ? accent :
         theme === "fallout76" ? rgba(accent, .14) : rgba(accent, Math.min(.48, .19 + opacity * .22)));
@@ -357,7 +360,7 @@
       var parent = this.root.parentNode;
       var availableWidth = (parent && parent.clientWidth) || global.innerWidth || 1920;
       var availableHeight = (parent && parent.clientHeight) || global.innerHeight || 1080;
-      var fit = Math.min((availableWidth - 28) / 810, (availableHeight - 28) / 530);
+      var fit = Math.min((availableWidth - 28) / 760, (availableHeight - 28) / 500);
       this.effectiveScale = Math.min(this.effectiveScale, Math.max(.35, fit));
     }
     this.root.style.left = String(positionX * 100) + "%";
@@ -864,7 +867,7 @@
       var entry = categories[categoryPosition];
       var selected = entry.categoryIndex === self.activeCategoryIndex;
       var angle = -90 + slot * 360 / visibleCategories.length;
-      var location = polar(235, 260, 184, angle);
+      var location = polar(215, 250, 172, angle);
       var button = document.createElement("button");
       button.type = "button";
       button.className = "qm-orbit-category" + (selected ? " active" : "");
@@ -875,9 +878,9 @@
       button.setAttribute("aria-pressed", selected ? "true" : "false");
       var name = document.createElement("span");
       var fullLabel = self.displayName(entry.label) || "Category";
-      var fitted = metrics.fitWheelLabel(fullLabel, 72, 49, {
-        baseSize: 12.5,
-        minSize: 10,
+      var fitted = metrics.fitWheelLabel(fullLabel, 56, 43, {
+        baseSize: 11.5,
+        minSize: 9.5,
         measure: function(text, size) { return self.measureWheelText(text, size); }
       });
       fitted.lines.forEach(function(line) {
@@ -900,7 +903,7 @@
     hub.className = "qm-orbit-hub";
     var eyebrow = document.createElement("div");
     eyebrow.className = "qm-orbit-hub-eyebrow";
-    eyebrow.textContent = "ATTACHMENT TYPE";
+    eyebrow.textContent = "CATEGORY";
     hub.appendChild(eyebrow);
     var activeName = document.createElement("div");
     activeName.className = "qm-orbit-hub-name";
@@ -909,8 +912,10 @@
     hub.appendChild(activeName);
     var caption = document.createElement("div");
     caption.className = "qm-orbit-hub-caption";
+    var attachmentCount = category ? this.visibleOptions(category).length : 0;
     caption.textContent = category
-      ? this.visibleOptions(category).length + " ATTACHMENTS · " + (activeIndex + 1) + " / " + categories.length
+      ? attachmentCount + (attachmentCount === 1 ? " ATTACHMENT · " : " ATTACHMENTS · ") +
+        (activeIndex + 1) + " / " + categories.length
       : "NO ATTACHMENTS";
     hub.appendChild(caption);
     wheel.appendChild(hub);
@@ -937,7 +942,7 @@
         return option.optionIndex === self.lastFocusedOptionIndex;
       });
       if (selectedIndex < 0) selectedIndex = 0;
-      metrics.orbitOptionWindow(options.length, selectedIndex, 3).forEach(function(row) {
+      metrics.orbitOptionWindow(options.length, selectedIndex, 2).forEach(function(row) {
         var option = options[row.index];
         var position = metrics.orbitRowPosition(row.offset);
         var button = self.makeOptionButton(category, option);
@@ -947,7 +952,6 @@
         button.style.top = position.top + "%";
         button.style.left = position.left + "px";
         button.style.transform = "translateY(-50%) scale(" + position.scale.toFixed(3) + ")";
-        button.style.opacity = String(position.opacity);
         button.setAttribute("aria-current", selected ? "true" : "false");
         var adornment = document.createElement("span");
         adornment.className = "qm-orbit-option-state";
@@ -957,10 +961,12 @@
         track.appendChild(button);
       });
     }
-    var help = document.createElement("div");
-    help.className = "qm-orbit-list-help";
-    help.textContent = "SCROLL TO CHOOSE";
-    track.appendChild(help);
+    if (options.length > 1) {
+      var help = document.createElement("div");
+      help.className = "qm-orbit-list-help";
+      help.textContent = "SCROLL TO CHOOSE";
+      track.appendChild(help);
+    }
     track.addEventListener("wheel", function(event) {
       self.handleOrbitWheel(event, "options");
     }, { passive:false });

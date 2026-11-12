@@ -1,5 +1,21 @@
 # Current Project State
 
+- Orbit V2 opacity correction: selected attachment backgrounds follow the user
+  opacity setting exactly; other visible attachment backgrounds are ten
+  percentage points less opaque. Row text is not faded. Theme/hover selectors
+  preserve the same opacity, including Fallout 76. Game-runtime confirmation
+  remains pending; this is a focused UI-only correction to the V2 draft.
+
+- Unreleased Orbit V2 visual refinement (feature/orbit-v2-clarity)
+  reduces overlapping rings, category-button emphasis, and attachment-row
+  clutter while retaining the existing Orbit presentation ID, placement
+  preferences, selection, scrolling and controller behavior. The wheel and
+  options are smaller and the attachment focus uses a dark accented card
+  rather than a large solid fill. Browser layout checks at 800x600, 1024x768,
+  1280x720 and 1920x1080, native Windows x64 build and automated test suites
+  passed; in-game appearance and input acceptance remain pending. This is
+  a draft stacked on the Orbit feature branch, not a release.
+
 - Unreleased `0.5.224` Orbit presentation candidate
   (`feature/orbit-curved-list`) builds upon the separate `0.5.223`
   crouching and parser-hardening candidate. It adds a circular category selector,
