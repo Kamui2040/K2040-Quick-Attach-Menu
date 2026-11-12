@@ -147,10 +147,10 @@
     offset = clamp(Math.round(Number(offset) || 0), -3, 3);
     var distance = Math.abs(offset);
     return {
-      top: 50 + offset * 12.5,
-      left: 29 + (3 - distance) * 15,
-      scale: 1.11 - distance * .065,
-      opacity: 1 - distance * .12
+      top: 50 + offset * 16.5,
+      left: 45 + (2 - distance) * 12,
+      scale: 1.02 - distance * .055,
+      opacity: 1 - distance * .18
     };
   }
 
