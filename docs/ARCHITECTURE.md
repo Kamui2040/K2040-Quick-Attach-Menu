@@ -130,6 +130,16 @@ open before sending the refreshed payload to the active view.
 
 ## Presentation preferences
 
+The Orbit presentation adds an original circular category selector and a
+curved scrolling attachment list. Its visual emphasis follows the selected
+attachment in the centre of the list; scrolling and directional navigation
+only change focus. Attachment changes still use the existing live revalidation
+and transaction callbacks. Each presentation, including Orbit, stores its own
+scale and screen position. Radial and Hybrid wedge labels use measured text
+width and wedge-chord geometry for wrapping or truncation, not fixed character
+counts. These presentation changes do not introduce new runtime menu data or
+reuse third-party UI assets.
+
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
 
 Bracketed-text cleanup is presentation-only. The source label remains intact.

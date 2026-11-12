@@ -181,6 +181,7 @@
             <button class="choice" data-value="radial" type="button">Radial Wheel<small>Category ring with a circular option arc</small></button>
             <button class="choice" data-value="hybrid" type="button">Compact Hybrid<small>Left category wheel with a right list</small></button>
             <button class="choice" data-value="horizontal" type="button">Horizontal Bar<small>Category and entry strips in two compact rows</small></button>
+            <button class="choice" data-value="orbit" type="button">Orbit<small>Circular category selector with a curved scrolling attachment list</small></button>
           </div>
           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Scale for this presentation</span></span><span class="slider-wrap"><input id="scale" type="range" min="50" max="150" step="1"><output id="scaleValue">100%</output></span></div>
           <button id="resetPosition" class="reset-button" type="button">Reset current position</button>
@@ -219,6 +220,7 @@
 
   <div id="confirmOverlay" hidden><div class="confirm-box"><h3>Reset everything?</h3><div>This returns the mod to a fresh-install settings state, including every weapon-specific customization.</div><div class="confirm-actions"><button id="cancelReset" class="action" type="button">Cancel</button><button id="confirmReset" class="reset-button danger" type="button">Reset everything</button></div></div></div>
 
+  <script src="quick-menu-geometry.js"></script>
   <script src="quick-menu-renderer.js"></script>
   <script src="controller-pages.js"></script>
   <script>
@@ -765,7 +767,12 @@
         updatePreviewPlacement();
       });
       document.addEventListener("mouseup", function() { if (!drag) return; drag = null; saveLayout(); });
-      window.addEventListener("resize", function() { applySettingsPanelSize(); fitPreviewWorld(); });
+      window.addEventListener("resize", function() {
+        applySettingsPanelSize();
+        fitPreviewWorld();
+        previewRenderer.updateScreenLabels();
+        previewRenderer.updateScreenStatus();
+      });
 
       document.getElementById("resetPosition").addEventListener("click", resetCurrentPosition);
       document.getElementById("resetBuilderSize").addEventListener("click", function() { send("reset:builder-panel-size"); });

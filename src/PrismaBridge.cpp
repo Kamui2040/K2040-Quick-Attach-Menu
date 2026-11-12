@@ -1285,14 +1285,15 @@ namespace k2040
                  << "\"builderPanelHeight\":" << quickMenu.builderPanelHeight << ","
                  << "\"settingsPanelWidth\":" << quickMenu.settingsPanelWidth << ","
                  << "\"settingsPanelHeight\":" << quickMenu.settingsPanelHeight << ","
-                 << "\"scale\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.scale : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.scale : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.scale : quickMenu.cascade.scale) << ","
-                 << "\"positionX\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionX : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionX : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionX : quickMenu.cascade.positionX) << ","
-                 << "\"positionY\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionY : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionY : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionY : quickMenu.cascade.positionY) << ","
+                 << "\"scale\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.scale : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.scale : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.scale : quickMenu.presentation == "orbit" ? quickMenu.orbit.scale : quickMenu.cascade.scale) << ","
+                 << "\"positionX\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionX : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionX : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionX : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionX : quickMenu.cascade.positionX) << ","
+                 << "\"positionY\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionY : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionY : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionY : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionY : quickMenu.cascade.positionY) << ","
                  << "\"layouts\":{"
                      << "\"cascade\":{\"scale\":" << quickMenu.cascade.scale << ",\"positionX\":" << quickMenu.cascade.positionX << ",\"positionY\":" << quickMenu.cascade.positionY << "},"
                      << "\"radial\":{\"scale\":" << quickMenu.radial.scale << ",\"positionX\":" << quickMenu.radial.positionX << ",\"positionY\":" << quickMenu.radial.positionY << "},"
                      << "\"hybrid\":{\"scale\":" << quickMenu.hybrid.scale << ",\"positionX\":" << quickMenu.hybrid.positionX << ",\"positionY\":" << quickMenu.hybrid.positionY << "},"
-                     << "\"horizontal\":{\"scale\":" << quickMenu.horizontal.scale << ",\"positionX\":" << quickMenu.horizontal.positionX << ",\"positionY\":" << quickMenu.horizontal.positionY << "}"
+                     << "\"horizontal\":{\"scale\":" << quickMenu.horizontal.scale << ",\"positionX\":" << quickMenu.horizontal.positionX << ",\"positionY\":" << quickMenu.horizontal.positionY << "},"
+                     << "\"orbit\":{\"scale\":" << quickMenu.orbit.scale << ",\"positionX\":" << quickMenu.orbit.positionX << ",\"positionY\":" << quickMenu.orbit.positionY << "}"
                  << "},"
                  << "\"hideBracketedText\":" << (settings.hideBracketedText ? "true" : "false") << ","
                  << "\"hideBracketedPrefixes\":" << (bracketedText.hidePrefixes ? "true" : "false") << ","
@@ -2638,6 +2639,7 @@ namespace k2040
                 else if (parts[2] == "radial") layout = &preferences.radial;
                 else if (parts[2] == "hybrid") layout = &preferences.hybrid;
                 else if (parts[2] == "horizontal") layout = &preferences.horizontal;
+                else if (parts[2] == "orbit") layout = &preferences.orbit;
                 if (!layout) return;
                 *layout = { *scale, *positionX, *positionY };
             } else {
@@ -2691,6 +2693,7 @@ namespace k2040
                     preferences.radial = defaultLayout;
                     preferences.hybrid = defaultLayout;
                     preferences.horizontal = defaultLayout;
+                    preferences.orbit = defaultLayout;
                 } else if (parts[1] == "behavior") {
                     std::string sourceMode = legacy.menuSource;
                     std::transform(sourceMode.begin(), sourceMode.end(), sourceMode.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });

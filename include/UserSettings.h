@@ -62,6 +62,7 @@ namespace k2040
         QuickMenuLayoutSettings radial;
         QuickMenuLayoutSettings hybrid;
         QuickMenuLayoutSettings horizontal;
+        QuickMenuLayoutSettings orbit;
     };
 
     enum class UserSettingsLoadState

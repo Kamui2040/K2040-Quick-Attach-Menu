@@ -8,7 +8,9 @@ is optional.
 
 ## Features
 
-- Four presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
+- Four release presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
+  The unreleased 0.5.224 candidate adds Orbit, a circular category selector with
+  a curved, centre-focused attachment list, and improves wheel label fitting.
 - Inventory-aware choices in the gameplay menu.
 - Controller navigation across Quick Menu, Builder and Settings, including
   thumbstick and D-pad focus and a configurable Quick Menu opener.
