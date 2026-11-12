@@ -1,5 +1,12 @@
 # Current Project State
 
+- Unreleased `0.5.225` transaction-count safety candidate
+  (`fix/transaction-count-bounds`) builds on the unmerged Orbit candidate.
+  Inventory return and rollback arithmetic now rejects impossible uint32 counts
+  rather than allowing integer wraparound; independent native boundary tests
+  cover normal, near-limit, and overflow cases. Source/build validation remains
+  separate from game acceptance. Do not merge or publish before the stacked
+  runtime and UI QA requirements are satisfied.
 - Unreleased `0.5.224` Orbit presentation candidate
   (`feature/orbit-curved-list`) builds upon the separate `0.5.223`
   crouching and parser-hardening candidate. It adds a circular category selector,

@@ -1,5 +1,15 @@
 # Known Issues and Limits
 
+## Unreleased 0.5.225: overflow-safe loose-mod inventory transactions
+
+Prepared return counts and rollback correction previously compared uint32 item
+counts using ordinary addition. A theoretical wraparound could make a damaged
+or extreme inventory state look valid. The candidate uses checked additions
+and one-step correction planning, and refuses to prepare impossible loose-mod
+returns. It preserves normal inventory and attachment behavior. Native source
+and build checks are required before game testing; no runtime success is yet
+claimed for this candidate.
+
 ## Unreleased 0.5.224: Orbit and measured wheel labels (game QA pending)
 
 The new Orbit layout displays categories around a central circle and attachments

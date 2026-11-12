@@ -1,5 +1,6 @@
 #include "AttachmentLabels.h"
 #include "RuntimeState.h"
+#include "InventoryCountSafety.h"
 #include "LiveAPResolver.h"
 #include "OmodTargetResolver.h"
 
@@ -2572,11 +2573,16 @@ namespace k2040
                 preparation.looseReturns.end(),
                 [&](const AttachmentLooseReturn& value) { return value.looseFormId == looseFormId; });
             if (existing != preparation.looseReturns.end()) {
+                if (!CanAddInventoryCount(existing->countBefore, existing->quantity) ||
+                    !CanAddInventoryCount(existing->countBefore + existing->quantity, 1u)) {
+                    return false;
+                }
                 ++existing->quantity;
             } else {
                 AttachmentLooseReturn value;
                 value.looseFormId = looseFormId;
                 value.countBefore = player->inventoryList->GetItemCount(loose);
+                if (!CanAddInventoryCount(value.countBefore, 1u)) return false;
                 value.quantity = 1;
                 preparation.looseReturns.push_back(value);
             }
@@ -2630,7 +2636,8 @@ namespace k2040
             auto* looseForm = RE::TESForm::GetFormByID(returned.looseFormId);
             auto* looseObject = looseForm ? looseForm->As<RE::TESBoundObject>() : nullptr;
             if (!looseObject ||
-                player->inventoryList->GetItemCount(looseObject) != returned.countBefore + returned.quantity) {
+                !ExpectedInventoryCountMatches(
+                    player->inventoryList->GetItemCount(looseObject), returned.countBefore, returned.quantity)) {
                 log::Warn("Could not cancel prepared loose-mod returns because an inventory count changed unexpectedly.");
                 return false;
             }
@@ -2769,7 +2776,8 @@ namespace k2040
             auto* returnedForm = RE::TESForm::GetFormByID(returned.looseFormId);
             auto* returnedObject = returnedForm ? returnedForm->As<RE::TESBoundObject>() : nullptr;
             if (!returnedObject || returnedObject == targetLoose ||
-                inventoryCount(returnedObject) != returned.countBefore + returned.quantity) {
+                !ExpectedInventoryCountMatches(
+                    inventoryCount(returnedObject), returned.countBefore, returned.quantity)) {
                 return fail("prepared-return-changed", "A returned loose mod changed before the attachment could be applied.");
             }
         }
@@ -2837,16 +2845,20 @@ namespace k2040
         const auto addOne = [&](RE::TESBoundObject* object) {
             if (!object) return true;
             const auto before = inventoryCount(object);
-            return ReturnLooseModThroughPickup(object->GetFormID()) &&
-                inventoryCount(object) == before + 1;
+            return CanAddInventoryCount(before, 1u) &&
+                ReturnLooseModThroughPickup(object->GetFormID()) &&
+                ExpectedInventoryCountMatches(inventoryCount(object), before, 1u);
         };
 
         const auto restoreInventoryCount = [&](RE::TESBoundObject* object, std::uint32_t expected) {
             if (!object) return expected == 0;
-            auto current = inventoryCount(object);
-            if (current == expected) return true;
-            if (current + 1 == expected) return addOne(object);
-            if (current == expected + 1) return removeOne(object);
+            const auto current = inventoryCount(object);
+            switch (PlanInventoryCorrection(current, expected)) {
+            case InventoryCorrection::None: return true;
+            case InventoryCorrection::AddOne: return addOne(object);
+            case InventoryCorrection::RemoveOne: return removeOne(object);
+            case InventoryCorrection::Reject: return false;
+            }
             return false;
         };
 
@@ -2955,7 +2967,8 @@ namespace k2040
             [&](const AttachmentLooseReturn& returned) {
                 auto* form = RE::TESForm::GetFormByID(returned.looseFormId);
                 auto* object = form ? form->As<RE::TESBoundObject>() : nullptr;
-                return object && inventoryCount(object) == returned.countBefore + returned.quantity;
+                return object && ExpectedInventoryCountMatches(
+                    inventoryCount(object), returned.countBefore, returned.quantity);
             });
         if (!returnedInventoryPreserved) {
             const bool rollbackPassed = rollback("a returned loose-mod count changed unexpectedly");
@@ -2983,7 +2996,8 @@ namespace k2040
             [&](const AttachmentLooseReturn& returned) {
                 auto* form = RE::TESForm::GetFormByID(returned.looseFormId);
                 auto* object = form ? form->As<RE::TESBoundObject>() : nullptr;
-                return object && inventoryCount(object) == returned.countBefore + returned.quantity;
+                return object && ExpectedInventoryCountMatches(
+                    inventoryCount(object), returned.countBefore, returned.quantity);
             });
 
         if (!finalTargetInstalled || !finalPreviousRemoved || !finalDependentsRemoved ||
