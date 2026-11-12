@@ -128,6 +128,15 @@ A successful attachment transaction rebuilds the live menu and then reapplies
 the same persisted visibility, ordering, and label preferences used on initial
 open before sending the refreshed payload to the active view.
 
+## Optional unified settings adapter
+
+A versioned plain-C `K2040_GetSettingsAdapterV1` export lets an optional
+external K2040 Settings hub launch this mod's existing Settings Prisma view
+on the F4SE game thread. The mod owns all persistence and validates focus/input
+as before; its normal hotkeys and standalone configuration remain available.
+The hub cannot perform attachment mutations or bypass game-state validation.
+An absent/mismatched hub has no effect on this mod.
+
 ## Presentation preferences
 
 The Orbit presentation adds an original circular category selector and a
