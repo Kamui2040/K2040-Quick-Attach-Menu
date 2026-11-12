@@ -56,25 +56,6 @@
     ].join(" ");
   }
 
-  function wrapWheelLabel(value, limit, maximumLines) {
-    var text = String(value || "").trim();
-    if (text.length <= limit) return [text];
-    var words = text.split(/\s+/);
-    var lines = [];
-    var line = "";
-    for (var i = 0; i < words.length; i += 1) {
-      var candidate = line ? line + " " + words[i] : words[i];
-      if (candidate.length > limit && line && lines.length < maximumLines - 1) {
-        lines.push(line);
-        line = words[i];
-      } else {
-        line = candidate;
-      }
-    }
-    if (line) lines.push(line);
-    return lines;
-  }
-
   function Renderer(root, options) {
     this.root = root;
     this.options = options || {};
@@ -92,6 +73,8 @@
     this.statusClass = "";
     this.viewportFrame = 0;
     this.nativePreviewDisabledSent = false;
+    this.wheelTextContext = null;
+    this.lastOrbitWheelTime = 0;
   }
 
   Renderer.prototype.settings = function() {
@@ -235,6 +218,9 @@
     if (presentation === "hybrid") {
       return clamp(.56 + Math.max(0, count - 6) * .03, .56, .82, .56);
     }
+    if (presentation === "orbit") {
+      return .62;
+    }
     return .5;
   };
 
@@ -254,15 +240,17 @@
     var wheelWidth = wheelRect.width / parentScaleX;
     var wheelHeight = wheelRect.height / parentScaleY;
     var labels = portal.querySelectorAll(".qm-wheel-html-label");
-    var previewFontScale = this.options.preview ? this.previewZoom : 1;
     for (var i = 0; i < labels.length; i += 1) {
       var geometry = labels[i]._qmWheelGeometry;
       if (!geometry) continue;
       labels[i].style.left = (wheelLeft + geometry.x / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
       labels[i].style.top = (wheelTop + geometry.y / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
-      labels[i].style.width = Math.max(32, geometry.width / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
-      labels[i].style.minHeight = Math.max(24, geometry.height / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
-      labels[i].style.fontSize = (geometry.fontSize * previewFontScale).toFixed(2) + "px";
+      labels[i].style.width = Math.max(10, geometry.width / geometry.viewWidth * wheelWidth).toFixed(2) + "px";
+      labels[i].style.minHeight = Math.max(12, geometry.height / geometry.viewHeight * wheelHeight).toFixed(2) + "px";
+      // Text portals are outside the transformed root. Apply the same SVG
+      // scale as the wheel instead of estimating by character count.
+      var pixelRatio = wheelWidth / Math.max(1, geometry.viewWidth);
+      labels[i].style.fontSize = (geometry.fontSize * pixelRatio).toFixed(2) + "px";
     }
   };
 
@@ -359,11 +347,19 @@
     positionX = clamp(positionX, .05, .95, .5);
     positionY = clamp(positionY, .05, .95, .5);
     var settings = this.settings();
-    var presentation = ["cascade", "radial", "hybrid", "horizontal"].indexOf(settings.presentation) >= 0
+    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit"].indexOf(settings.presentation) >= 0
       ? settings.presentation : "cascade";
     this.requestedScale = scale;
     this.effectiveScale = Math.max(scale, this.adaptiveScaleFloor(presentation));
     this.previewZoom = this.options.preview ? clamp(this.options.previewZoom, 1, 2, 1) : 1;
+    if (presentation === "orbit" && !this.options.preview) {
+      // Preserve circular geometry on 4:3, 16:9 and ultrawide screens.
+      var parent = this.root.parentNode;
+      var availableWidth = (parent && parent.clientWidth) || global.innerWidth || 1920;
+      var availableHeight = (parent && parent.clientHeight) || global.innerHeight || 1080;
+      var fit = Math.min((availableWidth - 28) / 810, (availableHeight - 28) / 530);
+      this.effectiveScale = Math.min(this.effectiveScale, Math.max(.35, fit));
+    }
     this.root.style.left = String(positionX * 100) + "%";
     this.root.style.top = String(positionY * 100) + "%";
     this.root.style.transform = "translate(-50%, -50%) scale(" + (this.effectiveScale * this.previewZoom) + ")";
@@ -377,7 +373,7 @@
 
   Renderer.prototype.applyRootState = function() {
     var settings = this.settings();
-    var presentation = ["cascade", "radial", "hybrid", "horizontal"].indexOf(settings.presentation) >= 0
+    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit"].indexOf(settings.presentation) >= 0
       ? settings.presentation : "cascade";
     var scale = clamp(settings.scale, .5, 1.5, 1);
     var positionX = clamp(settings.positionX, .05, .95, .5);
@@ -446,7 +442,10 @@
     name.title = label;
     button.appendChild(name);
     button.addEventListener("mouseenter", function() {
-      self.lastFocusedOptionIndex = option.optionIndex;
+      // Orbit selection follows the scroll position; merely hovering a
+      // secondary row must not silently change the highlighted centre row.
+      if (self.settings().presentation !== "orbit")
+        self.lastFocusedOptionIndex = option.optionIndex;
       if (self.settings().presentation === "horizontal") {
         self.scrollItemIntoView(button.parentNode, button);
       }
@@ -509,6 +508,10 @@
       hints.textContent = this.activePane === "categories"
         ? "Stick/D-pad: Category · Left/Right: Category · Down/" + confirm + ": Options · LB/RB: Category · " + cancel + ": Close"
         : "Stick/D-pad: Attachment · Left/Right: Attachment · Up: Categories · " + confirm + ": Install · " + cancel + ": Back · LB/RB: Category";
+    } else if (this.options.controllerActive && presentation === "orbit") {
+      hints.textContent = this.activePane === "categories"
+        ? "←/→ or LB/RB: Category · ↑/↓: Attachment · " + confirm + ": Focus list · " + cancel + ": Close"
+        : "←/→ or LB/RB: Category · ↑/↓: Attachment · " + confirm + ": Apply · " + cancel + ": Categories";
     } else if (this.options.controllerActive) {
       hints.textContent = this.activePane === "categories"
         ? "Stick/D-pad: Category · " + confirm + "/Right: Open · LB/RB: Category · " + cancel + ": Close"
@@ -520,6 +523,10 @@
         : "W/S or ↑/↓: Switch rows · A/D or ←/→: Move · E/Enter: Select/apply · opener/Escape: Close";
     } else if (presentation === "radial") {
       hints.textContent = "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · E/Enter: Apply · Escape: Close";
+    } else if (presentation === "orbit") {
+      hints.textContent = movementAllowed
+        ? "Wheel over ring/list: Category/Attachment · ↑↓: Attachment · ←→: Category · E/Enter: Apply"
+        : "Wheel over ring/list: Category/Attachment · W/S or ↑↓: Attachment · A/D or ←→: Category · E/Enter: Apply";
     } else {
       hints.textContent = "W/S or ↑/↓ to move · A/D or ←/→ to switch · E/Enter to apply · opener/Escape to close";
     }
@@ -555,50 +562,57 @@
     return layout;
   };
 
-  Renderer.prototype.appendWheelLabel = function(labelLayer, geometry, label, optionLabel, stateClass) {
-    var innerRadius = geometry.innerRadius;
-    var outerRadius = geometry.outerRadius;
-    var thickness = outerRadius - innerRadius;
-    var middleAngle = (geometry.start + geometry.end) / 2;
-    var middleRadius = (innerRadius + outerRadius) / 2;
-    var menuScale = this.effectiveScale || clamp(this.settings().scale, .5, 1.5, 1);
-    var baseSize = optionLabel ? 13 : 13.5;
-    var minimumSize = optionLabel ? 12 : 12.5;
-    var spanRadians = Math.abs(geometry.end - geometry.start) * Math.PI / 180;
-    var availableAtMiddle = Math.max(24, spanRadians * middleRadius - 12);
-    var characterLimit = Math.max(6, Math.floor(availableAtMiddle * menuScale / (baseSize * .50)));
-    var lines = wrapWheelLabel(label, characterLimit, 3);
-
-    var labelCentre = middleRadius;
-    var labelPoint = polar(geometry.cx, geometry.cy, labelCentre, middleAngle);
-    var safeArc = Math.max(32, spanRadians * labelCentre - 12);
-    var longestLine = 1;
-    for (var i = 0; i < lines.length; i += 1) {
-      longestLine = Math.max(longestLine, lines[i].length);
+  Renderer.prototype.measureWheelText = function(text, size) {
+    if (!this.wheelTextContext && document.createElement) {
+      var canvas = document.createElement("canvas");
+      if (canvas.getContext) this.wheelTextContext = canvas.getContext("2d");
     }
-    var scaledBaseSize = baseSize * Math.max(1, menuScale);
-    var estimatedWidth = Math.max(1, longestLine * scaledBaseSize * .50);
-    var fontSize = Math.max(minimumSize, Math.min(scaledBaseSize, scaledBaseSize * safeArc * menuScale / estimatedWidth));
+    if (!this.wheelTextContext) return NaN;
+    this.wheelTextContext.font = "700 " + size + "px \"Arial Narrow\", \"Roboto Condensed\", Arial, sans-serif";
+    return this.wheelTextContext.measureText(text).width;
+  };
+
+  Renderer.prototype.appendWheelLabel = function(labelLayer, geometry, label, optionLabel, stateClass) {
+    var metrics = global.K2040QuickMenuGeometry;
+    var thickness = geometry.outerRadius - geometry.innerRadius;
+    var middleAngle = (geometry.start + geometry.end) / 2;
+    var middleRadius = (geometry.innerRadius + geometry.outerRadius) / 2;
+    var labelPoint = polar(geometry.cx, geometry.cy, middleRadius, middleAngle);
+    // Use the narrower wedge chord (not arc length), with an upright label
+    // orientation. Resizing and ultrawide previews share the same geometry.
+    var safeWidth = metrics.wheelArcWidth(geometry.innerRadius, geometry.outerRadius,
+      geometry.end - geometry.start);
+    var safeHeight = Math.max(22, thickness * .72);
+    var renderingScale = Math.max(.45, this.effectiveScale || 1) *
+      (this.options.preview ? this.previewZoom : 1);
+    var self = this;
+    var fitted = metrics.fitWheelLabel(label, safeWidth, safeHeight, {
+      baseSize: (optionLabel ? 13.5 : 14) / renderingScale,
+      minSize: 10 / renderingScale,
+      measure: function(text, fontSize) { return self.measureWheelText(text, fontSize); }
+    });
     var rotation = ((middleAngle + 90 + 180) % 360 + 360) % 360 - 180;
     if (rotation > 90) rotation -= 180;
     else if (rotation < -90) rotation += 180;
 
     var labelBox = document.createElement("div");
-    labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") + (stateClass ? " " + stateClass : "");
+    labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") +
+      (stateClass ? " " + stateClass : "");
     labelBox.setAttribute("data-full-label", label);
+    labelBox.setAttribute("title", label);
     labelBox.style.transform = "translate(-50%, -50%) rotate(" + rotation.toFixed(2) + "deg)";
     labelBox._qmWheelGeometry = {
       x: labelPoint.x,
       y: labelPoint.y,
-      width: safeArc,
-      height: Math.max(24, thickness * .54),
-      fontSize: fontSize,
+      width: safeWidth,
+      height: safeHeight,
+      fontSize: fitted.fontSize,
       viewWidth: geometry.viewWidth,
       viewHeight: geometry.viewHeight
     };
-    for (var j = 0; j < lines.length; j += 1) {
+    for (var i = 0; i < fitted.lines.length; i += 1) {
       var line = document.createElement("span");
-      line.textContent = lines[j];
+      line.textContent = fitted.lines[i];
       labelBox.appendChild(line);
     }
     labelLayer.appendChild(labelBox);
@@ -632,10 +646,8 @@
   Renderer.prototype.makeOptionSegment = function(svg, labelLayer, category, option, start, end, cx, cy, innerRadius, outerRadius) {
     var self = this;
     var label = this.displayName(option.label) || "Unnamed attachment";
-    // The center caption preserves the full name for mouse and controller.
-    // Keep all radial wedge labels short enough to fit without overlap.
-    var shortLabel = this.settings().presentation === "radial" && label.length > 18
-      ? label.slice(0, 17).trimEnd() + "…" : label;
+    // The measured fit retains the full label when possible; the central
+    // caption remains available if a very narrow wedge needs ellipsis.
     var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
     var focused = this.activePane === "options" && option.optionIndex === this.lastFocusedOptionIndex;
     var stateClass = (option.isInstalled ? "installed" : "") +
@@ -649,7 +661,7 @@
     group.appendChild(path);
     var labelBox = this.appendWheelLabel(labelLayer,
       { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
-      shortLabel, true, stateClass);
+      label, true, stateClass);
     group.addEventListener("mouseenter", function() {
       labelBox.classList.add("hovered");
       self.lastFocusedOptionIndex = option.optionIndex;
@@ -827,6 +839,151 @@
     return layout;
   };
 
+  // Original two-stage presentation: circular category selector and a curved
+  // scrolling attachment rail. Rendering changes selection only; native code
+  // remains the sole authority for installation and inventory validation.
+  Renderer.prototype.renderOrbit = function(categories, category) {
+    var self = this;
+    var metrics = global.K2040QuickMenuGeometry;
+    var layout = document.createElement("div");
+    layout.className = "qm-layout qm-orbit-layout";
+
+    var wheel = document.createElement("div");
+    wheel.className = "qm-orbit-wheel";
+    var ring = document.createElement("div");
+    ring.className = "qm-orbit-ring";
+    ring.setAttribute("aria-hidden", "true");
+    wheel.appendChild(ring);
+
+    var activeIndex = categories.findIndex(function(entry) {
+      return entry.categoryIndex === self.activeCategoryIndex;
+    });
+    if (activeIndex < 0) activeIndex = 0;
+    var visibleCategories = metrics.orbitCategoryWindow(categories.length, activeIndex, 8);
+    visibleCategories.forEach(function(categoryPosition, slot) {
+      var entry = categories[categoryPosition];
+      var selected = entry.categoryIndex === self.activeCategoryIndex;
+      var angle = -90 + slot * 360 / visibleCategories.length;
+      var location = polar(235, 260, 184, angle);
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "qm-orbit-category" + (selected ? " active" : "");
+      button.dataset.categoryIndex = String(entry.categoryIndex);
+      button.style.left = location.x.toFixed(2) + "px";
+      button.style.top = location.y.toFixed(2) + "px";
+      button.setAttribute("aria-label", self.displayName(entry.label));
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+      var name = document.createElement("span");
+      var fullLabel = self.displayName(entry.label) || "Category";
+      var fitted = metrics.fitWheelLabel(fullLabel, 72, 49, {
+        baseSize: 12.5,
+        minSize: 10,
+        measure: function(text, size) { return self.measureWheelText(text, size); }
+      });
+      fitted.lines.forEach(function(line) {
+        var part = document.createElement("span");
+        part.textContent = line;
+        name.appendChild(part);
+      });
+      name.className = "qm-orbit-category-name";
+      name.style.fontSize = fitted.fontSize.toFixed(1) + "px";
+      name.title = fullLabel;
+      button.appendChild(name);
+      button.addEventListener("click", function() {
+        self.activePane = "options";
+        self.selectCategory(entry.categoryIndex);
+      });
+      wheel.appendChild(button);
+    });
+
+    var hub = document.createElement("div");
+    hub.className = "qm-orbit-hub";
+    var eyebrow = document.createElement("div");
+    eyebrow.className = "qm-orbit-hub-eyebrow";
+    eyebrow.textContent = "ATTACHMENT TYPE";
+    hub.appendChild(eyebrow);
+    var activeName = document.createElement("div");
+    activeName.className = "qm-orbit-hub-name";
+    activeName.textContent = category ? this.displayName(category.label) : "NO CATEGORY";
+    activeName.title = activeName.textContent;
+    hub.appendChild(activeName);
+    var caption = document.createElement("div");
+    caption.className = "qm-orbit-hub-caption";
+    caption.textContent = category
+      ? this.visibleOptions(category).length + " ATTACHMENTS · " + (activeIndex + 1) + " / " + categories.length
+      : "NO ATTACHMENTS";
+    hub.appendChild(caption);
+    wheel.appendChild(hub);
+    wheel.addEventListener("wheel", function(event) {
+      self.handleOrbitWheel(event, "categories");
+    }, { passive:false });
+    layout.appendChild(wheel);
+
+    var track = document.createElement("div");
+    track.className = "qm-orbit-track";
+    track.setAttribute("aria-label", "Curved attachment list");
+    var guide = document.createElement("div");
+    guide.className = "qm-orbit-guide";
+    guide.setAttribute("aria-hidden", "true");
+    track.appendChild(guide);
+    var options = this.visibleOptions(category);
+    if (!options.length) {
+      var empty = document.createElement("div");
+      empty.className = "qm-orbit-empty";
+      empty.textContent = "No attachment available";
+      track.appendChild(empty);
+    } else {
+      var selectedIndex = options.findIndex(function(option) {
+        return option.optionIndex === self.lastFocusedOptionIndex;
+      });
+      if (selectedIndex < 0) selectedIndex = 0;
+      metrics.orbitOptionWindow(options.length, selectedIndex, 3).forEach(function(row) {
+        var option = options[row.index];
+        var position = metrics.orbitRowPosition(row.offset);
+        var button = self.makeOptionButton(category, option);
+        var selected = row.offset === 0;
+        button.className += " qm-orbit-option" +
+          (selected ? " orbit-selected" : " orbit-secondary");
+        button.style.top = position.top + "%";
+        button.style.left = position.left + "px";
+        button.style.transform = "translateY(-50%) scale(" + position.scale.toFixed(3) + ")";
+        button.style.opacity = String(position.opacity);
+        button.setAttribute("aria-current", selected ? "true" : "false");
+        var adornment = document.createElement("span");
+        adornment.className = "qm-orbit-option-state";
+        adornment.textContent = option.isInstalled ? "INSTALLED" :
+          (!option.isSelectable || !option.isStructurallyValid ? "UNAVAILABLE" : "");
+        button.appendChild(adornment);
+        track.appendChild(button);
+      });
+    }
+    var help = document.createElement("div");
+    help.className = "qm-orbit-list-help";
+    help.textContent = "SCROLL TO CHOOSE";
+    track.appendChild(help);
+    track.addEventListener("wheel", function(event) {
+      self.handleOrbitWheel(event, "options");
+    }, { passive:false });
+    layout.appendChild(track);
+    return layout;
+  };
+
+  Renderer.prototype.handleOrbitWheel = function(event, pane) {
+    if (this.settings().presentation !== "orbit" || !event || !event.deltaY) return;
+    if (event.preventDefault) event.preventDefault();
+    if (this.options.preview) return;
+    var now = Date.now();
+    if (now - this.lastOrbitWheelTime < 90) return;
+    this.lastOrbitWheelTime = now;
+    if (pane === "categories") {
+      this.activePane = "categories";
+      this.moveCategory(event.deltaY > 0 ? 1 : -1);
+    } else {
+      this.activePane = "options";
+      this.moveOption(event.deltaY > 0 ? 1 : -1);
+    }
+  };
+
   Renderer.prototype.render = function() {
     if (!this.root) return;
     this.ensureLabelPortal();
@@ -843,6 +1000,7 @@
     if (presentation === "radial") layout = this.renderRadial(categories, category);
     else if (presentation === "hybrid") layout = this.renderHybrid(categories, category);
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
+    else if (presentation === "orbit") layout = this.renderOrbit(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
     if (presentation === "horizontal") {
@@ -948,6 +1106,15 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
+    if (this.settings().presentation === "orbit") {
+      if (direction === "left" || direction === "right") {
+        this.moveCategory(direction === "left" ? -1 : 1);
+      } else if (direction === "up" || direction === "down") {
+        this.activePane = "options";
+        this.moveOption(direction === "up" ? -1 : 1);
+      }
+      return;
+    }
     if (this.settings().presentation === "horizontal") {
       if (direction === "left" || direction === "right") {
         var horizontalDelta = direction === "left" ? -1 : 1;

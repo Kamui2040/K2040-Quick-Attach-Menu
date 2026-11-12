@@ -1,5 +1,20 @@
 # Known Issues and Limits
 
+## Unreleased 0.5.224: Orbit and measured wheel labels (game QA pending)
+
+The new Orbit layout displays categories around a central circle and attachments
+in a curved list with a larger centre selection. Navigation changes focus only:
+attaching remains subject to native live safety checks. The existing Radial and
+Compact Hybrid labels now wrap, shrink or truncate according to measured text
+width and curved segment space. This implementation is original and contains no
+third-party UI source or assets.
+
+Before acceptance, test actual in-game layout positioning and legibility
+at varied scales/aspect ratios, long translated names, more than eight
+categories, short and long attachment lists, mouse and controller navigation,
+settings save/reopen, the four existing presentations, and attachment application
+with the new UI. Build and static checks alone do not establish runtime success.
+
 ## Unreleased 0.5.223 candidate: crouching test passed; wider QA pending
 
 A user reports that opening Quick Attach with default Shift+K while crouched

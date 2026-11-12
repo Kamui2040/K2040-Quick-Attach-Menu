@@ -1,5 +1,12 @@
 # Current Project State
 
+- Unreleased `0.5.224` Orbit presentation candidate
+  (`feature/orbit-curved-list`) builds upon the separate `0.5.223`
+  crouching and parser-hardening candidate. It adds a circular category selector,
+  a curved attachment list with a larger centre selection, measured wedge text
+  fitting for Radial and Hybrid, and an independent saved Orbit layout. Source,
+  Linux Windows-x64 build, and package tests passed. In-game visual/input QA
+  remains required; no release or merge is claimed.
 - Unreleased `0.5.223` development candidate (`fix/input-parser-hardening`):
   preserves the sneaking user-event flag when opening a Prisma menu and hardens
   preferences JSON and OMOD file parsing. Source tests, native Windows x64 build,

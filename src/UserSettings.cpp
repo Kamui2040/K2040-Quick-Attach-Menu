@@ -187,6 +187,7 @@ namespace
             Layout radial;
             Layout hybrid;
             Layout horizontal;
+            Layout orbit;
 
             bool HasExplicitValues() const
             {
@@ -203,7 +204,8 @@ namespace
                     builderPanelWidth.has_value() || builderPanelHeight.has_value() ||
                     settingsPanelWidth.has_value() || settingsPanelHeight.has_value() ||
                     cascade.HasExplicitValues() || radial.HasExplicitValues() ||
-                    hybrid.HasExplicitValues() || horizontal.HasExplicitValues();
+                    hybrid.HasExplicitValues() || horizontal.HasExplicitValues() ||
+                    orbit.HasExplicitValues();
             }
         } general;
 
@@ -543,7 +545,7 @@ namespace
 
     bool IsPresentationName(const std::string& value)
     {
-        return value == "cascade" || value == "radial" || value == "hybrid" || value == "horizontal";
+        return value == "cascade" || value == "radial" || value == "hybrid" || value == "horizontal" || value == "orbit";
     }
 
     bool IsThemeName(const std::string& value)
@@ -1003,6 +1005,7 @@ namespace
             writeLayout("radial", g_document.general.radial);
             writeLayout("hybrid", g_document.general.hybrid);
             writeLayout("horizontal", g_document.general.horizontal);
+            writeLayout("orbit", g_document.general.orbit);
             json << "\n  },\n";
         }
         json << "  \"weapons\": [";
@@ -1637,6 +1640,7 @@ namespace k2040
                 !ReadOptionalLayoutMember(*general, "radial", g_document.general.radial) ||
                 !ReadOptionalLayoutMember(*general, "hybrid", g_document.general.hybrid) ||
                 !ReadOptionalLayoutMember(*general, "horizontal", g_document.general.horizontal) ||
+                !ReadOptionalLayoutMember(*general, "orbit", g_document.general.orbit) ||
                 (g_document.general.presentation && !IsPresentationName(*g_document.general.presentation)) ||
                 (g_document.general.theme && !IsThemeName(*g_document.general.theme)) ||
                 (g_document.general.controlHints && !IsControlHintsMode(*g_document.general.controlHints)) ||
@@ -2454,6 +2458,7 @@ namespace k2040
         result.radial = resolveLayout(g_document.general.radial);
         result.hybrid = resolveLayout(g_document.general.hybrid);
         result.horizontal = resolveLayout(g_document.general.horizontal);
+        result.orbit = resolveLayout(g_document.general.orbit);
         return result;
     }
 
@@ -2490,6 +2495,7 @@ namespace k2040
         clampLayout(value.radial);
         clampLayout(value.hybrid);
         clampLayout(value.horizontal);
+        clampLayout(value.orbit);
 
         const auto current = GetQuickMenuPreferences();
         const auto sameLayout = [](const QuickMenuLayoutSettings& lhs, const QuickMenuLayoutSettings& rhs) {
@@ -2512,7 +2518,8 @@ namespace k2040
             current.settingsPanelWidth == value.settingsPanelWidth &&
             current.settingsPanelHeight == value.settingsPanelHeight &&
             sameLayout(current.cascade, value.cascade) && sameLayout(current.radial, value.radial) &&
-            sameLayout(current.hybrid, value.hybrid) && sameLayout(current.horizontal, value.horizontal)) {
+            sameLayout(current.hybrid, value.hybrid) && sameLayout(current.horizontal, value.horizontal) &&
+            sameLayout(current.orbit, value.orbit)) {
             return false;
         }
 
@@ -2544,6 +2551,7 @@ namespace k2040
         storeLayout(general.radial, value.radial);
         storeLayout(general.hybrid, value.hybrid);
         storeLayout(general.horizontal, value.horizontal);
+        storeLayout(general.orbit, value.orbit);
         MarkDirty();
         return true;
     }
