@@ -1,5 +1,11 @@
 # Current Project State
 
+- Clock Slices screenshot feedback: reduce radial attachment-sector depth,
+  replace large SVG arcs with a compact segmented curved outline to avoid
+  translucent fill corruption, and preserve meaningful reset labels such as
+  "No Material". User-selected background opacity is unchanged. Awaiting
+  target-game verification of this visual correction.
+
 - Unreleased 0.5.227 Clock Slices candidate (feature/clock-arc-menu)
   builds on the optional 0.5.226 unified-settings adapter and incorporates
   the reviewed Orbit V2 visual refinements. It adds radial category sectors

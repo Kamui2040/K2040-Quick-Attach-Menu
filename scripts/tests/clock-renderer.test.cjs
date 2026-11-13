@@ -23,12 +23,17 @@ assert.equal(G.shortenCategoryWords('Receiver','Receiver',true),'Receiver');
 assert.equal(G.shortenCategoryWords('Ammo Conversion XL','Ammo Conversion',true),'XL');
 assert.equal(G.shortenCategoryWords('Long Sights','Sights',false),'Long Sights');
 assert.equal(G.shortenCategoryWords('Precision Receïver','Receïver',true),'Precision');
+assert.equal(G.shortenCategoryWords('No Material','Material',true),'No Material',
+  'No Material must remain meaningful instead of becoming only No');
+assert.equal(G.shortenCategoryWords('None Receiver','Receiver',true),'None Receiver');
 for(const offset of [-2,-1,0,1,2]){
  const slice=G.clockOptionSlice(offset);
  assert.equal(slice.angle,20*offset);
  assert.ok(slice.end>slice.start);
  assert.ok(slice.outerRadius>slice.innerRadius);
  assert.ok(slice.end-slice.start<20);
+ assert.ok(slice.outerRadius-slice.innerRadius<=180,'attachment slices must be compact');
+ assert.ok(slice.innerRadius>=225 && slice.outerRadius<=425,'outer circle is close to category wheel');
 }
 assert.ok(G.clockOptionSlice(-2).end<G.clockOptionSlice(-1).start,'slice gaps are non-overlapping');
 assert.ok(G.clockOptionSlice(2).end<50,'outer slice fits 800px canvas');
@@ -61,6 +66,9 @@ const selected=segments.find(n=>n.attributes['aria-current']==='true');
 assert.equal(selected.attributes['data-display-label'],'Hardened Piercing Automatic');
 assert.equal(selected.attributes['aria-label'],'Hardened Piercing Automatic Receiver');
 assert.equal(selected.attributes['data-option-index'],'2');
+const selectedShape=selected.children.find(x=>x.tag==='path');
+assert.ok(selectedShape);
+assert.ok(!/\sA\s/.test(selectedShape.attributes.d),'avoid arc raster artifacts in CEF translucent fill');
 const entries=segments.map(s=>s.children.find(x=>x.tag==='text'));
 const rotations=entries.map(x=>x.attributes.transform);
 assert.ok(rotations[0].includes('rotate(-40'));
@@ -101,4 +109,17 @@ renderer.setPayload({settings:{presentation:'clock'},parser:{categories:[categor
 view=renderer.renderClock(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
 assert.equal(collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g').length,1,
   'one available item is not duplicated into fake slices');
+renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true,backgroundOpacity:.25},
+  parser:{categories:[{categoryIndex:0,label:'Material',options:[{
+    optionIndex:0,label:'No Material',isVisible:true,isSelectable:true,
+    isStructurallyValid:true,isInstalled:true}]}]}});
+view=renderer.renderClock(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+segments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
+assert.equal(segments.length,1);
+assert.equal(segments[0].attributes['data-display-label'],'No Material');
+assert.equal(segments[0].attributes['aria-label'],'No Material');
+const compactSector=segments[0].children.find(x=>x.tag==='path');
+assert.ok(compactSector.attributes.d.endsWith(' Z'));
+assert.ok(!/\\sA\\s/.test(compactSector.attributes.d));
+assert.equal(applies.length,1,'material rendering does not install anything');
 console.log('PASS: Clock categories, curved slices, rotated labels, name shortening, input and safe activation');

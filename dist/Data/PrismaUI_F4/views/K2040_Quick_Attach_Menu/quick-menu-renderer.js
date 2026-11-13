@@ -56,6 +56,25 @@
     ].join(" ");
   }
 
+  function clockPolygonPath(cx, cy, innerRadius, outerRadius, startAngle, endAngle) {
+    // Small line segments follow the circle without large SVG arc commands.
+    // This avoids the malformed translucent fill seen on some CEF/GPU paths.
+    var count = Math.max(12, Math.ceil((endAngle - startAngle) / 1.25));
+    var commands = [];
+    var i, angle, point;
+    for (i = 0; i <= count; i += 1) {
+      angle = startAngle + (endAngle - startAngle) * i / count;
+      point = polar(cx, cy, outerRadius, angle);
+      commands.push((i ? "L " : "M ") + point.x.toFixed(2) + " " + point.y.toFixed(2));
+    }
+    for (i = count; i >= 0; i -= 1) {
+      angle = startAngle + (endAngle - startAngle) * i / count;
+      point = polar(cx, cy, innerRadius, angle);
+      commands.push("L " + point.x.toFixed(2) + " " + point.y.toFixed(2));
+    }
+    return commands.join(" ") + " Z";
+  }
+
   function Renderer(root, options) {
     this.root = root;
     this.options = options || {};
@@ -998,7 +1017,9 @@
     function shape(group, cssClass, inner, outer, start, end) {
       var path = document.createElementNS(SVG_NS, "path");
       path.setAttribute("class", cssClass);
-      path.setAttribute("d", annularPath(cx, cy, inner, outer, start, end));
+      path.setAttribute("d", cssClass === "qm-clock-option-shape"
+        ? clockPolygonPath(cx, cy, inner, outer, start, end)
+        : annularPath(cx, cy, inner, outer, start, end));
       group.appendChild(path);
     }
     function label(group, raw, position, angle, cssClass, maximumWidth, baseSize) {
@@ -1093,7 +1114,8 @@
         shape(group, "qm-clock-option-shape", geometry.innerRadius, geometry.outerRadius,
           geometry.start, geometry.end);
         label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
-          geometry.angle), geometry.angle, "qm-clock-option-text", 245, 15);
+          geometry.angle), geometry.angle, "qm-clock-option-text",
+          Math.max(80, geometry.outerRadius - geometry.innerRadius - 18), 15);
         group.addEventListener("mouseenter", function() {
           if (self.options.onHover) self.options.onHover(category, option);
         });

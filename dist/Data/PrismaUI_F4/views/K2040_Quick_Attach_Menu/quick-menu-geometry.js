@@ -157,8 +157,10 @@
   function clockOptionSlice(offset) {
     offset = clamp(Math.round(Number(offset) || 0), -2, 2);
     var angle = offset * 20;
+    // Stay close to the category ring; the previous 270px depth made the
+    // individual sectors look like long, oversized blades.
     return { angle: angle, start: angle - 9.8, end: angle + 9.8,
-      innerRadius: 245, outerRadius: 515 };
+      innerRadius: 234, outerRadius: 402 };
   }
 
   function shortenCategoryWords(label, category, enabled) {
@@ -171,6 +173,9 @@
     var pattern = new RegExp("(^|[^\\p{L}\\p{N}])(?:" + escaped + ")(?=$|[^\\p{L}\\p{N}])", "giu");
     var shortened = original.replace(pattern, "$1")
       .replace(/\s+/g, " ").replace(/^[\s_/:;\-,]+|[\s_/:;\-,]+$/g, "").trim();
+    // Reset options such as "No Material" should remain meaningful rather
+    // than being reduced to an isolated "No" or "None".
+    if (/^(?:no|none|without)$/iu.test(shortened)) return original;
     return shortened || original;
   }
 
