@@ -25,6 +25,9 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
 - Do not add an xEdit JSON runtime dependency.
 - Keep authored presentation separate from live structural validity.
 - Shorten attachment names only for presentation; native apply, installed OMOD identity, diagnostics and accessibility labels must continue using the original attachment labels/identifiers.
+- Keep a single matching-category label-shortening rule across every Quick
+  Menu presentation. Match whole words and their singular/plural forms;
+  preserve meaningful reset labels and existing preference storage keys.
 - Use resolved object-instance OMODs for installed identity.
 - Do not call `BGSMod::Attachment::Mod::GetData` on NG/AE; CommonLib marks it inlined there. Use the inherited `BGSMod::Container::GetData` when only attachment/property container data is needed.
 - Install providers before children and remove children before providers.

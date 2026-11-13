@@ -167,9 +167,24 @@
     var original = String(label || "").trim();
     var categoryName = String(category || "").trim();
     if (!enabled || !original || !categoryName) return original;
-    var escaped = Array.from(categoryName).map(function(character) {
-      return /[\p{L}\p{N}\s]/u.test(character) ? character : "\\" + character;
-    }).join("").replace(/\s+/g, "\\s+");
+    // Match the category's full phrase, plus singular/plural versions of its
+    // final word. This handles Sights/Sight, Magazine/Magazines and compounds
+    // like Barrel Attachments/Barrel Attachment without substring removal.
+    var words = categoryName.split(/\s+/);
+    var last = words.pop();
+    var counterpart;
+    if (/ies$/i.test(last) && last.length > 4) counterpart = last.slice(0, -3) + "y";
+    else if (/(?:ches|shes|sses|xes|zes)$/i.test(last)) counterpart = last.slice(0, -2);
+    else if (/s$/i.test(last) && !/ss$/i.test(last)) counterpart = last.slice(0, -1);
+    else if (/[bcdfghjklmnpqrstvwxz]y$/i.test(last)) counterpart = last.slice(0, -1) + "ies";
+    else if (/(?:s|x|z|ch|sh)$/i.test(last)) counterpart = last + "es";
+    else counterpart = last + "s";
+    var phrases = [categoryName, words.concat(counterpart).join(" ")];
+    var escaped = phrases.sort(function(a, b) { return b.length - a.length; }).map(function(phrase) {
+      return Array.from(phrase).map(function(character) {
+        return /[\p{L}\p{N}\s]/u.test(character) ? character : "\\" + character;
+      }).join("").replace(/\s+/g, "\\s+");
+    }).join("|");
     var pattern = new RegExp("(^|[^\\p{L}\\p{N}])(?:" + escaped + ")(?=$|[^\\p{L}\\p{N}])", "giu");
     var shortened = original.replace(pattern, "$1")
       .replace(/\s+/g, " ").replace(/^[\s_/:;\-,]+|[\s_/:;\-,]+$/g, "").trim();

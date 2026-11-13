@@ -1,5 +1,12 @@
 # Current Project State
 
+- Menu label-shortening follow-up (feature/clock-arc-menu): the existing
+  saved checkbox now consistently shortens matching category words in all
+  six menu presentations and recognizes singular/plural words (Sights/Sight,
+  Magazine/Magazines). Only visual text changes; tooltips, accessibility,
+  attachment identity and existing user preferences are preserved. In-game
+  acceptance remains pending.
+
 - Clock Slices screenshot feedback: reduce radial attachment-sector depth,
   replace large SVG arcs with a compact segmented curved outline to avoid
   translucent fill corruption, and preserve meaningful reset labels such as

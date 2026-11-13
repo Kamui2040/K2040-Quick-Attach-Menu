@@ -151,6 +151,14 @@ reuse third-party UI assets.
 
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
 
+Matching category-word shortening is also presentation-only and applies
+consistently to Cascade, Radial, Hybrid, Horizontal, Orbit, and Clock Slices.
+One common helper strips only whole-word singular/plural matches of the
+currently selected category; the saved legacy shortenClockLabels setting
+controls all layouts for backward compatibility. Full option labels remain
+available for accessibility and tooltips, and OMOD/apply identity is unchanged.
+Meaningful reset choices such as "No Material" are not shortened to "No".
+
 Bracketed-text cleanup is presentation-only. The source label remains intact.
 The dedicated general settings page independently controls bracketed prefixes,
 infixes, and suffixes. The quick menu and builder apply those global controls

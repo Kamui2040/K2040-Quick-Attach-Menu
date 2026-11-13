@@ -23,6 +23,17 @@ assert.equal(G.shortenCategoryWords('Receiver','Receiver',true),'Receiver');
 assert.equal(G.shortenCategoryWords('Ammo Conversion XL','Ammo Conversion',true),'XL');
 assert.equal(G.shortenCategoryWords('Long Sights','Sights',false),'Long Sights');
 assert.equal(G.shortenCategoryWords('Precision Receïver','Receïver',true),'Precision');
+assert.equal(G.shortenCategoryWords('Reflex Sight','Sights',true),'Reflex');
+assert.equal(G.shortenCategoryWords('Glow Sights','Sight',true),'Glow');
+assert.equal(G.shortenCategoryWords('Reflex Sightless','Sights',true),'Reflex Sightless');
+assert.equal(G.shortenCategoryWords('Red Dot Sighting','Sights',true),'Red Dot Sighting');
+assert.equal(G.shortenCategoryWords('Long Sights','Sights',false),'Long Sights');
+assert.equal(G.shortenCategoryWords('No Sight','Sights',true),'No Sight');
+assert.equal(G.shortenCategoryWords('Extended Magazines','Magazine',true),'Extended');
+assert.equal(G.shortenCategoryWords('Extended Magazine','Magazines',true),'Extended');
+assert.equal(G.shortenCategoryWords('Enhanced Barrel Attachments','Barrel Attachments',true),'Enhanced');
+assert.equal(G.shortenCategoryWords('Receiver','Receiver',true),'Receiver');
+
 assert.equal(G.shortenCategoryWords('No Material','Material',true),'No Material',
   'No Material must remain meaningful instead of becoming only No');
 assert.equal(G.shortenCategoryWords('None Receiver','Receiver',true),'None Receiver');
@@ -122,4 +133,47 @@ const compactSector=segments[0].children.find(x=>x.tag==='path');
 assert.ok(compactSector.attributes.d.endsWith(' Z'));
 assert.ok(!/\\sA\\s/.test(compactSector.attributes.d));
 assert.equal(applies.length,1,'material rendering does not install anything');
+// All six presentation renderers must use the shared display-only policy.
+const sights={categoryIndex:0,label:'Sights',options:[
+ {optionIndex:0,label:'Reflex Sight',isVisible:true,isSelectable:true,isStructurallyValid:true,isInstalled:false},
+ {optionIndex:1,label:'Glow Sights',isVisible:true,isSelectable:true,isStructurallyValid:true,isInstalled:false}
+]};
+const presentations=['cascade','horizontal','hybrid','radial','orbit','clock'];
+for(const presentation of presentations){
+  for(const shorten of [true,false]){
+    renderer.labelPortal=new Node('div');
+    renderer.setPayload({settings:{presentation,shortenClockLabels:shorten},
+      parser:{categories:[sights]}});
+    renderer.activePane='options';renderer.lastFocusedOptionIndex=0;
+    let rendered;
+    if(presentation==='cascade')rendered=renderer.renderCascade([sights],sights);
+    else if(presentation==='horizontal')rendered=renderer.renderHorizontal([sights],sights);
+    else if(presentation==='hybrid')rendered=renderer.renderHybrid([sights],sights);
+    else if(presentation==='radial')rendered=renderer.renderRadial([sights],sights);
+    else if(presentation==='orbit')rendered=renderer.renderOrbit([sights],sights);
+    else rendered=renderer.renderClock([sights],sights);
+    const expected=shorten?'Reflex':'Reflex Sight';
+    if(['cascade','horizontal','hybrid','orbit'].includes(presentation)){
+      const buttons=collect(rendered,x=>String(x.className).includes('qm-option-button'));
+      assert.ok(buttons.length>0,presentation+' option button is rendered');
+      const button=buttons[0];
+      const text=button.children.find(x=>x.className==='qm-option-name');
+      assert.equal(text.textContent,expected,presentation+' shortened label');
+      assert.equal(text.title,'Reflex Sight',presentation+' full tooltip');
+      assert.equal(button.attributes['aria-label'],'Reflex Sight',presentation+' full accessibility label');
+    }else if(presentation==='radial'){
+      const labels=collect(renderer.labelPortal,x=>String(x.className).includes('option-label'));
+      assert.ok(labels.length>0,'radial option label is present');
+      assert.equal(labels[0].children.map(x=>x.textContent).join(''),expected,'radial shortened wedge');
+      assert.equal(labels[0].attributes.title,'Reflex Sight','radial tooltip is full');
+      const groups=collect(rendered,x=>String(x.className).includes('qm-wheel-option')&&x.tag==='g');
+      assert.equal(groups[0].attributes['aria-label'],'Reflex Sight','radial option accessibility');
+    }else{
+      const groups=collect(rendered,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
+      assert.equal(groups[0].attributes['data-display-label'],expected,'clock shortened sector');
+      assert.equal(groups[0].attributes['aria-label'],'Reflex Sight');
+    }
+  }
+}
+assert.equal(applies.length,1,'cross-presentation label tests never install attachments');
 console.log('PASS: Clock categories, curved slices, rotated labels, name shortening, input and safe activation');

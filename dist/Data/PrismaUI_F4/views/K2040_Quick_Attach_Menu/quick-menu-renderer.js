@@ -426,6 +426,19 @@
     this.applyTheme();
   };
 
+  Renderer.prototype.optionDisplayName = function(category, option) {
+    var fullName = this.displayName(option && option.label) || "Unnamed attachment";
+    var categoryName = category ? this.displayName(category.label) : "";
+    var metrics = global.K2040QuickMenuGeometry;
+    // A standalone legacy list can load without the shared geometry module.
+    // Fall back to the original visible name instead of breaking the menu.
+    if (!metrics || typeof metrics.shortenCategoryWords !== "function") return fullName;
+    // Keep the stored setting key for backward compatibility. Its scope is
+    // all presentations, not just Clock Slices.
+    return metrics.shortenCategoryWords(fullName, categoryName,
+      this.settings().shortenClockLabels !== false);
+  };
+
   Renderer.prototype.makeCategoryButton = function(category) {
     var self = this;
     var label = this.displayName(category.label) || "Unnamed category";
@@ -458,7 +471,8 @@
 
   Renderer.prototype.makeOptionButton = function(category, option) {
     var self = this;
-    var label = this.displayName(option.label) || "Unnamed attachment";
+    var fullName = this.displayName(option.label) || "Unnamed attachment";
+    var label = this.optionDisplayName(category, option);
     var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
     var focused = this.activePane === "options" && option.optionIndex === this.lastFocusedOptionIndex;
     var button = document.createElement("button");
@@ -466,10 +480,12 @@
     button.className = "qm-option-button" + (option.isInstalled ? " installed" : "") +
       (!ready && !option.isInstalled ? " blocked" : "") + (focused ? " focused-option" : "");
     button.dataset.optionIndex = String(option.optionIndex);
+    button.setAttribute("aria-label", fullName);
+    button.setAttribute("title", fullName);
     var name = document.createElement("span");
     name.className = "qm-option-name";
     name.textContent = label;
-    name.title = label;
+    name.title = fullName;
     button.appendChild(name);
     button.addEventListener("mouseenter", function() {
       // Orbit selection follows the scroll position; merely hovering a
@@ -675,7 +691,8 @@
 
   Renderer.prototype.makeOptionSegment = function(svg, labelLayer, category, option, start, end, cx, cy, innerRadius, outerRadius) {
     var self = this;
-    var label = this.displayName(option.label) || "Unnamed attachment";
+    var fullName = this.displayName(option.label) || "Unnamed attachment";
+    var label = this.optionDisplayName(category, option);
     // The measured fit retains the full label when possible; the central
     // caption remains available if a very narrow wedge needs ellipsis.
     var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
@@ -685,6 +702,7 @@
     var group = document.createElementNS(SVG_NS, "g");
     group.setAttribute("class", "qm-wheel-segment qm-wheel-option" + stateClass);
     group.setAttribute("data-option-index", String(option.optionIndex));
+    group.setAttribute("aria-label", fullName);
     var path = document.createElementNS(SVG_NS, "path");
     path.setAttribute("class", "qm-wheel-path");
     path.setAttribute("d", annularPath(cx, cy, innerRadius, outerRadius, start, end));
@@ -692,6 +710,8 @@
     var labelBox = this.appendWheelLabel(labelLayer,
       { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
       label, true, stateClass);
+    labelBox.setAttribute("data-full-label", fullName);
+    labelBox.setAttribute("title", fullName);
     group.addEventListener("mouseenter", function() {
       labelBox.classList.add("hovered");
       self.lastFocusedOptionIndex = option.optionIndex;
@@ -738,7 +758,8 @@
     var name = this.root.querySelector(".qm-radial-controller-selected");
     if (!name) return;
     var option = this.focusedOption(this.findCategory(this.activeCategoryIndex));
-    name.textContent = option ? this.displayName(option.label) : "No attachment selected";
+    var category = this.findCategory(this.activeCategoryIndex);
+    name.textContent = option ? this.optionDisplayName(category, option) : "No attachment selected";
   };
 
   Renderer.prototype.renderRadial = function(categories, category) {
@@ -789,7 +810,8 @@
       caption.className = "qm-radial-controller-caption";
       var name = document.createElement("div");
       name.className = "qm-radial-controller-selected";
-      name.textContent = this.displayName(focused.label);
+      name.textContent = this.optionDisplayName(category, focused);
+      name.title = this.displayName(focused.label);
       caption.appendChild(name);
       var pager = document.createElement("div");
       pager.className = "qm-radial-controller-pager";
@@ -1097,8 +1119,7 @@
         var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
         var geometry = metrics.clockOptionSlice(row.offset);
         var fullName = self.displayName(option.label) || "Unnamed attachment";
-        var shortName = metrics.shortenCategoryWords(fullName,
-          self.displayName(category.label), self.settings().shortenClockLabels !== false);
+        var shortName = self.optionDisplayName(category, option);
         var group = document.createElementNS(SVG_NS, "g");
         group.setAttribute("class", "qm-clock-option" + (selected ? " selected" : "") +
           (option.isInstalled ? " installed" : "") +
