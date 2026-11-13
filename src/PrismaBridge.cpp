@@ -1280,20 +1280,22 @@ namespace k2040
                  << "\"hudColor\":\"" << hudColour << "\","
                  << "\"hudBackgroundColor\":\"" << hudBackgroundColour << "\","
                  << "\"useAuthoredMenus\":" << (quickMenu.useAuthoredMenus ? "true" : "false") << ","
+                 << "\"shortenClockLabels\":" << (quickMenu.shortenClockLabels ? "true" : "false") << ","
                  << "\"controlHints\":\"" << JsonEscape(quickMenu.controlHints) << "\","
                  << "\"builderPanelWidth\":" << quickMenu.builderPanelWidth << ","
                  << "\"builderPanelHeight\":" << quickMenu.builderPanelHeight << ","
                  << "\"settingsPanelWidth\":" << quickMenu.settingsPanelWidth << ","
                  << "\"settingsPanelHeight\":" << quickMenu.settingsPanelHeight << ","
-                 << "\"scale\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.scale : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.scale : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.scale : quickMenu.presentation == "orbit" ? quickMenu.orbit.scale : quickMenu.cascade.scale) << ","
-                 << "\"positionX\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionX : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionX : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionX : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionX : quickMenu.cascade.positionX) << ","
-                 << "\"positionY\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionY : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionY : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionY : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionY : quickMenu.cascade.positionY) << ","
+                 << "\"scale\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.scale : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.scale : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.scale : quickMenu.presentation == "orbit" ? quickMenu.orbit.scale : quickMenu.presentation == "clock" ? quickMenu.clock.scale : quickMenu.cascade.scale) << ","
+                 << "\"positionX\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionX : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionX : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionX : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionX : quickMenu.presentation == "clock" ? quickMenu.clock.positionX : quickMenu.cascade.positionX) << ","
+                 << "\"positionY\":" << (quickMenu.presentation == "radial" ? quickMenu.radial.positionY : quickMenu.presentation == "hybrid" ? quickMenu.hybrid.positionY : quickMenu.presentation == "horizontal" ? quickMenu.horizontal.positionY : quickMenu.presentation == "orbit" ? quickMenu.orbit.positionY : quickMenu.presentation == "clock" ? quickMenu.clock.positionY : quickMenu.cascade.positionY) << ","
                  << "\"layouts\":{"
                      << "\"cascade\":{\"scale\":" << quickMenu.cascade.scale << ",\"positionX\":" << quickMenu.cascade.positionX << ",\"positionY\":" << quickMenu.cascade.positionY << "},"
                      << "\"radial\":{\"scale\":" << quickMenu.radial.scale << ",\"positionX\":" << quickMenu.radial.positionX << ",\"positionY\":" << quickMenu.radial.positionY << "},"
                      << "\"hybrid\":{\"scale\":" << quickMenu.hybrid.scale << ",\"positionX\":" << quickMenu.hybrid.positionX << ",\"positionY\":" << quickMenu.hybrid.positionY << "},"
                      << "\"horizontal\":{\"scale\":" << quickMenu.horizontal.scale << ",\"positionX\":" << quickMenu.horizontal.positionX << ",\"positionY\":" << quickMenu.horizontal.positionY << "},"
-                     << "\"orbit\":{\"scale\":" << quickMenu.orbit.scale << ",\"positionX\":" << quickMenu.orbit.positionX << ",\"positionY\":" << quickMenu.orbit.positionY << "}"
+                     << "\"orbit\":{\"scale\":" << quickMenu.orbit.scale << ",\"positionX\":" << quickMenu.orbit.positionX << ",\"positionY\":" << quickMenu.orbit.positionY << "},"
+                     << "\"clock\":{\"scale\":" << quickMenu.clock.scale << ",\"positionX\":" << quickMenu.clock.positionX << ",\"positionY\":" << quickMenu.clock.positionY << "}"
                  << "},"
                  << "\"hideBracketedText\":" << (settings.hideBracketedText ? "true" : "false") << ","
                  << "\"hideBracketedPrefixes\":" << (bracketedText.hidePrefixes ? "true" : "false") << ","
@@ -2618,6 +2620,8 @@ namespace k2040
                 const auto value = ParseFiniteDouble(parts[2]);
                 if (!value) return;
                 preferences.backgroundOpacity = *value;
+            } else if (parts.size() == 3 && parts[1] == "shorten-clock-labels") {
+                const auto value = boolValue(parts[2]); if (!value) return; preferences.shortenClockLabels = *value;
             } else if (parts.size() == 3 && parts[1] == "theme") preferences.theme = std::string(parts[2]);
             else if (parts.size() == 3 && parts[1] == "custom-accent") preferences.customAccent = std::string(parts[2]);
             else if (parts.size() == 3 && parts[1] == "custom-text") preferences.customText = std::string(parts[2]);
@@ -2663,6 +2667,7 @@ namespace k2040
                 else if (parts[2] == "hybrid") layout = &preferences.hybrid;
                 else if (parts[2] == "horizontal") layout = &preferences.horizontal;
                 else if (parts[2] == "orbit") layout = &preferences.orbit;
+                else if (parts[2] == "clock") layout = &preferences.clock;
                 if (!layout) return;
                 *layout = { *scale, *positionX, *positionY };
             } else {
@@ -2717,6 +2722,8 @@ namespace k2040
                     preferences.hybrid = defaultLayout;
                     preferences.horizontal = defaultLayout;
                     preferences.orbit = defaultLayout;
+                    preferences.clock = defaultLayout;
+                    preferences.shortenClockLabels = true;
                 } else if (parts[1] == "behavior") {
                     std::string sourceMode = legacy.menuSource;
                     std::transform(sourceMode.begin(), sourceMode.end(), sourceMode.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
@@ -2729,6 +2736,7 @@ namespace k2040
                     preferences.menuSlowdown = 1.0;
                 } else if (parts[1] == "labels") {
                     SetBracketedTextPreferences({ legacy.hideBracketedText, legacy.hideBracketedText, legacy.hideBracketedText });
+                    preferences.shortenClockLabels = true;
                 } else if (parts[1] == "builder-panel-size") {
                     preferences.builderPanelWidth = 0.0;
                     preferences.builderPanelHeight = 0.0;

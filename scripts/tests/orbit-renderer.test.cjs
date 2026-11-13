@@ -34,7 +34,8 @@ let view=renderer.renderOrbit(renderer.visibleCategories(),renderer.findCategory
 let buttons=all(view,/qm-orbit-category(?: |$)/);
 let rows=all(view,/qm-orbit-option(?: |$)/);
 assert.equal(buttons.length,8,'large menus show eight accessible category circles');
-assert.equal(rows.length,7,'long option menus show seven curved positions');
+assert.equal(rows.length,5,'Orbit V2 shows five spaced curved positions');
+assert.match(all(view,/qm-orbit-hub-caption/)[0].textContent,/^11 ATTACHMENTS · 1 \/ 13$/);
 assert.equal(rows.filter(n=>n.attributes['aria-current']==='true').length,1);
 assert.equal(applies,0,'render never installs anything');
 const center=rows.find(n=>n.attributes['aria-current']==='true');
@@ -68,6 +69,12 @@ assert.equal(applies,1,'navigation never installs');
 renderer.setPayload({settings:{presentation:'orbit'},parser:{categories:[category(0,2)]}});
 view=renderer.renderOrbit(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
 assert.equal(all(view,/qm-orbit-option(?: |$)/).length,2,'short lists do not duplicate options');
+assert.equal(all(view,/qm-orbit-list-help/).length,1,'scroll help remains available for multiple attachments');
+renderer.setPayload({settings:{presentation:'orbit'},parser:{categories:[category(0,1)]}});
+view=renderer.renderOrbit(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+assert.equal(all(view,/qm-orbit-option(?: |$)/).length,1);
+assert.equal(all(view,/qm-orbit-list-help/).length,0,'scroll help is hidden when there is nothing to scroll');
+assert.match(all(view,/qm-orbit-hub-caption/)[0].textContent,/^1 ATTACHMENT · 1 \/ 1$/,'single attachment uses singular label');
 // Orbit must fit narrow 4:3 and low-resolution screens instead of clipping.
 const viewportRoot=new Node('div');
 viewportRoot.parentNode={clientWidth:800,clientHeight:600};
@@ -75,8 +82,8 @@ const viewportRenderer=make(viewportRoot,{controllerActive:true});
 viewportRenderer.render=()=>{};
 viewportRenderer.setPayload({settings:{presentation:'orbit'},parser:{categories:[category(0,2)]}});
 viewportRenderer.setPlacement(1.5,.5,.5);
-assert.ok(viewportRenderer.effectiveScale <= (800-28)/810+.001);
-assert.ok(viewportRenderer.effectiveScale <= (600-28)/530+.001);
+assert.ok(viewportRenderer.effectiveScale <= (800-28)/760+.001);
+assert.ok(viewportRenderer.effectiveScale <= (600-28)/500+.001);
 const chrome=new Node('div');
 viewportRenderer.appendStatusAndMeta(chrome);
 assert.match(chrome.children[1].textContent,/LB\/RB.*Category.*Attachment.*Focus list/i,

@@ -321,6 +321,9 @@
       target.style.setProperty("--qm-installed", installed);
       target.style.setProperty("--qm-panel", rgba(panel, opacity));
       target.style.setProperty("--qm-panel-strong", rgba(panel, Math.min(1, opacity + .05)));
+      // Orbit uses background alpha, not element alpha, so text remains readable.
+      target.style.setProperty("--qm-orbit-focused-bg", rgba(panel, opacity));
+      target.style.setProperty("--qm-orbit-secondary-bg", rgba(panel, Math.max(.15, opacity - .10)));
       target.style.setProperty("--qm-row", theme === "pipboy" ? "transparent" : rgba(panel, opacity));
       target.style.setProperty("--qm-active", theme === "pipboy" ? accent :
         theme === "fallout76" ? rgba(accent, .14) : rgba(accent, Math.min(.48, .19 + opacity * .22)));
@@ -347,7 +350,7 @@
     positionX = clamp(positionX, .05, .95, .5);
     positionY = clamp(positionY, .05, .95, .5);
     var settings = this.settings();
-    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit"].indexOf(settings.presentation) >= 0
+    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit", "clock"].indexOf(settings.presentation) >= 0
       ? settings.presentation : "cascade";
     this.requestedScale = scale;
     this.effectiveScale = Math.max(scale, this.adaptiveScaleFloor(presentation));
@@ -357,8 +360,16 @@
       var parent = this.root.parentNode;
       var availableWidth = (parent && parent.clientWidth) || global.innerWidth || 1920;
       var availableHeight = (parent && parent.clientHeight) || global.innerHeight || 1080;
-      var fit = Math.min((availableWidth - 28) / 810, (availableHeight - 28) / 530);
+      var fit = Math.min((availableWidth - 28) / 760, (availableHeight - 28) / 500);
       this.effectiveScale = Math.min(this.effectiveScale, Math.max(.35, fit));
+    } else if (presentation === "clock") {
+      // The larger outer clock circle must fit in game and Settings preview.
+      var host = this.root.parentNode;
+      var width = (host && host.clientWidth) || global.innerWidth || 1920;
+      var height = (host && host.clientHeight) || global.innerHeight || 1080;
+      var clockFit = Math.min((width - 28) / 940, (height - 28) / 800);
+      this.effectiveScale = Math.min(this.effectiveScale,
+        Math.max(.25, clockFit / this.previewZoom));
     }
     this.root.style.left = String(positionX * 100) + "%";
     this.root.style.top = String(positionY * 100) + "%";
@@ -373,7 +384,7 @@
 
   Renderer.prototype.applyRootState = function() {
     var settings = this.settings();
-    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit"].indexOf(settings.presentation) >= 0
+    var presentation = ["cascade", "radial", "hybrid", "horizontal", "orbit", "clock"].indexOf(settings.presentation) >= 0
       ? settings.presentation : "cascade";
     var scale = clamp(settings.scale, .5, 1.5, 1);
     var positionX = clamp(settings.positionX, .05, .95, .5);
@@ -508,7 +519,7 @@
       hints.textContent = this.activePane === "categories"
         ? "Stick/D-pad: Category · Left/Right: Category · Down/" + confirm + ": Options · LB/RB: Category · " + cancel + ": Close"
         : "Stick/D-pad: Attachment · Left/Right: Attachment · Up: Categories · " + confirm + ": Install · " + cancel + ": Back · LB/RB: Category";
-    } else if (this.options.controllerActive && presentation === "orbit") {
+    } else if (this.options.controllerActive && (presentation === "orbit" || presentation === "clock")) {
       hints.textContent = this.activePane === "categories"
         ? "←/→ or LB/RB: Category · ↑/↓: Attachment · " + confirm + ": Focus list · " + cancel + ": Close"
         : "←/→ or LB/RB: Category · ↑/↓: Attachment · " + confirm + ": Apply · " + cancel + ": Categories";
@@ -523,7 +534,7 @@
         : "W/S or ↑/↓: Switch rows · A/D or ←/→: Move · E/Enter: Select/apply · opener/Escape: Close";
     } else if (presentation === "radial") {
       hints.textContent = "Mouse: Choose attachment · Wheel/‹ ›/Page Up/Down: Page · E/Enter: Apply · Escape: Close";
-    } else if (presentation === "orbit") {
+    } else if (presentation === "orbit" || presentation === "clock") {
       hints.textContent = movementAllowed
         ? "Wheel over ring/list: Category/Attachment · ↑↓: Attachment · ←→: Category · E/Enter: Apply"
         : "Wheel over ring/list: Category/Attachment · W/S or ↑↓: Attachment · A/D or ←→: Category · E/Enter: Apply";
@@ -864,7 +875,7 @@
       var entry = categories[categoryPosition];
       var selected = entry.categoryIndex === self.activeCategoryIndex;
       var angle = -90 + slot * 360 / visibleCategories.length;
-      var location = polar(235, 260, 184, angle);
+      var location = polar(215, 250, 172, angle);
       var button = document.createElement("button");
       button.type = "button";
       button.className = "qm-orbit-category" + (selected ? " active" : "");
@@ -875,9 +886,9 @@
       button.setAttribute("aria-pressed", selected ? "true" : "false");
       var name = document.createElement("span");
       var fullLabel = self.displayName(entry.label) || "Category";
-      var fitted = metrics.fitWheelLabel(fullLabel, 72, 49, {
-        baseSize: 12.5,
-        minSize: 10,
+      var fitted = metrics.fitWheelLabel(fullLabel, 56, 43, {
+        baseSize: 11.5,
+        minSize: 9.5,
         measure: function(text, size) { return self.measureWheelText(text, size); }
       });
       fitted.lines.forEach(function(line) {
@@ -900,7 +911,7 @@
     hub.className = "qm-orbit-hub";
     var eyebrow = document.createElement("div");
     eyebrow.className = "qm-orbit-hub-eyebrow";
-    eyebrow.textContent = "ATTACHMENT TYPE";
+    eyebrow.textContent = "CATEGORY";
     hub.appendChild(eyebrow);
     var activeName = document.createElement("div");
     activeName.className = "qm-orbit-hub-name";
@@ -909,8 +920,10 @@
     hub.appendChild(activeName);
     var caption = document.createElement("div");
     caption.className = "qm-orbit-hub-caption";
+    var attachmentCount = category ? this.visibleOptions(category).length : 0;
     caption.textContent = category
-      ? this.visibleOptions(category).length + " ATTACHMENTS · " + (activeIndex + 1) + " / " + categories.length
+      ? attachmentCount + (attachmentCount === 1 ? " ATTACHMENT · " : " ATTACHMENTS · ") +
+        (activeIndex + 1) + " / " + categories.length
       : "NO ATTACHMENTS";
     hub.appendChild(caption);
     wheel.appendChild(hub);
@@ -937,7 +950,7 @@
         return option.optionIndex === self.lastFocusedOptionIndex;
       });
       if (selectedIndex < 0) selectedIndex = 0;
-      metrics.orbitOptionWindow(options.length, selectedIndex, 3).forEach(function(row) {
+      metrics.orbitOptionWindow(options.length, selectedIndex, 2).forEach(function(row) {
         var option = options[row.index];
         var position = metrics.orbitRowPosition(row.offset);
         var button = self.makeOptionButton(category, option);
@@ -947,7 +960,6 @@
         button.style.top = position.top + "%";
         button.style.left = position.left + "px";
         button.style.transform = "translateY(-50%) scale(" + position.scale.toFixed(3) + ")";
-        button.style.opacity = String(position.opacity);
         button.setAttribute("aria-current", selected ? "true" : "false");
         var adornment = document.createElement("span");
         adornment.className = "qm-orbit-option-state";
@@ -957,10 +969,12 @@
         track.appendChild(button);
       });
     }
-    var help = document.createElement("div");
-    help.className = "qm-orbit-list-help";
-    help.textContent = "SCROLL TO CHOOSE";
-    track.appendChild(help);
+    if (options.length > 1) {
+      var help = document.createElement("div");
+      help.className = "qm-orbit-list-help";
+      help.textContent = "SCROLL TO CHOOSE";
+      track.appendChild(help);
+    }
     track.addEventListener("wheel", function(event) {
       self.handleOrbitWheel(event, "options");
     }, { passive:false });
@@ -968,8 +982,156 @@
     return layout;
   };
 
+
+  Renderer.prototype.renderClock = function(categories, category) {
+    var self = this;
+    var metrics = global.K2040QuickMenuGeometry;
+    var cx = 350, cy = 400;
+    var layout = document.createElement("div");
+    layout.className = "qm-layout qm-clock-layout";
+    var svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", "qm-clock-svg");
+    svg.setAttribute("viewBox", "0 0 940 800");
+    svg.setAttribute("role", "group");
+    svg.setAttribute("aria-label", "Clock category wheel and attachment slices");
+
+    function shape(group, cssClass, inner, outer, start, end) {
+      var path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute("class", cssClass);
+      path.setAttribute("d", annularPath(cx, cy, inner, outer, start, end));
+      group.appendChild(path);
+    }
+    function label(group, raw, position, angle, cssClass, maximumWidth, baseSize) {
+      var fitted = metrics.fitClockLabel(raw, maximumWidth, {
+        baseSize: baseSize, minSize: 11,
+        measure: function(text, size) { return self.measureWheelText(text, size); }
+      });
+      var element = document.createElementNS(SVG_NS, "text");
+      element.setAttribute("class", cssClass);
+      element.setAttribute("transform", "translate(" + position.x.toFixed(2) +
+        " " + position.y.toFixed(2) + ") rotate(" + angle.toFixed(2) + ")");
+      element.setAttribute("font-size", fitted.fontSize.toFixed(1));
+      element.setAttribute("text-anchor", "middle");
+      element.setAttribute("aria-hidden", "true");
+      fitted.lines.slice(0, 2).forEach(function(part, index, lines) {
+        var tspan = document.createElementNS(SVG_NS, "tspan");
+        tspan.setAttribute("x", "0");
+        tspan.setAttribute("y", lines.length === 1 ? "0" :
+          (index === 0 ? (-fitted.fontSize * .56).toFixed(1) :
+            (fitted.fontSize * .56).toFixed(1)));
+        tspan.textContent = part;
+        element.appendChild(tspan);
+      });
+      group.appendChild(element);
+    }
+    var categoryCount = Math.max(1, categories.length);
+    var activeIndex = categories.findIndex(function(item) {
+      return item.categoryIndex === self.activeCategoryIndex;
+    });
+    var visible = metrics.orbitCategoryWindow(categories.length, Math.max(0, activeIndex), 8);
+    visible.forEach(function(position, index) {
+      var entry = categories[position];
+      var active = entry.categoryIndex === self.activeCategoryIndex;
+      var step = 360 / visible.length;
+      var start = -90 + index * step + .65;
+      var end = -90 + (index + 1) * step - .65;
+      var middle = (start + end) / 2;
+      var group = document.createElementNS(SVG_NS, "g");
+      group.setAttribute("class", "qm-clock-category" + (active ? " active" : ""));
+      group.setAttribute("data-category-index", String(entry.categoryIndex));
+      group.setAttribute("role", "button");
+      group.setAttribute("aria-label", self.displayName(entry.label));
+      group.setAttribute("aria-pressed", active ? "true" : "false");
+      shape(group, "qm-clock-category-shape", 100, 225, start, end);
+      label(group, self.displayName(entry.label) || "Category",
+        polar(cx, cy, 162, middle), 0, "qm-clock-category-text", 107, 14);
+      group.addEventListener("click", function() {
+        self.activePane = "options";
+        self.selectCategory(entry.categoryIndex);
+      });
+      svg.appendChild(group);
+    });
+
+    var center = document.createElementNS(SVG_NS, "circle");
+    center.setAttribute("class", "qm-clock-core");
+    center.setAttribute("cx", String(cx));
+    center.setAttribute("cy", String(cy));
+    center.setAttribute("r", "94");
+    svg.appendChild(center);
+    var centerName = category ? this.displayName(category.label) : "NO CATEGORY";
+    label(svg, centerName, { x:cx, y:cy-10 }, 0, "qm-clock-core-title", 155, 19);
+    var total = this.visibleOptions(category).length;
+    label(svg, String(total) + (total === 1 ? " ATTACHMENT" : " ATTACHMENTS"),
+      { x:cx, y:cy+29 }, 0, "qm-clock-core-caption", 150, 11);
+
+    var options = this.visibleOptions(category);
+    if (category && options.length) {
+      var focusedIndex = options.findIndex(function(item) {
+        return item.optionIndex === self.lastFocusedOptionIndex;
+      });
+      if (focusedIndex < 0) focusedIndex = 0;
+      metrics.orbitOptionWindow(options.length, focusedIndex, 2).forEach(function(row) {
+        var option = options[row.index];
+        var selected = row.offset === 0;
+        var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
+        var geometry = metrics.clockOptionSlice(row.offset);
+        var fullName = self.displayName(option.label) || "Unnamed attachment";
+        var shortName = metrics.shortenCategoryWords(fullName,
+          self.displayName(category.label), self.settings().shortenClockLabels !== false);
+        var group = document.createElementNS(SVG_NS, "g");
+        group.setAttribute("class", "qm-clock-option" + (selected ? " selected" : "") +
+          (option.isInstalled ? " installed" : "") +
+          (!ready && !option.isInstalled ? " blocked" : ""));
+        group.setAttribute("data-option-index", String(option.optionIndex));
+        group.setAttribute("data-display-label", shortName);
+        group.setAttribute("role", "button");
+        group.setAttribute("aria-label", fullName);
+        group.setAttribute("aria-current", selected ? "true" : "false");
+        var title = document.createElementNS(SVG_NS, "title");
+        title.textContent = fullName;
+        group.appendChild(title);
+        shape(group, "qm-clock-option-shape", geometry.innerRadius, geometry.outerRadius,
+          geometry.start, geometry.end);
+        label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
+          geometry.angle), geometry.angle, "qm-clock-option-text", 245, 15);
+        group.addEventListener("mouseenter", function() {
+          if (self.options.onHover) self.options.onHover(category, option);
+        });
+        group.addEventListener("click", function() {
+          self.activePane = "options";
+          self.lastFocusedOptionIndex = option.optionIndex;
+          self.activateOption(category, option);
+        });
+        svg.appendChild(group);
+      });
+    }
+    svg.addEventListener("wheel", function(event) {
+      var current = event.target;
+      var categoryWheel = false;
+      while (current && current !== svg) {
+        var currentClass = current.getAttribute ? (current.getAttribute("class") || "") : "";
+        if (currentClass.split(/\s+/).some(function(value) {
+          return value === "qm-clock-core" || value === "qm-clock-core-title" ||
+            value === "qm-clock-core-caption";
+        })) {
+          categoryWheel = true;
+          break;
+        }
+        if (current.getAttribute &&
+            (current.getAttribute("class") || "").split(/\s+/).indexOf("qm-clock-category") >= 0) {
+          categoryWheel = true;
+          break;
+        }
+        current = current.parentNode;
+      }
+      self.handleOrbitWheel(event, categoryWheel ? "categories" : "options");
+    }, { passive:false });
+    layout.appendChild(svg);
+    return layout;
+  };
+
   Renderer.prototype.handleOrbitWheel = function(event, pane) {
-    if (this.settings().presentation !== "orbit" || !event || !event.deltaY) return;
+    if (["orbit", "clock"].indexOf(this.settings().presentation) < 0 || !event || !event.deltaY) return;
     if (event.preventDefault) event.preventDefault();
     if (this.options.preview) return;
     var now = Date.now();
@@ -1001,6 +1163,7 @@
     else if (presentation === "hybrid") layout = this.renderHybrid(categories, category);
     else if (presentation === "horizontal") layout = this.renderHorizontal(categories, category);
     else if (presentation === "orbit") layout = this.renderOrbit(categories, category);
+    else if (presentation === "clock") layout = this.renderClock(categories, category);
     else layout = this.renderCascade(categories, category);
     this.root.appendChild(layout);
     if (presentation === "horizontal") {
@@ -1106,7 +1269,7 @@
   // Shared input model for keyboard, D-pad and analog sticks. Layouts
   // differ in geometry, not in whether Back/Confirm can change an OMOD.
   Renderer.prototype.navigateDirection = function(direction) {
-    if (this.settings().presentation === "orbit") {
+    if (this.settings().presentation === "orbit" || this.settings().presentation === "clock") {
       if (direction === "left" || direction === "right") {
         this.moveCategory(direction === "left" ? -1 : 1);
       } else if (direction === "up" || direction === "down") {

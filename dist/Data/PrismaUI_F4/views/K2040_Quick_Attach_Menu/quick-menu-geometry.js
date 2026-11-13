@@ -147,11 +147,62 @@
     offset = clamp(Math.round(Number(offset) || 0), -3, 3);
     var distance = Math.abs(offset);
     return {
-      top: 50 + offset * 12.5,
-      left: 29 + (3 - distance) * 15,
-      scale: 1.11 - distance * .065,
-      opacity: 1 - distance * .12
+      top: 50 + offset * 16.5,
+      left: 45 + (2 - distance) * 12,
+      scale: 1.02 - distance * .055
     };
+  }
+
+
+  function clockOptionSlice(offset) {
+    offset = clamp(Math.round(Number(offset) || 0), -2, 2);
+    var angle = offset * 20;
+    return { angle: angle, start: angle - 9.8, end: angle + 9.8,
+      innerRadius: 245, outerRadius: 515 };
+  }
+
+  function shortenCategoryWords(label, category, enabled) {
+    var original = String(label || "").trim();
+    var categoryName = String(category || "").trim();
+    if (!enabled || !original || !categoryName) return original;
+    var escaped = Array.from(categoryName).map(function(character) {
+      return /[\p{L}\p{N}\s]/u.test(character) ? character : "\\" + character;
+    }).join("").replace(/\s+/g, "\\s+");
+    var pattern = new RegExp("(^|[^\\p{L}\\p{N}])(?:" + escaped + ")(?=$|[^\\p{L}\\p{N}])", "giu");
+    var shortened = original.replace(pattern, "$1")
+      .replace(/\s+/g, " ").replace(/^[\s_/:;\-,]+|[\s_/:;\-,]+$/g, "").trim();
+    return shortened || original;
+  }
+
+  function fitClockLabel(value, width, options) {
+    options = options || {};
+    var label = String(value || "").trim();
+    width = Math.max(42, Number(width) || 200);
+    var maximum = clamp(Number(options.baseSize) || 15, 11, 18);
+    var minimum = clamp(Number(options.minSize) || 11, 10, maximum);
+    var measure = options.measure;
+    var size;
+    for (size = maximum; size >= minimum - .01; size -= .5) {
+      if (textWidth(label, size, measure) <= width) return { lines:[label], fontSize:size };
+    }
+    var words = label.split(/\s+/);
+    for (size = maximum; size >= minimum - .01; size -= .5) {
+      var best = null;
+      for (var i = 1; i < words.length; i += 1) {
+        var left = words.slice(0, i).join(" ");
+        var right = words.slice(i).join(" ");
+        var widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (widest <= width && (!best || widest < best.widest))
+          best = { lines:[left,right], fontSize:size, widest:widest };
+      }
+      if (best) return { lines:best.lines, fontSize:best.fontSize };
+    }
+    var halfway = Math.max(1, Math.ceil(words.length / 2));
+    var first = words.slice(0, halfway).join(" ");
+    var last = words.slice(halfway).join(" ");
+    if (!last) return { lines:[truncateLine(label, width, minimum, measure)], fontSize:minimum };
+    return { lines:[truncateLine(first, width, minimum, measure),
+      truncateLine(last, width, minimum, measure)], fontSize:minimum };
   }
 
   global.K2040QuickMenuGeometry = {
@@ -159,6 +210,9 @@
     wheelArcWidth: wheelArcWidth,
     orbitOptionWindow: orbitOptionWindow,
     orbitCategoryWindow: orbitCategoryWindow,
-    orbitRowPosition: orbitRowPosition
+    orbitRowPosition: orbitRowPosition,
+    clockOptionSlice: clockOptionSlice,
+    shortenCategoryWords: shortenCategoryWords,
+    fitClockLabel: fitClockLabel
   };
 })(window);

@@ -1,5 +1,15 @@
 # Current Project State
 
+- Unreleased 0.5.227 Clock Slices candidate (feature/clock-arc-menu)
+  builds on the optional 0.5.226 unified-settings adapter and incorporates
+  the reviewed Orbit V2 visual refinements. It adds radial category sectors
+  with five scrolling annular attachment slices, minimal gaps, aligned text
+  and no icons. The per-category word shortening is display-only, on by
+  default, can be disabled in Settings, and never changes OMOD identity.
+  Clock has independent saved scale and position. Native cross-build, source
+  and browser QA are separate from the required target-game acceptance.
+  This candidate remains unmerged and unreleased.
+
 - Unreleased `0.5.226` optional unified-settings adapter candidate
   (`feature/unified-settings-adapter`) exports the versioned
   `K2040_GetSettingsAdapterV1` for the new shared K2040 settings hub. It

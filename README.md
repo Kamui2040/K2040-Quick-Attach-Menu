@@ -18,6 +18,11 @@ is optional.
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
   hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
+- Unreleased 0.5.227 Clock Slices: one category wheel with individual
+  curved outer attachment sectors. Labels follow their slice angle. Repeated
+  category words are shortened by default only for display, with a Settings
+  toggle for full names. Each presentation retains independent positioning
+  and scale. The real attachment identity and application logic are unchanged.
 - Independent scale and click-drag position for each presentation.
 - Resizable Builder and Settings windows with saved dimensions and reset
   controls.

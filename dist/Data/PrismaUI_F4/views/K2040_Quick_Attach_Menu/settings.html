@@ -181,9 +181,11 @@
             <button class="choice" data-value="radial" type="button">Radial Wheel<small>Category ring with a circular option arc</small></button>
             <button class="choice" data-value="hybrid" type="button">Compact Hybrid<small>Left category wheel with a right list</small></button>
             <button class="choice" data-value="horizontal" type="button">Horizontal Bar<small>Category and entry strips in two compact rows</small></button>
-            <button class="choice" data-value="orbit" type="button">Orbit<small>Circular category selector with a curved scrolling attachment list</small></button>
+            <button class="choice" data-value="orbit" type="button">Orbit<small>Refined category ring with a compact curved attachment list</small></button>
+            <button class="choice" data-value="clock" type="button">Clock Slices<small>Category wheel with curved attachment slices</small></button>
           </div>
-          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Scale for this presentation</span></span><span class="slider-wrap"><input id="scale" type="range" min="50" max="150" step="1"><output id="scaleValue">100%</output></span></div>
+          <div class="setting-row"><span class="setting-copy"><span class="setting-name">Shorten matching category words</span><span class="setting-help">Clock Slices: “Automatic Receiver” displays as “Automatic”. Original names are unchanged.</span></span><button id="shortenClockLabels" class="toggle" type="button" role="switch" aria-checked="true"></button></div>
+           <div class="setting-row"><span class="setting-copy"><span class="setting-name">Scale for this presentation</span></span><span class="slider-wrap"><input id="scale" type="range" min="50" max="150" step="1"><output id="scaleValue">100%</output></span></div>
           <button id="resetPosition" class="reset-button" type="button">Reset current position</button>
           <button class="reset-button" data-reset="presentation" type="button">Reset presentations</button>
         </section>
@@ -328,7 +330,7 @@
 
       function toggle(id, command) {
         var value = !getToggle(id);
-        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply", "cheat-mode":"cheatMode", "logging-enabled":"loggingEnabled", "allow-movement":"allowMovementWhileOpen" };
+        var keys = { "use-authored":"useAuthoredMenus", "close-after-apply":"closeAfterApply", "cheat-mode":"cheatMode", "logging-enabled":"loggingEnabled", "allow-movement":"allowMovementWhileOpen", "shorten-clock-labels":"shortenClockLabels" };
         setToggle(id, value);
         settings[keys[command] || command] = value;
         send("set:" + command + ":" + (value ? "1" : "0"));
@@ -618,6 +620,7 @@
         setToggle("allowMovement", !!settings.allowMovementWhileOpen);
         setToggle("cheatMode", !!settings.cheatMode);
         setToggle("loggingEnabled", settings.loggingEnabled !== false);
+        setToggle("shortenClockLabels", settings.shortenClockLabels !== false);
         var rawSlowdown = settings.menuSlowdown === undefined ? 1 : Number(settings.menuSlowdown);
         var slowdown = Math.round(Math.max(0, Math.min(1, isNaN(rawSlowdown) ? 1 : rawSlowdown)) * 100);
         document.getElementById("menuSlowdown").value = slowdown;
@@ -657,6 +660,7 @@
       document.getElementById("allowMovement").addEventListener("click", function() { toggle("allowMovement", "allow-movement"); });
       document.getElementById("cheatMode").addEventListener("click", function() { toggle("cheatMode", "cheat-mode"); });
       document.getElementById("loggingEnabled").addEventListener("click", function() { toggle("loggingEnabled", "logging-enabled"); });
+      document.getElementById("shortenClockLabels").addEventListener("click", function() { toggle("shortenClockLabels", "shorten-clock-labels"); });
       document.getElementById("menuSlowdown").addEventListener("input", function(event) { settings.menuSlowdown = Number(event.target.value) / 100; document.getElementById("menuSlowdownValue").value = menuSlowdownLabel(event.target.value); });
       document.getElementById("menuSlowdown").addEventListener("change", function() { send("set:menu-slowdown:" + settings.menuSlowdown.toFixed(2)); });
       ["prefix","infix","suffix"].forEach(function(id) { document.getElementById(id).addEventListener("click", function() { setToggle(id, !getToggle(id)); send("bracketed-text:" + (getToggle("prefix")?"1":"0") + ":" + (getToggle("infix")?"1":"0") + ":" + (getToggle("suffix")?"1":"0")); }); });
