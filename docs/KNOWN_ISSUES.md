@@ -18,6 +18,13 @@ movement is enabled. The tester later reported that the movement and ordering
 changes worked as expected. This confirms the reported behavior in that setup,
 not every input device or runtime.
 
+## Resolved in 0.5.222: MCM Categorizer hides Quick Attach page
+
+A report said MCM Categorizer showed an empty K2040 Mods submenu. A tester
+confirmed the 0.5.222 main package displays Quick Attach correctly with
+Categorizer enabled; no extra compatibility ZIP was needed in that setup.
+Other mod combinations were not independently checked.
+
 ## Fixed in 0.5.219: opener-close input leak
 
 A shortcut overlapping a vanilla game command could also trigger the vanilla

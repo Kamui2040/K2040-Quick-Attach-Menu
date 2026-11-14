@@ -4,7 +4,7 @@ Change compatible weapon attachments from a quick in-game menu instead of
 returning to a workbench. ECO-authored menus are supported when available; ECO
 is optional.
 
-**Current GitHub release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222), with an installation ZIP, checksum and optional MCM Categorizer compatibility file. Nexus notes are prepared; its Files entry still needs an upload.
+**Current release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222) is on GitHub and Nexus Mods. The Nexus changelog includes 0.5.221 and 0.5.222. The main package was confirmed to display correctly with MCM Categorizer; the extra compatibility file was not needed in the tested setup.
 
 ## Features
 

@@ -1,16 +1,16 @@
 # Current Project State
 
-- Stable GitHub release: `0.5.222` (published 2026-11-05 with the installation
-  ZIP, SHA-256 and optional MCM Categorizer compatibility file at
-  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222).
-  Nexus notes are prepared; its Files entry still needs upload. Nexus remains
-  at version 0.5.220.
+- Stable release: `0.5.222` was published on GitHub on 2026-11-05 with its
+  installation ZIP, SHA-256 and optional MCM Categorizer compatibility file:
+  https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222.
+  The maintainer updated Nexus Mods on 2026-11-06 with combined 0.5.221 and
+  0.5.222 changelog notes.
 - Version `0.5.222` includes native MCM binding recovery and an optional
-  one-file standalone config for users whose MCM Categorizer hides the Quick
-  Attach page under the shared K2040 Mods parent. Native MCM binding recovery
-  was confirmed in game, including after restarting. The Categorizer override
-  still needs confirmation with Categorizer enabled; other mod combinations
-  were not independently checked.
+  one-file standalone config for users whose MCM Categorizer still hides the
+  Quick Attach page under the shared K2040 Mods parent. Binding recovery was
+  confirmed in game, including after restarting. A tester confirmed the main
+  package displays the page correctly with Categorizer; the extra ZIP was not
+  needed in that setup. Other mod combinations were not independently checked.
 - Previous GitHub release: `0.5.221` (published 2026-11-05 with the verified
   in-game-accepted ZIP and SHA-256 at
   https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.221).
@@ -45,8 +45,9 @@
   leaving serialization to MCM on close. A cleared native-MCM binding must be
   restored in MCM itself. The maintainer's latest in-game test passed; no
   local game or user bindings were modified by the development run.
-- Previous Nexus Mods version: `0.5.220`, confirmed by the maintainer on
-  2026-10-25 at https://www.nexusmods.com/fallout4/mods/109575.
+- Nexus Mods was updated to `0.5.222` on 2026-11-06 with notes for both
+  0.5.221 and 0.5.222. The previous confirmed Nexus version was `0.5.220`.
+  Mod page: https://www.nexusmods.com/fallout4/mods/109575.
   The maintainer tested and accepted the keyboard
   fix in Fallout 4 OG 1.10.163; the deployed DLL matches the published GitHub
   ZIP and the F4SE log records held-opener isolation and key-up release for
