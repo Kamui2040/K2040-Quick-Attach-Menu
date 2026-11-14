@@ -1,5 +1,45 @@
 # Current Project State
 
+- Clock Slices visual refinement (feature/clock-arc-menu): sector centers remain
+  15 degrees apart, but one-line options now render in 8.5-degree sectors and
+  actual two-line options in 13.5-degree sectors. The option text is measured
+  once and reused for geometry and drawing; minimum adjacent gap is 1.5
+  degrees. Display-only and opacity-neutral; keyboard, controller, mouse,
+  attachment identity and native plugin are unchanged. Source and browser QA
+  passed; game runtime verification remains outstanding.
+
+- Current visual QA candidate: Clock Slices attachment sectors are narrower
+  angularly and longer radially, with minimal gaps and a larger text inset.
+  Radial and Hybrid now fit wheel labels at readable sizes, at most two
+  complete-word lines, with no vertical single-letter columns. On Hybrid
+  wheels with more than seven categories, a seven-item category window
+  follows selection and remains accessible by wheel/keyboard/controller.
+  The user's saved background opacity and native attachment behavior are
+  unchanged. Browser and source QA do not replace in-game acceptance.
+
+- Menu label-shortening follow-up (feature/clock-arc-menu): the existing
+  saved checkbox now consistently shortens matching category words in all
+  six menu presentations and recognizes singular/plural words (Sights/Sight,
+  Magazine/Magazines). Only visual text changes; tooltips, accessibility,
+  attachment identity and existing user preferences are preserved. In-game
+  acceptance remains pending.
+
+- Clock Slices screenshot feedback: reduce radial attachment-sector depth,
+  replace large SVG arcs with a compact segmented curved outline to avoid
+  translucent fill corruption, and preserve meaningful reset labels such as
+  "No Material". User-selected background opacity is unchanged. Awaiting
+  target-game verification of this visual correction.
+
+- Unreleased 0.5.227 Clock Slices candidate (feature/clock-arc-menu)
+  builds on the optional 0.5.226 unified-settings adapter and incorporates
+  the reviewed Orbit V2 visual refinements. It adds radial category sectors
+  with five scrolling annular attachment slices, minimal gaps, aligned text
+  and no icons. The per-category word shortening is display-only, on by
+  default, can be disabled in Settings, and never changes OMOD identity.
+  Clock has independent saved scale and position. Native cross-build, source
+  and browser QA are separate from the required target-game acceptance.
+  This candidate remains unmerged and unreleased.
+
 - Unreleased `0.5.226` optional unified-settings adapter candidate
   (`feature/unified-settings-adapter`) exports the versioned
   `K2040_GetSettingsAdapterV1` for the new shared K2040 settings hub. It

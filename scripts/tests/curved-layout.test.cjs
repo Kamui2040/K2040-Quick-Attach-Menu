@@ -25,6 +25,19 @@ fits(unicode,82);
 assert.equal(geometry.wheelArcWidth(108,190,20) < geometry.wheelArcWidth(108,190,60),true,
   'narrow category wedge must expose less text width');
 assert.equal(geometry.wheelArcWidth(108,190,20) > 0,true);
+const compactCategory=geometry.fitReadableWheelLabel('SIGHTS',65,26,{
+  baseSize:15,minSize:12,measure});
+assert.equal(compactCategory.lines.length,1,'narrow Hybrid categories must not stack letters');
+assert.ok(compactCategory.fontSize>=12,'category text remains readable');
+const longRadial=geometry.fitReadableWheelLabel('SHORT NIGHT VISION SCOPE',132,65,{
+  baseSize:15,minSize:12,measure});
+assert.ok(longRadial.lines.length<=2,'radial text uses no more than two lines');
+assert.ok(longRadial.lines.every(line=>line.length>=5),'no isolated single-character label rows');
+const longUnbroken=geometry.fitReadableWheelLabel('INCREDIBLYLONGATTACHMENT',50,30,{
+  baseSize:15,minSize:12,measure});
+assert.equal(longUnbroken.lines.length,1,'long unbroken names truncate rather than stacking characters');
+assert.ok(longUnbroken.lines[0].includes('…'));
+
 
 const rows=geometry.orbitOptionWindow(13,12,3);
 assert.equal(rows.length,7);
@@ -43,4 +56,10 @@ const centre=geometry.orbitRowPosition(0);
 assert.equal(centre.scale>geometry.orbitRowPosition(1).scale,true);
 assert.equal(centre.scale>geometry.orbitRowPosition(3).scale,true);
 assert.equal(geometry.orbitRowPosition(-2).top+geometry.orbitRowPosition(2).top,100);
+assert.equal(geometry.orbitRowPosition(0).left>geometry.orbitRowPosition(1).left,true,
+  'selected attachment is still the outer point of the curve');
+assert.ok(geometry.orbitRowPosition(1).top-geometry.orbitRowPosition(0).top>=16,
+  'Orbit V2 rows leave more vertical breathing room');
+assert.equal('opacity' in geometry.orbitRowPosition(2), false,
+  'row geometry must not fade text independently of the configured background');
 console.log('PASS: measured wedge fitting, Unicode/long words, center-focus curved rows and category window');

@@ -125,6 +125,8 @@ for (const layout of ['cascade', 'radial', 'hybrid']) {
     children: [],
     dataset: {},
     listeners: {},
+    attributes: {},
+    setAttribute(name, value) { this.attributes[name] = String(value); },
     appendChild(child) { this.children.push(child); child.parentNode = this; },
     addEventListener(name, callback) { this.listeners[name] = callback; }
   });

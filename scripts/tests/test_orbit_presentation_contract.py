@@ -34,7 +34,7 @@ class OrbitPresentationContract(unittest.TestCase):
         self.assertIn('handleOrbitWheel', renderer)
         self.assertIn('.presentation-orbit .qm-orbit-layout', css)
         self.assertIn('.presentation-orbit .qm-orbit-option.orbit-selected', css)
-        self.assertIn('wheelArcWidth(', renderer)
+        self.assertIn('fitReadableWheelLabel(', renderer)
         self.assertNotIn('label.slice(0, 17)', renderer)
 
 if __name__ == "__main__":

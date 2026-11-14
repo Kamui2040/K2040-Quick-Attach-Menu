@@ -101,6 +101,53 @@
     return { lines: lines, fontSize: size, truncated: truncated };
   }
 
+
+  function fitReadableWheelLabel(value, width, height, settings) {
+    settings = settings || {};
+    var text = String(value || "").trim();
+    width = Math.max(20, Number(width) || 20);
+    height = Math.max(15, Number(height) || 15);
+    var base = clamp(Number(settings.baseSize) || 14, 11, 26);
+    var minimum = clamp(Number(settings.minSize) || 12, 11, base);
+    var measure = settings.measure;
+    var words = text.split(/\s+/);
+    var size, i, left, right, result, widest;
+    // Prefer an unbroken, readable label. At most two complete-word lines.
+    for (size = base; size >= minimum - .01; size -= .5) {
+      if (size * 1.25 <= height && textWidth(text, size, measure) <= width)
+        return { lines:[text], fontSize:size, truncated:false };
+      if (size * 2.45 > height || words.length < 2) continue;
+      var best = null;
+      for (i = 1; i < words.length; i += 1) {
+        left = words.slice(0, i).join(" ");
+        right = words.slice(i).join(" ");
+        widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (widest <= width && (!best || widest < best.widest))
+          best = { widest:widest, lines:[left,right], fontSize:size, truncated:false };
+      }
+      if (best) return best;
+    }
+    // Do not reduce font size indefinitely or stack single letters vertically.
+    // Truncation is a fallback for a physically too narrow slice only.
+    size = minimum;
+    result = { lines:[truncateLine(text, width, size, measure)], fontSize:size, truncated:true };
+    if (words.length > 1 && height >= size * 2.45) {
+      var shortest = null;
+      for (i = 1; i < words.length; i += 1) {
+        left = words.slice(0, i).join(" ");
+        right = words.slice(i).join(" ");
+        widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (!shortest || widest < shortest.widest)
+          shortest = { widest:widest, lines:[left,right] };
+      }
+      if (shortest) result.lines = shortest.lines.map(function(line) {
+        return textWidth(line, size, measure) > width ?
+          truncateLine(line, width, size, measure) : line;
+      });
+    }
+    return result;
+  }
+
   function wheelArcWidth(innerRadius, outerRadius, spanDegrees) {
     var inner = Math.max(0, Number(innerRadius) || 0);
     var outer = Math.max(inner, Number(outerRadius) || 0);
@@ -147,18 +194,95 @@
     offset = clamp(Math.round(Number(offset) || 0), -3, 3);
     var distance = Math.abs(offset);
     return {
-      top: 50 + offset * 12.5,
-      left: 29 + (3 - distance) * 15,
-      scale: 1.11 - distance * .065,
-      opacity: 1 - distance * .12
+      top: 50 + offset * 16.5,
+      left: 45 + (2 - distance) * 12,
+      scale: 1.02 - distance * .055
     };
   }
 
+
+  function clockOptionSlice(offset, lineCount) {
+    offset = clamp(Math.round(Number(offset) || 0), -2, 2);
+    // Preserve the fixed five-stop spacing so navigation never moves.
+    // One-line labels need less angular space; a genuine second line gets
+    // additional room, but even two wide neighbors retain a visible gap.
+    var angle = offset * 15;
+    var halfSweep = Number(lineCount) === 1 ? 4.25 : 6.75;
+    return { angle: angle, start: angle - halfSweep, end: angle + halfSweep,
+      innerRadius: 234, outerRadius: 462 };
+  }
+
+  function shortenCategoryWords(label, category, enabled) {
+    var original = String(label || "").trim();
+    var categoryName = String(category || "").trim();
+    if (!enabled || !original || !categoryName) return original;
+    // Match the category's full phrase, plus singular/plural versions of its
+    // final word. This handles Sights/Sight, Magazine/Magazines and compounds
+    // like Barrel Attachments/Barrel Attachment without substring removal.
+    var words = categoryName.split(/\s+/);
+    var last = words.pop();
+    var counterpart;
+    if (/ies$/i.test(last) && last.length > 4) counterpart = last.slice(0, -3) + "y";
+    else if (/(?:ches|shes|sses|xes|zes)$/i.test(last)) counterpart = last.slice(0, -2);
+    else if (/s$/i.test(last) && !/ss$/i.test(last)) counterpart = last.slice(0, -1);
+    else if (/[bcdfghjklmnpqrstvwxz]y$/i.test(last)) counterpart = last.slice(0, -1) + "ies";
+    else if (/(?:s|x|z|ch|sh)$/i.test(last)) counterpart = last + "es";
+    else counterpart = last + "s";
+    var phrases = [categoryName, words.concat(counterpart).join(" ")];
+    var escaped = phrases.sort(function(a, b) { return b.length - a.length; }).map(function(phrase) {
+      return Array.from(phrase).map(function(character) {
+        return /[\p{L}\p{N}\s]/u.test(character) ? character : "\\" + character;
+      }).join("").replace(/\s+/g, "\\s+");
+    }).join("|");
+    var pattern = new RegExp("(^|[^\\p{L}\\p{N}])(?:" + escaped + ")(?=$|[^\\p{L}\\p{N}])", "giu");
+    var shortened = original.replace(pattern, "$1")
+      .replace(/\s+/g, " ").replace(/^[\s_/:;\-,]+|[\s_/:;\-,]+$/g, "").trim();
+    // Reset options such as "No Material" should remain meaningful rather
+    // than being reduced to an isolated "No" or "None".
+    if (/^(?:no|none|without)$/iu.test(shortened)) return original;
+    return shortened || original;
+  }
+
+  function fitClockLabel(value, width, options) {
+    options = options || {};
+    var label = String(value || "").trim();
+    width = Math.max(42, Number(width) || 200);
+    var maximum = clamp(Number(options.baseSize) || 15, 11, 18);
+    var minimum = clamp(Number(options.minSize) || 11, 10, maximum);
+    var measure = options.measure;
+    var size;
+    for (size = maximum; size >= minimum - .01; size -= .5) {
+      if (textWidth(label, size, measure) <= width) return { lines:[label], fontSize:size };
+    }
+    var words = label.split(/\s+/);
+    for (size = maximum; size >= minimum - .01; size -= .5) {
+      var best = null;
+      for (var i = 1; i < words.length; i += 1) {
+        var left = words.slice(0, i).join(" ");
+        var right = words.slice(i).join(" ");
+        var widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (widest <= width && (!best || widest < best.widest))
+          best = { lines:[left,right], fontSize:size, widest:widest };
+      }
+      if (best) return { lines:best.lines, fontSize:best.fontSize };
+    }
+    var halfway = Math.max(1, Math.ceil(words.length / 2));
+    var first = words.slice(0, halfway).join(" ");
+    var last = words.slice(halfway).join(" ");
+    if (!last) return { lines:[truncateLine(label, width, minimum, measure)], fontSize:minimum };
+    return { lines:[truncateLine(first, width, minimum, measure),
+      truncateLine(last, width, minimum, measure)], fontSize:minimum };
+  }
+
   global.K2040QuickMenuGeometry = {
+    fitReadableWheelLabel: fitReadableWheelLabel,
     fitWheelLabel: fitWheelLabel,
     wheelArcWidth: wheelArcWidth,
     orbitOptionWindow: orbitOptionWindow,
     orbitCategoryWindow: orbitCategoryWindow,
-    orbitRowPosition: orbitRowPosition
+    orbitRowPosition: orbitRowPosition,
+    clockOptionSlice: clockOptionSlice,
+    shortenCategoryWords: shortenCategoryWords,
+    fitClockLabel: fitClockLabel
   };
 })(window);
