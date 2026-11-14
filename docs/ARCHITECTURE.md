@@ -158,6 +158,15 @@ attachment identity or background-opacity preferences.
 
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
 
+The Clock, Radial and Hybrid annular sectors draw translucent backgrounds
+as multiple convex SVG tiles with an independently stroked outline.
+Concave single-path translucent fills previously produced triangular
+compositing defects in screenshots under Proton/CEF. Radial and Hybrid
+attachment/category labels now use SVG-native horizontal text so placement
+shares the wheel's coordinates and scales as one unit; long labels are
+restricted to two complete-word lines and remain accessible by their full
+original option names. The underlying attachment graph is unaffected.
+
 Matching category-word shortening is also presentation-only and applies
 consistently to Cascade, Radial, Hybrid, Horizontal, Orbit, and Clock Slices.
 One common helper strips only whole-word singular/plural matches of the

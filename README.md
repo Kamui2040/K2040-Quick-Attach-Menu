@@ -22,8 +22,10 @@ is optional.
   narrow, elongated curved outer attachment sectors. The clock automatically
   uses slimmer sectors for one-line names and wider sectors for two-line names,
   without moving the attachment positions. Labels follow their slice angle.
-  Radial and Hybrid wedge labels use readable one- or two-line
-  fitting; Hybrid shows a navigable window when categories are numerous.
+  Radial and Hybrid wedge labels use SVG-native, readable horizontal
+  one- or two-line text rather than tiny rotating letters; their translucent
+  wedge backgrounds use convex tiles to avoid CEF rendering artifacts.
+  Hybrid shows a navigable window when categories are numerous.
   Repeated
   category words (including singular/plural variants) are shortened by
   default across all six menu presentations, with a Settings toggle for full

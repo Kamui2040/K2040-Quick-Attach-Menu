@@ -785,6 +785,60 @@
   stroke-width: 2px;
 }
 
+.qm-wheel-svg-label {
+  fill: var(--qm-text);
+  font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+  font-weight: 700;
+  pointer-events: none;
+  paint-order: stroke fill;
+  stroke: rgba(0, 0, 0, .78);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+}
+.qm-wheel-svg-label.pane-focus,
+.qm-wheel-svg-label.active,
+.qm-wheel-svg-label.hovered {
+  fill: var(--qm-text);
+}
+
+/* Annular CEF fill safety: individual convex tiles carry the translucent
+   background while the full perimeter is stroke-only. Concave single-path
+   fills used to produce stray triangular artifacts on some GPUs.
+   Keep all theme and user opacity variables unchanged. */
+.qm-wheel-segment > .qm-wheel-path,
+.presentation-clock .qm-clock-option > .qm-clock-option-shape,
+.presentation-clock .qm-clock-category > .qm-clock-category-shape {
+  /* Also overrides the selected/hover fill from older theme rules. */
+  fill: none !important;
+}
+.qm-sector-tile {
+  fill: var(--qm-row);
+  stroke: none;
+}
+.qm-wheel-segment:hover > .qm-sector-tile,
+.qm-wheel-segment.active > .qm-sector-tile,
+.qm-wheel-segment.pane-focus > .qm-sector-tile {
+  fill: var(--qm-active);
+}
+.presentation-clock .qm-clock-category > .qm-sector-tile {
+  fill: var(--qm-panel);
+}
+.presentation-clock .qm-clock-category.active > .qm-sector-tile,
+.presentation-clock .qm-clock-category:hover > .qm-sector-tile {
+  fill: var(--qm-orbit-focused-bg, var(--qm-panel-strong));
+}
+.presentation-clock .qm-clock-option > .qm-sector-tile {
+  fill: var(--qm-orbit-secondary-bg, var(--qm-panel));
+}
+.presentation-clock .qm-clock-option.selected > .qm-sector-tile,
+.presentation-clock .qm-clock-option.selected:hover > .qm-sector-tile {
+  fill: var(--qm-orbit-focused-bg, var(--qm-panel-strong));
+}
+.presentation-radial .qm-radial-layout {
+  width: 760px;
+  height: 760px;
+}
+
 /* Classic Pip-Boy is a structural skin, not a green recolor. */
 .theme-pipboy {
   --qm-text: var(--qm-hud-color);

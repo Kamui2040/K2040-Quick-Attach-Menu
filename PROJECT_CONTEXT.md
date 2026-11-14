@@ -1,5 +1,16 @@
 # Current Project State
 
+- Unreleased Clock/Radial/Hybrid UI repair on feature/clock-arc-menu:
+  translucent annular sectors now use small convex SVG fill tiles and
+  separate stroke-only outlines to avoid the reported triangular fill
+  artifacts under the target CEF/GPU renderer. Radial enlarges its option
+  ring to make labels readable; Radial/Hybrid render labels as native SVG
+  text in the same coordinate system as their sectors, horizontally
+  oriented with one or two whole-word lines. The options, application
+  identity, keyboard/controller/mouse navigation, themes and user opacity
+  settings are preserved. Native plugin DLL is unchanged. Browser/static
+  acceptance is distinct from required Proton in-game confirmation.
+
 - Clock Slices visual refinement (feature/clock-arc-menu): sector centers remain
   15 degrees apart, but one-line options now render in 8.5-degree sectors and
   actual two-line options in 13.5-degree sectors. The option text is measured

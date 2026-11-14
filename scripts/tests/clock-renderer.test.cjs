@@ -194,7 +194,7 @@ for(const presentation of presentations){
       assert.equal(text.title,'Reflex Sight',presentation+' full tooltip');
       assert.equal(button.attributes['aria-label'],'Reflex Sight',presentation+' full accessibility label');
     }else if(presentation==='radial'){
-      const labels=collect(renderer.labelPortal,x=>String(x.className).includes('option-label'));
+      const labels=collect(rendered,x=>x.tag==='text'&&String(x.className).includes('option-label'));
       assert.ok(labels.length>0,'radial option label is present');
       assert.equal(labels[0].children.map(x=>x.textContent).join(''),expected,'radial shortened wedge');
       assert.equal(labels[0].attributes.title,'Reflex Sight','radial tooltip is full');
@@ -228,20 +228,67 @@ assert.ok(hybridWheel.listeners.wheel,'the category window is also mouse-wheel s
 hybridWheel.listeners.wheel({deltaY:1,preventDefault(){}});
 assert.equal(renderer.activeCategoryIndex,9,'hybrid wheel scroll navigates in visual order');
 assert.equal(applies.length,1,'category navigation does not apply OMODs');
+// All annular slices must be filled by small convex tiles, not a single
+// concave transparent polygon that can create phantom triangles under CEF.
+renderer.setPayload({settings:{presentation:'clock',backgroundOpacity:.25},
+ parser:{categories:[category(0,3)]}});
+view=renderer.renderClock(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+let clockSectors=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
+for(const group of clockSectors) {
+  const fills=group.children.filter(x=>x.className==='qm-sector-tile');
+  const outline=group.children.find(x=>x.className==='qm-clock-option-shape');
+  assert.ok(fills.length>=3,'clock slice uses convex individually filled tiles');
+  assert.ok(fills.every(x=>!/\sA\s/.test(x.attributes.d)),'tile has no SVG arcs');
+  assert.ok(outline.attributes.d.endsWith(' Z'),'clock outline is a closed line path');
+}
+let clockCategories=collect(view,x=>String(x.className).includes('qm-clock-category')&&x.tag==='g');
+assert.ok(clockCategories.every(x=>x.children.some(y=>y.className==='qm-sector-tile')),
+ 'clock category wedges also use convex fill tiles');
+
+renderer.setPayload({settings:{presentation:'hybrid'},parser:{
+ categories:['Material','Grip','Sights','Receiver','Barrel','Magazine','Muzzle']
+ .map((label,i)=>({categoryIndex:i,label,options:category(i,1).options}))}});
+renderer.activeCategoryIndex=2;
+const readableHybrid=renderer.renderHybrid(renderer.visibleCategories(),renderer.findCategory(2));
+const hybridLabels=collect(readableHybrid,x=>x.tag==='text'&&String(x.className).includes('category-label'));
+for(const label of hybridLabels) {
+ assert.equal(label.attributes['data-wheel-axis'],'horizontal','hybrid categories are horizontal');
+ assert.ok(label.attributes['title'],'category retains full accessible label');
+}
+assert.equal(hybridLabels.length,7,'all visible categories have an SVG label');
+const hybridFill=collect(readableHybrid,x=>x.className==='qm-sector-tile');
+assert.ok(hybridFill.length>35,'hybrid categories use convex tiles, got '+hybridFill.length);
+
+renderer.setPayload({settings:{presentation:'radial'},parser:{categories:[
+ category(0,8),category(1,8),category(2,8),category(3,8),
+ category(4,8),category(5,8),category(6,8)]}});
+renderer.activeCategoryIndex=2;
+const readableRadial=renderer.renderRadial(renderer.visibleCategories(),renderer.findCategory(2));
+const radialSvg=collect(readableRadial,x=>x.tag==='svg')[0];
+assert.equal(radialSvg.attributes.viewBox,'0 0 760 760','radial ring has room for option labels');
+const optionSectors=collect(readableRadial,x=>String(x.className).includes('qm-wheel-option')&&x.tag==='g');
+assert.equal(optionSectors.length,6,'radial keeps established six-option paging');
+assert.ok(optionSectors.every(x=>x.children.filter(y=>y.className==='qm-sector-tile').length>5));
+const optionLabels=collect(readableRadial,x=>x.tag==='text'&&String(x.className).includes('option-label'));
+assert.equal(optionLabels.length,6,'radial labels remain selectable options');
+assert.ok(optionLabels.every(x=>x.attributes['data-wheel-axis']==='horizontal'),'radial options are horizontally readable');
+assert.ok(optionLabels.every(x=>x.children.length<=2),'radial options use at most two lines');
+assert.equal(applies.length,1,'rendering the repaired layouts never changes attachments');
+
 assert.equal(applies.length,1,'cross-presentation label tests never install attachments');
 const hybridLabelPortal=new Node('div');
 const hybridName=renderer.appendWheelLabel(hybridLabelPortal,
  {cx:225,cy:215,innerRadius:108,outerRadius:190,start:97,end:121,
  viewWidth:430,viewHeight:430},'SIGHTS',false,'');
-assert.equal(hybridName.attributes['data-wheel-axis'],'radial',
- 'narrow Hybrid categories should be oriented along the spoke');
+assert.equal(hybridName.attributes['data-wheel-axis'],'horizontal',
+ 'narrow Hybrid categories must remain readable horizontally');
 assert.equal(hybridName.children.length,1,'Hybrid narrow category is one readable line');
 const radialLabelPortal=new Node('div');
 const radialName=renderer.appendWheelLabel(radialLabelPortal,
  {cx:300,cy:300,innerRadius:202,outerRadius:286,start:50,end:87,
  viewWidth:600,viewHeight:600},'SHORT NIGHT VISION SCOPE',true,'');
-assert.equal(radialName.attributes['data-wheel-axis'],'tangential',
- 'Radial attachments should follow the outer circle');
+assert.equal(radialName.attributes['data-wheel-axis'],'horizontal',
+ 'Radial attachments must be readable horizontally');
 assert.ok(radialName.children.length<=2,'Radial text never stacks character-by-character');
 assert.ok(radialName._qmWheelGeometry.fontSize>=12,'Radial labels retain readable local font size');
 

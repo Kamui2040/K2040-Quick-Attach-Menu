@@ -75,6 +75,34 @@
     return commands.join(" ") + " Z";
   }
 
+  function appendSector(group, shapeClass, cx, cy, inner, outer, start, end) {
+    // The old concave, translucent annular SVG path can tessellate into
+    // stray triangles in the game's CEF/GPU renderer. Independent small
+    // convex quadrilaterals have no concave fill to triangulate.
+    var segments = Math.max(2, Math.ceil(Math.abs(end - start) / 3));
+    for (var i = 0; i < segments; i += 1) {
+      var a = start + (end - start) * i / segments;
+      var b = start + (end - start) * (i + 1) / segments;
+      var p0 = polar(cx, cy, inner, a);
+      var p1 = polar(cx, cy, outer, a);
+      var p2 = polar(cx, cy, outer, b);
+      var p3 = polar(cx, cy, inner, b);
+      var tile = document.createElementNS(SVG_NS, "path");
+      tile.setAttribute("class", "qm-sector-tile");
+      tile.setAttribute("d", "M " + p0.x.toFixed(3) + " " + p0.y.toFixed(3) +
+        " L " + p1.x.toFixed(3) + " " + p1.y.toFixed(3) +
+        " L " + p2.x.toFixed(3) + " " + p2.y.toFixed(3) +
+        " L " + p3.x.toFixed(3) + " " + p3.y.toFixed(3) + " Z");
+      group.appendChild(tile);
+    }
+    // Draw one independent stroke above the tiles. The boundary has no fill.
+    var outline = document.createElementNS(SVG_NS, "path");
+    outline.setAttribute("class", shapeClass);
+    outline.setAttribute("fill", "none");
+    outline.setAttribute("d", clockPolygonPath(cx, cy, inner, outer, start, end));
+    group.appendChild(outline);
+  }
+
   function Renderer(root, options) {
     this.root = root;
     this.options = options || {};
@@ -374,7 +402,16 @@
     this.requestedScale = scale;
     this.effectiveScale = Math.max(scale, this.adaptiveScaleFloor(presentation));
     this.previewZoom = this.options.preview ? clamp(this.options.previewZoom, 1, 2, 1) : 1;
-    if (presentation === "orbit" && !this.options.preview) {
+    if (presentation === "radial") {
+      // The repaired option ring is larger to accommodate readable labels.
+      var parentRadial = this.root.parentNode;
+      var availableRadialWidth = (parentRadial && parentRadial.clientWidth) || global.innerWidth || 1920;
+      var availableRadialHeight = (parentRadial && parentRadial.clientHeight) || global.innerHeight || 1080;
+      var radialFit = Math.min((availableRadialWidth - 28) / 760,
+        (availableRadialHeight - 28) / 760);
+      this.effectiveScale = Math.min(this.effectiveScale,
+        Math.max(.25, radialFit / this.previewZoom));
+    } else if (presentation === "orbit" && !this.options.preview) {
       // Preserve circular geometry on 4:3, 16:9 and ultrawide screens.
       var parent = this.root.parentNode;
       var availableWidth = (parent && parent.clientWidth) || global.innerWidth || 1920;
@@ -630,9 +667,17 @@
     var tangentialWidth = Math.max(22, 2 * middleRadius * Math.sin(sweep / 2) - 20);
     var radialWidth = Math.max(24, thickness - 18);
     var radialHeight = Math.max(20, 2 * geometry.innerRadius * Math.sin(sweep / 2) - 12);
-    var useRadial = !optionLabel && tangentialWidth < 90;
-    var safeWidth = useRadial ? radialWidth : tangentialWidth;
-    var safeHeight = useRadial ? radialHeight : Math.max(25, thickness - 18);
+    // Radial/Hybrid labels remain horizontal on screen. The old tangent
+    // rotation made short names such as Grip and Sights almost vertical.
+    // Bound text width in both radial and tangential directions so it stays
+    // inside the actual annular sector instead of crossing the outlines.
+    var radians = middleAngle * Math.PI / 180;
+    var horizontalWidth = Math.min(
+      thickness * .86 / Math.max(.12, Math.abs(Math.cos(radians))),
+      Math.max(20, tangentialWidth + 14) * .90 /
+        Math.max(.12, Math.abs(Math.sin(radians))));
+    var safeWidth = Math.max(32, Math.min(196, horizontalWidth));
+    var safeHeight = Math.max(27, Math.min(66, thickness * .64));
     var renderingScale = Math.max(.45, this.effectiveScale || 1) *
       (this.options.preview ? this.previewZoom : 1);
     var self = this;
@@ -640,16 +685,13 @@
       baseSize: 15 / renderingScale, minSize: 12 / renderingScale,
       measure: function(text, fontSize) { return self.measureWheelText(text, fontSize); }
     });
-    var rotation = (useRadial ? middleAngle : middleAngle + 90);
-    rotation = ((rotation + 180) % 360 + 360) % 360 - 180;
-    if (rotation > 90) rotation -= 180;
-    else if (rotation < -90) rotation += 180;
+    var rotation = 0;
 
     var labelBox = document.createElement("div");
     labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") +
       (stateClass ? " " + stateClass : "");
     labelBox.setAttribute("data-full-label", label);
-    labelBox.setAttribute("data-wheel-axis", useRadial ? "radial" : "tangential");
+    labelBox.setAttribute("data-wheel-axis", "horizontal");
     labelBox.setAttribute("title", label);
     labelBox.style.transform = "translate(-50%, -50%) rotate(" + rotation.toFixed(2) + "deg)";
     labelBox._qmWheelGeometry = {
@@ -670,6 +712,54 @@
     return labelBox;
   };
 
+  Renderer.prototype.appendSectorSvgLabel = function(group, geometry, label, optionLabel, stateClass) {
+    // Native SVG positioning keeps labels in the same coordinate space as
+    // the wedge shapes, unlike the previous separate HTML text portal.
+    var metrics = global.K2040QuickMenuGeometry;
+    var angle = (geometry.start + geometry.end) / 2;
+    var point = polar(geometry.cx, geometry.cy,
+      (geometry.innerRadius + geometry.outerRadius) / 2, angle);
+    var depth = geometry.outerRadius - geometry.innerRadius;
+    var sweep = (geometry.end - geometry.start) * Math.PI / 180;
+    var chord = Math.max(20, 2 * ((geometry.innerRadius + geometry.outerRadius) / 2) *
+      Math.sin(sweep / 2));
+    var radians = angle * Math.PI / 180;
+    var width = Math.max(34, Math.min(196,
+      depth * .86 / Math.max(.12, Math.abs(Math.cos(radians))),
+      chord * .88 / Math.max(.12, Math.abs(Math.sin(radians)))));
+    var height = Math.max(27, Math.min(66, depth * .64));
+    var self = this;
+    var fit = metrics.fitReadableWheelLabel(label, width, height, {
+      baseSize: optionLabel ? 15.5 : 15,
+      minSize: 12,
+      measure: function(text, size) { return self.measureWheelText(text, size); }
+    });
+    var textElement = document.createElementNS(SVG_NS, "text");
+    textElement.setAttribute("class", "qm-wheel-svg-label" +
+      (optionLabel ? " option-label" : " category-label") +
+      (stateClass ? " " + stateClass : ""));
+    textElement.setAttribute("data-full-label", label);
+    textElement.setAttribute("data-wheel-axis", "horizontal");
+    textElement.setAttribute("x", point.x.toFixed(2));
+    textElement.setAttribute("y", point.y.toFixed(2));
+    textElement.setAttribute("font-size", fit.fontSize.toFixed(1));
+    textElement.setAttribute("text-anchor", "middle");
+    textElement.setAttribute("dominant-baseline", "middle");
+    textElement.setAttribute("aria-hidden", "true");
+    textElement.setAttribute("title", label);
+    textElement.setAttribute("data-fitted-lines", String(fit.lines.length));
+    fit.lines.slice(0, 2).forEach(function(line, index, lines) {
+      var tspan = document.createElementNS(SVG_NS, "tspan");
+      tspan.setAttribute("x", point.x.toFixed(2));
+      tspan.setAttribute("y", (point.y + (index - (lines.length - 1) / 2) *
+        fit.fontSize * 1.1).toFixed(2));
+      tspan.textContent = line;
+      textElement.appendChild(tspan);
+    });
+    group.appendChild(textElement);
+    return textElement;
+  };
+
   Renderer.prototype.makeCategorySegment = function(svg, labelLayer, category, start, end, cx, cy, innerRadius, outerRadius) {
     var self = this;
     var label = this.displayName(category.label) || "Unnamed category";
@@ -678,12 +768,9 @@
     var group = document.createElementNS(SVG_NS, "g");
     group.setAttribute("class", "qm-wheel-segment qm-category-segment" + (stateClass ? " " + stateClass : ""));
     group.setAttribute("data-category-index", String(category.categoryIndex));
-    var path = document.createElementNS(SVG_NS, "path");
-    path.setAttribute("class", "qm-wheel-path");
-    path.setAttribute("d", annularPath(cx, cy, innerRadius, outerRadius, start, end));
-    group.appendChild(path);
-    var labelBox = this.appendWheelLabel(labelLayer,
-      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
+    appendSector(group, "qm-wheel-path", cx, cy, innerRadius, outerRadius, start, end);
+    var labelBox = this.appendSectorSvgLabel(group,
+      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end },
       label, false, stateClass);
     group.addEventListener("mouseenter", function() { labelBox.classList.add("hovered"); });
     group.addEventListener("mouseleave", function() { labelBox.classList.remove("hovered"); });
@@ -708,12 +795,9 @@
     group.setAttribute("class", "qm-wheel-segment qm-wheel-option" + stateClass);
     group.setAttribute("data-option-index", String(option.optionIndex));
     group.setAttribute("aria-label", fullName);
-    var path = document.createElementNS(SVG_NS, "path");
-    path.setAttribute("class", "qm-wheel-path");
-    path.setAttribute("d", annularPath(cx, cy, innerRadius, outerRadius, start, end));
-    group.appendChild(path);
-    var labelBox = this.appendWheelLabel(labelLayer,
-      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end, viewWidth:Number(svg.getAttribute("data-view-width")), viewHeight:Number(svg.getAttribute("data-view-height")) },
+    appendSector(group, "qm-wheel-path", cx, cy, innerRadius, outerRadius, start, end);
+    var labelBox = this.appendSectorSvgLabel(group,
+      { cx:cx, cy:cy, innerRadius:innerRadius, outerRadius:outerRadius, start:start, end:end },
       label, true, stateClass);
     labelBox.setAttribute("data-full-label", fullName);
     labelBox.setAttribute("title", fullName);
@@ -772,21 +856,21 @@
     layout.className = "qm-layout qm-radial-layout";
     var svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("class", "qm-wheel");
-    svg.setAttribute("viewBox", "0 0 600 600");
-    svg.setAttribute("data-view-width", "600");
-    svg.setAttribute("data-view-height", "600");
+    svg.setAttribute("viewBox", "0 0 760 760");
+    svg.setAttribute("data-view-width", "760");
+    svg.setAttribute("data-view-height", "760");
     var labelLayer = this.labelPortal;
     var center = document.createElementNS(SVG_NS, "circle");
     center.setAttribute("class", "qm-wheel-center");
-    center.setAttribute("cx", "300");
-    center.setAttribute("cy", "300");
+    center.setAttribute("cx", "380");
+    center.setAttribute("cy", "380");
     center.setAttribute("r", "98");
     svg.appendChild(center);
     var categorySweep = 360 / Math.max(1, categories.length);
     for (var i = 0; i < categories.length; i += 1) {
       var categoryStart = -90 + i * categorySweep + 1.5;
       var categoryEnd = -90 + (i + 1) * categorySweep - 1.5;
-      this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 300, 300, 108, 190);
+      this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 380, 380, 108, 190);
     }
     var controllerOptions = this.options.controllerActive;
     var pageInfo = this.radialPageInfo(category);
@@ -801,7 +885,7 @@
       var optionStart = this.options.controllerActive ? -90 : categoryMiddle - optionSweep / 2;
       for (var j = 0; j < options.length; j += 1) {
         this.makeOptionSegment(svg, labelLayer, category, options[j], optionStart + j * optionSize + 1.2,
-          optionStart + (j + 1) * optionSize - 1.2, 300, 300, 202, 286);
+          optionStart + (j + 1) * optionSize - 1.2, 380, 380, 205, 350);
       }
     }
     layout.appendChild(svg);
@@ -1058,12 +1142,7 @@
     svg.setAttribute("aria-label", "Clock category wheel and attachment slices");
 
     function shape(group, cssClass, inner, outer, start, end) {
-      var path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("class", cssClass);
-      path.setAttribute("d", cssClass === "qm-clock-option-shape"
-        ? clockPolygonPath(cx, cy, inner, outer, start, end)
-        : annularPath(cx, cy, inner, outer, start, end));
-      group.appendChild(path);
+      appendSector(group, cssClass, cx, cy, inner, outer, start, end);
     }
     function label(group, raw, position, angle, cssClass, maximumWidth, baseSize, preparedFit) {
       var fitted = preparedFit || metrics.fitClockLabel(raw, maximumWidth, {
