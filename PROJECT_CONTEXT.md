@@ -1,5 +1,13 @@
 # Current Project State
 
+- Clock Slices visual refinement (feature/clock-arc-menu): sector centers remain
+  15 degrees apart, but one-line options now render in 8.5-degree sectors and
+  actual two-line options in 13.5-degree sectors. The option text is measured
+  once and reused for geometry and drawing; minimum adjacent gap is 1.5
+  degrees. Display-only and opacity-neutral; keyboard, controller, mouse,
+  attachment identity and native plugin are unchanged. Source and browser QA
+  passed; game runtime verification remains outstanding.
+
 - Current visual QA candidate: Clock Slices attachment sectors are narrower
   angularly and longer radially, with minimal gaps and a larger text inset.
   Radial and Hybrid now fit wheel labels at readable sizes, at most two

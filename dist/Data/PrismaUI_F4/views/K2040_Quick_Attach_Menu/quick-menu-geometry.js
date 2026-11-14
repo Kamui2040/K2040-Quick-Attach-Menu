@@ -201,11 +201,14 @@
   }
 
 
-  function clockOptionSlice(offset) {
+  function clockOptionSlice(offset, lineCount) {
     offset = clamp(Math.round(Number(offset) || 0), -2, 2);
-    // Thinner angular sectors, longer radially: keep a small .5-degree gap.
+    // Preserve the fixed five-stop spacing so navigation never moves.
+    // One-line labels need less angular space; a genuine second line gets
+    // additional room, but even two wide neighbors retain a visible gap.
     var angle = offset * 15;
-    return { angle: angle, start: angle - 7.25, end: angle + 7.25,
+    var halfSweep = Number(lineCount) === 1 ? 4.25 : 6.75;
+    return { angle: angle, start: angle - halfSweep, end: angle + halfSweep,
       innerRadius: 234, outerRadius: 462 };
   }
 

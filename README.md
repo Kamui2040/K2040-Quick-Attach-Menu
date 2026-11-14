@@ -19,8 +19,10 @@ is optional.
 - General settings for keybindings, scale, position, opacity, themes, colors,
   hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
 - Unreleased 0.5.227 Clock Slices: one category wheel with individual,
-  narrow, elongated curved outer attachment sectors. Labels follow their
-  slice angle. Radial and Hybrid wedge labels use readable one- or two-line
+  narrow, elongated curved outer attachment sectors. The clock automatically
+  uses slimmer sectors for one-line names and wider sectors for two-line names,
+  without moving the attachment positions. Labels follow their slice angle.
+  Radial and Hybrid wedge labels use readable one- or two-line
   fitting; Hybrid shows a navigable window when categories are numerous.
   Repeated
   category words (including singular/plural variants) are shortened by

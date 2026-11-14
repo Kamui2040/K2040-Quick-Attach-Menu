@@ -48,7 +48,20 @@ for(const offset of [-2,-1,0,1,2]){
 }
 assert.ok(G.clockOptionSlice(-2).end<G.clockOptionSlice(-1).start,'slice gaps are non-overlapping');
 assert.ok(G.clockOptionSlice(0).end-G.clockOptionSlice(0).start<15,'clock slices are thinner around the wheel');
-assert.ok(G.clockOptionSlice(1).start-G.clockOptionSlice(0).end<1,'clock sector gaps remain minimal');
+assert.equal(G.clockOptionSlice(0,1).end-G.clockOptionSlice(0,1).start,8.5,
+  'one-line entries get a slim 8.5 degree sector');
+assert.equal(G.clockOptionSlice(0,2).end-G.clockOptionSlice(0,2).start,13.5,
+  'two-line entries retain room for readable wrapping');
+for(const leftLines of [1,2]){
+ for(const rightLines of [1,2]){
+  const left=G.clockOptionSlice(0,leftLines);
+  const right=G.clockOptionSlice(1,rightLines);
+  assert.ok(right.start-left.end>=1.5,
+   'mixed line counts never create overlapping sector borders');
+  assert.equal(left.angle,0);
+  assert.equal(right.angle,15,'adaptive widths never move attachment centers');
+ }
+}
 assert.ok(G.clockOptionSlice(2).end<40,'new narrow sector fan fits 800px canvas');
 assert.equal(G.fitClockLabel('Powerful Automatic',245).lines.length,1,'normal names fit one line');
 assert.ok(G.fitClockLabel('Extremely Long Hardened Piercing Automatic Receiver',205).lines.length<=2);
@@ -79,6 +92,7 @@ const selected=segments.find(n=>n.attributes['aria-current']==='true');
 assert.equal(selected.attributes['data-display-label'],'Hardened Piercing Automatic');
 assert.equal(selected.attributes['aria-label'],'Hardened Piercing Automatic Receiver');
 assert.equal(selected.attributes['data-option-index'],'2');
+assert.equal(selected.attributes['data-clock-lines'],'1','normal shortened option remains on one line');
 const selectedShape=selected.children.find(x=>x.tag==='path');
 assert.ok(selectedShape);
 assert.ok(!/\sA\s/.test(selectedShape.attributes.d),'avoid arc raster artifacts in CEF translucent fill');
@@ -131,10 +145,26 @@ segments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag=
 assert.equal(segments.length,1);
 assert.equal(segments[0].attributes['data-display-label'],'No Material');
 assert.equal(segments[0].attributes['aria-label'],'No Material');
+assert.equal(segments[0].attributes['data-clock-lines'],'1','single option uses thin single-line sector');
 const compactSector=segments[0].children.find(x=>x.tag==='path');
 assert.ok(compactSector.attributes.d.endsWith(' Z'));
 assert.ok(!/\\sA\\s/.test(compactSector.attributes.d));
 assert.equal(applies.length,1,'material rendering does not install anything');
+// A real long label gets two lines and a wider sector without changing OMOD ids.
+renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
+ parser:{categories:[{categoryIndex:0,label:'Receiver',options:[{
+   optionIndex:5,label:'Hardened Piercing Automatic High Capacity Receiver',
+   isVisible:true,isSelectable:true,isStructurallyValid:true,isInstalled:false
+ }]}]}});
+view=renderer.renderClock(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+const longSegments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
+assert.equal(longSegments.length,1);
+assert.equal(longSegments[0].attributes['data-clock-lines'],'2',
+  'long option keeps a second line and a wider sector');
+assert.equal(longSegments[0].attributes['aria-label'],
+ 'Hardened Piercing Automatic High Capacity Receiver','original label remains intact');
+assert.equal(applies.length,1,'fitting must never install anything');
+
 // All six presentation renderers must use the shared display-only policy.
 const sights={categoryIndex:0,label:'Sights',options:[
  {optionIndex:0,label:'Reflex Sight',isVisible:true,isSelectable:true,isStructurallyValid:true,isInstalled:false},

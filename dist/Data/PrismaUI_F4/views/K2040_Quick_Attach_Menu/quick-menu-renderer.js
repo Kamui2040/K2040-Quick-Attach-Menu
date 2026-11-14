@@ -1065,8 +1065,8 @@
         : annularPath(cx, cy, inner, outer, start, end));
       group.appendChild(path);
     }
-    function label(group, raw, position, angle, cssClass, maximumWidth, baseSize) {
-      var fitted = metrics.fitClockLabel(raw, maximumWidth, {
+    function label(group, raw, position, angle, cssClass, maximumWidth, baseSize, preparedFit) {
+      var fitted = preparedFit || metrics.fitClockLabel(raw, maximumWidth, {
         baseSize: baseSize, minSize: 11,
         measure: function(text, size) { return self.measureWheelText(text, size); }
       });
@@ -1138,15 +1138,23 @@
         var option = options[row.index];
         var selected = row.offset === 0;
         var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
-        var geometry = metrics.clockOptionSlice(row.offset);
         var fullName = self.displayName(option.label) || "Unnamed attachment";
         var shortName = self.optionDisplayName(category, option);
+        var usableLength = 462 - 234 - 30;
+        // Use the same measured fit for geometry and drawing. This avoids
+        // an option switching widths because two fit passes disagree.
+        var fittedOption = metrics.fitClockLabel(shortName, usableLength, {
+          baseSize: 15, minSize: 11,
+          measure: function(text, size) { return self.measureWheelText(text, size); }
+        });
+        var geometry = metrics.clockOptionSlice(row.offset, fittedOption.lines.length);
         var group = document.createElementNS(SVG_NS, "g");
         group.setAttribute("class", "qm-clock-option" + (selected ? " selected" : "") +
           (option.isInstalled ? " installed" : "") +
           (!ready && !option.isInstalled ? " blocked" : ""));
         group.setAttribute("data-option-index", String(option.optionIndex));
         group.setAttribute("data-display-label", shortName);
+        group.setAttribute("data-clock-lines", String(fittedOption.lines.length));
         group.setAttribute("role", "button");
         group.setAttribute("aria-label", fullName);
         group.setAttribute("aria-current", selected ? "true" : "false");
@@ -1157,7 +1165,7 @@
           geometry.start, geometry.end);
         label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
           geometry.angle), geometry.angle, "qm-clock-option-text",
-          Math.max(80, geometry.outerRadius - geometry.innerRadius - 30), 15);
+          Math.max(80, usableLength), 15, fittedOption);
         group.addEventListener("mouseenter", function() {
           if (self.options.onHover) self.options.onHover(category, option);
         });
