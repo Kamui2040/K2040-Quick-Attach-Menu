@@ -624,20 +624,24 @@
     var middleAngle = (geometry.start + geometry.end) / 2;
     var middleRadius = (geometry.innerRadius + geometry.outerRadius) / 2;
     var labelPoint = polar(geometry.cx, geometry.cy, middleRadius, middleAngle);
-    // Use the narrower wedge chord (not arc length), with an upright label
-    // orientation. Resizing and ultrawide previews share the same geometry.
-    var safeWidth = metrics.wheelArcWidth(geometry.innerRadius, geometry.outerRadius,
-      geometry.end - geometry.start);
-    var safeHeight = Math.max(22, thickness * .72);
+    var sweep = Math.max(0, geometry.end - geometry.start) * Math.PI / 180;
+    // Fit text against its actual direction along the slice. Tiny category
+    // wedges use the radial depth rather than piling one character per line.
+    var tangentialWidth = Math.max(22, 2 * middleRadius * Math.sin(sweep / 2) - 20);
+    var radialWidth = Math.max(24, thickness - 18);
+    var radialHeight = Math.max(20, 2 * geometry.innerRadius * Math.sin(sweep / 2) - 12);
+    var useRadial = !optionLabel && tangentialWidth < 90;
+    var safeWidth = useRadial ? radialWidth : tangentialWidth;
+    var safeHeight = useRadial ? radialHeight : Math.max(25, thickness - 18);
     var renderingScale = Math.max(.45, this.effectiveScale || 1) *
       (this.options.preview ? this.previewZoom : 1);
     var self = this;
-    var fitted = metrics.fitWheelLabel(label, safeWidth, safeHeight, {
-      baseSize: (optionLabel ? 13.5 : 14) / renderingScale,
-      minSize: 10 / renderingScale,
+    var fitted = metrics.fitReadableWheelLabel(label, safeWidth, safeHeight, {
+      baseSize: 15 / renderingScale, minSize: 12 / renderingScale,
       measure: function(text, fontSize) { return self.measureWheelText(text, fontSize); }
     });
-    var rotation = ((middleAngle + 90 + 180) % 360 + 360) % 360 - 180;
+    var rotation = (useRadial ? middleAngle : middleAngle + 90);
+    rotation = ((rotation + 180) % 360 + 360) % 360 - 180;
     if (rotation > 90) rotation -= 180;
     else if (rotation < -90) rotation += 180;
 
@@ -645,6 +649,7 @@
     labelBox.className = "qm-wheel-html-label" + (optionLabel ? " option-label" : "") +
       (stateClass ? " " + stateClass : "");
     labelBox.setAttribute("data-full-label", label);
+    labelBox.setAttribute("data-wheel-axis", useRadial ? "radial" : "tangential");
     labelBox.setAttribute("title", label);
     labelBox.style.transform = "translate(-50%, -50%) rotate(" + rotation.toFixed(2) + "deg)";
     labelBox._qmWheelGeometry = {
@@ -875,12 +880,28 @@
     center.setAttribute("cy", "215");
     center.setAttribute("r", "98");
     svg.appendChild(center);
+    // Seven categories is the maximum that can be labelled legibly on a
+    // semicircle. A moving window preserves access to every other category.
+    var metrics = global.K2040QuickMenuGeometry;
+    var currentIndex = categories.findIndex(function(item) {
+      return item.categoryIndex === this.activeCategoryIndex;
+    }, this);
+    var visibleIndices = metrics.orbitCategoryWindow(categories.length, Math.max(0, currentIndex), 7);
     var totalSweep = 166;
-    var segmentSweep = totalSweep / Math.max(1, categories.length);
-    for (var i = 0; i < categories.length; i += 1) {
+    var segmentSweep = totalSweep / Math.max(1, visibleIndices.length);
+    for (var i = 0; i < visibleIndices.length; i += 1) {
       var start = 97 + i * segmentSweep + 1.4;
       var end = 97 + (i + 1) * segmentSweep - 1.4;
-      this.makeCategorySegment(svg, labelLayer, categories[i], start, end, 225, 215, 108, 190);
+      this.makeCategorySegment(svg, labelLayer, categories[visibleIndices[i]],
+        start, end, 225, 215, 104, 205);
+    }
+    if (categories.length > visibleIndices.length) {
+      var self = this;
+      svg.addEventListener("wheel", function(event) {
+        if (!event.deltaY) return;
+        event.preventDefault();
+        if (!self.options.preview) self.moveCategory(event.deltaY > 0 ? -1 : 1);
+      }, { passive:false });
     }
     wheel.appendChild(svg);
     layout.appendChild(wheel);
@@ -1136,7 +1157,7 @@
           geometry.start, geometry.end);
         label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
           geometry.angle), geometry.angle, "qm-clock-option-text",
-          Math.max(80, geometry.outerRadius - geometry.innerRadius - 18), 15);
+          Math.max(80, geometry.outerRadius - geometry.innerRadius - 30), 15);
         group.addEventListener("mouseenter", function() {
           if (self.options.onHover) self.options.onHover(category, option);
         });

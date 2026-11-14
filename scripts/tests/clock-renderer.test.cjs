@@ -39,15 +39,17 @@ assert.equal(G.shortenCategoryWords('No Material','Material',true),'No Material'
 assert.equal(G.shortenCategoryWords('None Receiver','Receiver',true),'None Receiver');
 for(const offset of [-2,-1,0,1,2]){
  const slice=G.clockOptionSlice(offset);
- assert.equal(slice.angle,20*offset);
+ assert.equal(slice.angle,15*offset);
  assert.ok(slice.end>slice.start);
  assert.ok(slice.outerRadius>slice.innerRadius);
  assert.ok(slice.end-slice.start<20);
- assert.ok(slice.outerRadius-slice.innerRadius<=180,'attachment slices must be compact');
- assert.ok(slice.innerRadius>=225 && slice.outerRadius<=425,'outer circle is close to category wheel');
+ assert.ok(slice.outerRadius-slice.innerRadius>=220,'sectors extend far enough for full labels');
+ assert.ok(slice.innerRadius>=225 && slice.outerRadius<=465,'new long slices fit the viewport');
 }
 assert.ok(G.clockOptionSlice(-2).end<G.clockOptionSlice(-1).start,'slice gaps are non-overlapping');
-assert.ok(G.clockOptionSlice(2).end<50,'outer slice fits 800px canvas');
+assert.ok(G.clockOptionSlice(0).end-G.clockOptionSlice(0).start<15,'clock slices are thinner around the wheel');
+assert.ok(G.clockOptionSlice(1).start-G.clockOptionSlice(0).end<1,'clock sector gaps remain minimal');
+assert.ok(G.clockOptionSlice(2).end<40,'new narrow sector fan fits 800px canvas');
 assert.equal(G.fitClockLabel('Powerful Automatic',245).lines.length,1,'normal names fit one line');
 assert.ok(G.fitClockLabel('Extremely Long Hardened Piercing Automatic Receiver',205).lines.length<=2);
 function category(index,count=13){
@@ -82,9 +84,9 @@ assert.ok(selectedShape);
 assert.ok(!/\sA\s/.test(selectedShape.attributes.d),'avoid arc raster artifacts in CEF translucent fill');
 const entries=segments.map(s=>s.children.find(x=>x.tag==='text'));
 const rotations=entries.map(x=>x.attributes.transform);
-assert.ok(rotations[0].includes('rotate(-40'));
+assert.ok(rotations[0].includes('rotate(-30'));
 assert.ok(rotations[2].includes('rotate(0'));
-assert.ok(rotations[4].includes('rotate(40'));
+assert.ok(rotations[4].includes('rotate(30'));
 assert.equal(applies.length,0,'render has no installation side effects');
 selected.listeners.click();
 assert.equal(applies.length,1,'click activates the unchanged original option identity');
@@ -175,5 +177,42 @@ for(const presentation of presentations){
     }
   }
 }
+// Long category lists must retain readable Hybrid labels and remain
+// reachable through category movement and mouse-wheel navigation.
+renderer.setPayload({settings:{presentation:'hybrid'},parser:{
+  categories:Array.from({length:14},(_,i)=>category(i))
+}});
+renderer.activeCategoryIndex=9;
+renderer.labelPortal=new Node('div');
+const hybridDense=renderer.renderHybrid(renderer.visibleCategories(),
+ renderer.findCategory(renderer.activeCategoryIndex));
+const hybridSectors=collect(hybridDense,x=>String(x.className).includes('qm-category-segment')&&x.tag==='g');
+assert.equal(hybridSectors.length,7,'Hybrid renders at most seven legible category slices');
+assert.ok(hybridSectors.some(x=>x.attributes['data-category-index']==='9'),
+ 'the selected category is in the visible group');
+let activeBefore=renderer.activeCategoryIndex;
+renderer.moveCategory(1);
+assert.equal(renderer.activeCategoryIndex,10,'hidden categories remain keyboard reachable');
+const hybridWheel=collect(hybridDense,x=>x.tag==='svg')[0];
+assert.ok(hybridWheel.listeners.wheel,'the category window is also mouse-wheel scrollable');
+hybridWheel.listeners.wheel({deltaY:1,preventDefault(){}});
+assert.equal(renderer.activeCategoryIndex,9,'hybrid wheel scroll navigates in visual order');
+assert.equal(applies.length,1,'category navigation does not apply OMODs');
 assert.equal(applies.length,1,'cross-presentation label tests never install attachments');
+const hybridLabelPortal=new Node('div');
+const hybridName=renderer.appendWheelLabel(hybridLabelPortal,
+ {cx:225,cy:215,innerRadius:108,outerRadius:190,start:97,end:121,
+ viewWidth:430,viewHeight:430},'SIGHTS',false,'');
+assert.equal(hybridName.attributes['data-wheel-axis'],'radial',
+ 'narrow Hybrid categories should be oriented along the spoke');
+assert.equal(hybridName.children.length,1,'Hybrid narrow category is one readable line');
+const radialLabelPortal=new Node('div');
+const radialName=renderer.appendWheelLabel(radialLabelPortal,
+ {cx:300,cy:300,innerRadius:202,outerRadius:286,start:50,end:87,
+ viewWidth:600,viewHeight:600},'SHORT NIGHT VISION SCOPE',true,'');
+assert.equal(radialName.attributes['data-wheel-axis'],'tangential',
+ 'Radial attachments should follow the outer circle');
+assert.ok(radialName.children.length<=2,'Radial text never stacks character-by-character');
+assert.ok(radialName._qmWheelGeometry.fontSize>=12,'Radial labels retain readable local font size');
+
 console.log('PASS: Clock categories, curved slices, rotated labels, name shortening, input and safe activation');

@@ -147,7 +147,14 @@ and transaction callbacks. Each presentation, including Orbit, stores its own
 scale and screen position. Radial and Hybrid wedge labels use measured text
 width and wedge-chord geometry for wrapping or truncation, not fixed character
 counts. These presentation changes do not introduce new runtime menu data or
-reuse third-party UI assets.
+reuse third-party UI assets. Wheel labels do not shrink into
+individual-character columns: measured one- or two-line text uses the
+sector's radial or tangential axis, with a readable font-size floor and
+ellipsis only when the physical space cannot accommodate full text.
+Hybrid limits visible category sectors to seven, retaining mouse-wheel,
+keyboard, and controller access to the remaining categories. Clock Slices
+use thinner angular sectors and deeper radial labels without altering
+attachment identity or background-opacity preferences.
 
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
 

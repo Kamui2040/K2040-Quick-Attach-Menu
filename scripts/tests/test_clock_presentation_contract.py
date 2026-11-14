@@ -32,8 +32,8 @@ class ClockPresentationContract(unittest.TestCase):
         self.assertIn('data-value="clock"', settings)
         self.assertIn('id="shortenClockLabels"', settings)
         self.assertIn("clockPolygonPath(", renderer)
-        self.assertIn("geometry.outerRadius - geometry.innerRadius - 18", renderer)
-        self.assertIn("innerRadius: 234, outerRadius: 402", geometry)
+        self.assertIn("geometry.outerRadius - geometry.innerRadius - 30", renderer)
+        self.assertIn("innerRadius: 234, outerRadius: 462", geometry)
         self.assertIn("Reset options", geometry)
         self.assertIn('toggle("shortenClockLabels", "shorten-clock-labels")', settings)
 

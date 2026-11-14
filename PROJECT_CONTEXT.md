@@ -1,5 +1,14 @@
 # Current Project State
 
+- Current visual QA candidate: Clock Slices attachment sectors are narrower
+  angularly and longer radially, with minimal gaps and a larger text inset.
+  Radial and Hybrid now fit wheel labels at readable sizes, at most two
+  complete-word lines, with no vertical single-letter columns. On Hybrid
+  wheels with more than seven categories, a seven-item category window
+  follows selection and remains accessible by wheel/keyboard/controller.
+  The user's saved background opacity and native attachment behavior are
+  unchanged. Browser and source QA do not replace in-game acceptance.
+
 - Menu label-shortening follow-up (feature/clock-arc-menu): the existing
   saved checkbox now consistently shortens matching category words in all
   six menu presentations and recognizes singular/plural words (Sights/Sight,

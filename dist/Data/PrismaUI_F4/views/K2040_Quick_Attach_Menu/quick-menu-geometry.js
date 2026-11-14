@@ -101,6 +101,53 @@
     return { lines: lines, fontSize: size, truncated: truncated };
   }
 
+
+  function fitReadableWheelLabel(value, width, height, settings) {
+    settings = settings || {};
+    var text = String(value || "").trim();
+    width = Math.max(20, Number(width) || 20);
+    height = Math.max(15, Number(height) || 15);
+    var base = clamp(Number(settings.baseSize) || 14, 11, 26);
+    var minimum = clamp(Number(settings.minSize) || 12, 11, base);
+    var measure = settings.measure;
+    var words = text.split(/\s+/);
+    var size, i, left, right, result, widest;
+    // Prefer an unbroken, readable label. At most two complete-word lines.
+    for (size = base; size >= minimum - .01; size -= .5) {
+      if (size * 1.25 <= height && textWidth(text, size, measure) <= width)
+        return { lines:[text], fontSize:size, truncated:false };
+      if (size * 2.45 > height || words.length < 2) continue;
+      var best = null;
+      for (i = 1; i < words.length; i += 1) {
+        left = words.slice(0, i).join(" ");
+        right = words.slice(i).join(" ");
+        widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (widest <= width && (!best || widest < best.widest))
+          best = { widest:widest, lines:[left,right], fontSize:size, truncated:false };
+      }
+      if (best) return best;
+    }
+    // Do not reduce font size indefinitely or stack single letters vertically.
+    // Truncation is a fallback for a physically too narrow slice only.
+    size = minimum;
+    result = { lines:[truncateLine(text, width, size, measure)], fontSize:size, truncated:true };
+    if (words.length > 1 && height >= size * 2.45) {
+      var shortest = null;
+      for (i = 1; i < words.length; i += 1) {
+        left = words.slice(0, i).join(" ");
+        right = words.slice(i).join(" ");
+        widest = Math.max(textWidth(left, size, measure), textWidth(right, size, measure));
+        if (!shortest || widest < shortest.widest)
+          shortest = { widest:widest, lines:[left,right] };
+      }
+      if (shortest) result.lines = shortest.lines.map(function(line) {
+        return textWidth(line, size, measure) > width ?
+          truncateLine(line, width, size, measure) : line;
+      });
+    }
+    return result;
+  }
+
   function wheelArcWidth(innerRadius, outerRadius, spanDegrees) {
     var inner = Math.max(0, Number(innerRadius) || 0);
     var outer = Math.max(inner, Number(outerRadius) || 0);
@@ -156,11 +203,10 @@
 
   function clockOptionSlice(offset) {
     offset = clamp(Math.round(Number(offset) || 0), -2, 2);
-    var angle = offset * 20;
-    // Stay close to the category ring; the previous 270px depth made the
-    // individual sectors look like long, oversized blades.
-    return { angle: angle, start: angle - 9.8, end: angle + 9.8,
-      innerRadius: 234, outerRadius: 402 };
+    // Thinner angular sectors, longer radially: keep a small .5-degree gap.
+    var angle = offset * 15;
+    return { angle: angle, start: angle - 7.25, end: angle + 7.25,
+      innerRadius: 234, outerRadius: 462 };
   }
 
   function shortenCategoryWords(label, category, enabled) {
@@ -226,6 +272,7 @@
   }
 
   global.K2040QuickMenuGeometry = {
+    fitReadableWheelLabel: fitReadableWheelLabel,
     fitWheelLabel: fitWheelLabel,
     wheelArcWidth: wheelArcWidth,
     orbitOptionWindow: orbitOptionWindow,
