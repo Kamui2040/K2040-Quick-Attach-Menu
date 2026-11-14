@@ -1,9 +1,10 @@
-## MCM Categorizer workaround (optional; needs in-game confirmation)
+## MCM Categorizer compatibility (main package verified)
 
-The third-party MCM Categorizer (Nexus 66311) has been reported to show
-`K2040 Mods` without its merged child pages. Without Categorizer, the same
-mod's child page is visible. This points to a menu-rendering compatibility
-issue; the exact Categorizer code path and in-game fix are not yet verified.
+A report said third-party MCM Categorizer (Nexus 66311) showed the
+`K2040 Mods` parent without Quick Attach's child page. A tester confirmed
+that the 0.5.222 main package displays the page correctly in their setup.
+The extra compatibility ZIP was not needed for that test; other mod
+combinations were not independently checked.
 
 For players who use Categorizer, the release includes a separate
 **opt-in compatibility ZIP** with:
@@ -19,16 +20,18 @@ should not be used without Categorizer. Other K2040 mods need their own
 compatibility handling; an empty shared root may remain if those mods are
 installed. The override affects only Quick Attach: its page becomes a
 standalone entry while Quest Journal and Minimap remain under K2040 Mods. This
-workaround has not yet been confirmed in Quick Attach's game setup.
+override remains an optional fallback if the page is still hidden in a
+particular setup. It was not needed in the tester's setup.
 
 ### Native MCM recovery (included in 0.5.222)
 
-The draft registration repair uses MCM's live binding manager rather than
+The registration repair uses MCM's live binding manager rather than
 synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
 cleared until an explicit Settings assignment. Automatic live repair is limited
 to one stale Unbound duplicate shadowing one unambiguous real binding; all
-other duplicate states require manual diagnosis. Native MCM, MCM Categorizer
-and F4SE Menu Framework need separate game-level compatibility tests.
+other duplicate states require manual diagnosis. The Categorizer page display
+was confirmed in the tester's setup; other MCM providers and F4SE Menu
+Framework still need separate game-level compatibility tests.
 
 ## Optional K2040 Mods MCM grouping (included in 0.5.216)
 
@@ -79,13 +82,13 @@ matrix were not reported for this 0.5.215 check.
 | Fallout 4 | `1.10.163`, `1.11.240` |
 | F4SE | matching runtime release |
 | PrismaUI_F4 | compatible with the bundled `2.1.1` API header |
-| Plugin | `0.5.222` (MCM Categorizer workaround is optional; AE beta) |
+| Plugin | `0.5.222` (Categorizer display verified in one setup; AE beta) |
 | Architecture | Windows x64 |
 
-Version 0.5.222 includes an optional MCM Categorizer workaround. Use it only
-if the Quick Attach page is hidden beneath the shared K2040 Mods parent. The
-native MCM binding recovery was confirmed in game, including after restarting;
-the Categorizer workaround still needs in-game confirmation.
+Version 0.5.222 displays the Quick Attach page correctly with MCM Categorizer
+in the tester's setup, without the extra compatibility ZIP. Keep that ZIP as
+an optional fallback only if the page remains hidden in another setup. Native
+MCM binding recovery was also confirmed in game, including after restarting.
 
 Version 0.5.216 includes the opt-in Cheat mode that bypasses
 loose-mod inventory requirements for otherwise-valid attachments.
