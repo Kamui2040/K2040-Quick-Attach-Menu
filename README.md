@@ -20,11 +20,12 @@ is optional.
   hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
 - Unreleased 0.5.227 Clock Slices: one category wheel with individual,
   narrow, elongated curved outer attachment sectors. The clock automatically
-  uses slimmer sectors for one-line names and wider sectors for two-line names,
-  without moving the attachment positions. Labels follow their slice angle.
-  Radial and Hybrid wedge labels use SVG-native, readable horizontal
-  one- or two-line text rather than tiny rotating letters; their translucent
-  wedge backgrounds use convex tiles to avoid CEF rendering artifacts.
+  uses slimmer sectors for one-line names and wider sectors for two-line names;
+  those sectors pack closely together while keeping the selected item centered.
+  Labels follow their slice angle. Radial and Hybrid wedge labels use SVG-native,
+  readable horizontal one- or two-line text rather than tiny rotating letters.
+  The translucent annular fills have separate SVG outlines, and their
+  minimal angular gaps prevent broad bright wedges over the game world.
   Hybrid shows a navigable window when categories are numerous.
   Repeated
   category words (including singular/plural variants) are shortened by

@@ -17,6 +17,11 @@ class AnnularSectorContract(unittest.TestCase):
         self.assertIn("this.appendSectorSvgLabel(group,", renderer)
         self.assertIn('svg.setAttribute("viewBox", "0 0 760 760")', renderer)
         self.assertIn("var radialFit = Math.min(", renderer)
+        self.assertIn("categorySweep + .12", renderer)
+        self.assertIn("optionSize + .12", renderer)
+        self.assertIn("segmentSweep + .12", renderer)
+        self.assertIn("index * step + .12", renderer)
+
         self.assertNotIn('group.appendChild(path);\n    var labelBox = this.appendWheelLabel(', renderer)
 
     def test_no_translucent_outline_overdraw(self):

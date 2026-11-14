@@ -32,6 +32,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   small to fit a narrow category/attachment sector. Prefer readable whole-word
   one- or two-line labels and keep every category reachable even if only a
   subset fits visibly within a Hybrid wheel.
+- Before attributing bright radial-wheel wedges to an SVG/CEF tessellation
+  defect, measure the unfilled angular gaps at the rendered radius. Large
+  deliberate sector gaps expose the scene and cannot be fixed by changing
+  fill tessellation. Keep narrow gaps without overlapping interactive wedges
+  or changing user-controlled background transparency.
 - Use resolved object-instance OMODs for installed identity.
 - Do not call `BGSMod::Attachment::Mod::GetData` on NG/AE; CommonLib marks it inlined there. Use the inherited `BGSMod::Container::GetData` when only attachment/property container data is needed.
 - Install providers before children and remove children before providers.

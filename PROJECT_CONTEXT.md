@@ -1,45 +1,24 @@
 # Current Project State
 
-- Unreleased Clock/Radial/Hybrid UI repair on feature/clock-arc-menu:
-  translucent annular sectors now use small convex SVG fill tiles and
-  separate stroke-only outlines to avoid the reported triangular fill
-  artifacts under the target CEF/GPU renderer. Radial enlarges its option
-  ring to make labels readable; Radial/Hybrid render labels as native SVG
-  text in the same coordinate system as their sectors, horizontally
-  oriented with one or two whole-word lines. The options, application
-  identity, keyboard/controller/mouse navigation, themes and user opacity
-  settings are preserved. Native plugin DLL is unchanged. Browser/static
-  acceptance is distinct from required Proton in-game confirmation.
+- The current unmerged Clock/Radial/Hybrid UI correction on
+  feature/clock-arc-menu addresses the large *unfilled angular gaps* between
+  sectors, visible as bright triangles over high-contrast game backgrounds.
+  Radial category/attachment and Hybrid category borders now leave only a
+  0.24-degree total gap; Clock category gaps are 0.24 degrees and adaptive
+  one/two-line attachment sectors are packed with a 0.25-degree gap rather
+  than a fixed 15-degree pitch. At tested radii, exposed gaps are around
+  0.8–1.5 pixels, compared with as much as 25.5 pixels previously.
+  The existing convex SVG fill/outline rendering remains in place.
+  Clock's selected option stays centered and thin one-line sector widths
+  remain unchanged. Saved opacity, menus' controls and OMOD identity are
+  unaffected. Browser comparisons passed; *Fallout 4/Proton in-game
+  verification is still required* before calling the artifact fixed.
 
-- Clock Slices visual refinement (feature/clock-arc-menu): sector centers remain
-  15 degrees apart, but one-line options now render in 8.5-degree sectors and
-  actual two-line options in 13.5-degree sectors. The option text is measured
-  once and reused for geometry and drawing; minimum adjacent gap is 1.5
-  degrees. Display-only and opacity-neutral; keyboard, controller, mouse,
-  attachment identity and native plugin are unchanged. Source and browser QA
-  passed; game runtime verification remains outstanding.
-
-- Current visual QA candidate: Clock Slices attachment sectors are narrower
-  angularly and longer radially, with minimal gaps and a larger text inset.
-  Radial and Hybrid now fit wheel labels at readable sizes, at most two
-  complete-word lines, with no vertical single-letter columns. On Hybrid
-  wheels with more than seven categories, a seven-item category window
-  follows selection and remains accessible by wheel/keyboard/controller.
-  The user's saved background opacity and native attachment behavior are
-  unchanged. Browser and source QA do not replace in-game acceptance.
-
-- Menu label-shortening follow-up (feature/clock-arc-menu): the existing
-  saved checkbox now consistently shortens matching category words in all
-  six menu presentations and recognizes singular/plural words (Sights/Sight,
-  Magazine/Magazines). Only visual text changes; tooltips, accessibility,
-  attachment identity and existing user preferences are preserved. In-game
-  acceptance remains pending.
-
-- Clock Slices screenshot feedback: reduce radial attachment-sector depth,
-  replace large SVG arcs with a compact segmented curved outline to avoid
-  translucent fill corruption, and preserve meaningful reset labels such as
-  "No Material". User-selected background opacity is unchanged. Awaiting
-  target-game verification of this visual correction.
+- The same candidate uses SVG-native horizontal category/option labels on
+  Radial and Hybrid, two lines maximum, and a seven-item moving category
+  window for dense Hybrid menus. The shared display-only category-word
+  shortening option handles singular/plural matches in all six presentations
+  without modifying original attachment names or transaction identities.
 
 - Unreleased 0.5.227 Clock Slices candidate (feature/clock-arc-menu)
   builds on the optional 0.5.226 unified-settings adapter and incorporates

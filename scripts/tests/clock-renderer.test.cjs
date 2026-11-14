@@ -63,6 +63,22 @@ for(const leftLines of [1,2]){
  }
 }
 assert.ok(G.clockOptionSlice(2).end<40,'new narrow sector fan fits 800px canvas');
+const packedMixed=G.clockPackedOptionSlices([
+  {offset:-2,lineCount:1},{offset:-1,lineCount:2},{offset:0,lineCount:1},
+  {offset:1,lineCount:1},{offset:2,lineCount:2}
+]);
+assert.equal(packedMixed.length,5);
+assert.equal(packedMixed[2].angle,0,'selection remains visually centered');
+for(let i=0;i<packedMixed.length-1;i++){
+ const gap=packedMixed[i+1].start-packedMixed[i].end;
+ assert.ok(gap>=.249&&gap<=.251,'visual sectors pack at minimal quarter-degree gap');
+}
+assert.equal(packedMixed[2].end-packedMixed[2].start,8.5,
+ 'single-line option keeps narrow geometry in packed mode');
+assert.equal(packedMixed[1].end-packedMixed[1].start,13.5,
+ 'two-line option retains enough angular space in packed mode');
+assert.ok(Math.abs(packedMixed[0].angle)<25,'five-sector fan no longer spreads across oversized gaps');
+
 assert.equal(G.fitClockLabel('Powerful Automatic',245).lines.length,1,'normal names fit one line');
 assert.ok(G.fitClockLabel('Extremely Long Hardened Piercing Automatic Receiver',205).lines.length<=2);
 function category(index,count=13){
@@ -74,6 +90,26 @@ function category(index,count=13){
  }))};
 }
 function collect(node,predicate){return [node,...node.children.flatMap(child=>collect(child,predicate))].filter(predicate);}
+
+function exposedSectorGapPixels(first, second, cx, cy, outerRadius) {
+  function values(tile) {
+    return tile.attributes.d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+  }
+  function angle(x,y) { return Math.atan2(y-cy,x-cx)*180/Math.PI; }
+  const a=first.children.filter(c=>c.className==='qm-sector-tile');
+  const b=second.children.filter(c=>c.className==='qm-sector-tile');
+  assert.ok(a.length>0&&b.length>0,'both sectors have convex fill tiles');
+  const end=values(a[a.length-1]),begin=values(b[0]);
+  const gap=((angle(begin[0],begin[1])-angle(end[6],end[7])+720)%360);
+  return gap*Math.PI/180*outerRadius;
+}
+function assertMinimalAdjacentGaps(groups,cx,cy,radius,title) {
+  for(let i=1;i<groups.length;i++) {
+    const gap=exposedSectorGapPixels(groups[i-1],groups[i],cx,cy,radius);
+    assert.ok(gap>=0&&gap<2.25,title+' leaves only a hairline gap: '+gap);
+  }
+}
+
 let applies=[];
 const renderer=host.K2040QuickMenuRenderer.create(new Node('div'),{
  onOptionActivated:(cat,opt)=>applies.push([cat.categoryIndex,opt.optionIndex])});
@@ -87,6 +123,8 @@ let segments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.
 let cats=collect(view,x=>String(x.className).includes('qm-clock-category')&&x.tag==='g');
 assert.equal(segments.length,5);
 assert.equal(cats.length,8,'many categories retain a navigable window');
+assertMinimalAdjacentGaps(cats,350,400,225,'Clock categories');
+assertMinimalAdjacentGaps(segments,350,400,462,'Clock attachment slices');
 assert.equal(segments.filter(n=>n.attributes['aria-current']==='true').length,1);
 const selected=segments.find(n=>n.attributes['aria-current']==='true');
 assert.equal(selected.attributes['data-display-label'],'Hardened Piercing Automatic');
@@ -98,9 +136,16 @@ assert.ok(selectedShape);
 assert.ok(!/\sA\s/.test(selectedShape.attributes.d),'avoid arc raster artifacts in CEF translucent fill');
 const entries=segments.map(s=>s.children.find(x=>x.tag==='text'));
 const rotations=entries.map(x=>x.attributes.transform);
-assert.ok(rotations[0].includes('rotate(-30'));
-assert.ok(rotations[2].includes('rotate(0'));
-assert.ok(rotations[4].includes('rotate(30'));
+const initialPacked=G.clockPackedOptionSlices(segments.map((node,index)=>({
+  offset:index-2,lineCount:Number(node.attributes['data-clock-lines'])
+})));
+for(let i=0;i<rotations.length;i++){
+  const raw=rotations[i].match(/rotate\((-?[0-9.]+)\)/);
+  assert.ok(raw, 'clock option rotation exists');
+  assert.ok(Math.abs(Number(raw[1])-initialPacked[i].angle)<.02,
+   'option position follows measured packed sector center');
+}
+assert.equal(initialPacked[2].angle,0,'focused option remains at zero degrees');
 assert.equal(applies.length,0,'render has no installation side effects');
 selected.listeners.click();
 assert.equal(applies.length,1,'click activates the unchanged original option identity');
@@ -218,6 +263,7 @@ const hybridDense=renderer.renderHybrid(renderer.visibleCategories(),
  renderer.findCategory(renderer.activeCategoryIndex));
 const hybridSectors=collect(hybridDense,x=>String(x.className).includes('qm-category-segment')&&x.tag==='g');
 assert.equal(hybridSectors.length,7,'Hybrid renders at most seven legible category slices');
+assertMinimalAdjacentGaps(hybridSectors,225,215,205,'Hybrid categories');
 assert.ok(hybridSectors.some(x=>x.attributes['data-category-index']==='9'),
  'the selected category is in the visible group');
 let activeBefore=renderer.activeCategoryIndex;
@@ -268,6 +314,9 @@ const radialSvg=collect(readableRadial,x=>x.tag==='svg')[0];
 assert.equal(radialSvg.attributes.viewBox,'0 0 760 760','radial ring has room for option labels');
 const optionSectors=collect(readableRadial,x=>String(x.className).includes('qm-wheel-option')&&x.tag==='g');
 assert.equal(optionSectors.length,6,'radial keeps established six-option paging');
+const radialCategorySectors=collect(readableRadial,x=>String(x.className).includes('qm-category-segment')&&x.tag==='g');
+assertMinimalAdjacentGaps(radialCategorySectors,380,380,190,'Radial categories');
+assertMinimalAdjacentGaps(optionSectors,380,380,350,'Radial attachments');
 assert.ok(optionSectors.every(x=>x.children.filter(y=>y.className==='qm-sector-tile').length>5));
 const optionLabels=collect(readableRadial,x=>x.tag==='text'&&String(x.className).includes('option-label'));
 assert.equal(optionLabels.length,6,'radial labels remain selectable options');

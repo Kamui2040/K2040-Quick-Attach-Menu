@@ -868,8 +868,8 @@
     svg.appendChild(center);
     var categorySweep = 360 / Math.max(1, categories.length);
     for (var i = 0; i < categories.length; i += 1) {
-      var categoryStart = -90 + i * categorySweep + 1.5;
-      var categoryEnd = -90 + (i + 1) * categorySweep - 1.5;
+      var categoryStart = -90 + i * categorySweep + .12;
+      var categoryEnd = -90 + (i + 1) * categorySweep - .12;
       this.makeCategorySegment(svg, labelLayer, categories[i], categoryStart, categoryEnd, 380, 380, 108, 190);
     }
     var controllerOptions = this.options.controllerActive;
@@ -884,8 +884,8 @@
       var optionSize = optionSweep / options.length;
       var optionStart = this.options.controllerActive ? -90 : categoryMiddle - optionSweep / 2;
       for (var j = 0; j < options.length; j += 1) {
-        this.makeOptionSegment(svg, labelLayer, category, options[j], optionStart + j * optionSize + 1.2,
-          optionStart + (j + 1) * optionSize - 1.2, 380, 380, 205, 350);
+        this.makeOptionSegment(svg, labelLayer, category, options[j], optionStart + j * optionSize + .12,
+          optionStart + (j + 1) * optionSize - .12, 380, 380, 205, 350);
       }
     }
     layout.appendChild(svg);
@@ -974,8 +974,8 @@
     var totalSweep = 166;
     var segmentSweep = totalSweep / Math.max(1, visibleIndices.length);
     for (var i = 0; i < visibleIndices.length; i += 1) {
-      var start = 97 + i * segmentSweep + 1.4;
-      var end = 97 + (i + 1) * segmentSweep - 1.4;
+      var start = 97 + i * segmentSweep + .12;
+      var end = 97 + (i + 1) * segmentSweep - .12;
       this.makeCategorySegment(svg, labelLayer, categories[visibleIndices[i]],
         start, end, 225, 215, 104, 205);
     }
@@ -1176,8 +1176,8 @@
       var entry = categories[position];
       var active = entry.categoryIndex === self.activeCategoryIndex;
       var step = 360 / visible.length;
-      var start = -90 + index * step + .65;
-      var end = -90 + (index + 1) * step - .65;
+      var start = -90 + index * step + .12;
+      var end = -90 + (index + 1) * step - .12;
       var middle = (start + end) / 2;
       var group = document.createElementNS(SVG_NS, "g");
       group.setAttribute("class", "qm-clock-category" + (active ? " active" : ""));
@@ -1213,20 +1213,30 @@
         return item.optionIndex === self.lastFocusedOptionIndex;
       });
       if (focusedIndex < 0) focusedIndex = 0;
-      metrics.orbitOptionWindow(options.length, focusedIndex, 2).forEach(function(row) {
+      var usableLength = 462 - 234 - 30;
+      var plans = metrics.orbitOptionWindow(options.length, focusedIndex, 2).map(function(row) {
         var option = options[row.index];
-        var selected = row.offset === 0;
-        var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
-        var fullName = self.displayName(option.label) || "Unnamed attachment";
         var shortName = self.optionDisplayName(category, option);
-        var usableLength = 462 - 234 - 30;
-        // Use the same measured fit for geometry and drawing. This avoids
-        // an option switching widths because two fit passes disagree.
-        var fittedOption = metrics.fitClockLabel(shortName, usableLength, {
+        // Measure only once: sector packing and drawing must use the same
+        // one- or two-line decision, without changing actual option identity.
+        var fitted = metrics.fitClockLabel(shortName, usableLength, {
           baseSize: 15, minSize: 11,
           measure: function(text, size) { return self.measureWheelText(text, size); }
         });
-        var geometry = metrics.clockOptionSlice(row.offset, fittedOption.lines.length);
+        return { row:row, option:option, shortName:shortName, fitted:fitted };
+      });
+      var packed = metrics.clockPackedOptionSlices(plans.map(function(plan) {
+        return { offset:plan.row.offset, lineCount:plan.fitted.lines.length };
+      }));
+      plans.forEach(function(plan, index) {
+        var row = plan.row;
+        var option = plan.option;
+        var selected = row.offset === 0;
+        var ready = option.isSelectable && option.isStructurallyValid && !option.isInstalled;
+        var fullName = self.displayName(option.label) || "Unnamed attachment";
+        var shortName = plan.shortName;
+        var fittedOption = plan.fitted;
+        var geometry = packed[index];
         var group = document.createElementNS(SVG_NS, "g");
         group.setAttribute("class", "qm-clock-option" + (selected ? " selected" : "") +
           (option.isInstalled ? " installed" : "") +

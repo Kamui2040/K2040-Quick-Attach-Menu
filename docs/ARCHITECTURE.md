@@ -158,14 +158,21 @@ attachment identity or background-opacity preferences.
 
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
 
-The Clock, Radial and Hybrid annular sectors draw translucent backgrounds
-as multiple convex SVG tiles with an independently stroked outline.
-Concave single-path translucent fills previously produced triangular
-compositing defects in screenshots under Proton/CEF. Radial and Hybrid
-attachment/category labels now use SVG-native horizontal text so placement
-shares the wheel's coordinates and scales as one unit; long labels are
-restricted to two complete-word lines and remain accessible by their full
-original option names. The underlying attachment graph is unaffected.
+Clock, Radial and Hybrid annular sectors use convex SVG tiles for translucent
+backgrounds and separate stroke-only outlines. The earlier path-tessellation
+change did not resolve bright triangular shapes in-game; geometry comparison
+instead found unfilled gaps as wide as 3 degrees, exposing bright parts of
+the world behind the menu. Radial/Hybrid categories and Radial attachments
+now use a 0.12-degree inset at each angular boundary. Clock categories also
+use 0.12 degrees. Clock attachment widths follow measured line counts and
+are packed with a 0.25-degree intersector gap. This is a visual-only change:
+the focused option stays centered and all navigation and selection identities
+remain unchanged. In-game compositing still requires target verification.
+
+Radial and Hybrid attachment/category labels use SVG-native horizontal text,
+sharing wheel coordinates and scaling; names use at most two whole-word lines,
+and their original labels remain available to accessibility and tooltips.
+The attachment graph and background opacity preferences are unaffected.
 
 Matching category-word shortening is also presentation-only and applies
 consistently to Cascade, Radial, Hybrid, Horizontal, Orbit, and Clock Slices.

@@ -201,15 +201,40 @@
   }
 
 
-  function clockOptionSlice(offset, lineCount) {
+  function clockOptionSlice(offset, lineCount, centerAngle) {
     offset = clamp(Math.round(Number(offset) || 0), -2, 2);
-    // Preserve the fixed five-stop spacing so navigation never moves.
-    // One-line labels need less angular space; a genuine second line gets
-    // additional room, but even two wide neighbors retain a visible gap.
-    var angle = offset * 15;
+    var angle = Number.isFinite(Number(centerAngle)) && centerAngle !== undefined ?
+      Number(centerAngle) : offset * 15;
     var halfSweep = Number(lineCount) === 1 ? 4.25 : 6.75;
     return { angle: angle, start: angle - halfSweep, end: angle + halfSweep,
       innerRadius: 234, outerRadius: 462 };
+  }
+
+  function clockPackedOptionSlices(rows) {
+    // Thin sectors must stay close together even with mixed one/two-line
+    // labels. A fixed 15° pitch left broad triangular holes between them.
+    // Navigation still uses row.offset; only visual angles are packed.
+    var sorted = (rows || []).map(function(row, index) {
+      return { offset: row.offset, lineCount: row.lineCount, index: index,
+        span: Number(row.lineCount) === 1 ? 8.5 : 13.5 };
+    }).sort(function(a, b) { return a.offset - b.offset; });
+    if (!sorted.length) return [];
+    var center = sorted.findIndex(function(row) { return row.offset === 0; });
+    if (center < 0) center = Math.floor(sorted.length / 2);
+    var gap = .25;
+    sorted[center].angle = 0;
+    var i;
+    for (i = center + 1; i < sorted.length; i += 1) {
+      sorted[i].angle = sorted[i - 1].angle +
+        (sorted[i - 1].span + sorted[i].span) / 2 + gap;
+    }
+    for (i = center - 1; i >= 0; i -= 1) {
+      sorted[i].angle = sorted[i + 1].angle -
+        (sorted[i + 1].span + sorted[i].span) / 2 - gap;
+    }
+    return sorted.sort(function(a, b) { return a.index - b.index; }).map(function(row) {
+      return clockOptionSlice(row.offset, row.lineCount, row.angle);
+    });
   }
 
   function shortenCategoryWords(label, category, enabled) {
@@ -282,6 +307,7 @@
     orbitCategoryWindow: orbitCategoryWindow,
     orbitRowPosition: orbitRowPosition,
     clockOptionSlice: clockOptionSlice,
+    clockPackedOptionSlices: clockPackedOptionSlices,
     shortenCategoryWords: shortenCategoryWords,
     fitClockLabel: fitClockLabel
   };
