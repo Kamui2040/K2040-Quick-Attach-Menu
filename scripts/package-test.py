@@ -77,18 +77,13 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
             child["pages"][0].get("pageDisplayName") != "Quick Attach Menu"):
         raise ValueError("Quick Attach must provide one child-owned MCM page")
     controls = child["pages"][0]["content"]
-    if [x["id"] for x in controls if x.get("type") == "hotkey"] != [
-            "openQuickMenu", "openMenuBuilder"]:
-        raise ValueError("Child MCM hotkey controls do not match existing IDs")
+    if any(x.get("type") in ("hotkey", "dropdown") for x in controls):
+        raise ValueError("Quick Attach gameplay controls must not be registered through MCM")
     bind = json.loads(data[KEYBINDS])
     if bind.get("modName") != "K2040_Quick_Attach_Menu":
         raise ValueError("Keyboard assignments must remain child-owned")
-    actions = {v["id"]: v["action"] for v in bind["keybinds"]}
-    if actions != {
-        "openQuickMenu": {"type": "RunConsoleCommand", "command": ""},
-        "openMenuBuilder": {"type": "RunConsoleCommand", "command": ""},
-    }:
-        raise ValueError("MCM actions must use the supported inert native registry handler")
+    if bind["keybinds"] != []:
+        raise ValueError("Quick Attach cannot register gameplay keybinds in MCM")
     if data[DEFAULTS].decode("utf-8") != (
             "[Controller]\niQuickAttachPadPrimary=0\niQuickAttachPadModifier=0\n"):
         raise ValueError("Controller defaults must be child-owned and unbound")

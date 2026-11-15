@@ -40,6 +40,8 @@ namespace k2040
 
     struct QuickMenuPreferences
     {
+        std::string quickMenuHotkey = "Shift+K";
+        std::string menuBuilderHotkey = "Ctrl+Shift+K";
         std::string presentation = "cascade";
         double backgroundOpacity = 0.92;
         std::string theme = "default";

@@ -1,4 +1,7 @@
 #include "K2040SettingsAdapterV2.h"
+#include "GameplayKeybindPolicy.h"
+#include "Hotkey.h"
+#include "ControllerShortcuts.h"
 #include "JsonPreferencesParser.h"
 #include "SettingsV2ValuePolicy.h"
 #include "PrismaBridge.h"
@@ -71,6 +74,9 @@ namespace {
         auto boolean=[&](const char* id,bool value){out<<Quote(id)<<":"<<(value?"true":"false")<<",";};
         auto number=[&](const char* id,double value){out<<Quote(id)<<":"<<value<<",";};
         out<<"{";
+        str("quickMenuHotkey",p.quickMenuHotkey);
+        str("menuBuilderHotkey",p.menuBuilderHotkey);
+        str("controllerQuickShortcut",k2040::GetControllerShortcut("quick"));
         str("presentation",p.presentation);
         str("theme",p.theme);
         str("customAccent",p.customAccent);
@@ -105,6 +111,15 @@ namespace {
         const auto* number=parsed->AsNumber();
         const auto* flag=parsed->AsBool();
         if(!k2040::GetUserSettingsDiagnostics().saveAllowed)return false;
+        if (name=="controllerQuickShortcut") {
+            return text && k2040::SetControllerShortcut("quick",*text);
+        }
+        if (name=="quickMenuHotkey" || name=="menuBuilderHotkey") {
+            if(!text)return false;
+            const auto [keycode,modifiers]=k2040::gameplay_keys::ToKeycode(*text);
+            return k2040::SetSharedHotkeyBinding(
+                name=="quickMenuHotkey"?"openQuickMenu":"openMenuBuilder",keycode,modifiers);
+        }
         auto p=k2040::GetQuickMenuPreferences();
         const auto before=p;
         if(name=="hideBracketedPrefixes"||name=="hideBracketedInfixes"||

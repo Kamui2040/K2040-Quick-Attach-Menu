@@ -1,4 +1,4 @@
-"""V2 does not take ownership of settings shortcuts or gameplay keybinds."""
+"""Hub owns only the settings shortcut; Quick Attach owns gameplay keys."""
 from pathlib import Path
 import json
 import unittest
@@ -11,7 +11,7 @@ class SettingsV2ShortcutContract(unittest.TestCase):
     def test_only_gameplay_hotkeys_stay_in_mod_config(self):
         registry = json.loads((MCM / "keybinds.json").read_text())
         config = json.loads((MCM / "config.json").read_text())
-        allowed = {"openQuickMenu", "openMenuBuilder"}
+        allowed = set()
         self.assertEqual({item["id"] for item in registry["keybinds"]}, allowed)
         pages = config["pages"]
         hotkeys = [item["id"] for page in pages
@@ -34,9 +34,10 @@ class SettingsV2ShortcutContract(unittest.TestCase):
         fields = [field for category in manifest["categories"]
                   for group in category["groups"] for field in group["fields"]]
         by_id = {field["id"]: field for field in fields}
-        for name in ("openQuickMenu", "openMenuBuilder"):
-            self.assertEqual(by_id[name]["type"], "action")
-            self.assertEqual(by_id[name]["owner"], "mcm")
+        for name in ("quickMenuHotkey", "menuBuilderHotkey"):
+            self.assertEqual(by_id[name]["type"], "keybind")
+            self.assertNotIn("owner",by_id[name])
+        self.assertEqual(by_id["controllerQuickShortcut"]["type"],"select")
         self.assertNotIn("settingsShortcut", by_id)
         self.assertNotIn("openUnifiedSettings", by_id)
 

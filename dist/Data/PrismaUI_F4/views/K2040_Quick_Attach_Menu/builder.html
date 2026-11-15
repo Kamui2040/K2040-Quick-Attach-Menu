@@ -624,7 +624,9 @@
         Array.prototype.indexOf.call(focusedRow.parentElement.querySelectorAll(".row"), focusedRow);
       var weapon = payload && payload.weapon ? payload.weapon : {};
       var parser = payload && payload.parser ? payload.parser : {};
-      document.body.classList.toggle("theme-fallout76", !!(payload && payload.settings && payload.settings.theme === "fallout76"));
+      document.body.classList.toggle("theme-fallout76",
+        !!(payload && payload.settings && payload.settings.theme === "fallout76") &&
+        !document.documentElement.hasAttribute("data-k2040-palette"));
       document.getElementById("weaponName").textContent = displayName(weapon.name) || "No equipped weapon menu found";
       updateProfileStatus();
       updateMenuSourceControl();

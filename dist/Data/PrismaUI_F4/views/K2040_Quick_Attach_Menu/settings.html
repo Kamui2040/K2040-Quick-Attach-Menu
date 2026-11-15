@@ -139,7 +139,7 @@
             </span>
           </div>
           <p class="intro" id="controllerShortcutNotice" role="status">Controller shortcuts are initially unassigned to avoid interfering with Fallout's gamepad controls.</p>
-          <p class="intro" role="status">With native MCM installed, a change or Reset is pending until you open Fallout’s Pause menu and close MCM so it can save. Settings does not overwrite MCM’s keybind file. If a binding was cleared in MCM, reassign it in MCM first. Confirm the assignment before relying on it.</p>
+          <p class="intro" role="status">Quick Attach gameplay shortcuts save directly to the mod's own preferences. Only the Unified Settings shortcut is configured through MCM. Changes take effect without opening MCM.</p>
           <button class="reset-button" data-reset="controls" type="button">Reset controls</button>
         </section>
 
@@ -608,7 +608,7 @@
 
       function render() {
         settings = payload && payload.settings ? payload.settings : {};
-        document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76");
+        document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76" && !document.documentElement.hasAttribute("data-k2040-palette"));
         if (!settings.layouts) settings.layouts = {};
         applySettingsPanelSize();
         document.getElementById("quickKey").textContent = settings.openMenuHotkey || "Not assigned";
@@ -649,7 +649,7 @@
       window.k2040FocusMenuInitial = function() { document.querySelector(".nav-button.active").focus(); };
 
       Array.prototype.forEach.call(document.querySelectorAll(".nav-button"), function(button) { button.addEventListener("click", function() { showPage(button.dataset.page); }); });
-      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76"); markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
+      Array.prototype.forEach.call(document.querySelectorAll("#themeChoices .choice"), function(button) { button.addEventListener("click", function() { settings.theme = button.dataset.value; document.body.classList.toggle("theme-fallout76", settings.theme === "fallout76" && !document.documentElement.hasAttribute("data-k2040-palette")); markChoices("themeChoices", settings.theme); send("set:theme:" + settings.theme); renderPreview(); }); });
       Array.prototype.forEach.call(document.querySelectorAll("#presentationChoices .choice"), function(button) { button.addEventListener("click", function() { settings.presentation = button.dataset.value; markChoices("presentationChoices", settings.presentation); send("set:presentation:" + settings.presentation); document.getElementById("scale").value = Math.round((Number(activeLayout().scale) || 1) * 100); renderPreview(); }); });
 
       document.getElementById("opacity").addEventListener("input", function(event) { settings.backgroundOpacity = Number(event.target.value) / 100; document.getElementById("opacityValue").value = event.target.value + "%"; renderPreview(); });
@@ -701,7 +701,7 @@
         Array.prototype.forEach.call(document.querySelectorAll(".keybind"), function(button) { button.classList.remove("capturing"); });
       }
       // Under Proton, CEF may not send mousedown for physical Mouse 4/5.
-      // The native poller forwards the exact same MCM pseudo-keycodes here.
+      // The native poller forwards validated Quick Attach mouse keycodes here.
       window.k2040CaptureNativeMouse = function(keycode, modifiers) {
         if (!capturing || (keycode !== 259 && keycode !== 260) ||
             !Number.isInteger(modifiers) || modifiers < 0 || modifiers > 7) return false;

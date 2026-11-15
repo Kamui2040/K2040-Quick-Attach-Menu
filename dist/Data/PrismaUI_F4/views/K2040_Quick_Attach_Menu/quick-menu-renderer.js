@@ -358,6 +358,25 @@
       installed = accent;
     }
 
+    // The hub's resolved palette takes precedence over the legacy local
+    // Fallout 76 theme, including Clock's active sectors and ring lines.
+    // Saved local colors are not changed; keep the user's opacity value.
+    var sharedMuted = "";
+    var root = typeof document !== "undefined" && document.documentElement;
+    if (root && root.hasAttribute("data-k2040-palette") &&
+        typeof getComputedStyle === "function") {
+      var shared = getComputedStyle(root);
+      var color = function(name) {
+        return shared.getPropertyValue("--k2040-shared-"+name).trim();
+      };
+      if (color("accent") && color("text") && color("panel") &&
+          color("installed") && color("muted")) {
+        accent=color("accent");text=color("text");
+        panel=color("panel");installed=color("installed");
+        sharedMuted=color("muted");
+        theme="shared";
+      }
+    }
     var targets = [this.root];
     if (this.labelPortal) targets.push(this.labelPortal);
     if (this.statusPortal) targets.push(this.statusPortal);
@@ -378,8 +397,8 @@
         theme === "fallout76" ? rgba(accent, .48) : rgba(text, .20));
       target.style.setProperty("--qm-line-soft", theme === "pipboy" ? rgba(accent, .28) :
         theme === "fallout76" ? rgba(accent, .26) : rgba(text, .10));
-      target.style.setProperty("--qm-muted", theme === "pipboy" ? rgba(accent, .72) :
-        theme === "fallout76" ? "#e0c870" : rgba(text, .68));
+      target.style.setProperty("--qm-muted", sharedMuted || (theme === "pipboy" ? rgba(accent, .72) :
+        theme === "fallout76" ? "#e0c870" : rgba(text, .68)));
       target.style.setProperty("--qm-accent-faint", rgba(accent, .12));
       target.style.setProperty("--qm-hud-color", accent);
       target.style.setProperty("--qm-hud-background", panel);

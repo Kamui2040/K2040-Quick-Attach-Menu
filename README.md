@@ -77,7 +77,9 @@ Default controls:
 - `Escape`: close the active mod menu.
 
 Pressing the other opener while one menu is active switches directly to that
-menu. Keybindings can be changed through MCM or the Settings page reached from
+menu. On the Unified Settings VNext development build, gameplay shortcuts are edited
+directly in Unified Settings, without MCM. Older published releases retain
+their original MCM controls. The standalone Settings page remains reachable from
 the Builder.
 
 The Quick Menu controller shortcut is under **Settings > Controls**. Choose a

@@ -68,4 +68,17 @@ for (const invalid of [
     assert.equal(styleTokens.get("--k2040-shared-accent"),"#FF53BF",
       "invalid appearance must not update CSS tokens");
 }
+// All six renderers use the same palette resolved by the hub; Clock's
+// formerly amber legacy preset must not win against the shared snapshot.
+const renderer = fs.readFileSync(path.join(ui,"quick-menu-renderer.js"),"utf8");
+assert.ok(renderer.includes('data-k2040-palette'));
+assert.ok(renderer.includes('getComputedStyle(root)'));
+assert.ok(renderer.includes('panel=color("panel");installed=color("installed");'));
+assert.ok(renderer.includes('theme="shared";'));
+const builder=fs.readFileSync(path.join(ui,"builder.html"),"utf8");
+assert.ok(builder.includes('!document.documentElement.hasAttribute("data-k2040-palette")'));
+const sharedCSS=fs.readFileSync(path.join(ui,"k2040-unified-theme.css"),"utf8");
+assert.ok(sharedCSS.includes("body.theme-fallout76")&&
+  sharedCSS.includes("--k2040-shared-accent")&&
+  sharedCSS.includes("--k2040-shared-panel-bg"));
 console.log("PASS: transient shared theme inheritance for all three standalone views");

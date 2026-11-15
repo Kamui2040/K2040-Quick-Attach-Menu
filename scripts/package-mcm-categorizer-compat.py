@@ -26,8 +26,8 @@ def ungrouped_child(source: bytes) -> bytes:
             config['pages'][0].get('pageDisplayName') != 'Quick Attach Menu'):
         raise ValueError('Expected the canonical grouped Quick Attach MCM child')
     ids = [c['id'] for c in config['pages'][0]['content'] if c.get('type') == 'hotkey']
-    if ids != ['openQuickMenu', 'openMenuBuilder']:
-        raise ValueError('Unexpected hotkey IDs; refusing to generate compatibility override')
+    if ids:
+        raise ValueError('Quick Attach must not include MCM gameplay hotkey registrations')
     # No foreign mod config or user settings are ever included.
     config.pop('ownerModName')
     return (json.dumps(config, ensure_ascii=False, indent=2) + '\n').encode('utf-8')

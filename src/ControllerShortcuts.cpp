@@ -162,6 +162,34 @@ namespace
         return result;
     }
 
+    IniBinding ReadIndependentBinding()
+    {
+        IniBinding result;
+        const std::filesystem::path file(kSettingsFile);
+        std::error_code error;
+        if(!std::filesystem::is_regular_file(file,error) || error ||
+           std::filesystem::file_size(file,error)>kHubIniMaxBytes || error)
+            return result;
+        std::ifstream input(file);
+        if(!input)return result;
+        std::string line;
+        while(std::getline(input,line)){
+            if(!line.starts_with("Quick="))continue;
+            auto value=std::string_view(line).substr(6);
+            if(!value.empty() && value.back()=='\r')value.remove_suffix(1);
+            const auto at=value.find('+');
+            const auto first=at==std::string_view::npos?value:value.substr(at+1);
+            const auto second=at==std::string_view::npos?
+                std::string_view{"None"}:value.substr(0,at);
+            const auto primary=ParseHubButton(first),held=ParseHubButton(second);
+            if(!primary || !held || (!*primary && *held) ||
+               (*primary && *primary==*held))return {};
+            result={true,*primary,*held};
+            return result;
+        }
+        return {};
+    }
+
     HubControllerSettings ReadHubControllerSettings()
     {
         HubControllerSettings result;
@@ -172,7 +200,10 @@ namespace
         // deliberate Unbound (0). If absent, use the old experimental parent
         // values without modifying them. Legacy standalone INI stays a final
         // fallback when neither MCM user setting has been assigned.
-        auto own = ReadIniBinding(kHubUserFile,
+        // Independent Quick Attach controller storage always wins. Legacy
+        // MCM assignments are read only for migration/fallback.
+        auto own = ReadIndependentBinding();
+        if(!own.present)own = ReadIniBinding(kHubUserFile,
             "iQuickAttachPadPrimary", "iQuickAttachPadModifier");
         if (!own.present)
             own = ReadIniBinding(kOldHubUserFile,
@@ -208,68 +239,19 @@ namespace
         g_hubMiniHeld = HubMask(settings.miniHeld);
     }
 
+    bool PersistBindings(std::string_view quick);
+
     bool WriteHubController(unsigned primary, unsigned held)
     {
-        if (!HubInstalled() || primary > 16 || held > 16 ||
-            (!primary && held) || (primary && primary == held)) return false;
-        std::error_code error;
-        std::string data;
-        if (std::filesystem::is_regular_file(kHubUserFile,error) && !error) {
-            const auto size = std::filesystem::file_size(kHubUserFile,error);
-            if (error || size > kHubIniMaxBytes) return false;
-            std::ifstream input(kHubUserFile,std::ios::binary);
-            if (!input) return false;
-            std::ostringstream buffer;
-            buffer << input.rdbuf();
-            if (!input.good() && !input.eof()) return false;
-            data = buffer.str();
-        }
-        std::istringstream lines(data);
-        std::string rewritten;
-        std::string line;
-        bool inController=false, foundSection=false;
-        bool wrotePrimary=false,wroteHeld=false;
-        const auto writeMissing = [&]() {
-            if (!wrotePrimary) rewritten += "iQuickAttachPadPrimary=" + std::to_string(primary) + "\r\n";
-            if (!wroteHeld) rewritten += "iQuickAttachPadModifier=" + std::to_string(held) + "\r\n";
-        };
-        while (std::getline(lines,line)) {
-            const auto clean=TrimLine(line);
-            if (clean.starts_with("[") && clean.ends_with("]")) {
-                if (inController) writeMissing();
-                inController=clean=="[Controller]";
-                if (inController) foundSection=true;
-            }
-            if (inController && clean.starts_with("iQuickAttachPadPrimary=")) {
-                rewritten += "iQuickAttachPadPrimary="+std::to_string(primary)+"\r\n";
-                wrotePrimary=true;
-            } else if (inController && clean.starts_with("iQuickAttachPadModifier=")) {
-                rewritten += "iQuickAttachPadModifier="+std::to_string(held)+"\r\n";
-                wroteHeld=true;
-            } else rewritten += line+"\n";
-        }
-        if (inController) writeMissing();
-        if (!foundSection) {
-            rewritten += "[Controller]\r\n";
-            writeMissing();
-        }
-        if (rewritten.size() > kHubIniMaxBytes) return false;
-        std::filesystem::create_directories(kHubUserFile.parent_path(),error);
-        if (error) return false;
-        auto temp=kHubUserFile;
-        temp += ".k2040-quick.tmp";
-        {
-            std::ofstream output(temp,std::ios::binary|std::ios::trunc);
-            if (!output) return false;
-            output << rewritten;
-            output.flush();
-            if (!output.good()) return false;
-        }
-        if (!MoveFileExW(temp.c_str(),kHubUserFile.c_str(),
-             MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)) {
-            std::filesystem::remove(temp,error);
-            return false;
-        }
+        if(primary>16 || held>16 || (!primary && held) ||
+           (primary && primary==held))return false;
+        const std::string chord=primary?
+            (held?std::string(kHubButtonNames[held])+"+":"")+
+                std::string(kHubButtonNames[primary]):"None";
+        if(!PersistBindings(chord))return false;
+        g_quickBinding=chord;
+        g_quickMask=HubMask(primary)|HubMask(held);
+        g_requireControllerRelease=true;
         RefreshHubController();
         return true;
     }

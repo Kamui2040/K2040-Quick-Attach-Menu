@@ -4,6 +4,7 @@
 // The hub validates the schema too, but a directly callable native export
 // must never rely on the caller having performed that validation.
 #include "JsonPreferencesParser.h"
+#include "GameplayKeybindPolicy.h"
 
 #include <algorithm>
 #include <array>
@@ -56,6 +57,15 @@ namespace k2040::settings_v2
             return input.AsString() && ValidColor(*input.AsString());
 
         const auto* value = input.AsString();
+        if (field == "controllerQuickShortcut") {
+            constexpr std::array values{"None"sv,"A"sv,"B"sv,"X"sv,"Y"sv,
+                "DUp"sv,"DDown"sv,"DLeft"sv,"DRight"sv,"LB"sv,"RB"sv,
+                "LT"sv,"RT"sv,"Start"sv,"Back"sv,"LS"sv,"RS"sv,
+                "LB+RB"sv,"LT+DUp"sv,"LB+Y"sv};
+            return value && OneOf(*value,values);
+        }
+        if (field == "quickMenuHotkey" || field == "menuBuilderHotkey")
+            return value && gameplay_keys::Valid(*value);
         if (field == "presentation") {
             constexpr std::array entries{"cascade"sv, "radial"sv, "hybrid"sv,
                                          "horizontal"sv, "orbit"sv, "clock"sv};

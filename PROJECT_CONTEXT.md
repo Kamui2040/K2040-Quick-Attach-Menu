@@ -1,5 +1,12 @@
 # Current Project State
 
+## 2026-11-15 — Gameplay keybinds, theme inheritance, layout previews (QA-only)
+
+- Quick Menu and Builder gameplay chords are editable directly in the shared V2 editor and saved by the owning mod, never through MCM. Legacy MCM gameplay registrations and the Scaleform callback are disabled; only the unified settings shortcut remains MCM-controlled. Controller gameplay shortcut edits use mod-owned storage.
+- Builder/Settings and all six Quick Menu layouts now consume the hub's resolved appearance palette. Shared palette colors supersede legacy Fallout 76 amber while preserving saved opacity.
+- The shared editor shows an illustrative, non-live schematic of each of Quick Attach's six presentations. No owner-specific live HUD layout adapter is claimed.
+- Source and build QA are separate from in-game Fallout 4 OG/Proton acceptance; no automatic deployment or public release is authorized.
+
 ## Unified Settings Editor V2 adapter (source/build validated, runtime pending)
 
 - feature/unified-editor-v2 provides the plain-C V2 owner callbacks for its

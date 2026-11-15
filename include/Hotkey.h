@@ -31,7 +31,6 @@ namespace k2040
     bool IsHotkeyCaptureActive();
     void SetMenuHotkeyUiForwardingActive(bool active);
     void QueueMenuHotkeyActionFromUi(bool openBuilder);
-    void QueueMenuHotkeyActionFromMcm(bool openBuilder);
 
     void InitializeHotkey();
     void PollHotkey();

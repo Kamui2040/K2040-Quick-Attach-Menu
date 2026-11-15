@@ -3,6 +3,7 @@
 #include "SettingsKeyCaptureValidation.h"
 #include "SettingsNativeMouseCapture.h"
 #include "Hotkey.h"
+#include "GameplayKeybindPolicy.h"
 #include "ControllerShortcuts.h"
 
 #include <F4SE/F4SE.h>
@@ -613,17 +614,12 @@ namespace
 
     void ApplyConfiguredHotkeys(const McmHotkeyOverrides* overrides)
     {
-        g_openMenuHotkey = k2040::ParseHotkey(k2040::GetSettings().openMenuHotkey);
-        g_openMenuBuilderHotkey = k2040::ParseHotkey(k2040::GetSettings().openMenuBuilderHotkey);
-
-        if (overrides) {
-            if (overrides->openMenu) {
-                g_openMenuHotkey = *overrides->openMenu;
-            }
-            if (overrides->openMenuBuilder) {
-                g_openMenuBuilderHotkey = *overrides->openMenuBuilder;
-            }
-        }
+        // Gameplay bindings are mod-owned user preferences, not native MCM.
+        // A legacy INI value is used only while the user has no saved value.
+        const auto prefs=k2040::GetQuickMenuPreferences();
+        g_openMenuHotkey=k2040::ParseHotkey(prefs.quickMenuHotkey);
+        g_openMenuBuilderHotkey=k2040::ParseHotkey(prefs.menuBuilderHotkey);
+        (void)overrides;
 
         g_quickOpenerVirtualKey.store(g_openMenuHotkey.virtualKey, std::memory_order_release);
         g_builderOpenerVirtualKey.store(g_openMenuBuilderHotkey.virtualKey, std::memory_order_release);
@@ -1035,8 +1031,21 @@ namespace
         if (key == "F10") return VK_F10;
         if (key == "F11") return VK_F11;
         if (key == "F12") return VK_F12;
+        if (key == "MOUSE3") return VK_MBUTTON;
+        if (key == "MOUSE4") return VK_XBUTTON1;
+        if (key == "MOUSE5") return VK_XBUTTON2;
 
         return 0;
+    }
+
+    bool UnifiedEditorIsOpen()
+    {
+        const auto hub=GetModuleHandleW(L"K2040_Unified_Settings.dll");
+        if(!hub)return false;
+        using QueryFn=bool(__cdecl*)() noexcept;
+        const auto proc=GetProcAddress(hub,"K2040_IsSettingsEditorOpenV1");
+        if(!proc)return false; // Older optional cores: normal fallback.
+        return reinterpret_cast<QueryFn>(proc)();
     }
 
     bool IsPhysicalKeyDown(uint32_t virtualKey)
@@ -1238,77 +1247,66 @@ namespace k2040
 
     SharedHotkeyBinding GetSharedHotkeyBinding(const std::string& id)
     {
-        // Show pending MCM work honestly; the physical opener and MCM's file
-        // remain unchanged until MCM accepts the remap and serializes it.
-        if (GetModuleHandleW(L"mcm.dll")) {
-            std::lock_guard lock(g_mcmSyncMutex);
-            const auto& pending = id == kOpenMenuKeybindId ? g_mcmQuickPending : g_mcmBuilderPending;
-            if (pending) return { pending->keycode, pending->modifiers,
-                BindingDisplayName(pending->keycode, pending->modifiers) + " (pending MCM)", true };
-        }
-        if (McmProviderActive()) {
-            if (const auto shared = ReadSharedHotkeyBinding(id)) return *shared;
-        }
-        if(McmProviderActive() && std::filesystem::is_regular_file(
-               "Data/MCM/Settings/K2040_Quick_Attach_Menu.hotkeys-initialized") &&
-           (id==kOpenMenuKeybindId || id==kOpenMenuBuilderKeybindId))
-            return {0,0,"Unbound",true};
-
-        const auto& state = id == kOpenMenuBuilderKeybindId
-            ? g_openMenuBuilderHotkey
-            : g_openMenuHotkey;
-        std::uint32_t keycode = state.virtualKey;
-        if (keycode == VK_MBUTTON) keycode = 258;
-        else if (keycode == VK_XBUTTON1) keycode = 259;
-        else if (keycode == VK_XBUTTON2) keycode = 260;
-        const std::uint32_t modifiers =
-            (state.shiftRequired ? 0x1u : 0u) |
-            (state.ctrlRequired ? 0x2u : 0u) |
-            (state.altRequired ? 0x4u : 0u);
-        return { keycode, modifiers, BindingDisplayName(keycode, modifiers), false };
+        if (id != kOpenMenuKeybindId && id != kOpenMenuBuilderKeybindId)
+            return {0,0,"Unbound",false};
+        const auto p=GetQuickMenuPreferences();
+        const auto state=ParseHotkey(id == kOpenMenuBuilderKeybindId
+            ? p.menuBuilderHotkey : p.quickMenuHotkey);
+        std::uint32_t keycode=state.virtualKey;
+        if (keycode==VK_MBUTTON)keycode=258;
+        else if(keycode==VK_XBUTTON1)keycode=259;
+        else if(keycode==VK_XBUTTON2)keycode=260;
+        const std::uint32_t modifiers=(state.shiftRequired?1u:0u)|
+            (state.ctrlRequired?2u:0u)|(state.altRequired?4u:0u);
+        return {keycode,modifiers,keycode?BindingDisplayName(keycode,modifiers):
+            "Unbound",false};
     }
 
-    bool SetSharedHotkeyBinding(const std::string& id, std::uint32_t keycode, std::uint32_t modifiers)
+    bool SetSharedHotkeyBinding(const std::string& id,
+                                std::uint32_t keycode,std::uint32_t modifiers)
     {
-        if (id != kOpenMenuKeybindId && id != kOpenMenuBuilderKeybindId) return false;
-        if (!k2040::IsSettingsCaptureKeycode(keycode) || (modifiers & ~0x7u) != 0) {
-            log::Warn("Ignored unsupported Settings keybind capture code " +
-                std::to_string(keycode) + "; retained existing MCM binding.");
+        if(id!=kOpenMenuKeybindId&&id!=kOpenMenuBuilderKeybindId)return false;
+        std::string chord;
+        if(keycode==0&&modifiers==0)chord="Unbound";
+        else chord=gameplay_keys::FromKeycode(keycode,modifiers);
+        if(chord.empty()||!gameplay_keys::Valid(chord))return false;
+        if(!GetUserSettingsDiagnostics().saveAllowed)return false;
+        auto p=GetQuickMenuPreferences();
+        const auto prior=p;
+        if(id==kOpenMenuKeybindId)p.quickMenuHotkey=chord;
+        else p.menuBuilderHotkey=chord;
+        if(p.quickMenuHotkey!="Unbound"&&
+           p.quickMenuHotkey==p.menuBuilderHotkey)return false;
+        if(!SetQuickMenuPreferences(p)) {
+            if(!GetUserSettingsDiagnostics().saveAllowed)return false;
+            return true;
+        }
+        if(!SaveUserPreferences()){
+            (void)SetQuickMenuPreferences(prior);
             return false;
         }
-        if (NativeMcmOwnsRegistry()) {
-            // MCM maintains a separate live manager. Writing Keybinds.json here
-            // races its save-on-close and loses user edits, including Tab clear.
-            return StageNativeMcmLiveSync(id, keycode, modifiers);
-        }
-        const bool saved = WriteSharedHotkeyBindings({ PendingSharedBinding{ id, keycode, modifiers } });
-        if (saved) log::Info(std::string("Shared MCM-format keybinding saved: ") + id + ".");
-        return saved;
+        ApplyConfiguredHotkeys(nullptr);
+        log::Info("Independent Quick Attach gameplay binding saved.");
+        return true;
     }
 
     bool ResetSharedHotkeyBindings()
     {
-        constexpr auto defaultQuick = static_cast<std::uint32_t>('K');
-        if (NativeMcmOwnsRegistry()) {
-            // Stage both only if both registrations still exist. MCM owns the
-            // live state and will persist it on close; no competing file write.
-            const auto quick = ReadSharedHotkeyBinding(kOpenMenuKeybindId);
-            const auto builder = ReadSharedHotkeyBinding(kOpenMenuBuilderKeybindId);
-            // Explicit Reset may restore a genuinely absent shortcut. Native
-            // registration occurs only after the live MCM map confirms absence.
-            // A duplicate with conflicting real keys must never be guessed.
-            if ((quick && quick->keycode == 0 && quick->modifiers != 0) ||
-                (builder && builder->keycode == 0 && builder->modifiers != 0)) return false;
-            const bool quickQueued = StageNativeMcmLiveSync(kOpenMenuKeybindId, defaultQuick, 1u);
-            const bool builderQueued = StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId, defaultQuick, 3u);
-            return quickQueued && builderQueued;
+        if(!GetUserSettingsDiagnostics().saveAllowed)return false;
+        auto p=GetQuickMenuPreferences();
+        const auto prior=p;
+        p.quickMenuHotkey="Shift+K";
+        p.menuBuilderHotkey="Ctrl+Shift+K";
+        if(!SetQuickMenuPreferences(p)){
+            if(!GetUserSettingsDiagnostics().saveAllowed)return false;
+            return true;
         }
-        const bool saved = WriteSharedHotkeyBindings({
-            PendingSharedBinding{ kOpenMenuKeybindId, defaultQuick, 1u },
-            PendingSharedBinding{ kOpenMenuBuilderKeybindId, defaultQuick, 3u }
-        });
-        if (saved) log::Info("MCM-format keybindings restored to fresh-install defaults.");
-        return saved;
+        if(!SaveUserPreferences()){
+            (void)SetQuickMenuPreferences(prior);
+            return false;
+        }
+        ApplyConfiguredHotkeys(nullptr);
+        return true;
     }
 
     void SetHotkeyCaptureActive(bool active)
@@ -1352,51 +1350,16 @@ namespace k2040
             HotkeyActionSource::FocusedView);
     }
 
-    void QueueMenuHotkeyActionFromMcm(bool openBuilder)
-    {
-        // Both child MCM and the native physical poller may observe one
-        // press. Queue through the shared cross-source deduplication gate;
-        // do not bypass focus or game-thread safety.
-        QueueHotkeyAction(openBuilder ? HotkeyAction::ToggleBuilderMenu
-                                     : HotkeyAction::ToggleQuickMenu,
-                          HotkeyActionSource::McmChild);
-    }
-
     void InitializeHotkey()
     {
         ApplyConfiguredHotkeys(nullptr);
-        SeedDefaultMcmBindings();
-        RefreshMcmHotkeys(true);
         InitializeControllerShortcuts();
-
-        log::Info("Quick-menu toggle hotkey initialized. Default: Shift+K.");
-        log::Info("Menu-builder toggle hotkey initialized. Default: Ctrl+Shift+K.");
-        log::Info("Either opener switches to its menu while the other menu is active; Escape closes without switching.");
+        log::Info("Quick Attach gameplay bindings are configured in Unified Settings, independently of MCM.");
     }
 
     void PollHotkey()
     {
         PollDeferredQuickMenuGameplayIsolationRelease();
-        RefreshMcmHotkeys(false);
-
-        // Reconcile Settings changes with native MCM's live in-memory keybind
-        // registry when its Pause-menu movie next becomes available. Never
-        // invoke Scaleform from this background polling thread.
-        static auto nextMcmSyncAttempt = std::chrono::steady_clock::time_point{};
-        const auto syncNow = std::chrono::steady_clock::now();
-        if ((g_mcmSyncPending.load(std::memory_order_acquire) ||
-             GetModuleHandleW(L"mcm.dll")) && syncNow >= nextMcmSyncAttempt) {
-            // Recheck while MCM's picker is active: a Builder duplicate can
-            // appear after the first scan, before the PauseMenu is closed.
-            nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(400);
-            if (!g_mcmSyncTaskQueued.exchange(true, std::memory_order_acq_rel)) {
-                if (const auto* tasks = F4SE::GetTaskInterface()) {
-                    tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });
-                } else {
-                    g_mcmSyncTaskQueued.store(false, std::memory_order_release);
-                }
-            }
-        }
 
         const bool openPressedNow = IsHotkeyPressedNow(g_openMenuHotkey);
         const bool builderPressedNow = IsHotkeyPressedNow(g_openMenuBuilderHotkey);
@@ -1461,6 +1424,13 @@ namespace k2040
                     GetPrismaBridge().OnNativeSettingsMouseCapture(capturedMouse, modifiers);
                 });
             }
+        }
+        // A key captured by the shared settings editor must not also open
+        // gameplay views. Preserve edge state to avoid replay after close.
+        if (UnifiedEditorIsOpen()) {
+            g_wasOpenPressedLastPoll.store(openPressedNow);
+            g_wasBuilderPressedLastPoll.store(builderPressedNow);
+            return;
         }
         if (captureActive) {
             g_wasOpenPressedLastPoll.store(openPressedNow);

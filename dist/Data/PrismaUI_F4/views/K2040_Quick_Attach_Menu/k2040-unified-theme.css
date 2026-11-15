@@ -44,3 +44,26 @@
   --qm-hud-color: var(--k2040-shared-accent) !important;
   --qm-hud-muted: var(--k2040-shared-muted) !important;
 }
+
+/* VNext palette ownership: do not leave legacy Fallout 76 amber chrome
+   on Builder/Settings after a shared palette has been chosen. */
+:root[data-k2040-palette] body,
+:root[data-k2040-palette] body.theme-fallout76 {
+  --accent: var(--k2040-shared-accent) !important;
+  --text: var(--k2040-shared-text) !important;
+  --muted: var(--k2040-shared-muted) !important;
+  --installed: var(--k2040-shared-installed) !important;
+  --line: var(--k2040-shared-border) !important;
+  --panel: var(--k2040-shared-panel-bg) !important;
+  --row: var(--k2040-shared-row-bg) !important;
+}
+:root[data-k2040-palette] body.theme-fallout76 .row,
+:root[data-k2040-palette] body.theme-fallout76 .setting-row,
+:root[data-k2040-palette] body.theme-fallout76 .choice,
+:root[data-k2040-palette] body.theme-fallout76 .action,
+:root[data-k2040-palette] body.theme-fallout76 .profile-row {
+  border-color: var(--k2040-shared-border) !important;
+}
+:root[data-k2040-palette] body.theme-fallout76 #previewStage {
+  background: var(--k2040-shared-panel-bg) !important;
+}

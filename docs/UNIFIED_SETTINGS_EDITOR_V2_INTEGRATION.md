@@ -12,15 +12,45 @@ Reset All can destroy weapon-specific preferences. The V2 callback rejects it un
 
 ## Shortcut ownership
 
-There is **no independent settings-only Quick Attach shortcut to migrate**. The only Quick Attach MCM keyboard actions are openQuickMenu and openMenuBuilder; both are gameplay controls and stay independent. The existing controller Quick Menu shortcut also stays mod-owned. Neither the module manifest nor the native poller assigns Ctrl+Shift+B or creates a replacement settings-only binding.
+There is one settings-only shortcut across participating mods:
+**Ctrl+Shift+B** (assignable in Unified Settings MCM).
+Quick Attach has **no native MCM gameplay keybind definitions** or
+Scaleform gameplay-hotkey registration. Its Quick Menu and Builder
+openers remain gameplay features, and are edited using direct key
+recording in the unified Controls page: Shift+K and Ctrl+Shift+K
+by default. Saved gameplay chords live in Quick Attach's existing
+user-preferences JSON. The legacy plugin INI supplies a fallback
+until a user preference exists. The keyboard poller uses only those
+owner-owned values; no MCM dependency is required.
 
-Unified Settings owns the single settings shortcut, provisionally Ctrl+Shift+B, and its MCM reassignment and registry persistence. Quick Attach never rewrites the shared MCM keybind registry. The standalone Settings panel remains accessible through Builder while the new editor is under development and works when Unified Settings is absent. It is **not** used as an integrated panel in V2.
+The Quick Menu controller shortcut is edited through the same
+Controls page and saved in Quick Attach's own ControllerShortcuts.ini.
+Old MCM user settings are only read for migration. The installer
+does not remove or rewrite a user's existing MCM registry entries.
+Old MCM callback registrations are disabled to prevent stale entries
+from invoking a second gameplay shortcut.
 
-## Shared appearance
+The standalone Builder/Settings view is still available as a fallback.
+It is not an integrated editor panel.
 
-The V2 adapter accepts the hub's effective default, midnight, high-contrast or pipboy theme through its optional theme callback. The hub selects global inheritance or a per-module override; Quick Attach does not store that choice. A new view queries the optional hub theme export when its DOM becomes ready, while an already open view receives live updates.
+## Shared appearance and static layout previews
 
-The same small theme bridge is loaded by the existing Menu, Builder and standalone Settings views. Shared color tokens override renderer inline text/accent colors, including the wheel label and status layers. The owner's background-opacity variables are not overridden, and saved custom colors remain untouched. With no hub installed, the original theme behavior is unchanged.
+The hub's optional appearance snapshot is queried by Quick Menu,
+Builder and standalone Settings when a Prisma view becomes ready.
+Theme callbacks re-query the resolved theme+palette snapshot and apply
+transient semantic colors. Palette colors take precedence over the old
+Fallout 76 gold/amber CSS for every Quick Menu layout, including Clock
+Slices, and over Builder/Settings chrome. Native saved custom colors
+and opacity remain intact; standalone appearances still work without
+the hub.
+
+The unified editor's Presentation selector now renders a compact
+illustrative diagram for each of the six layouts (Cascade, Radial,
+Compact Hybrid, Horizontal Bar, Orbit and Clock Slices). Diagrams
+are non-live, don't require an equipped weapon and never modify game
+state. The canonical manifest schema permits an optional declarative
+`preview: "attachment-layout"` selector flag; the shared editor,
+not Quick Attach, draws that preview.
 
 ## Validation and remaining gate
 
@@ -28,10 +58,10 @@ The same small theme bridge is loaded by the existing Menu, Builder and standalo
 - Native input policy tests reject invalid colors, enums, Boolean types, out-of-range/off-step numbers, unowned fields and direct action invocation.
 - Regression tests cover every manifest-editable field's native read/write routes, dangerous reset refusal, unchanged gameplay shortcuts and absence of settings-only keybinds.
 - Native C++ tests, Python/JS suites, AJV schema validation and Windows x64 cross-build passed for this development branch.
-- The hub's read-only four-owner verifier accepted Quick Attach, Minimap, Quest Journal and HUD V2 exports, matching ABI headers, manifests and theme scripts.
+- The hub's read-only four-owner verifier previously accepted the four V2 exports. This newer optional manifest-field extension and gameplay-key migration require fresh combined-game testing; earlier verification is not an acceptance of these changes.
 - Headless Chromium verified shared theme color precedence while preserving a native-configured translucent panel.
 
-**Not yet verified:** in-game Ctrl+Shift+B opening, MCM reassignment/clear behavior, typed edits, controller navigation, actual persistence, theme propagation/override and switching between independent panels in Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
+**Not yet verified:** in-game Ctrl+Shift+B opening, MCM reassignment, new direct Quick/Builder keyboard and controller assignments, typed edits, actual persistence, static layout previews, theme and palette propagation (especially Hot Omni/Clock), focus and switching between views on Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
 
 A QA archive may be built under Downloads for later isolated manual testing, but it must not be installed or published automatically.
 

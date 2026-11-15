@@ -14,7 +14,7 @@ const byId = id => fields(manifest).find(f => f.id === id);
 
 test("canonical schema and validator are pinned byte-for-byte", () => {
     assert.equal(hash("schemas/k2040-settings-manifest.v1.schema.json"),
-        "b9bdae5098790c9746d3b1792424d93f0dfd6286f6e1713f514d8e3e44606da0");
+        "d913a4da9d554af1f9b9feb4a84b229bc211267eb7d260964576ea2ca29287dc");
     assert.equal(hash("scripts/validate-settings-manifest.cjs"),
         "2373ed7966f025410716d88fd79770335f03d5a4955098f396f7225f7c33a9b5");
     assert.deepEqual(validateManifest(manifest), []);
@@ -34,7 +34,7 @@ test("every serialized general preference is shown or explicitly internal", () =
     const end = source.indexOf('json << "\\n  },\\n";', begin);
     const serialized = [...source.slice(begin, end < 0 ? begin + 3000 : end)
         .matchAll(/write(?:Bool|Number|String|Layout)\("([^"]+)"/g)].map(match => match[1]);
-    assert.equal(serialized.length, 28, "audit every serialized general setting and six layout records");
+    assert.equal(serialized.length, 30, "audit every serialized general setting and six layout records");
     const visible = new Set(fields(manifest).map(f => f.id));
     const internal = new Set(manifest.internalKeys);
     const missing = serialized.filter(key => !visible.has(key) && !internal.has(key));
@@ -49,9 +49,10 @@ test("metadata has no live values and actions have explicit ownership", () => {
         assert.ok(!Object.hasOwn(f, "value"));
         if (f.type === "action") assert.ok(["mcm", "module"].includes(f.owner));
     }
-    for (const id of ["openQuickMenu", "openMenuBuilder"])
-        assert.equal(byId(id).owner, "mcm");
-    assert.equal(byId("controllerQuickShortcut").owner, "module");
+    for (const id of ["quickMenuHotkey", "menuBuilderHotkey"])
+        assert.equal(byId(id).type, "keybind");
+    assert.equal(byId("controllerQuickShortcut").type, "select");
+    assert.equal(byId("presentation").preview, "attachment-layout");
     assert.equal(byId("cheatMode").advanced, true);
     assert.equal(byId("resetAll").advanced, true);
     assert.equal(byId("theme").options.length, 5);
@@ -67,16 +68,16 @@ test("metadata has no live values and actions have explicit ownership", () => {
         "aeAutoReequipAfterApply", "showControlHints", "hideBracketedText"])
         assert.ok(manifest.internalKeys.includes(id), "legacy/safety key omitted: " + id);
 });
-test("standalone settings and MCM bindings remain available", () => {
+test("standalone settings survive while only hub owns MCM keyboard actions", () => {
     const html = fs.readFileSync(path.join(root, "dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html"), "utf8");
     for (const id of ["quickKey","builderKey","controllerQuickApply","presentationChoices",
         "themeChoices","shortenClockLabels","resetAll","previewMenu"])
         assert.ok(html.includes('id="' + id + '"'), "standalone control lost: " + id);
-    assert.ok(html.includes('send("keybind:"'), "MCM capture route is retained");
+    assert.ok(html.includes('send("keybind:"'), "independent native capture route is retained");
     assert.ok(html.includes('send("set:presentation:"'), "standalone renderer is retained");
     const mcm = JSON.parse(fs.readFileSync(path.join(root,
         "dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json"), "utf8"));
-    assert.deepEqual(mcm.keybinds.map(x => x.id), ["openQuickMenu","openMenuBuilder"]);
+    assert.deepEqual(mcm.keybinds, []);
 });
 test("canonical semantic validator rejects incompatible manifests", () => {
     const invalid = (mutate, pattern) => {
@@ -94,6 +95,7 @@ test("canonical semantic validator rejects incompatible manifests", () => {
     invalid(m => {byIdCopy(m,"theme").options[1].value = "default";}, /duplicate option/);
     invalid(m => {byIdCopy(m,"backgroundOpacity").max = 0.2;}, /invalid range/);
     invalid(m => {m.internalKeys.push("cheatMode");}, /internal and visible setting collide/);
-    invalid(m => {byIdCopy(m,"openQuickMenu").owner="web";}, /allowed values/);
+    invalid(m => {byIdCopy(m,"resetAll").owner="web";}, /allowed values/);
+    invalid(m => {byIdCopy(m,"presentation").preview="arbitrary-html";}, /allowed values/);
 });
 function byIdCopy(m, id) {return fields(m).find(f => f.id === id);}
