@@ -1,0 +1,13 @@
+{
+  "name": "k2040-quick-attach-menu-dev",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Build-time K2040 Settings Schema V1 validation (not shipped in the game)",
+  "scripts": {
+    "test": "node --test scripts/tests/settings-schema-v1.test.cjs",
+    "validate:settings": "node scripts/validate-settings-manifest.cjs dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

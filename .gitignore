@@ -58,3 +58,6 @@ __pycache__/
 
 # Local Git worktrees
 .worktrees/
+
+# Pinned build-time schema tooling
+node_modules/

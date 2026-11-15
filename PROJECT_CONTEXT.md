@@ -1,5 +1,44 @@
 # Current Project State
 
+- K2040 Settings Schema V1 integration (source-only, 2026-11-15):
+  includes the unmodified canonical JSON schema and AJV validator, a
+  Quick Attach-specific manifest (native preferences schema 2), pinned
+  development dependencies, audit documentation and automated manifest
+  validation during QA packaging. The existing standalone Settings page,
+  MCM bindings, controller shortcuts and saved preferences are unchanged.
+  The shared renderer and value adapter are not yet implemented or game-tested;
+  do not deploy, replace the standalone editor or merge on this evidence.
+
+- The current unmerged Clock/Radial/Hybrid UI correction on
+  feature/clock-arc-menu addresses the large *unfilled angular gaps* between
+  sectors, visible as bright triangles over high-contrast game backgrounds.
+  Radial category/attachment and Hybrid category borders now leave only a
+  0.24-degree total gap; Clock category gaps are 0.24 degrees and adaptive
+  one/two-line attachment sectors are packed with a 0.25-degree gap rather
+  than a fixed 15-degree pitch. At tested radii, exposed gaps are around
+  0.8–1.5 pixels, compared with as much as 25.5 pixels previously.
+  The existing convex SVG fill/outline rendering remains in place.
+  Clock's selected option stays centered and thin one-line sector widths
+  remain unchanged. Saved opacity, menus' controls and OMOD identity are
+  unaffected. Browser comparisons passed; *Fallout 4/Proton in-game
+  verification is still required* before calling the artifact fixed.
+
+- The same candidate uses SVG-native horizontal category/option labels on
+  Radial and Hybrid, two lines maximum, and a seven-item moving category
+  window for dense Hybrid menus. The shared display-only category-word
+  shortening option handles singular/plural matches in all six presentations
+  without modifying original attachment names or transaction identities.
+
+- Unreleased 0.5.227 Clock Slices candidate (feature/clock-arc-menu)
+  builds on the optional 0.5.226 unified-settings adapter and incorporates
+  the reviewed Orbit V2 visual refinements. It adds radial category sectors
+  with five scrolling annular attachment slices, minimal gaps, aligned text
+  and no icons. The per-category word shortening is display-only, on by
+  default, can be disabled in Settings, and never changes OMOD identity.
+  Clock has independent saved scale and position. Native cross-build, source
+  and browser QA are separate from the required target-game acceptance.
+  This candidate remains unmerged and unreleased.
+
 - Unreleased `0.5.226` optional unified-settings adapter candidate
   (`feature/unified-settings-adapter`) exports the versioned
   `K2040_GetSettingsAdapterV1` for the new shared K2040 settings hub. It

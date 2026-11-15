@@ -173,6 +173,7 @@ namespace
             std::optional<std::string> customPanel;
             std::optional<std::string> customInstalled;
             std::optional<bool> useAuthoredMenus;
+            std::optional<bool> shortenClockLabels;
             std::optional<std::string> controlHints;
             std::optional<bool> closeAfterApply;
             std::optional<bool> cheatMode;
@@ -188,6 +189,7 @@ namespace
             Layout hybrid;
             Layout horizontal;
             Layout orbit;
+            Layout clock;
 
             bool HasExplicitValues() const
             {
@@ -197,7 +199,7 @@ namespace
                     presentation.has_value() || backgroundOpacity.has_value() ||
                     theme.has_value() || customAccent.has_value() || customText.has_value() ||
                     customPanel.has_value() || customInstalled.has_value() ||
-                    useAuthoredMenus.has_value() ||
+                    useAuthoredMenus.has_value() || shortenClockLabels.has_value() ||
                     controlHints.has_value() || closeAfterApply.has_value() ||
                     cheatMode.has_value() ||
                     loggingEnabled.has_value() || allowMovementWhileOpen.has_value() || menuSlowdown.has_value() ||
@@ -205,7 +207,7 @@ namespace
                     settingsPanelWidth.has_value() || settingsPanelHeight.has_value() ||
                     cascade.HasExplicitValues() || radial.HasExplicitValues() ||
                     hybrid.HasExplicitValues() || horizontal.HasExplicitValues() ||
-                    orbit.HasExplicitValues();
+                    orbit.HasExplicitValues() || clock.HasExplicitValues();
             }
         } general;
 
@@ -545,7 +547,7 @@ namespace
 
     bool IsPresentationName(const std::string& value)
     {
-        return value == "cascade" || value == "radial" || value == "hybrid" || value == "horizontal" || value == "orbit";
+        return value == "cascade" || value == "radial" || value == "hybrid" || value == "horizontal" || value == "orbit" || value == "clock";
     }
 
     bool IsThemeName(const std::string& value)
@@ -991,6 +993,7 @@ namespace
             writeString("customPanel", g_document.general.customPanel);
             writeString("customInstalled", g_document.general.customInstalled);
             writeBool("useAuthoredMenus", g_document.general.useAuthoredMenus);
+            writeBool("shortenClockLabels", g_document.general.shortenClockLabels);
             writeString("controlHints", g_document.general.controlHints);
             writeBool("closeAfterApply", g_document.general.closeAfterApply);
             writeBool("cheatMode", g_document.general.cheatMode);
@@ -1006,6 +1009,7 @@ namespace
             writeLayout("hybrid", g_document.general.hybrid);
             writeLayout("horizontal", g_document.general.horizontal);
             writeLayout("orbit", g_document.general.orbit);
+            writeLayout("clock", g_document.general.clock);
             json << "\n  },\n";
         }
         json << "  \"weapons\": [";
@@ -1626,6 +1630,7 @@ namespace k2040
                 !ReadOptionalStringMember(*general, "customPanel", g_document.general.customPanel) ||
                 !ReadOptionalStringMember(*general, "customInstalled", g_document.general.customInstalled) ||
                 !ReadOptionalBoolMember(*general, "useAuthoredMenus", g_document.general.useAuthoredMenus) ||
+                 !ReadOptionalBoolMember(*general, "shortenClockLabels", g_document.general.shortenClockLabels) ||
                 !ReadOptionalStringMember(*general, "controlHints", g_document.general.controlHints) ||
                 !ReadOptionalBoolMember(*general, "closeAfterApply", g_document.general.closeAfterApply) ||
                 !ReadOptionalBoolMember(*general, "cheatMode", g_document.general.cheatMode) ||
@@ -1641,6 +1646,7 @@ namespace k2040
                 !ReadOptionalLayoutMember(*general, "hybrid", g_document.general.hybrid) ||
                 !ReadOptionalLayoutMember(*general, "horizontal", g_document.general.horizontal) ||
                 !ReadOptionalLayoutMember(*general, "orbit", g_document.general.orbit) ||
+                 !ReadOptionalLayoutMember(*general, "clock", g_document.general.clock) ||
                 (g_document.general.presentation && !IsPresentationName(*g_document.general.presentation)) ||
                 (g_document.general.theme && !IsThemeName(*g_document.general.theme)) ||
                 (g_document.general.controlHints && !IsControlHintsMode(*g_document.general.controlHints)) ||
@@ -2440,6 +2446,7 @@ namespace k2040
         result.customPanel = g_document.general.customPanel.value_or("#0b1218");
         result.customInstalled = g_document.general.customInstalled.value_or("#74e398");
         result.useAuthoredMenus = g_document.general.useAuthoredMenus.value_or(sourceMode != "generatedonly");
+        result.shortenClockLabels = g_document.general.shortenClockLabels.value_or(true);
         result.controlHints = g_document.general.controlHints.value_or(legacy.showControlHints ? "always" : "contextual");
         result.closeAfterApply = g_document.general.closeAfterApply.value_or(legacy.closeAfterApply);
         result.cheatMode = g_document.general.cheatMode.value_or(false);
@@ -2459,6 +2466,7 @@ namespace k2040
         result.hybrid = resolveLayout(g_document.general.hybrid);
         result.horizontal = resolveLayout(g_document.general.horizontal);
         result.orbit = resolveLayout(g_document.general.orbit);
+        result.clock = resolveLayout(g_document.general.clock);
         return result;
     }
 
@@ -2496,6 +2504,7 @@ namespace k2040
         clampLayout(value.hybrid);
         clampLayout(value.horizontal);
         clampLayout(value.orbit);
+        clampLayout(value.clock);
 
         const auto current = GetQuickMenuPreferences();
         const auto sameLayout = [](const QuickMenuLayoutSettings& lhs, const QuickMenuLayoutSettings& rhs) {
@@ -2507,6 +2516,7 @@ namespace k2040
             current.customText == value.customText && current.customPanel == value.customPanel &&
             current.customInstalled == value.customInstalled &&
             current.useAuthoredMenus == value.useAuthoredMenus &&
+            current.shortenClockLabels == value.shortenClockLabels &&
             current.controlHints == value.controlHints &&
             current.closeAfterApply == value.closeAfterApply &&
             current.cheatMode == value.cheatMode &&
@@ -2519,7 +2529,7 @@ namespace k2040
             current.settingsPanelHeight == value.settingsPanelHeight &&
             sameLayout(current.cascade, value.cascade) && sameLayout(current.radial, value.radial) &&
             sameLayout(current.hybrid, value.hybrid) && sameLayout(current.horizontal, value.horizontal) &&
-            sameLayout(current.orbit, value.orbit)) {
+            sameLayout(current.orbit, value.orbit) && sameLayout(current.clock, value.clock)) {
             return false;
         }
 
@@ -2532,6 +2542,7 @@ namespace k2040
         general.customPanel = value.customPanel;
         general.customInstalled = value.customInstalled;
         general.useAuthoredMenus = value.useAuthoredMenus;
+        general.shortenClockLabels = value.shortenClockLabels;
         general.controlHints = value.controlHints;
         general.closeAfterApply = value.closeAfterApply;
         general.cheatMode = value.cheatMode;
@@ -2552,6 +2563,7 @@ namespace k2040
         storeLayout(general.hybrid, value.hybrid);
         storeLayout(general.horizontal, value.horizontal);
         storeLayout(general.orbit, value.orbit);
+        storeLayout(general.clock, value.clock);
         MarkDirty();
         return true;
     }

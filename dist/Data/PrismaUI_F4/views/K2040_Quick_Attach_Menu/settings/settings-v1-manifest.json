@@ -1,0 +1,380 @@
+{
+  "manifestVersion": 1,
+  "moduleId": "quick-attach",
+  "title": "K2040's Quick Attach Menu",
+  "nativeSettingsSchemaVersion": 2,
+  "categories": [
+    {
+      "id": "controls",
+      "title": "Controls",
+      "groups": [
+        {
+          "id": "keyboard",
+          "title": "Keyboard and mouse",
+          "fields": [
+            {
+              "id": "openQuickMenu",
+              "label": "Open Quick Menu",
+              "type": "action",
+              "actionId": "edit-quick-menu-keybind",
+              "owner": "mcm",
+              "help": "Uses the existing MCM binding; the mod's native input poller remains authoritative."
+            },
+            {
+              "id": "openMenuBuilder",
+              "label": "Open Menu Builder",
+              "type": "action",
+              "actionId": "edit-builder-keybind",
+              "owner": "mcm",
+              "help": "Edits the existing independent Builder binding, not the settings-window shortcut."
+            }
+          ]
+        },
+        {
+          "id": "controller",
+          "title": "Controller",
+          "fields": [
+            {
+              "id": "controllerQuickShortcut",
+              "label": "Quick Menu controller shortcut",
+              "type": "action",
+              "actionId": "edit-controller-quick-shortcut",
+              "owner": "module",
+              "help": "Uses this mod's existing controller shortcut storage. Does not change game-mapped Confirm/Cancel."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance",
+      "groups": [
+        {
+          "id": "style",
+          "title": "Theme and background",
+          "fields": [
+            {
+              "id": "theme",
+              "label": "Theme",
+              "type": "select",
+              "options": [
+                {
+                  "value": "default",
+                  "label": "Commonwealth Blue"
+                },
+                {
+                  "value": "pipboy",
+                  "label": "Classic Pip-Boy"
+                },
+                {
+                  "value": "high-contrast",
+                  "label": "High Contrast"
+                },
+                {
+                  "value": "fallout76",
+                  "label": "Fallout 76"
+                },
+                {
+                  "value": "custom",
+                  "label": "Custom"
+                }
+              ]
+            },
+            {
+              "id": "backgroundOpacity",
+              "label": "Background opacity",
+              "type": "number",
+              "min": 0.25,
+              "max": 1,
+              "step": 0.01,
+              "help": "Background only; text remains fully visible. Native value ranges from 0.25 to 1."
+            }
+          ]
+        },
+        {
+          "id": "custom",
+          "title": "Custom theme colors",
+          "fields": [
+            {
+              "id": "customAccent",
+              "label": "Accent",
+              "type": "color",
+              "advanced": true,
+              "help": "Used when Custom theme is selected."
+            },
+            {
+              "id": "customText",
+              "label": "Text",
+              "type": "color",
+              "advanced": true,
+              "help": "Used when Custom theme is selected."
+            },
+            {
+              "id": "customPanel",
+              "label": "Background",
+              "type": "color",
+              "advanced": true,
+              "help": "Used when Custom theme is selected."
+            },
+            {
+              "id": "customInstalled",
+              "label": "Installed attachment",
+              "type": "color",
+              "advanced": true,
+              "help": "Used when Custom theme is selected."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "presentation",
+      "title": "Presentation",
+      "groups": [
+        {
+          "id": "mode",
+          "title": "Menu layout",
+          "fields": [
+            {
+              "id": "presentation",
+              "label": "Layout",
+              "type": "select",
+              "options": [
+                {
+                  "value": "cascade",
+                  "label": "Cascade"
+                },
+                {
+                  "value": "radial",
+                  "label": "Radial Wheel"
+                },
+                {
+                  "value": "hybrid",
+                  "label": "Compact Hybrid"
+                },
+                {
+                  "value": "horizontal",
+                  "label": "Horizontal Bar"
+                },
+                {
+                  "value": "orbit",
+                  "label": "Orbit"
+                },
+                {
+                  "value": "clock",
+                  "label": "Clock Slices"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "placement",
+          "title": "Position and size for selected layout",
+          "fields": [
+            {
+              "id": "scale",
+              "label": "Layout scale",
+              "type": "number",
+              "min": 0.5,
+              "max": 1.5,
+              "step": 0.01,
+              "help": "Edits only the currently selected presentation. Each layout keeps its own saved scale."
+            },
+            {
+              "id": "positionX",
+              "label": "Horizontal position",
+              "type": "number",
+              "min": 0.05,
+              "max": 0.95,
+              "step": 0.01,
+              "advanced": true,
+              "help": "Selected presentation's screen position, stored independently per layout."
+            },
+            {
+              "id": "positionY",
+              "label": "Vertical position",
+              "type": "number",
+              "min": 0.05,
+              "max": 0.95,
+              "step": 0.01,
+              "advanced": true,
+              "help": "Selected presentation's screen position, stored independently per layout."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "labels",
+      "title": "Attachment labels",
+      "groups": [
+        {
+          "id": "brackets",
+          "title": "Bracketed text",
+          "fields": [
+            {
+              "id": "hideBracketedPrefixes",
+              "label": "Hide bracketed prefixes",
+              "type": "toggle"
+            },
+            {
+              "id": "hideBracketedInfixes",
+              "label": "Hide bracketed text inside names",
+              "type": "toggle"
+            },
+            {
+              "id": "hideBracketedSuffixes",
+              "label": "Hide bracketed suffixes",
+              "type": "toggle"
+            }
+          ]
+        },
+        {
+          "id": "shortening",
+          "title": "Display-only shortening",
+          "fields": [
+            {
+              "id": "shortenClockLabels",
+              "label": "Shorten matching category words",
+              "type": "toggle",
+              "help": "Applies to every presentation. Saved attachment names and OMOD identities are unchanged."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "behavior",
+      "title": "Behavior",
+      "groups": [
+        {
+          "id": "menu",
+          "title": "Menu operation",
+          "fields": [
+            {
+              "id": "useAuthoredMenus",
+              "label": "Use ECO-authored menus when available",
+              "type": "toggle",
+              "help": "Weapon-specific Builder overrides remain authoritative. ECO is optional."
+            },
+            {
+              "id": "controlHints",
+              "label": "Control hints",
+              "type": "select",
+              "options": [
+                {
+                  "value": "off",
+                  "label": "Off"
+                },
+                {
+                  "value": "contextual",
+                  "label": "Contextual"
+                },
+                {
+                  "value": "always",
+                  "label": "Always"
+                }
+              ]
+            },
+            {
+              "id": "closeAfterApply",
+              "label": "Close after applying an attachment",
+              "type": "toggle"
+            },
+            {
+              "id": "allowMovementWhileOpen",
+              "label": "Allow movement with Quick Menu open",
+              "type": "toggle",
+              "help": "Applies on the next menu open; gameplay and input safety restrictions remain active."
+            },
+            {
+              "id": "menuSlowdown",
+              "label": "Gameplay slowdown while menu is open",
+              "type": "number",
+              "min": 0,
+              "max": 1,
+              "step": 0.01,
+              "help": "0 means normal time; 1 means fully paused."
+            }
+          ]
+        },
+        {
+          "id": "advanced",
+          "title": "Advanced behavior",
+          "fields": [
+            {
+              "id": "cheatMode",
+              "label": "Cheat mode (experimental)",
+              "type": "toggle",
+              "advanced": true,
+              "help": "Ignore crafting ingredients and loose mod requirements; structural safety checks remain. May yield free loose mods when later disabled."
+            },
+            {
+              "id": "loggingEnabled",
+              "label": "Diagnostic logging",
+              "type": "toggle",
+              "advanced": true,
+              "help": "Controls new plugin diagnostics; existing log files are not deleted."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maintenance",
+      "title": "Maintenance",
+      "groups": [
+        {
+          "id": "recovery",
+          "title": "Recovery",
+          "fields": [
+            {
+              "id": "resetAll",
+              "label": "Reset all preferences",
+              "type": "action",
+              "actionId": "reset-all-user-preferences",
+              "owner": "module",
+              "advanced": true,
+              "help": "Destructive operation: removes global and weapon-specific saved choices. Must require explicit confirmation from the owning module; never execute on manifest load."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "internalKeys": [
+    "hideBracketedText",
+    "showControlHints",
+    "menuSource",
+    "useGameUIColor",
+    "hideInvalidOptions",
+    "autoInstallProviderIfSafe",
+    "removeDependentChildrenFirst",
+    "allowNoLooseModOptions",
+    "aeAutoReequipAfterApply",
+    "builderPanelWidth",
+    "builderPanelHeight",
+    "settingsPanelWidth",
+    "settingsPanelHeight",
+    "cascade",
+    "radial",
+    "hybrid",
+    "horizontal",
+    "orbit",
+    "clock",
+    "openMenuHotkey",
+    "openMenuBuilderHotkey",
+    "openMenuHotkeyKeycode",
+    "openMenuHotkeyModifiers",
+    "openMenuBuilderHotkeyKeycode",
+    "openMenuBuilderHotkeyModifiers",
+    "controllerSupported",
+    "hudColor",
+    "hudBackgroundColor",
+    "controllerQuickModifier",
+    "controllerQuickButton",
+    "weapons"
+  ]
+}

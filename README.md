@@ -18,6 +18,20 @@ is optional.
   text handling.
 - General settings for keybindings, scale, position, opacity, themes, colors,
   hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
+- Unreleased 0.5.227 Clock Slices: one category wheel with individual,
+  narrow, elongated curved outer attachment sectors. The clock automatically
+  uses slimmer sectors for one-line names and wider sectors for two-line names;
+  those sectors pack closely together while keeping the selected item centered.
+  Labels follow their slice angle. Radial and Hybrid wedge labels use SVG-native,
+  readable horizontal one- or two-line text rather than tiny rotating letters.
+  The translucent annular fills have separate SVG outlines, and their
+  minimal angular gaps prevent broad bright wedges over the game world.
+  Hybrid shows a navigable window when categories are numerous.
+  Repeated
+  category words (including singular/plural variants) are shortened by
+  default across all six menu presentations, with a Settings toggle for full
+  names. Each presentation retains independent positioning
+  and scale. The real attachment identity and application logic are unchanged.
 - Independent scale and click-drag position for each presentation.
 - Resizable Builder and Settings windows with saved dimensions and reset
   controls.
@@ -95,6 +109,23 @@ menu navigation available.
 
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
+
+## Shared K2040 Settings Schema V1 (development)
+
+The source-only V1 settings catalog is in
+Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json
+under dist/. It follows the same canonical contract as the shared K2040
+settings project, without containing saved values or defaults.
+
+Install pinned development dependencies with
+npm ci --ignore-scripts --no-audit --no-fund, then run npm test and
+npm run validate:settings before packaging. The package tool also rejects
+a missing or invalid manifest. See docs/SETTINGS_SCHEMA_V1_AUDIT.md for
+field ownership and the retained internal/legacy settings.
+
+This does not replace the existing standalone settings page. The eventual
+standalone and unified editors must use the same shared K2040 renderer
+and the mod-owned versioned value adapter after runtime acceptance.
 
 ## Builder and settings
 

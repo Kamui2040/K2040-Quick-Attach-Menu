@@ -48,6 +48,7 @@ namespace k2040
         std::string customPanel = "#0b1218";
         std::string customInstalled = "#74e398";
         bool useAuthoredMenus = true;
+        bool shortenClockLabels = true;
         std::string controlHints = "contextual";
         bool closeAfterApply = false;
         bool cheatMode = false;
@@ -63,6 +64,7 @@ namespace k2040
         QuickMenuLayoutSettings hybrid;
         QuickMenuLayoutSettings horizontal;
         QuickMenuLayoutSettings orbit;
+        QuickMenuLayoutSettings clock;
     };
 
     enum class UserSettingsLoadState

@@ -147,9 +147,40 @@ and transaction callbacks. Each presentation, including Orbit, stores its own
 scale and screen position. Radial and Hybrid wedge labels use measured text
 width and wedge-chord geometry for wrapping or truncation, not fixed character
 counts. These presentation changes do not introduce new runtime menu data or
-reuse third-party UI assets.
+reuse third-party UI assets. Wheel labels do not shrink into
+individual-character columns: measured one- or two-line text uses the
+sector's radial or tangential axis, with a readable font-size floor and
+ellipsis only when the physical space cannot accommodate full text.
+Hybrid limits visible category sectors to seven, retaining mouse-wheel,
+keyboard, and controller access to the remaining categories. Clock Slices
+use thinner angular sectors and deeper radial labels without altering
+attachment identity or background-opacity preferences.
 
 Generated menus first use each OMOD FULL display name; if absent or blank, they fall back to the linked loose MISC FULL, then the OMOD record/EditorID name. ECO-authored messages retain their explicit labels, and per-weapon Builder custom labels override the generated text after menu rebuilds. The form identities and inventory checks are unaffected.
+
+Clock, Radial and Hybrid annular sectors use convex SVG tiles for translucent
+backgrounds and separate stroke-only outlines. The earlier path-tessellation
+change did not resolve bright triangular shapes in-game; geometry comparison
+instead found unfilled gaps as wide as 3 degrees, exposing bright parts of
+the world behind the menu. Radial/Hybrid categories and Radial attachments
+now use a 0.12-degree inset at each angular boundary. Clock categories also
+use 0.12 degrees. Clock attachment widths follow measured line counts and
+are packed with a 0.25-degree intersector gap. This is a visual-only change:
+the focused option stays centered and all navigation and selection identities
+remain unchanged. In-game compositing still requires target verification.
+
+Radial and Hybrid attachment/category labels use SVG-native horizontal text,
+sharing wheel coordinates and scaling; names use at most two whole-word lines,
+and their original labels remain available to accessibility and tooltips.
+The attachment graph and background opacity preferences are unaffected.
+
+Matching category-word shortening is also presentation-only and applies
+consistently to Cascade, Radial, Hybrid, Horizontal, Orbit, and Clock Slices.
+One common helper strips only whole-word singular/plural matches of the
+currently selected category; the saved legacy shortenClockLabels setting
+controls all layouts for backward compatibility. Full option labels remain
+available for accessibility and tooltips, and OMOD/apply identity is unchanged.
+Meaningful reset choices such as "No Material" are not shortened to "No".
 
 Bracketed-text cleanup is presentation-only. The source label remains intact.
 The dedicated general settings page independently controls bracketed prefixes,
