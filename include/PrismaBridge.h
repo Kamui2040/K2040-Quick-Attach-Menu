@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #include "RuntimeState.h"
 
@@ -28,6 +29,7 @@ namespace k2040
         void OpenMenuBuilder(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
         // Called on the F4SE game thread by the optional unified settings hub.
         bool OpenSettingsFromHub();
+        bool ApplyUnifiedTheme(std::string_view theme);
         void CloseMenu();
         void CloseMenuForSwitch();
         void ResetForGameTransition(const char* reason);
@@ -57,6 +59,7 @@ namespace k2040
         std::string controllerConfirmButton_ = "A";
         std::string controllerCancelButton_ = "B";
 
+        std::string unifiedTheme_; // empty until hub provides an effective theme
         bool pendingPayload_ = false;
         bool pendingFocus_ = false;
         bool viewDomReady_ = false;

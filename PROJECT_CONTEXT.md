@@ -1,5 +1,22 @@
 # Current Project State
 
+## Unified Settings Editor V2 owner adapter (source-only)
+
+- Isolated feature/unified-editor-v2 branch implements the V2 C ABI,
+  reads the existing JSON preferences, and applies only manifest fields
+  through the Quick Attach native owner. It does not replace standalone
+  settings, wheel/menu behavior, saved weapon profiles or MCM shortcuts.
+- Shared theme callback supplies transient UI tokens to Menu, Builder
+  and Settings views; original saved palettes remain intact when the
+  hub is absent. The old theme selector remains under Advanced.
+- Destructive reset-all remains deliberately unavailable from the shared
+  editor until owner-side confirmation exists; MCM-only actions remain
+  owned by MCM.
+- Windows x64 build passed; in-game ABI, focus, input, persistence and
+  theme behavior are NOT accepted. No gameplay deployment or release.
+- Historical source/Clock/Radial work below remains unpromoted.
+
+
 - K2040 Settings Schema V1 integration (source-only, 2026-11-15):
   includes the unmodified canonical JSON schema and AJV validator, a
   Quick Attach-specific manifest (native preferences schema 2), pinned

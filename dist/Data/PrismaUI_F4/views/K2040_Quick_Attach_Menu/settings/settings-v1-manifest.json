@@ -79,7 +79,9 @@
                   "value": "custom",
                   "label": "Custom"
                 }
-              ]
+              ],
+              "advanced": true,
+              "help": " Preserved legacy appearance setting; the unified theme override controls the shared visual style."
             },
             {
               "id": "backgroundOpacity",

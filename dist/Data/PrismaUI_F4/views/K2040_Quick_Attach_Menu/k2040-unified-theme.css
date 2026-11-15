@@ -1,0 +1,5 @@
+/* Shared K2040 settings appearance; does not change saved menu preferences. */
+:root[data-k2040-unified-theme="default"] {--accent:#88c4f1!important;--text:#e3eaf2!important;--panel:#1a2938!important;--muted:#b0c0ce!important}
+:root[data-k2040-unified-theme="midnight"] {--accent:#b4a8ff!important;--text:#e4e1ff!important;--panel:#171a31!important;--muted:#b7b1df!important}
+:root[data-k2040-unified-theme="high-contrast"] {--accent:#ffff73!important;--text:#fff!important;--panel:#050505!important;--muted:#eee!important}
+:root[data-k2040-unified-theme="pipboy"] {--accent:#93f694!important;--text:#b2ffb5!important;--panel:#122b18!important;--muted:#9bd69d!important}

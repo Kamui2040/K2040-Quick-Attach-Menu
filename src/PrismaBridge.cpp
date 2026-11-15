@@ -30,6 +30,7 @@
 #include <vector>
 
 // Include Windows macros only after all CommonLib/RE headers have parsed.
+#include "K2040ThemeClient.h"
 #include <Windows.h>
 #include <Xinput.h>
 
@@ -2102,6 +2103,10 @@ namespace k2040
         }
 
         viewDomReady_ = true;
+        if(const auto theme=K2040::ThemeClient::Current("quick-attach"))
+            unifiedTheme_=*theme;
+        if(!unifiedTheme_.empty() && api_ && api_->IsValid(menuView_))
+            api_->InteropCall(menuView_,"applyUnifiedTheme",unifiedTheme_.c_str());
         controllerInputActive_ = menuOpen_ && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
@@ -2121,6 +2126,15 @@ namespace k2040
             log::Info("Retrying Prisma menu view focus after DOM ready.");
             FocusAndShowMenuView();
         }
+    }
+
+    bool PrismaBridge::ApplyUnifiedTheme(std::string_view theme) {
+        if(theme!="default"&&theme!="midnight"&&theme!="high-contrast"&&theme!="pipboy")
+            return false;
+        unifiedTheme_=theme;
+        if(api_&&menuView_&&viewDomReady_&&api_->IsValid(menuView_))
+            api_->InteropCall(menuView_,"applyUnifiedTheme",unifiedTheme_.c_str());
+        return true;
     }
 
     void PrismaBridge::OnCloseRequested(const char*)
