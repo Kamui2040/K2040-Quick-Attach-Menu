@@ -1,5 +1,6 @@
 #include "K2040SettingsAdapterV2.h"
 #include "JsonPreferencesParser.h"
+#include "SettingsV2ValuePolicy.h"
 #include "PrismaBridge.h"
 #include "UserSettings.h"
 #include "Logger.h"
@@ -99,7 +100,7 @@ namespace {
         const std::string_view name(id),input(rawValue);
         if(name.empty()||name.size()>80||input.size()>256)return false;
         const auto parsed=k2040::json::JsonParser(std::string(input)).Parse();
-        if(!parsed)return false;
+        if(!parsed || !k2040::settings_v2::ValidFieldValue(name,*parsed))return false;
         const auto* text=parsed->AsString();
         const auto* number=parsed->AsNumber();
         const auto* flag=parsed->AsBool();
@@ -140,11 +141,9 @@ namespace {
         else if(name=="cheatMode"&&flag)p.cheatMode=*flag;
         else if(name=="loggingEnabled"&&flag)p.loggingEnabled=*flag;
         else return false;
-        // Strict client-side and hub validation are also performed by the
-        // shared renderer. Here, reject attempts to coerce or clamp values.
-        if((name=="backgroundOpacity"&&(p.backgroundOpacity<0.25||p.backgroundOpacity>1.0))||
-           (name=="menuSlowdown"&&(p.menuSlowdown<0.0||p.menuSlowdown>1.0))||
-           (number&&!std::isfinite(*number)))return false;
+        // Both the shared hub and this native owner independently enforce
+        // the manifest's type, option and numeric-grid constraints before
+        // calling native setters (which retain their legacy clamp behavior).
         if(!k2040::SetQuickMenuPreferences(p)){
             // Distinguish an unchanged value from the owner's failed save gate.
             if(!k2040::GetUserSettingsDiagnostics().saveAllowed)return false;

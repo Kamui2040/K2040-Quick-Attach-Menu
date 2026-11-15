@@ -123,9 +123,13 @@ npm run validate:settings before packaging. The package tool also rejects
 a missing or invalid manifest. See docs/SETTINGS_SCHEMA_V1_AUDIT.md for
 field ownership and the retained internal/legacy settings.
 
-This does not replace the existing standalone settings page. The eventual
-standalone and unified editors must use the same shared K2040 renderer
-and the mod-owned versioned value adapter after runtime acceptance.
+On feature/unified-editor-v2, Quick Attach implements the V2 native
+owner adapter for the common K2040 two-pane editor. The existing standalone
+Settings page remains unchanged and usable without the hub; it is not the
+renderer used inside the unified editor. Gameplay Quick Menu and Builder
+shortcuts remain independent. The shared settings shortcut is owned by the
+Unified Settings hub, not Quick Attach. See
+docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md for the V2 gate and tests.
 
 ## Builder and settings
 

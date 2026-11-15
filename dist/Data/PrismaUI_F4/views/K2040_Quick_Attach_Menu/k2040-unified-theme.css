@@ -1,5 +1,46 @@
-/* Shared K2040 settings appearance; does not change saved menu preferences. */
-:root[data-k2040-unified-theme="default"] {--accent:#88c4f1!important;--text:#e3eaf2!important;--panel:#1a2938!important;--muted:#b0c0ce!important}
-:root[data-k2040-unified-theme="midnight"] {--accent:#b4a8ff!important;--text:#e4e1ff!important;--panel:#171a31!important;--muted:#b7b1df!important}
-:root[data-k2040-unified-theme="high-contrast"] {--accent:#ffff73!important;--text:#fff!important;--panel:#050505!important;--muted:#eee!important}
-:root[data-k2040-unified-theme="pipboy"] {--accent:#93f694!important;--text:#b2ffb5!important;--panel:#122b18!important;--muted:#9bd69d!important}
+/* Optional shared theme tokens. Never changes the owner's saved palette or opacity.
+   No data attribute means all original standalone colors remain in effect. */
+:root[data-k2040-unified-theme="default"] {
+  --k2040-shared-accent: #88c4f1;
+  --k2040-shared-text: #e3eaf2;
+  --k2040-shared-muted: #b0c0ce;
+  --k2040-shared-installed: #74e398;
+}
+:root[data-k2040-unified-theme="midnight"] {
+  --k2040-shared-accent: #b4a8ff;
+  --k2040-shared-text: #e4e1ff;
+  --k2040-shared-muted: #b7b1df;
+  --k2040-shared-installed: #a8efbe;
+}
+:root[data-k2040-unified-theme="high-contrast"] {
+  --k2040-shared-accent: #ffff73;
+  --k2040-shared-text: #ffffff;
+  --k2040-shared-muted: #eeeeee;
+  --k2040-shared-installed: #8aff8a;
+}
+:root[data-k2040-unified-theme="pipboy"] {
+  --k2040-shared-accent: #93f694;
+  --k2040-shared-text: #b2ffb5;
+  --k2040-shared-muted: #9bd69d;
+  --k2040-shared-installed: #d0ffd0;
+}
+/* The Builder and the legacy standalone Settings panel use these aliases. */
+:root[data-k2040-unified-theme] {
+  --accent: var(--k2040-shared-accent) !important;
+  --text: var(--k2040-shared-text) !important;
+  --muted: var(--k2040-shared-muted) !important;
+  --installed: var(--k2040-shared-installed) !important;
+}
+/* The Quick Menu renderer assigns --qm-* inline on each render.
+   Set the optional theme on those SAME targets, not just on :root.
+   Do not change --qm-panel/row/active: they contain user-selected opacity. */
+:root[data-k2040-unified-theme] .k2040-quick-renderer,
+:root[data-k2040-unified-theme] .qm-wheel-screen-labels,
+:root[data-k2040-unified-theme] .qm-status-portal {
+  --qm-accent: var(--k2040-shared-accent) !important;
+  --qm-text: var(--k2040-shared-text) !important;
+  --qm-muted: var(--k2040-shared-muted) !important;
+  --qm-installed: var(--k2040-shared-installed) !important;
+  --qm-hud-color: var(--k2040-shared-accent) !important;
+  --qm-hud-muted: var(--k2040-shared-muted) !important;
+}
