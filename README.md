@@ -110,6 +110,23 @@ menu navigation available.
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
 
+## Shared K2040 Settings Schema V1 (development)
+
+The source-only V1 settings catalog is in
+Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json
+under dist/. It follows the same canonical contract as the shared K2040
+settings project, without containing saved values or defaults.
+
+Install pinned development dependencies with
+npm ci --ignore-scripts --no-audit --no-fund, then run npm test and
+npm run validate:settings before packaging. The package tool also rejects
+a missing or invalid manifest. See docs/SETTINGS_SCHEMA_V1_AUDIT.md for
+field ownership and the retained internal/legacy settings.
+
+This does not replace the existing standalone settings page. The eventual
+standalone and unified editors must use the same shared K2040 renderer
+and the mod-owned versioned value adapter after runtime acceptance.
+
 ## Builder and settings
 
 The Builder always shows the compatible catalog for the equipped weapon so it

@@ -1,5 +1,14 @@
 # Current Project State
 
+- K2040 Settings Schema V1 integration (source-only, 2026-11-15):
+  includes the unmodified canonical JSON schema and AJV validator, a
+  Quick Attach-specific manifest (native preferences schema 2), pinned
+  development dependencies, audit documentation and automated manifest
+  validation during QA packaging. The existing standalone Settings page,
+  MCM bindings, controller shortcuts and saved preferences are unchanged.
+  The shared renderer and value adapter are not yet implemented or game-tested;
+  do not deploy, replace the standalone editor or merge on this evidence.
+
 - The current unmerged Clock/Radial/Hybrid UI correction on
   feature/clock-arc-menu addresses the large *unfilled angular gaps* between
   sectors, visible as bright triangles over high-contrast game backgrounds.

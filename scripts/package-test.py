@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 import sys
 import zipfile
 
@@ -29,6 +30,20 @@ AE_ENABLED = b"AEAutoReequipAfterApply=true"
 
 
 def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
+    # The canonical validator is a build-time gate, never a game dependency.
+    manifest = DIST / "PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json"
+    if not manifest.is_file():
+        raise ValueError("Settings Schema V1 manifest is missing")
+    try:
+        result = subprocess.run(
+            ["node", str(ROOT / "scripts/validate-settings-manifest.cjs"), str(manifest)],
+            cwd=ROOT, text=True, capture_output=True, check=False, timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ValueError("Settings Schema V1 validator unavailable: " + str(exc)) from exc
+    if result.returncode != 0:
+        raise ValueError("Settings Schema V1 manifest validation failed: " +
+                         (result.stderr or result.stdout).strip())
     files = sorted(p for p in DIST.rglob("*") if p.is_file())
     if not files:
         raise ValueError("Staged Data files are missing; build first")
