@@ -6,9 +6,11 @@ const vm = require("node:vm");
 const ui = path.resolve(__dirname,
     "../../dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu");
 const attributes = new Map();
+const styleTokens = new Map();
 const doc = {
     documentElement: {
-        setAttribute(name,value) {attributes.set(name,value);}
+        setAttribute(name,value) {attributes.set(name,value);},
+        style: {setProperty(name,value) {styleTokens.set(name,value);}}
     }
 };
 const host = {};
@@ -39,5 +41,31 @@ for(const html of ["menu.html","builder.html","settings.html"]){
     const text=fs.readFileSync(path.join(ui,html),"utf8");
     assert.ok(text.includes('href="k2040-unified-theme.css"'));
     assert.ok(text.includes('src="k2040-unified-theme.js"'));
+}
+const snapshot = {
+  schema: 1, theme: "doom-eternal", palette: "hot-omni", colors: {
+    background: "#130C25", panel: "#200044", text: "#FFF1FC",
+    accent: "#FF53BF", muted: "#FE9ACE", border: "#6760FE",
+    highlight: "#8EA6FF"
+  }
+};
+assert.equal(host.applyUnifiedAppearance(JSON.stringify(snapshot)),true);
+assert.equal(attributes.get("data-k2040-visual-theme"),"doom-eternal");
+assert.equal(attributes.get("data-k2040-palette"),"hot-omni");
+assert.equal(styleTokens.get("--k2040-shared-accent"),"#FF53BF");
+assert.equal(styleTokens.get("--k2040-shared-text"),"#FFF1FC");
+assert.equal(styleTokens.get("--k2040-shared-installed"),"#8EA6FF");
+assert.equal(styleTokens.has("--qm-panel"),false,
+  "palette must not overwrite user opacity-bearing background");
+for (const invalid of [
+    "{", JSON.stringify({...snapshot, schema: 2}),
+    JSON.stringify({...snapshot, theme: "injected"}),
+    JSON.stringify({...snapshot, palette: "../unsafe"}),
+    JSON.stringify({...snapshot, colors: {...snapshot.colors, accent: "red"}}),
+    JSON.stringify({...snapshot, colors: {...snapshot.colors, unknown: "#123456"}})
+]) {
+    assert.equal(host.applyUnifiedAppearance(invalid),false);
+    assert.equal(styleTokens.get("--k2040-shared-accent"),"#FF53BF",
+      "invalid appearance must not update CSS tokens");
 }
 console.log("PASS: transient shared theme inheritance for all three standalone views");

@@ -25,6 +25,7 @@ DEFAULTS = "Data/MCM/Config/K2040_Quick_Attach_Menu/settings.ini"
 INI = "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.ini"
 DLL = "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll"
 CANONICAL_PARENT_SHA256 = "8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb"
+PROVIDER = "Data/K2040/Settings/Providers/quick-attach.json"
 AE_DISABLED = b"AEAutoReequipAfterApply=false"
 AE_ENABLED = b"AEAutoReequipAfterApply=true"
 
@@ -48,10 +49,20 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
     if not files:
         raise ValueError("Staged Data files are missing; build first")
     data = {p.relative_to(DIST.parent).as_posix(): p.read_bytes() for p in files}
-    for required in (PARENT, CHILD, KEYBINDS, DEFAULTS, INI, DLL):
+    for required in (PARENT, CHILD, KEYBINDS, DEFAULTS, INI, DLL, PROVIDER):
         if required not in data:
             raise ValueError(f"Missing required build artifact: {required}")
 
+    provider = json.loads(data[PROVIDER])
+    if provider != {
+        "tag": "k2040.settings", "protocolVersion": 2,
+        "modId": "quick-attach", "displayName": "Quick Attach Menu",
+        "plugin": "K2040_Quick_Attach_Menu.dll",
+        "adapter": "K2040_GetSettingsAdapterV2",
+    }:
+        raise ValueError("Tagged VNext provider descriptor does not match the owner ABI")
+    if any(name.startswith("Data/K2040/Settings/") and name != PROVIDER for name in data):
+        raise ValueError("Unexpected shared hub/provider data in owner package")
     parent_sha = hashlib.sha256(data[PARENT]).hexdigest()
     if parent_sha != CANONICAL_PARENT_SHA256:
         raise ValueError(f"Shared parent differs from canonical template: {parent_sha}")

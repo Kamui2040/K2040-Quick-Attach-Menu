@@ -34,3 +34,30 @@ The same small theme bridge is loaded by the existing Menu, Builder and standalo
 **Not yet verified:** in-game Ctrl+Shift+B opening, MCM reassignment/clear behavior, typed edits, controller navigation, actual persistence, theme propagation/override and switching between independent panels in Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
 
 A QA archive may be built under Downloads for later isolated manual testing, but it must not be installed or published automatically.
+
+
+## VNext adoption (2026-11-15)
+
+The standalone QA overlay now includes
+`Data/K2040/Settings/Providers/quick-attach.json`, matching the hub's
+tagged registration schema and the existing loaded V2 adapter identity.
+The hub only discovers a successfully loaded, compatible DLL.
+
+The optional `K2040_CopyAppearanceV1` snapshot supplies four theme
+identifiers and six built-in or named custom palette choices. Quick Attach
+validates the complete schema, token names and all seven HEX colors in native
+code before passing a transient snapshot to its existing menu UI. The
+three existing views share the JS/CSS bridge; they apply resolved text,
+accent, muted and installed colors without rewriting saved Quick Attach
+colors or opacity. The existing legacy four-theme query remains a fallback
+for older hub versions. New structural visual themes are owned by the hub;
+no claim is made that Quick Attach has independently adopted every theme's
+frame or typography.
+
+Quick Attach has no persistently visible, draggable HUD widget, so the optional
+layout editor V1/V2 contract is not exported. The hub must not advertise a
+Quick Attach HUD layout edit button in this candidate.
+
+The bundled latest VNext hub and Quick Attach are *QA-only*: Fallout 4 OG runtime
+verification is required for palettes, focus, MCM, attachment actions, input,
+and persistence before production promotion.

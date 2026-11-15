@@ -1,0 +1,8 @@
+{
+  "tag": "k2040.settings",
+  "protocolVersion": 2,
+  "modId": "quick-attach",
+  "displayName": "Quick Attach Menu",
+  "plugin": "K2040_Quick_Attach_Menu.dll",
+  "adapter": "K2040_GetSettingsAdapterV2"
+}
