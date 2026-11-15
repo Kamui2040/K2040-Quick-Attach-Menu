@@ -35,8 +35,9 @@ inline bool Valid(std::string_view chord) {
         chord.remove_prefix(end+1);
         if(chord.empty())return false;
     }
-    // Do not shadow the hub's provisional Ctrl+Shift+B settings shortcut.
-    return key && !(ctrl&&shift&&!alt&&chord=="B");
+    // Default unified settings key is F3, unmodified. All other gameplay
+    // chords, including a legacy Ctrl+Shift+B, remain owner editable.
+    return key && !(!ctrl&&!shift&&!alt&&chord=="F3");
 }
 inline std::pair<unsigned,unsigned> ToKeycode(std::string_view text) {
     if (!Valid(text) || text=="Unbound") return {0,0};

@@ -1,5 +1,24 @@
 # Current Project State
 
+## 2026-11-16 — Unified hub visual styles and single MCM owner (QA)
+
+- Quick Menu, Builder and standalone fallback Settings now render four
+  independent structural visual themes from the shared hub's resolved
+  appearance snapshot: Fallout 4, Fallout 76, DOOM Eternal and Fallout 3 /
+  New Vegas. Palette RGB remains independent; existing menu sectors and
+  saved user opacity are unchanged.
+- This owner build no longer includes K2040_Mods or any mod-specific MCM
+  menu, keybind action or defaults. The central hub alone registers the
+  F3 provisional settings opener. Existing player MCM registry and old
+  controller migration inputs are not altered.
+- The native Quick Menu and Builder gameplay hotkeys remain editable in
+  the hub's owner settings and stored by this mod. The hub, not QAM's
+  legacy settings panel, now captures Proton-intercepted Mouse4/Mouse5.
+- Unit/static checks are not OG runtime acceptance; this is QA-only and
+  not a game deployment or release.
+
+
+
 ## 2026-11-15 — Manifest adoption correction (QA-only)
 
 - Removed the duplicate legacy Theme selector from the unified owner manifest. Unified Settings alone owns visual-theme/palette selection; previous native saved theme and standalone fallback remain intact. No player settings are rewritten. Fallout 4 OG runtime QA remains pending.

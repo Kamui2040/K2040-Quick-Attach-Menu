@@ -77,9 +77,10 @@ test("standalone settings survive while only hub owns MCM keyboard actions", () 
         assert.ok(html.includes('id="' + id + '"'), "standalone control lost: " + id);
     assert.ok(html.includes('send("keybind:"'), "independent native capture route is retained");
     assert.ok(html.includes('send("set:presentation:"'), "standalone renderer is retained");
-    const mcm = JSON.parse(fs.readFileSync(path.join(root,
-        "dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json"), "utf8"));
-    assert.deepEqual(mcm.keybinds, []);
+    assert.equal(fs.existsSync(path.join(root,
+        "dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json")),false);
+    assert.equal(fs.existsSync(path.join(root,
+        "dist/Data/MCM/Config/K2040_Mods/config.json")),false);
 });
 test("canonical semantic validator rejects incompatible manifests", () => {
     const invalid = (mutate, pattern) => {

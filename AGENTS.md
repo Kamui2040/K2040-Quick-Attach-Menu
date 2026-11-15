@@ -81,6 +81,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged
   source, post-write verification, error logging and fail-closed behavior.
+- In VNext QA packages the hub is also the sole MCM **menu** owner. QAM must
+  not package K2040_Mods or a child settings page, and its gameplay shortcuts
+  are configured through the unified hub. Do not remove or rewrite any user's
+  historical MCM registry/preferences. Reserve unmodified F3 for the hub's
+  provisional opener.
 - The Unified Settings hub is the sole MCM settings-keybind owner. Quick Attach's gameplay openers (Quick Menu, Builder, controller) must be edited and saved in Quick Attach's owner-controlled stores, without MCM gameplay keybind registrations, MCM registry writes, or callable legacy MCM opener handlers. Keep physical input polling and safe opener edge suppression. Preserve previous user MCM registries without modifying them.
 - Never release a Prisma menu's gameplay-input layer while a keyboard/mouse opener that closed it is still held: the physical key may reach the underlying Pip-Boy. Defer only this mod's release until physical key-up with a bounded failsafe, queue engine cleanup to the game thread, cancel stale work on reopen and always release on game transition.
 - Before calling any runtime-specific native relocation, verify its exact
