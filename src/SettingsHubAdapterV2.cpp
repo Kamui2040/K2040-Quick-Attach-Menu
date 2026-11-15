@@ -78,7 +78,6 @@ namespace {
         str("menuBuilderHotkey",p.menuBuilderHotkey);
         str("controllerQuickShortcut",k2040::GetControllerShortcut("quick"));
         str("presentation",p.presentation);
-        str("theme",p.theme);
         str("customAccent",p.customAccent);
         str("customText",p.customText);
         str("customPanel",p.customPanel);
@@ -138,7 +137,6 @@ namespace {
             return false;
         }
         if(name=="presentation"&&text)p.presentation=*text;
-        else if(name=="theme"&&text)p.theme=*text;
         else if(name=="customAccent"&&text)p.customAccent=*text;
         else if(name=="customText"&&text)p.customText=*text;
         else if(name=="customPanel"&&text)p.customPanel=*text;

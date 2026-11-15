@@ -128,37 +128,8 @@
       "groups": [
         {
           "id": "style",
-          "title": "Theme and background",
+          "title": "Background",
           "fields": [
-            {
-              "id": "theme",
-              "label": "Theme",
-              "type": "select",
-              "options": [
-                {
-                  "value": "default",
-                  "label": "Commonwealth Blue"
-                },
-                {
-                  "value": "pipboy",
-                  "label": "Classic Pip-Boy"
-                },
-                {
-                  "value": "high-contrast",
-                  "label": "High Contrast"
-                },
-                {
-                  "value": "fallout76",
-                  "label": "Fallout 76"
-                },
-                {
-                  "value": "custom",
-                  "label": "Custom"
-                }
-              ],
-              "advanced": true,
-              "help": " Preserved legacy appearance setting; the unified theme override controls the shared visual style."
-            },
             {
               "id": "backgroundOpacity",
               "label": "Background opacity",
@@ -454,6 +425,7 @@
     "hudBackgroundColor",
     "controllerQuickModifier",
     "controllerQuickButton",
-    "weapons"
+    "weapons",
+    "theme"
   ]
 }

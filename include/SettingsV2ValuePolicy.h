@@ -71,12 +71,6 @@ namespace k2040::settings_v2
                                          "horizontal"sv, "orbit"sv, "clock"sv};
             return value && OneOf(*value, entries);
         }
-        if (field == "theme") {
-            constexpr std::array entries{
-                "default"sv, "pipboy"sv, "high-contrast"sv, "fallout76"sv, "custom"sv
-            };
-            return value && OneOf(*value, entries);
-        }
         if (field == "controlHints") {
             constexpr std::array entries{"off"sv, "contextual"sv, "always"sv};
             return value && OneOf(*value, entries);

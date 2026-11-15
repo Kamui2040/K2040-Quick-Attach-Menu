@@ -35,6 +35,11 @@ It is not an integrated editor panel.
 
 ## Shared appearance and static layout previews
 
+The mod's legacy theme preference is deliberately **not exposed**
+as a second selector in the unified editor. Its saved value and
+standalone fallback remain unchanged; shared theme/palette selection
+belongs to Unified Settings.
+
 The hub's optional appearance snapshot is queried by Quick Menu,
 Builder and standalone Settings when a Prisma view becomes ready.
 Theme callbacks re-query the resolved theme+palette snapshot and apply

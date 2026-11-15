@@ -55,7 +55,9 @@ test("metadata has no live values and actions have explicit ownership", () => {
     assert.equal(byId("presentation").preview, "attachment-layout");
     assert.equal(byId("cheatMode").advanced, true);
     assert.equal(byId("resetAll").advanced, true);
-    assert.equal(byId("theme").options.length, 5);
+    assert.equal(byId("theme"), undefined, "global theme must not be duplicated in owner manifest");
+    assert.ok(manifest.internalKeys.includes("theme"), "saved fallback theme remains internal");
+    assert.ok(byId("backgroundOpacity"));
     assert.deepEqual(byId("presentation").options.map(x => x.value),
         ["cascade", "radial", "hybrid", "horizontal", "orbit", "clock"]);
     assert.equal(byId("menuSlowdown").max, 1);
@@ -90,9 +92,9 @@ test("canonical semantic validator rejects incompatible manifests", () => {
     invalid(m => {byIdCopy(m,"cheatMode").visibleWhen = {all:["missingToggle"]};}, /missing dependency/);
     invalid(m => {byIdCopy(m,"cheatMode").visibleWhen = {all:["loggingEnabled"]};
                   byIdCopy(m,"loggingEnabled").visibleWhen = {all:["cheatMode"]};}, /cycle/);
-    invalid(m => {byIdCopy(m,"cheatMode").visibleWhen = {any:["theme"]};}, /must be a toggle/);
-    invalid(m => {byIdCopy(m,"theme").options[1].value = 17;}, /mixed option types/);
-    invalid(m => {byIdCopy(m,"theme").options[1].value = "default";}, /duplicate option/);
+    invalid(m => {byIdCopy(m,"cheatMode").visibleWhen = {any:["presentation"]};}, /must be a toggle/);
+    invalid(m => {byIdCopy(m,"presentation").options[1].value = 17;}, /mixed option types/);
+    invalid(m => {byIdCopy(m,"presentation").options[1].value = "cascade";}, /duplicate option/);
     invalid(m => {byIdCopy(m,"backgroundOpacity").max = 0.2;}, /invalid range/);
     invalid(m => {m.internalKeys.push("cheatMode");}, /internal and visible setting collide/);
     invalid(m => {byIdCopy(m,"resetAll").owner="web";}, /allowed values/);

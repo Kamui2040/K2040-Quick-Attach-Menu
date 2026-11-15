@@ -1,5 +1,9 @@
 # Current Project State
 
+## 2026-11-15 — Manifest adoption correction (QA-only)
+
+- Removed the duplicate legacy Theme selector from the unified owner manifest. Unified Settings alone owns visual-theme/palette selection; previous native saved theme and standalone fallback remain intact. No player settings are rewritten. Fallout 4 OG runtime QA remains pending.
+
 ## 2026-11-15 — Gameplay keybinds, theme inheritance, layout previews (QA-only)
 
 - Quick Menu and Builder gameplay chords are editable directly in the shared V2 editor and saved by the owning mod, never through MCM. Legacy MCM gameplay registrations and the Scaleform callback are disabled; only the unified settings shortcut remains MCM-controlled. Controller gameplay shortcut edits use mod-owned storage.

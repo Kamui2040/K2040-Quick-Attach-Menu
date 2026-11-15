@@ -44,16 +44,17 @@ int main()
     }) {
         assert(Allowed("presentation", "\"" + std::string(entry) + "\""));
     }
+    // The saved legacy theme stays supported by standalone Settings,
+    // but cannot be changed via the Unified Settings owner adapter.
     for (const auto entry : {
         "default","pipboy","high-contrast","fallout76","custom"
     }) {
-        assert(Allowed("theme", "\"" + std::string(entry) + "\""));
+        assert(!Allowed("theme", "\"" + std::string(entry) + "\""));
     }
     for (const auto entry : {"off","contextual","always"})
         assert(Allowed("controlHints", "\"" + std::string(entry) + "\""));
 
     assert(!Allowed("presentation", R"("settings")"));
-    assert(!Allowed("theme", R"("midnight")")); // Shared theme is not a saved native theme.
     assert(!Allowed("controlHints", R"("hidden")"));
     assert(!Allowed("presentation", "false"));
     assert(Allowed("backgroundOpacity", "0.25"));
