@@ -77,10 +77,11 @@ Default controls:
 - `Escape`: close the active mod menu.
 
 Pressing the other opener while one menu is active switches directly to that
-menu. On the Unified Settings VNext development build, gameplay shortcuts are edited
-directly in Unified Settings, without MCM. Older published releases retain
-their original MCM controls. The standalone Settings page remains reachable from
-the Builder.
+menu. In the Unified Settings VNext development build, all Quick Attach
+general settings and gameplay shortcuts are edited directly in the shared hub,
+which is installed separately (default shortcut F3). Close Builder before
+opening the hub; its Settings header hint no longer launches the old page.
+Older published releases retain their MCM and standalone Settings controls.
 
 The Quick Menu controller shortcut is under **Settings > Controls**. Choose a
 button and optional modifier, then select **Apply**. It is unassigned by

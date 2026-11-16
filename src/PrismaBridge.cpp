@@ -1874,29 +1874,6 @@ namespace k2040
         OpenView(weaponInfo, menu, ViewMode::MenuBuilder);
     }
 
-    bool PrismaBridge::OpenSettingsFromHub()
-    {
-        // Settings is independent of the equipped weapon's ability to change
-        // attachments, but uses the same rendering and input-isolation lifecycle.
-        // Do not steal focus from existing panels or an open Quick Attach menu.
-        if (menuOpen_ || !CanOpenFromHotkey()) return false;
-        if (!api_ && !Initialize()) return false;
-        const auto originalMode = viewMode_;
-        viewMode_ = ViewMode::Settings;
-        if (!BeginOpenFromHotkey()) {
-            viewMode_ = originalMode;
-            return false;
-        }
-        const auto weaponInfo = GetEquippedWeaponInfo();
-        auto menu = BuildEcoWeaponMenu_ReadOnly(weaponInfo, true);
-        if (menu.valid) RegisterOrUpdateWeapon(menu);
-        ApplyVisibilityPreferences(menu);
-        OpenView(weaponInfo, menu, ViewMode::Settings);
-        if (menuOpen_ && menuView_ != 0) return true;
-        CloseMenuInternal(false);
-        return false;
-    }
-
     void PrismaBridge::RequestViewSwitch(ViewMode mode)
     {
         if (!menuOpen_ || mode == viewMode_) {
@@ -2226,8 +2203,11 @@ namespace k2040
         const std::string_view command(argument);
         bool changed = false;
 
+        // All Quick Attach global settings are served by the V2 hub adapter.
+        // Reject stale Builder/browser commands rather than opening the
+        // retired standalone settings view.
         if (command == "open-settings") {
-            RequestViewSwitch(ViewMode::Settings);
+            log::Warn("Legacy Quick Attach settings entry rejected; use K2040 Unified Settings.");
             return;
         }
 

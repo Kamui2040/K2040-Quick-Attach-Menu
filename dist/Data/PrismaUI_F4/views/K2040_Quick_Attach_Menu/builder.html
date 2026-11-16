@@ -33,6 +33,7 @@
     button { font: inherit; color: var(--text); }
     .action { padding: 9px 14px; background: var(--row); border: 1px solid var(--line); cursor: pointer; }
     .action:hover, .action:focus { border-color: var(--accent); outline: none; }
+    .settings-hub-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
     .weapon-settings {
       display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 10px 20px;
       color: var(--muted); background: rgba(0,0,0,.16); border-bottom: 1px solid var(--line); font-size: 13px;
@@ -139,7 +140,7 @@
       <button id="resetNames" class="action" type="button">Reset names</button>
       <button id="exportProfile" class="action" type="button">Export menu</button>
       <button id="importProfile" class="action" type="button">Import menu</button>
-      <button id="settings" class="action" type="button">Settings</button>
+      <span class="settings-hub-hint" title="Close Builder, then use the K2040 Settings shortcut configured in MCM (default F3).">Settings: K2040 Hub (F3)</span>
       <button id="close" class="action" type="button">Close</button>
     </header>
     <div class="weapon-settings" aria-label="Equipped weapon options">
@@ -716,7 +717,6 @@
     document.getElementById("profileDialog").addEventListener("mousedown", function(event) {
       if (event.target === document.getElementById("profileDialog")) closeProfileDialog();
     });
-    document.getElementById("settings").addEventListener("click", function() { send("open-settings"); });
     document.getElementById("menuSourceTrigger").addEventListener("click", function() {
       var open = document.getElementById("menuSourceTrigger").getAttribute("aria-expanded") !== "true";
       setChoiceOpen("menuSourceTrigger", "menuSourceOptions", open, false);

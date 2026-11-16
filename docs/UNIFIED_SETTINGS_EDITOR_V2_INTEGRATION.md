@@ -8,7 +8,11 @@ Quick Attach implements the canonical K2040_GetSettingsAdapterV2 plain-C export 
 
 The V2 owner reads live values through the existing Quick Menu preferences and bracketed-text preferences. When the user edits a field, this mod validates its ID, JSON type, option and numeric bounds **again**, then uses the native owner setters and existing user-preferences save path. The selected layout's size and position affect only its own stored layout. Hiding or omitting a field never clears saved data. Native settings schema 2, INI compatibility, weapon profiles and per-weapon Builder overrides remain unchanged.
 
-Reset All can destroy weapon-specific preferences. The V2 callback rejects it until an owner-side confirmation flow is implemented and game-tested. The standalone Settings panel retains its existing confirmation.
+Reset All can destroy weapon-specific preferences. The hub currently disables
+this action and the V2 owner callback rejects it until a verified, explicit
+confirmation flow is provided. The former standalone Settings HTML is retained
+only as historical source; it is not installed or accessible in this VNext QA
+package. Do not claim destructive reset support in the unified editor.
 
 ## Shortcut ownership
 
@@ -30,7 +34,11 @@ does not remove or rewrite a user's existing MCM registry entries.
 Old MCM callback registrations are disabled to prevent stale entries
 from invoking a second gameplay shortcut.
 
-The standalone Builder/Settings view is still available as a fallback.
+The standalone Builder remains available for per-weapon menu editing. Its
+legacy general Settings button no longer opens a second page; the hub's V2
+manifest provides the current general settings. Close Builder and use the hub's
+configured shortcut (default F3). The V1 launcher is disabled for this QA
+branch, and the standalone settings HTML is excluded from its installer.
 It is not an integrated editor panel.
 
 ## Shared appearance and static layout previews

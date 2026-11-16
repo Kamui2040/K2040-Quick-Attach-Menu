@@ -9,18 +9,8 @@ MCM = ROOT / "dist/Data/MCM/Config/K2040_Quick_Attach_Menu"
 
 class SettingsV2ShortcutContract(unittest.TestCase):
     def test_only_gameplay_hotkeys_stay_in_mod_config(self):
-        registry = json.loads((MCM / "keybinds.json").read_text())
-        config = json.loads((MCM / "config.json").read_text())
-        allowed = set()
-        self.assertEqual({item["id"] for item in registry["keybinds"]}, allowed)
-        pages = config["pages"]
-        hotkeys = [item["id"] for page in pages
-                   for item in page.get("content", []) if item.get("type") == "hotkey"]
-        self.assertEqual(set(hotkeys), allowed)
-        self.assertEqual(len(hotkeys), len(allowed))
-        self.assertNotIn("openUnifiedSettings", hotkeys)
-        self.assertNotIn("openSettings", hotkeys)
-        self.assertNotIn("settingsShortcut", hotkeys)
+        self.assertFalse((ROOT/"dist/Data/MCM/Config").exists(),
+                         "the hub alone must package the MCM page")
 
     def test_module_does_not_register_the_central_shortcut(self):
         hotkeys = (ROOT / "src/Hotkey.cpp").read_text()
@@ -41,17 +31,13 @@ class SettingsV2ShortcutContract(unittest.TestCase):
         self.assertNotIn("settingsShortcut", by_id)
         self.assertNotIn("openUnifiedSettings", by_id)
 
-    def test_standalone_menu_and_builder_remain_available(self):
-        src = (ROOT / "src/PrismaBridge.cpp").read_text()
-        html = (ROOT /
-            "dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/"
-            "settings.html").read_text()
-        self.assertIn("ViewMode::QuickMenu", src)
-        self.assertIn("ViewMode::MenuBuilder", src)
-        self.assertIn("ViewMode::Settings", src)
-        self.assertIn('id="quickKey"', html)
-        self.assertIn('id="builderKey"', html)
-        self.assertNotIn("openUnifiedSettings", html)
+    def test_menu_and_builder_stay_available_without_a_second_settings_editor(self):
+        src = (ROOT/"src/PrismaBridge.cpp").read_text()
+        builder=(ROOT/"dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/builder.html").read_text()
+        self.assertIn("ViewMode::QuickMenu",src)
+        self.assertIn("ViewMode::MenuBuilder",src)
+        self.assertNotIn('send("open-settings")',builder)
+        self.assertIn("Settings: K2040 Hub (F3)",builder)
 
 
 if __name__ == "__main__":

@@ -1051,9 +1051,13 @@
       button.setAttribute("aria-pressed", selected ? "true" : "false");
       var name = document.createElement("span");
       var fullLabel = self.displayName(entry.label) || "Category";
-      var fitted = metrics.fitWheelLabel(fullLabel, 56, 43, {
-        baseSize: 11.5,
-        minSize: 9.5,
+      // Orbit's small circles formerly used fitWheelLabel, which splits a
+      // single long word across lines (Receiv/e/r, Magazin/e). Use the
+      // complete-word fitter, with an ellipsis only when truly necessary.
+      // The CSS must agree with the measured inner chord width.
+      var fitted = metrics.fitReadableWheelLabel(fullLabel, 74, 45, {
+        baseSize: 12,
+        minSize: 11,
         measure: function(text, size) { return self.measureWheelText(text, size); }
       });
       fitted.lines.forEach(function(line) {

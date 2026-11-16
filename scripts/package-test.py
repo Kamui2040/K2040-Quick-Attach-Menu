@@ -40,10 +40,16 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
     if result.returncode != 0:
         raise ValueError("Settings Schema V1 manifest validation failed: " +
                          (result.stderr or result.stdout).strip())
-    files = sorted(p for p in DIST.rglob("*") if p.is_file())
+    # Source remains for legacy-only tests, but the V2 owner package must not
+    # install a second general settings renderer alongside the unified hub.
+    retired_settings_view = "PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html"
+    files = sorted(p for p in DIST.rglob("*")
+                   if p.is_file() and p.relative_to(DIST).as_posix() != retired_settings_view)
     if not files:
         raise ValueError("Staged Data files are missing; build first")
     data = {p.relative_to(DIST.parent).as_posix(): p.read_bytes() for p in files}
+    if "Data/" + retired_settings_view in data:
+        raise ValueError("Legacy Quick Attach settings view must not be distributed")
     for required in (INI, DLL, PROVIDER):
         if required not in data:
             raise ValueError(f"Missing required build artifact: {required}")

@@ -6,10 +6,8 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class McmActionContract(unittest.TestCase):
     def test_only_hub_owns_settings_mcm_hotkey(self):
-        owner=json.loads((ROOT/'dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json').read_text())
-        config=json.loads((ROOT/'dist/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json').read_text())
-        self.assertEqual(owner['keybinds'],[])
-        self.assertFalse(any(f['type']=='hotkey' for page in config['pages'] for f in page['content']))
+        self.assertFalse(any((ROOT/'dist/Data/MCM/Config').rglob('*.json')),
+                         'owner must not ship any MCM entry or keybind')
 
     def test_native_input_stays_active_without_mcm_sync(self):
         text=(ROOT/'src/Hotkey.cpp').read_text()

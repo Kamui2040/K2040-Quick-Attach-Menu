@@ -1,5 +1,16 @@
 # Current Project State
 
+## 2026-11-16 — Orbit category readability and hub-only settings (QA)
+
+- Orbit category circles use full-word labels, a larger bounded diameter and
+  ellipsis for genuinely oversized words; no mid-word character stacking.
+- Builder no longer routes to the legacy general Settings view. The V1 hub
+  launcher fails closed; the V2 adapter and registration descriptor remain.
+  This QA installer does not distribute the old standalone settings HTML or
+  MCM definitions. Settings remain in the separately installed shared hub.
+- Regression/source/native build checks precede required Fallout 4 OG visual
+  and keyboard/controller runtime testing; no game runtime acceptance claimed.
+
 ## 2026-11-16 — Unified hub visual styles and single MCM owner (QA)
 
 - Quick Menu, Builder and standalone fallback Settings now render four

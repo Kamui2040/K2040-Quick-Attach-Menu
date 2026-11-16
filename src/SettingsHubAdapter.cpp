@@ -4,14 +4,15 @@
 namespace {
     bool K2040_SETTINGS_CALL Available() noexcept
     {
-        return k2040::GetPrismaBridge().IsAvailable();
+        // V1 only launched the retired standalone settings page.
+        // The native V2 adapter owns all current hub settings instead.
+        return false;
     }
 
     bool K2040_SETTINGS_CALL Open() noexcept
     {
-        // The hub guarantees this function is invoked on F4SE's game thread.
-        // All inventory and per-weapon settings remain owned by Quick Attach.
-        return k2040::GetPrismaBridge().OpenSettingsFromHub();
+        // Do not launch a second settings renderer, even for an old hub.
+        return false;
     }
 }
 

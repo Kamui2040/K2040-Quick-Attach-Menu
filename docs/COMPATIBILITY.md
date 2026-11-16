@@ -1,3 +1,13 @@
+## Unified Settings VNext development builds
+
+Quick Attach development installers no longer contain their own MCM page or
+Categorizer override. The shared K2040 Settings Hub is installed separately;
+the old compatibility script belongs only to the published 0.5.222 history
+and is no longer carried by the VNext branch.
+
+The following MCM notes describe **published legacy releases only**, not the
+current owner-only QA package.
+
 ## MCM Categorizer workaround (optional; needs in-game confirmation)
 
 The third-party MCM Categorizer (Nexus 66311) has been reported to show
@@ -8,7 +18,7 @@ issue; the exact Categorizer code path and in-game fix are not yet verified.
 For players who use Categorizer, the release includes a separate
 **opt-in compatibility ZIP** with:
 
-`python3 scripts/package-mcm-categorizer-compat.py /path/outside-git/QAM-MCM-Categorizer-optional.zip`
+The published 0.5.222 compatibility ZIP (available with that release).
 
 Install the override **after** Quick Attach Menu. It changes only Quick
 Attach's `MCM/Config/K2040_Quick_Attach_Menu/config.json` to display the

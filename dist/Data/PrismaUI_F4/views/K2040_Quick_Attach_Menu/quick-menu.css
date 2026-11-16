@@ -491,12 +491,14 @@
 }
 .presentation-orbit .qm-orbit-category {
   position: absolute;
-  width: 70px;
-  height: 70px;
+  /* 86px fits the 430px wheel at radius 172 without overlapping neighbors.
+     It gives ordinary category words a full-width, readable line. */
+  width: 86px;
+  height: 86px;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 7px 5px;
+  padding: 6px 4px;
   text-align: center;
   background: var(--qm-panel);
   border: 1px solid var(--qm-line-soft);
@@ -521,17 +523,23 @@
   flex-direction: column;
   align-items: center;
   max-width: 100%;
-  max-height: 52px;
+  max-height: 47px;
   line-height: 1.1;
   font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
   font-weight: 700;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: keep-all;
   text-transform: none;
 }
 .presentation-orbit .qm-orbit-category-name span {
   display: block;
   max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .presentation-orbit .qm-orbit-hub {
   position: absolute;
