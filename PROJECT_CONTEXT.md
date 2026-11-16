@@ -1,5 +1,15 @@
 # Current Project State
 
+## 2026-11-16 — Direct Builder Settings entry in Unified Settings (QA)
+
+- Restored Builder's Settings button to request K2040_RequestModuleSettingsV1
+  for quick-attach using the optional dynamically resolved hub export.
+- The UI event schedules a game-thread task; on accepted request QAM closes
+  Builder/focus/input before the hub's deferred open. Rejection leaves Builder
+  visible with a clear notice; no global/weapon preferences are mutated.
+- The owner-only installer still excludes the hub DLL, owner MCM pages and
+  obsolete settings renderer. Runtime gamepad, focus and Alt-Tab QA pending.
+
 ## 2026-11-16 — Orbit category readability and hub-only settings (QA)
 
 - Orbit category circles use full-word labels, a larger bounded diameter and

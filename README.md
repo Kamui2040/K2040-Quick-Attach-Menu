@@ -78,10 +78,11 @@ Default controls:
 
 Pressing the other opener while one menu is active switches directly to that
 menu. In the Unified Settings VNext development build, all Quick Attach
-general settings and gameplay shortcuts are edited directly in the shared hub,
-which is installed separately (default shortcut F3). Close Builder before
-opening the hub; its Settings header hint no longer launches the old page.
-Older published releases retain their MCM and standalone Settings controls.
+general settings and gameplay shortcuts are edited directly in the shared hub, which is installed separately (default shortcut
+F3). Builder's Settings button opens Quick Attach's settings in that hub and
+releases Builder focus on accepted requests. If the hub is missing or not
+ready, Builder stays open and reports the problem. Older published releases
+retain their MCM and standalone Settings controls.
 
 The Quick Menu controller shortcut is under **Settings > Controls**. Choose a
 button and optional modifier, then select **Apply**. It is unassigned by

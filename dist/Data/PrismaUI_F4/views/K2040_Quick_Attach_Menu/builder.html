@@ -33,7 +33,8 @@
     button { font: inherit; color: var(--text); }
     .action { padding: 9px 14px; background: var(--row); border: 1px solid var(--line); cursor: pointer; }
     .action:hover, .action:focus { border-color: var(--accent); outline: none; }
-    .settings-hub-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .settings-hub-status { color: var(--hidden); font-size: 12px; }
+    .settings-hub-status[hidden] { display: none; }
     .weapon-settings {
       display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 10px 20px;
       color: var(--muted); background: rgba(0,0,0,.16); border-bottom: 1px solid var(--line); font-size: 13px;
@@ -140,7 +141,8 @@
       <button id="resetNames" class="action" type="button">Reset names</button>
       <button id="exportProfile" class="action" type="button">Export menu</button>
       <button id="importProfile" class="action" type="button">Import menu</button>
-      <span class="settings-hub-hint" title="Close Builder, then use the K2040 Settings shortcut configured in MCM (default F3).">Settings: K2040 Hub (F3)</span>
+      <button id="settings" class="action" type="button" aria-describedby="hubSettingsStatus">Settings</button>
+      <span id="hubSettingsStatus" class="settings-hub-status" role="status" aria-live="polite" hidden></span>
       <button id="close" class="action" type="button">Close</button>
     </header>
     <div class="weapon-settings" aria-label="Equipped weapon options">
@@ -233,6 +235,11 @@
         window.k2040BuilderChangeRequested(command);
       }
     }
+    window.k2040BuilderHubSettingsStatus = function(message) {
+      var status = document.getElementById("hubSettingsStatus");
+      status.textContent = String(message || "Unified Settings is unavailable.");
+      status.hidden = false;
+    };
     function consumeHotkeyEvent(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -711,6 +718,12 @@
     document.getElementById("exportProfile").addEventListener("click", function() {
       document.getElementById("profileStatus").textContent = "Exporting weapon menu…";
       send("export-profile");
+    });
+    document.getElementById("settings").addEventListener("click", function() {
+      var status = document.getElementById("hubSettingsStatus");
+      status.hidden = true;
+      status.textContent = "";
+      send("open-settings");
     });
     document.getElementById("importProfile").addEventListener("click", openProfileDialog);
     document.getElementById("closeProfileDialog").addEventListener("click", closeProfileDialog);

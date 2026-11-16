@@ -35,10 +35,16 @@ Old MCM callback registrations are disabled to prevent stale entries
 from invoking a second gameplay shortcut.
 
 The standalone Builder remains available for per-weapon menu editing. Its
-legacy general Settings button no longer opens a second page; the hub's V2
-manifest provides the current general settings. Close Builder and use the hub's
-configured shortcut (default F3). The V1 launcher is disabled for this QA
-branch, and the standalone settings HTML is excluded from its installer.
+restored Settings button requests K2040_RequestModuleSettingsV1("quick-attach")
+from an already-loaded K2040_Unified_Settings.dll on a queued F4SE game-thread
+task. This opens the existing central hub with Quick Attach selected, not
+a second settings renderer. On accepted request Builder unfocuses and hides
+and releases input before the hub's deferred opening task. Missing, outdated,
+not-ready or rejecting hub leaves Builder open with an unavailable notice.
+No new hotkey is registered. The V1 launcher remains disabled, and the old
+settings HTML and hub DLL are excluded from this owner's installer.
+The matching hub contract is docs/OWNER_SETTINGS_ENTRYPOINTS.md on the
+feature/journal-direct-settings-entry branch.
 It is not an integrated editor panel.
 
 ## Shared appearance and static layout previews

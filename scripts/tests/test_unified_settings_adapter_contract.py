@@ -19,9 +19,11 @@ class LegacyAdapterRetirement(unittest.TestCase):
         bridge=(ROOT/"src/PrismaBridge.cpp").read_text()
         self.assertIn("K2040_GetSettingsAdapterV2",v2)
         self.assertNotIn("PrismaBridge::OpenSettingsFromHub()",bridge)
-        old=bridge.split('if (command == "open-settings")',1)[1].split("}",1)[0]
-        self.assertIn("return;",old)
-        self.assertNotIn("RequestViewSwitch",old)
+        route=bridge.split('if (command == "open-settings")',1)[1].split(
+            'if (command == "export-profile")',1)[0]
+        self.assertIn('request("quick-attach")',route)
+        self.assertIn('CloseMenuInternal(false);',route)
+        self.assertNotIn("RequestViewSwitch",route)
 
 if __name__=="__main__":
     unittest.main()

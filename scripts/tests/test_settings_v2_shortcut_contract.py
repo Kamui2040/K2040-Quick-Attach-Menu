@@ -36,8 +36,10 @@ class SettingsV2ShortcutContract(unittest.TestCase):
         builder=(ROOT/"dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/builder.html").read_text()
         self.assertIn("ViewMode::QuickMenu",src)
         self.assertIn("ViewMode::MenuBuilder",src)
-        self.assertNotIn('send("open-settings")',builder)
-        self.assertIn("Settings: K2040 Hub (F3)",builder)
+        self.assertIn('send("open-settings")',builder)
+        self.assertIn('id="settings" class="action"',builder)
+        self.assertIn('k2040BuilderHubSettingsStatus',builder)
+        self.assertNotIn("Settings: K2040 Hub (F3)",builder)
 
 
 if __name__ == "__main__":
