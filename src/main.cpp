@@ -1,7 +1,4 @@
 #include <F4SE/F4SE.h>
-#include <Scaleform/G/GFx_FunctionHandler.h>
-#include <Scaleform/G/GFx_Movie.h>
-#include <Scaleform/G/GFx_Value.h>
 
 #include "Hotkey.h"
 #include "InputHandler.h"
@@ -22,33 +19,6 @@ namespace
 {
     constexpr const char* kPluginName = "K2040_Quick_Attach_Menu";
     constexpr std::uint32_t kPluginVersionPacked = 0x000500E3; // 0.5.227
-
-    class ToggleQuickMenuHandler final : public Scaleform::GFx::FunctionHandler
-    {
-    public:
-        void Call(const Params&) override { k2040::QueueMenuHotkeyActionFromMcm(false); }
-    };
-
-    class ToggleBuilderHandler final : public Scaleform::GFx::FunctionHandler
-    {
-    public:
-        void Call(const Params&) override { k2040::QueueMenuHotkeyActionFromMcm(true); }
-    };
-
-    bool F4SEAPI RegisterChildMcmScaleform(
-        Scaleform::GFx::Movie* movie, Scaleform::GFx::Value* pluginObject)
-    {
-        if (!movie || !pluginObject || !pluginObject->IsObject()) return false;
-        Scaleform::GFx::Value open, builder;
-        auto* quickHandler = new ToggleQuickMenuHandler();
-        auto* builderHandler = new ToggleBuilderHandler();
-        movie->CreateFunction(&open, quickHandler);
-        movie->CreateFunction(&builder, builderHandler);
-        quickHandler->Release();
-        builderHandler->Release();
-        return pluginObject->SetMember("ToggleQuickMenu", open) &&
-            pluginObject->SetMember("ToggleBuilder", builder);
-    }
 
     void OnPluginLoaded()
     {
@@ -185,11 +155,6 @@ F4SE_PLUGIN_LOAD(const F4SE::LoadInterface* f4se)
     F4SE::Init(f4se);
 
     OnPluginLoaded();
-    if (const auto* scaleform = F4SE::GetScaleformInterface()) {
-        if (!scaleform->Register(kPluginName, RegisterChildMcmScaleform)) {
-            k2040::log::Warn("Could not register optional MCM child callbacks.");
-        }
-    }
     RegisterMessaging();
 
     k2040::log::Info("F4SEPlugin_Load completed.");

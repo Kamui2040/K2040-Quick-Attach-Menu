@@ -1,3 +1,4 @@
+#include "GameplayKeybindPolicy.h"
 #include "JsonEscape.h"
 #include "UserSettings.h"
 #include "JsonPreferencesParser.h"
@@ -165,6 +166,8 @@ namespace
             std::optional<bool> hideBracketedPrefixes;
             std::optional<bool> hideBracketedInfixes;
             std::optional<bool> hideBracketedSuffixes;
+            std::optional<std::string> quickMenuHotkey;
+            std::optional<std::string> menuBuilderHotkey;
             std::optional<std::string> presentation;
             std::optional<double> backgroundOpacity;
             std::optional<std::string> theme;
@@ -196,6 +199,7 @@ namespace
                 return hideBracketedPrefixes.has_value() ||
                     hideBracketedInfixes.has_value() ||
                     hideBracketedSuffixes.has_value() ||
+                    quickMenuHotkey.has_value() || menuBuilderHotkey.has_value() ||
                     presentation.has_value() || backgroundOpacity.has_value() ||
                     theme.has_value() || customAccent.has_value() || customText.has_value() ||
                     customPanel.has_value() || customInstalled.has_value() ||
@@ -985,6 +989,8 @@ namespace
             writeBool("hideBracketedPrefixes", g_document.general.hideBracketedPrefixes);
             writeBool("hideBracketedInfixes", g_document.general.hideBracketedInfixes);
             writeBool("hideBracketedSuffixes", g_document.general.hideBracketedSuffixes);
+            writeString("quickMenuHotkey", g_document.general.quickMenuHotkey);
+            writeString("menuBuilderHotkey", g_document.general.menuBuilderHotkey);
             writeString("presentation", g_document.general.presentation);
             writeNumber("backgroundOpacity", g_document.general.backgroundOpacity);
             writeString("theme", g_document.general.theme);
@@ -1622,6 +1628,8 @@ namespace k2040
                 !ReadOptionalBoolMember(*general, "hideBracketedPrefixes", g_document.general.hideBracketedPrefixes) ||
                 !ReadOptionalBoolMember(*general, "hideBracketedInfixes", g_document.general.hideBracketedInfixes) ||
                 !ReadOptionalBoolMember(*general, "hideBracketedSuffixes", g_document.general.hideBracketedSuffixes) ||
+                !ReadOptionalStringMember(*general, "quickMenuHotkey", g_document.general.quickMenuHotkey) ||
+                !ReadOptionalStringMember(*general, "menuBuilderHotkey", g_document.general.menuBuilderHotkey) ||
                 !ReadOptionalStringMember(*general, "presentation", g_document.general.presentation) ||
                 !ReadOptionalNumberMember(*general, "backgroundOpacity", g_document.general.backgroundOpacity) ||
                 !ReadOptionalStringMember(*general, "theme", g_document.general.theme) ||
@@ -1647,6 +1655,11 @@ namespace k2040
                 !ReadOptionalLayoutMember(*general, "horizontal", g_document.general.horizontal) ||
                 !ReadOptionalLayoutMember(*general, "orbit", g_document.general.orbit) ||
                  !ReadOptionalLayoutMember(*general, "clock", g_document.general.clock) ||
+                (g_document.general.quickMenuHotkey && !gameplay_keys::Valid(*g_document.general.quickMenuHotkey)) ||
+                (g_document.general.menuBuilderHotkey && !gameplay_keys::Valid(*g_document.general.menuBuilderHotkey)) ||
+                (g_document.general.quickMenuHotkey && g_document.general.menuBuilderHotkey &&
+                  *g_document.general.quickMenuHotkey!="Unbound" &&
+                  *g_document.general.quickMenuHotkey==*g_document.general.menuBuilderHotkey) ||
                 (g_document.general.presentation && !IsPresentationName(*g_document.general.presentation)) ||
                 (g_document.general.theme && !IsThemeName(*g_document.general.theme)) ||
                 (g_document.general.controlHints && !IsControlHintsMode(*g_document.general.controlHints)) ||
@@ -2438,6 +2451,8 @@ namespace k2040
         };
 
         QuickMenuPreferences result;
+        result.quickMenuHotkey = g_document.general.quickMenuHotkey.value_or(legacy.openMenuHotkey);
+        result.menuBuilderHotkey = g_document.general.menuBuilderHotkey.value_or(legacy.openMenuBuilderHotkey);
         result.presentation = g_document.general.presentation.value_or("cascade");
         result.backgroundOpacity = std::clamp(g_document.general.backgroundOpacity.value_or(0.92), 0.25, 1.0);
         result.theme = g_document.general.theme.value_or("default");
@@ -2476,6 +2491,10 @@ namespace k2040
         if (!CanMutatePreferences()) return false;
 
         QuickMenuPreferences value = requested;
+        if (!gameplay_keys::Valid(value.quickMenuHotkey) ||
+            !gameplay_keys::Valid(value.menuBuilderHotkey) ||
+            (value.quickMenuHotkey!="Unbound" &&
+             value.quickMenuHotkey==value.menuBuilderHotkey)) return false;
         if (!IsPresentationName(value.presentation)) value.presentation = "cascade";
         if (!IsThemeName(value.theme)) value.theme = "default";
         if (!IsControlHintsMode(value.controlHints)) value.controlHints = "contextual";
@@ -2510,7 +2529,9 @@ namespace k2040
         const auto sameLayout = [](const QuickMenuLayoutSettings& lhs, const QuickMenuLayoutSettings& rhs) {
             return lhs.scale == rhs.scale && lhs.positionX == rhs.positionX && lhs.positionY == rhs.positionY;
         };
-        if (current.presentation == value.presentation &&
+        if (current.quickMenuHotkey == value.quickMenuHotkey &&
+            current.menuBuilderHotkey == value.menuBuilderHotkey &&
+            current.presentation == value.presentation &&
             current.backgroundOpacity == value.backgroundOpacity &&
             current.theme == value.theme && current.customAccent == value.customAccent &&
             current.customText == value.customText && current.customPanel == value.customPanel &&
@@ -2534,6 +2555,8 @@ namespace k2040
         }
 
         auto& general = g_document.general;
+        general.quickMenuHotkey = value.quickMenuHotkey;
+        general.menuBuilderHotkey = value.menuBuilderHotkey;
         general.presentation = value.presentation;
         general.backgroundOpacity = value.backgroundOpacity;
         general.theme = value.theme;

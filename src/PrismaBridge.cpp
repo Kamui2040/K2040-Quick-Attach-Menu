@@ -1,4 +1,5 @@
 #include "JsonEscape.h"
+#include "SharedAppearancePolicy.h"
 #include <F4SE/F4SE.h>
 #include <RE/Fallout.h>
 
@@ -30,6 +31,8 @@
 #include <vector>
 
 // Include Windows macros only after all CommonLib/RE headers have parsed.
+#include "K2040AppearanceClientV1.h"
+#include "K2040ThemeClient.h"
 #include <Windows.h>
 #include <Xinput.h>
 
@@ -2102,6 +2105,14 @@ namespace k2040
         }
 
         viewDomReady_ = true;
+        if(const auto theme=K2040::ThemeClient::Current("quick-attach"))
+            unifiedTheme_=*theme;
+        if (const auto snapshot=K2040::AppearanceClient::Current("quick-attach");
+            snapshot && appearance::ValidSnapshot(*snapshot) && api_ && api_->IsValid(menuView_)) {
+            api_->InteropCall(menuView_,"applyUnifiedAppearance",snapshot->c_str());
+        } else if(!unifiedTheme_.empty() && api_ && api_->IsValid(menuView_)) {
+            api_->InteropCall(menuView_,"applyUnifiedTheme",unifiedTheme_.c_str());
+        }
         controllerInputActive_ = menuOpen_ && controllerApi_;
         log::Info("Prisma menu view DOM ready.");
 
@@ -2121,6 +2132,20 @@ namespace k2040
             log::Info("Retrying Prisma menu view focus after DOM ready.");
             FocusAndShowMenuView();
         }
+    }
+
+    bool PrismaBridge::ApplyUnifiedTheme(std::string_view theme) {
+        if(theme!="default"&&theme!="midnight"&&theme!="high-contrast"&&theme!="pipboy")
+            return false;
+        unifiedTheme_=theme;
+        if(api_&&menuView_&&viewDomReady_&&api_->IsValid(menuView_)) {
+            if(const auto snapshot=K2040::AppearanceClient::Current("quick-attach");
+                snapshot && appearance::ValidSnapshot(*snapshot))
+                api_->InteropCall(menuView_,"applyUnifiedAppearance",snapshot->c_str());
+            else
+                api_->InteropCall(menuView_,"applyUnifiedTheme",unifiedTheme_.c_str());
+        }
+        return true;
     }
 
     void PrismaBridge::OnCloseRequested(const char*)

@@ -13,20 +13,16 @@
           "title": "Keyboard and mouse",
           "fields": [
             {
-              "id": "openQuickMenu",
+              "id": "quickMenuHotkey",
               "label": "Open Quick Menu",
-              "type": "action",
-              "actionId": "edit-quick-menu-keybind",
-              "owner": "mcm",
-              "help": "Uses the existing MCM binding; the mod's native input poller remains authoritative."
+              "type": "keybind",
+              "help": "Gameplay-only shortcut. Click to record a keyboard or mouse combination; Escape cancels, Backspace clears. Saved directly by Quick Attach without MCM."
             },
             {
-              "id": "openMenuBuilder",
+              "id": "menuBuilderHotkey",
               "label": "Open Menu Builder",
-              "type": "action",
-              "actionId": "edit-builder-keybind",
-              "owner": "mcm",
-              "help": "Edits the existing independent Builder binding, not the settings-window shortcut."
+              "type": "keybind",
+              "help": "Independent Builder gameplay shortcut, saved by Quick Attach. The hub owns its separate settings shortcut."
             }
           ]
         },
@@ -36,11 +32,91 @@
           "fields": [
             {
               "id": "controllerQuickShortcut",
+              "type": "select",
               "label": "Quick Menu controller shortcut",
-              "type": "action",
-              "actionId": "edit-controller-quick-shortcut",
-              "owner": "module",
-              "help": "Uses this mod's existing controller shortcut storage. Does not change game-mapped Confirm/Cancel."
+              "help": "Quick Menu gameplay shortcut saved in Quick Attach preferences, not MCM. None disables it.",
+              "options": [
+                {
+                  "label": "Unbound",
+                  "value": "None"
+                },
+                {
+                  "label": "A",
+                  "value": "A"
+                },
+                {
+                  "label": "B",
+                  "value": "B"
+                },
+                {
+                  "label": "X",
+                  "value": "X"
+                },
+                {
+                  "label": "Y",
+                  "value": "Y"
+                },
+                {
+                  "label": "D-pad Up",
+                  "value": "DUp"
+                },
+                {
+                  "label": "D-pad Down",
+                  "value": "DDown"
+                },
+                {
+                  "label": "D-pad Left",
+                  "value": "DLeft"
+                },
+                {
+                  "label": "D-pad Right",
+                  "value": "DRight"
+                },
+                {
+                  "label": "LB",
+                  "value": "LB"
+                },
+                {
+                  "label": "RB",
+                  "value": "RB"
+                },
+                {
+                  "label": "LT",
+                  "value": "LT"
+                },
+                {
+                  "label": "RT",
+                  "value": "RT"
+                },
+                {
+                  "label": "Start",
+                  "value": "Start"
+                },
+                {
+                  "label": "Back",
+                  "value": "Back"
+                },
+                {
+                  "label": "Left Stick",
+                  "value": "LS"
+                },
+                {
+                  "label": "Right Stick",
+                  "value": "RS"
+                },
+                {
+                  "label": "LB + RB",
+                  "value": "LB+RB"
+                },
+                {
+                  "label": "LT + D-pad Up",
+                  "value": "LT+DUp"
+                },
+                {
+                  "label": "LB + Y",
+                  "value": "LB+Y"
+                }
+              ]
             }
           ]
         }
@@ -52,35 +128,8 @@
       "groups": [
         {
           "id": "style",
-          "title": "Theme and background",
+          "title": "Background",
           "fields": [
-            {
-              "id": "theme",
-              "label": "Theme",
-              "type": "select",
-              "options": [
-                {
-                  "value": "default",
-                  "label": "Commonwealth Blue"
-                },
-                {
-                  "value": "pipboy",
-                  "label": "Classic Pip-Boy"
-                },
-                {
-                  "value": "high-contrast",
-                  "label": "High Contrast"
-                },
-                {
-                  "value": "fallout76",
-                  "label": "Fallout 76"
-                },
-                {
-                  "value": "custom",
-                  "label": "Custom"
-                }
-              ]
-            },
             {
               "id": "backgroundOpacity",
               "label": "Background opacity",
@@ -165,7 +214,8 @@
                   "value": "clock",
                   "label": "Clock Slices"
                 }
-              ]
+              ],
+              "preview": "attachment-layout"
             }
           ]
         },
@@ -375,6 +425,7 @@
     "hudBackgroundColor",
     "controllerQuickModifier",
     "controllerQuickButton",
-    "weapons"
+    "weapons",
+    "theme"
   ]
 }

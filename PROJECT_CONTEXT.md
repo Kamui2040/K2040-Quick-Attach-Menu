@@ -1,13 +1,38 @@
 # Current Project State
 
-- K2040 Settings Schema V1 integration (source-only, 2026-11-15):
-  includes the unmodified canonical JSON schema and AJV validator, a
-  Quick Attach-specific manifest (native preferences schema 2), pinned
-  development dependencies, audit documentation and automated manifest
-  validation during QA packaging. The existing standalone Settings page,
-  MCM bindings, controller shortcuts and saved preferences are unchanged.
-  The shared renderer and value adapter are not yet implemented or game-tested;
-  do not deploy, replace the standalone editor or merge on this evidence.
+## 2026-11-15 — Manifest adoption correction (QA-only)
+
+- Removed the duplicate legacy Theme selector from the unified owner manifest. Unified Settings alone owns visual-theme/palette selection; previous native saved theme and standalone fallback remain intact. No player settings are rewritten. Fallout 4 OG runtime QA remains pending.
+
+## 2026-11-15 — Gameplay keybinds, theme inheritance, layout previews (QA-only)
+
+- Quick Menu and Builder gameplay chords are editable directly in the shared V2 editor and saved by the owning mod, never through MCM. Legacy MCM gameplay registrations and the Scaleform callback are disabled; only the unified settings shortcut remains MCM-controlled. Controller gameplay shortcut edits use mod-owned storage.
+- Builder/Settings and all six Quick Menu layouts now consume the hub's resolved appearance palette. Shared palette colors supersede legacy Fallout 76 amber while preserving saved opacity.
+- The shared editor shows an illustrative, non-live schematic of each of Quick Attach's six presentations. No owner-specific live HUD layout adapter is claimed.
+- Source and build QA are separate from in-game Fallout 4 OG/Proton acceptance; no automatic deployment or public release is authorized.
+
+## Unified Settings Editor V2 adapter (source/build validated, runtime pending)
+
+- feature/unified-editor-v2 provides the plain-C V2 owner callbacks for its
+  validated JSON manifest, native values, guarded edits and optional theme.
+  All editable manifest fields have a native read/write route. The owner now
+  independently rejects wrong JSON types, invalid options/colors, and
+  out-of-range/off-step numbers before invoking existing persistence.
+- Quick Menu and Builder shortcuts are gameplay-only and remain registered;
+  this mod has no settings-only shortcut or Ctrl+Shift+B binding. Unified
+  Settings owns the central settings hotkey. Existing per-weapon profiles,
+  user JSON, INI and standalone Builder/Settings functionality are preserved.
+- Shared appearance updates Menu, Builder and Settings via one optional
+  theme bridge. Active renderer token overrides now reach all wheel/label
+  layers without changing the player's saved palette or opacity.
+- The destructive Reset All action is deliberately denied through V2 pending
+  a confirmed owner flow. The standalone Settings confirmation is unchanged.
+- Source suites, native value-policy tests, canonical schema validation and
+  Windows x64 build passed. The hub's read-only integration verifier accepted
+  the four owner ABI/export/manifest/theme contracts. **Fallout 4 OG runtime
+  QA is not complete; no deployment, merge or release is authorized.**
+- More detail: docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md.
+  V1 schema history is in docs/SETTINGS_SCHEMA_V1_AUDIT.md.
 
 - The current unmerged Clock/Radial/Hybrid UI correction on
   feature/clock-arc-menu addresses the large *unfilled angular gaps* between

@@ -43,44 +43,12 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         bridge = (ROOT / 'src/PrismaBridge.cpp').read_text()
         self.assertIn('PrismaBridge::OnNativeSettingsMouseCapture(', bridge)
 
-    def test_native_mcm_owns_persistence_and_verifies_remap(self):
-        self.assertIn('GetMenuOpen(RE::BSFixedString("PauseMenu"))', SOURCE)
-        self.assertIn('"root.mcm.RemapKeybind"', SOURCE)
-        self.assertIn('"root.mcm.GetKeybind"', SOURCE)
-        self.assertIn('"root.mcm.GetAllKeybinds"', SOURCE)
-        self.assertIn('Native MCM live binding check deferred: GetAllKeybinds bridge unavailable or invalid.', SOURCE)
-        self.assertIn('warnedBridgeThisPause = false;', SOURCE)
-        self.assertIn('Native MCM live GetAllKeybinds bridge available; Quick Attach records:', SOURCE)
-        self.assertIn('Native MCM live binding check deferred: PauseMenu movie unavailable.', SOURCE)
-        self.assertIn('const char* method = absent ? "root.mcm.SetKeybind" : "root.mcm.RemapKeybind";', SOURCE)
-        self.assertIn('const bool absent = state == k2040::NativeMcmRecordState::Missing;', SOURCE)
-        self.assertIn('NativeMcmChordOccupied(*all, binding.keycode, binding.modifiers)', SOURCE)
-        self.assertIn('"root.mcm.ClearKeybind"', SOURCE)
-        self.assertIn('duplicateScan.ShouldScan(*records)', SOURCE)
-        self.assertIn('duplicateScan.Reset()', SOURCE)
-        self.assertIn('Native MCM binding snapshot:', SOURCE)
-        self.assertIn('nextMcmSyncAttempt = syncNow + std::chrono::milliseconds(400);', SOURCE)
-        self.assertNotIn('checkedDuplicatesThisPause', SOURCE)
-        self.assertIn('!result.IsBoolean() || !result.GetBoolean()', SOURCE)
-        self.assertIn('g_mcmSyncTaskQueued.exchange(true', SOURCE)
-        self.assertIn('tasks->AddTask([] { TryNativeMcmLiveSyncOnGameThread(); });', SOURCE)
-        self.assertIn('registered->keycode == binding.originalKeycode', SOURCE)
-        self.assertIn('live->keycode == binding.keycode && live->modifiers == binding.modifiers', SOURCE)
-        self.assertIn('live->keycode != binding.originalKeycode', SOURCE)
-        self.assertIn('record.keycode == binding.keycode && record.modifiers == binding.modifiers', SOURCE)
-        self.assertIn('LiveSyncResult::Superseded', SOURCE)
-
-        setter = SOURCE.split('bool SetSharedHotkeyBinding(',1)[1].split('bool ResetSharedHotkeyBindings(',1)[0]
-        self.assertLess(setter.index('if (NativeMcmOwnsRegistry())'),
-                        setter.index('WriteSharedHotkeyBindings('))
-        self.assertIn('return StageNativeMcmLiveSync(id, keycode, modifiers);', setter)
-        reset = SOURCE.split('bool ResetSharedHotkeyBindings()',1)[1].split('void SetHotkeyCaptureActive(',1)[0]
-        self.assertLess(reset.index('if (NativeMcmOwnsRegistry())'),
-                        reset.index('WriteSharedHotkeyBindings('))
-        self.assertIn('if (NativeMcmOwnsRegistry())', reset)
-        self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
-        self.assertIn('StageNativeMcmLiveSync(kOpenMenuKeybindId', reset)
-        self.assertIn('StageNativeMcmLiveSync(kOpenMenuBuilderKeybindId', reset)
+    def test_retired_native_mcm_sync_is_unreachable_in_polling_path(self):
+        init=SOURCE.split('void InitializeHotkey()',1)[1].split('void PollHotkey()',1)[0]
+        poll=SOURCE.split('void PollHotkey()',1)[1].split('const bool openPressedNow',1)[0]
+        for forbidden in ('RefreshMcmHotkeys(', 'SeedDefaultMcmBindings(',
+                          'TryNativeMcmLiveSyncOnGameThread('):
+            self.assertNotIn(forbidden,init+poll)
 
     def test_cleared_native_entries_are_never_fabricated_by_fallback(self):
         seed = SOURCE.split('void SeedDefaultMcmBindings()',1)[1].split(
@@ -94,14 +62,16 @@ class DuplicateMcmRegistryContract(unittest.TestCase):
         self.assertIn('const auto marker = std::filesystem::path(', SOURCE)
         self.assertIn('if (!std::filesystem::is_regular_file(marker))', SOURCE)
 
-    def test_settings_capture_is_validated_before_touching_shared_registry(self):
-        start = SOURCE.index('bool SetSharedHotkeyBinding(')
-        end = SOURCE.index('bool ResetSharedHotkeyBindings(', start)
-        body = SOURCE[start:end]
-        self.assertLess(body.index('IsSettingsCaptureKeycode(keycode)'), body.index('WriteSharedHotkeyBindings('))
-        helper = (ROOT / 'include/SettingsKeyCaptureValidation.h').read_text()
-        self.assertIn('keycode >= 144 && keycode <= 145', helper)
-        self.assertIn('keycode == 259', helper)
+    def test_mod_owned_settings_capture_does_not_touch_mcm_registry(self):
+        start=SOURCE.index('bool SetSharedHotkeyBinding(')
+        end=SOURCE.index('bool ResetSharedHotkeyBindings(',start)
+        body=SOURCE[start:end]
+        self.assertLess(body.index('gameplay_keys::FromKeycode('),
+                        body.index('SetQuickMenuPreferences('))
+        self.assertIn('SaveUserPreferences()',body)
+        self.assertNotIn('WriteSharedHotkeyBindings(',body)
+        helper=(ROOT/'include/SettingsKeyCaptureValidation.h').read_text()
+        self.assertIn('keycode >= 144 && keycode <= 145',helper)
 
     def test_shared_mcm_registry_write_is_recoverable_under_wine(self):
         persistence = (ROOT / 'include/McmRegistryPersistence.h').read_text()

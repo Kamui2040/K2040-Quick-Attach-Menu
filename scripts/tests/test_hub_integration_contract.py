@@ -23,16 +23,8 @@ class McmChildContract(unittest.TestCase):
         self.assertEqual(len(child["pages"]),1)
         self.assertEqual(child["pages"][0]["pageDisplayName"],"Quick Attach Menu")
         content=child["pages"][0]["content"]
-        self.assertEqual([x["id"] for x in content if x["type"]=="hotkey"],[
-            "openQuickMenu","openMenuBuilder"])
-        self.assertEqual([x["id"] for x in content if x["type"]=="dropdown"],[
-            "iQuickAttachPadPrimary:Controller","iQuickAttachPadModifier:Controller"])
-        for x in content:
-            if x["type"]=="hotkey":
-                self.assertEqual(x["valueOptions"]["allowModifierKeys"],1)
-            if x["type"]=="dropdown":
-                self.assertEqual(x["valueOptions"]["sourceType"],"ModSettingInt")
-                self.assertEqual(len(x["valueOptions"]["options"]),17)
+        self.assertFalse(any(x["type"] in ("hotkey","dropdown") for x in content))
+        self.assertTrue(all(x["type"]=="text" for x in content))
 
     def test_bundled_parent_and_child_are_independent(self):
         from hashlib import sha256
@@ -49,18 +41,14 @@ class McmChildContract(unittest.TestCase):
         self.assertEqual(list(parent_file.parent.iterdir()),[parent_file])
         self.assertFalse((ROOT/"packaging/mcm-standalone/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json").exists())
 
-    def test_keybind_handlers_are_real_and_child_owned(self):
+    def test_gameplay_keys_are_mod_owned_not_mcm_owned(self):
         kb=json.loads((CONFIG/"keybinds.json").read_text())
         self.assertEqual(kb["modName"],"K2040_Quick_Attach_Menu")
-        self.assertEqual({x["id"]:x["action"] for x in kb["keybinds"]},{
-            "openQuickMenu":{"type":"RunConsoleCommand","command":""},
-            "openMenuBuilder":{"type":"RunConsoleCommand","command":""}})
-        # Native MCM hotkey registry supports RunConsoleCommand, not
-        # CallExternalFunction. Execution stays in Quick Attach's native poller.
-        self.assertNotIn("CallExternalFunction",(CONFIG/"keybinds.json").read_text())
-        self.assertIn('RegisterChildMcmScaleform',self.main)
-        self.assertIn('QueueMenuHotkeyActionFromMcm',self.main)
-        self.assertIn('HotkeyActionSource::McmChild',self.hotkey)
+        self.assertEqual(kb["keybinds"],[])
+        self.assertIn('GetQuickMenuPreferences()',self.hotkey)
+        self.assertIn('SetQuickMenuPreferences(p)',self.hotkey)
+        poll=self.hotkey.split('void PollHotkey()',1)[1].split('const bool openPressedNow',1)[0]
+        self.assertNotIn('RefreshMcmHotkeys(',poll)
 
     def test_mature_keyboard_path_stays_active(self):
         self.assertIn('kMcmModName = "K2040_Quick_Attach_Menu"',self.hotkey)
@@ -69,7 +57,7 @@ class McmChildContract(unittest.TestCase):
         self.assertIn('g_lastQuickActionTick',self.hotkey)
         self.assertIn('g_menuHotkeyReleasePending',self.hotkey)
         self.assertIn('QueueMenuHotkeyActionFromUi',self.hotkey)
-        self.assertIn('WriteSharedHotkeyBindings',self.hotkey)
+        self.assertIn('SaveUserPreferences()',self.hotkey)
         self.assertNotIn('kHubMenuActionId',self.hotkey)
         self.assertNotIn('quickAttachOpen',self.hotkey)
 
@@ -82,7 +70,7 @@ class McmChildContract(unittest.TestCase):
         self.assertIn('!std::filesystem::exists(kHubUserFile',self.controller)
         self.assertIn('ReadIniBinding(kOldHubUserFile',self.controller)
         self.assertIn('hub_chord::QuickShouldFire',self.controller)
-        self.assertIn('MOVEFILE_REPLACE_EXISTING',self.controller)
+        self.assertIn('PersistBindings(chord)',self.controller)
 
     def test_themes_and_experimental_warning(self):
         self.assertIn('value == "fallout76"',self.user)

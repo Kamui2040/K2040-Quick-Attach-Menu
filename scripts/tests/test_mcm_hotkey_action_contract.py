@@ -1,23 +1,28 @@
-"""Keep native MCM keybind actions compatible with both Fallout runtimes."""
+"""Quick Attach gameplay keys remain independent from hub MCM."""
 from pathlib import Path
 import json
 import unittest
-
 ROOT=Path(__file__).resolve().parents[2]
 
 class McmActionContract(unittest.TestCase):
-    def test_native_mcm_can_register_both_hotkeys(self):
-        config=json.loads((ROOT/'dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json').read_text())
-        self.assertEqual(config['modName'],'K2040_Quick_Attach_Menu')
-        self.assertEqual([v['id'] for v in config['keybinds']],['openQuickMenu','openMenuBuilder'])
-        for item in config['keybinds']:
-            self.assertEqual(item['action'],{'type':'RunConsoleCommand','command':''})
+    def test_only_hub_owns_settings_mcm_hotkey(self):
+        owner=json.loads((ROOT/'dist/Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json').read_text())
+        config=json.loads((ROOT/'dist/Data/MCM/Config/K2040_Quick_Attach_Menu/config.json').read_text())
+        self.assertEqual(owner['keybinds'],[])
+        self.assertFalse(any(f['type']=='hotkey' for page in config['pages'] for f in page['content']))
 
-    def test_native_input_still_performs_shortcut_actions(self):
-        hotkey=(ROOT/'src/Hotkey.cpp').read_text()
-        self.assertIn('IsHotkeyPressedNow(g_openMenuHotkey)',hotkey)
-        self.assertIn('IsHotkeyPressedNow(g_openMenuBuilderHotkey)',hotkey)
-        self.assertIn('RefreshMcmHotkeys(false);',hotkey)
-        self.assertIn('QueueMenuHotkeyActionFromMcm(',hotkey)
+    def test_native_input_stays_active_without_mcm_sync(self):
+        text=(ROOT/'src/Hotkey.cpp').read_text()
+        init=text.split('void InitializeHotkey()',1)[1].split('void PollHotkey()',1)[0]
+        polling=text.split('void PollHotkey()',1)[1].split('const bool openPressedNow',1)[0]
+        self.assertIn('ApplyConfiguredHotkeys(nullptr);',init)
+        self.assertNotIn('SeedDefaultMcmBindings();',init)
+        self.assertNotIn('RefreshMcmHotkeys',init+polling)
+        self.assertNotIn('TryNativeMcmLiveSyncOnGameThread()',polling)
+        self.assertIn('IsHotkeyPressedNow(g_openMenuHotkey)',text)
+        self.assertIn('IsHotkeyPressedNow(g_openMenuBuilderHotkey)',text)
+        self.assertIn('K2040_IsSettingsEditorOpenV1',text)
+        self.assertIn('if (UnifiedEditorIsOpen())',text)
+        self.assertIn('g_wasOpenPressedLastPoll.store(openPressedNow)',text)
 
 if __name__=='__main__':unittest.main()
