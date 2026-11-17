@@ -253,6 +253,31 @@ for(let selectedIndex=0;selectedIndex<eightCategories.length;selectedIndex++){
 
   assertClockBounds(rotated);
 }
+// CPU/CEF drawing must not fit the thousands of hidden labels outside
+// the current 360-degree window when the player changes attachment focus.
+const originalDisplayName=renderer.optionDisplayName;
+for(const focus of [0,999,1999]){
+  const largeCategory=category(0,2000);
+  let measuredNames=0;
+  renderer.optionDisplayName=function(cat,option) {
+    measuredNames+=1;
+    return originalDisplayName.call(this,cat,option);
+  };
+  renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
+    parser:{categories:[largeCategory]}});
+  renderer.activeCategoryIndex=0;
+  renderer.lastFocusedOptionIndex=focus;
+  const largeView=renderer.renderClock([largeCategory],largeCategory);
+  const largeSlices=collect(largeView,n=>n.tag==='g' &&
+    n.className.split(' ').includes('qm-clock-option'));
+  assert.equal(largeSlices.length,41,'a full one-line wheel still fits');
+  assert.equal(new Set(largeSlices.map(n=>n.attributes['data-option-index'])).size,41);
+  assert.equal(Number(largeSlices.find(n=>n.attributes['aria-current']==='true')
+    .attributes['data-option-index']),focus,'selection identity survives lazy fit');
+  assert.ok(measuredNames<=50,
+    'Clock must measure only adjacent slices, not all 2000 attachment labels');
+}
+renderer.optionDisplayName=originalDisplayName;
 // Actual Clock rendering must show every unique one-line option until the
 // available circumference, not a hard five-item Orbit-derived window.
 for(const optionCount of [6,13,25,40,41,42,60]){

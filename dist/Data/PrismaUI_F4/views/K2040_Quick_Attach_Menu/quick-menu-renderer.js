@@ -1341,34 +1341,40 @@
     svg.appendChild(center);
     var centerName = category ? this.displayName(category.label) : "NO CATEGORY";
     label(svg, centerName, { x:cx, y:cy-10 }, 0, "qm-clock-core-title", 155, 19);
-    var total = this.visibleOptions(category).length;
+    var options = this.visibleOptions(category);
+    var total = options.length;
     label(svg, String(total) + (total === 1 ? " ATTACHMENT" : " ATTACHMENTS"),
       { x:cx, y:cy+29 }, 0, "qm-clock-core-caption", 150, 11);
 
-    var options = this.visibleOptions(category);
     if (category && options.length) {
       var focusedIndex = options.findIndex(function(item) {
         return item.optionIndex === self.lastFocusedOptionIndex;
       });
       if (focusedIndex < 0) focusedIndex = 0;
       var usableLength = 462 - 234 - 30;
-      // Measure each visible attachment once, then use its measured angular
-      // width to determine how many slices fit around the full outer clock.
-      // This removes the old arbitrary five-item window.
-      var measured = options.map(function(option) {
-        var shortName = self.optionDisplayName(category, option);
-        var fitted = metrics.fitClockLabel(shortName, usableLength, {
-          baseSize: 15, minSize: 11,
-          measure: function(text, size) { return self.measureWheelText(text, size); }
-        });
-        return { option:option, shortName:shortName, fitted:fitted };
-      });
-      var plans = metrics.clockOptionWindow(measured.map(function(plan) {
-        return plan.fitted.lines.length;
-      }), focusedIndex).map(function(row) {
-        return { row:row, option:measured[row.index].option,
-          shortName:measured[row.index].shortName,
-          fitted:measured[row.index].fitted };
+      // A weapon can expose hundreds of attachments, but a single clock
+      // revolution fits only a few dozen. Fit the selected label and nearby
+      // candidates on demand; cache each candidate during this redraw so
+      // the final sector widths and display text use exactly one fit.
+      var measured = Object.create(null);
+      function measureOption(index) {
+        if (!Object.prototype.hasOwnProperty.call(measured, index)) {
+          var option = options[index];
+          var shortName = self.optionDisplayName(category, option);
+          var fitted = metrics.fitClockLabel(shortName, usableLength, {
+            baseSize: 15, minSize: 11,
+            measure: function(text, size) { return self.measureWheelText(text, size); }
+          });
+          measured[index] = { option:option, shortName:shortName, fitted:fitted };
+        }
+        return measured[index];
+      }
+      var plans = metrics.clockOptionWindowMeasured(options.length, focusedIndex, function(index) {
+        return measureOption(index).fitted.lines.length;
+      }).map(function(row) {
+        var chosen = measureOption(row.index);
+        return { row:row, option:chosen.option,
+          shortName:chosen.shortName, fitted:chosen.fitted };
       });
       var packed = metrics.clockPackedOptionSlices(plans.map(function(plan) {
         return { offset:plan.row.offset, lineCount:plan.fitted.lines.length };

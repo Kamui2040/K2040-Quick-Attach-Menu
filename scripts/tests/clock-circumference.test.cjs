@@ -84,8 +84,29 @@ assert.equal(verify(Array(27).fill(2),2,0).length,26,
 assert.equal(G.clockOptionSlice(20,1).angle,300,
   'outer offsets are not clamped to the former two-child window');
 const rendererJs=fs.readFileSync(path.join(UI,'quick-menu-renderer.js'),'utf8');
-assert.ok(rendererJs.includes('metrics.clockOptionWindow('));
+assert.ok(rendererJs.includes('metrics.clockOptionWindowMeasured('),
+  'Clock must measure only nearby options that can fit');
 assert.ok(rendererJs.includes('data-clock-offset'));
 assert.ok(!rendererJs.includes('metrics.orbitOptionWindow(options.length, focusedIndex, 2)'),
   'Clock must not inherit the Orbit five-option limit');
-console.log('PASS Clock circumference-driven option window: full wheel capacity, mixed widths, wrapping, parent anchoring');
+// Lazy measurement must be equivalent to the existing premeasured API,
+ // including selection wrapped near the end of a large weapon option list.
+for(const size of [13,42,500,10000]){
+  const lineCounts=Array.from({length:size},(_,index)=>index%3===0?2:1);
+  for(const focus of [0,Math.floor(size/2),size-1]){
+    const measured=[];
+    const lazy=Array.from(G.clockOptionWindowMeasured(size,focus,index=>{
+      measured.push(index);
+      return lineCounts[index];
+    }));
+    const eager=Array.from(G.clockOptionWindow(lineCounts,focus));
+    assert.deepEqual(lazy.map(row=>[row.index,row.offset]),
+      eager.map(row=>[row.index,row.offset]),
+      'lazy and eager windows have exactly the same identity and placement');
+    assert.ok(measured.length<=90,
+      'drawing a large weapon cannot measure thousands of hidden labels');
+    assert.ok(new Set(measured).size<=45,'measure only the fitted ring and its immediate neighbors');
+  }
+}
+assert.deepEqual(Array.from(G.clockOptionWindowMeasured(0,0,()=>{throw Error('unexpected measure')})),[]);
+console.log('PASS Clock capacity, measured-on-demand performance, wrapping and parent anchoring');

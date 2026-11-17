@@ -225,18 +225,25 @@
   }
 
   function clockOptionWindow(lineCounts, selectedIndex) {
-    // Show all attachments that physically fit in one revolution. The
-    // selected attachment remains centered on the active parent category;
-    // its neighbours expand around either side until the available 360°
-    // circumference is occupied. The quarter-degree seam prevents the
-    // first and last edges from ever drawing on top of each other.
-    var count = (lineCounts || []).length;
+    // Compatibility helper for callers holding a premeasured list.
+    var values = lineCounts || [];
+    return clockOptionWindowMeasured(values.length, selectedIndex, function(index) {
+      return values[index];
+    });
+  }
+
+  function clockOptionWindowMeasured(count, selectedIndex, lineCountAt) {
+    // Measure only labels adjacent to the selected attachment. A long
+    // weapon attachment list should not force canvas measurement of every
+    // hidden attachment on each CPU redraw. Preserve the existing packed
+    // geometry, seam, focus and wrap behaviour.
+    count = Math.max(0, Math.floor(Number(count) || 0));
     if (!count) return [];
     selectedIndex = wrap(Math.floor(Number(selectedIndex) || 0), count);
     var gap = .25;
     var circumference = 360 - gap;
     function span(index) {
-      return Number(lineCounts[index]) === 1 ? 8.5 : 13.5;
+      return Number(lineCountAt(index)) === 1 ? 8.5 : 13.5;
     }
     var used = {};
     used[selectedIndex] = true;
@@ -383,6 +390,7 @@
     clockReadableLabelAngle: clockReadableLabelAngle,
     clockOptionSlice: clockOptionSlice,
     clockOptionWindow: clockOptionWindow,
+    clockOptionWindowMeasured: clockOptionWindowMeasured,
     clockPackedOptionSlices: clockPackedOptionSlices,
     shortenCategoryWords: shortenCategoryWords,
     fitClockLabel: fitClockLabel
