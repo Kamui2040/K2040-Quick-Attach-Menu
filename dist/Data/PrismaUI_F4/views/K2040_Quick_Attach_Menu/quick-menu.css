@@ -704,8 +704,9 @@
 }
 
 
-/* Clock: child slices align with the selected category's radial center.
-   The square viewport fits every orientation without cutting off the fan.
+/* Clock: show child slices until the outer circumference is occupied.
+   Slices stay centered on the selected category's radial center, and
+   the square viewport fits every orientation without clipping the fan.
    No icons, extra rings or secondary row-opacity effects. */
 .presentation-clock .qm-clock-layout {
   position: relative;

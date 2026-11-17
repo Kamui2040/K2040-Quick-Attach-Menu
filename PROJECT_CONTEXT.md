@@ -1,5 +1,30 @@
 # Current Project State
 
+## 2026-11-17 — Clock dynamic circumference capacity (QA)
+
+- Clock no longer inherits Orbit's fixed five-item window. It renders every
+  visible attachment that fits within the full outer 360-degree ring, with
+  one-line/two-line slices sized by their actual fitted labels, .25-degree
+  adjacent gaps and a reserved positive seam.
+- The active attachment remains aligned with the selected parent category's
+  angular centerline; neighbor slices expand around both sides of that anchor.
+  Attachment identity, installation validity, keyboard/wheel navigation,
+  colors, opacity and other presentations are unchanged.
+- Geometry regression checks cover wrapped indices, mixed widths and full
+  circumference including cases where there are more attachments than fit.
+  CPU/Proton in-game acceptance is still required.
+
+## 2026-11-17 — Framework Builder outer border correction (QA)
+
+- Replaced the floating dashed header strip and bottom-corner decoration
+  with the actual four-sided Builder border. Fallout 4 has a continuous
+  industrial border, Fallout 76 a squared solid frame, DOOM Eternal a
+  heavier accent edge, and Fallout 3/New Vegas a double terminal border.
+- Styling uses existing Framework palette roles and the Builder's existing
+  resizable shell. No new pseudo-elements, separate header marks, saved
+  preferences, gameplay changes, or Framework DLL.
+- Source/CSS checks are separate from pending OG/Proton CPU visual QA.
+
 ## 2026-11-17 — Fallout 76 Builder structural alignment
 
 - Aligned Builder-only Fallout 76 panels, choices and actions with the

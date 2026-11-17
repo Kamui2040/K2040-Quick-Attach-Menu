@@ -33,9 +33,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   one- or two-line labels and keep every category reachable even if only a
   subset fits visibly within a Hybrid wheel.
 - The Clock child fan must start on the selected visible parent category's
-  angular centerline, including when category lists scroll. Its sectors and
-  radial labels must remain visible at all compass directions, with text on
-  the left kept upright and packed sector gaps unchanged.
+  angular centerline, including when category lists scroll. Show every unique
+  attachment that fits on its outer 360-degree circumference; never impose a
+  fixed five-slice window. Bound the selection window by measured one/two-line
+  sector widths plus a positive seam gap, without duplicates or overlap.
+  Radial labels stay visible and upright at all compass directions.
 - Before attributing bright radial-wheel wedges to an SVG/CEF tessellation
   defect, measure the unfilled angular gaps at the rendered radius. Large
   deliberate sector gaps expose the scene and cannot be fixed by changing

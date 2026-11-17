@@ -63,13 +63,36 @@ Slices, and over Builder/Settings chrome. Native saved custom colors
 and opacity remain intact; standalone appearances still work without
 the hub.
 
-The unified editor's Presentation selector now renders a compact
-illustrative diagram for each of the six layouts (Cascade, Radial,
-Compact Hybrid, Horizontal Bar, Orbit and Clock Slices). Diagrams
-are non-live, don't require an equipped weapon and never modify game
-state. The canonical manifest schema permits an optional declarative
-`preview: "attachment-layout"` selector flag; the shared editor,
-not Quick Attach, draws that preview.
+The Framework's Presentation selector renders illustrative diagrams for
+the six QAM layouts. The QAM manifest selects this illustration using the
+existing preview: "attachment-layout" contract, without live game objects or
+additional owner-owned settings UI. These descriptions are the authoritative
+QAM presentation structures to reflect in the Framework-owned previews:
+
+- **Cascade:** a vertical category list beside a vertical attachment list,
+  not diagonally overlapping cards.
+- **Horizontal Bar:** a horizontal category pane and separate attachment
+  options rather than one row of unrelated category buttons.
+- **Radial:** a circular inner category wheel, plus outer attachment sectors
+  centered on the selected category (mouse mode). Controller options can use
+  a full outer circle.
+- **Compact Hybrid:** the left **semicircle** contains seven visible category
+  wedges (scrollable window) and the right is a traditional attachment list,
+  not a complete round category ring.
+- **Orbit:** eight separate **round buttons** surround a labeled center hub;
+  the independent **curved attachment list to the right** centers the
+  selected option. It does not use concentric category wedges.
+- **Clock Slices:** category wedges form the inner wheel; **all attachments
+  that fit the outer 360-degree circumference** appear as narrow, elongated,
+  adjacent slices around the selected parent's angular midpoint. Slice count
+  is bounded only by measured label widths and a positive seam gap, not a
+  fixed five-item page. This is not a static concentric ring of equal sectors.
+
+The QAM source of truth is quick-menu-renderer.js, quick-menu-geometry.js
+and quick-menu.css. The Framework owns the illustrative preview rendering,
+and QAM must not create another renderer for the settings hub. Any abstract
+diagram that does not match these structures must be revised in the
+Framework itself. These illustrations do not change player state.
 
 ## Validation and remaining gate
 

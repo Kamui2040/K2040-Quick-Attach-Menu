@@ -215,12 +215,66 @@
   }
 
   function clockOptionSlice(offset, lineCount, centerAngle) {
-    offset = clamp(Math.round(Number(offset) || 0), -2, 2);
+    // Offsets may now extend around the full clock, not just -2 through +2.
+    offset = Math.round(Number(offset) || 0);
     var angle = Number.isFinite(Number(centerAngle)) && centerAngle !== undefined ?
       Number(centerAngle) : offset * 15;
     var halfSweep = Number(lineCount) === 1 ? 4.25 : 6.75;
     return { angle: angle, start: angle - halfSweep, end: angle + halfSweep,
       innerRadius: 234, outerRadius: 462 };
+  }
+
+  function clockOptionWindow(lineCounts, selectedIndex) {
+    // Show all attachments that physically fit in one revolution. The
+    // selected attachment remains centered on the active parent category;
+    // its neighbours expand around either side until the available 360°
+    // circumference is occupied. The quarter-degree seam prevents the
+    // first and last edges from ever drawing on top of each other.
+    var count = (lineCounts || []).length;
+    if (!count) return [];
+    selectedIndex = wrap(Math.floor(Number(selectedIndex) || 0), count);
+    var gap = .25;
+    var circumference = 360 - gap;
+    function span(index) {
+      return Number(lineCounts[index]) === 1 ? 8.5 : 13.5;
+    }
+    var used = {};
+    used[selectedIndex] = true;
+    var selectedSpan = span(selectedIndex);
+    var occupied = selectedSpan;
+    var leftExtent = selectedSpan / 2;
+    var rightExtent = selectedSpan / 2;
+    var leftOffset = 0;
+    var rightOffset = 0;
+    var rows = [{ index:selectedIndex, offset:0 }];
+    while (rows.length < count) {
+      // Favor the less-occupied side so the visible fan stays balanced,
+      // but try the other side if the next entry would not fit.
+      var directions = leftExtent <= rightExtent ? [-1, 1] : [1, -1];
+      var added = false;
+      for (var side = 0; side < directions.length; side += 1) {
+        var direction = directions[side];
+        var offset = direction < 0 ? leftOffset - 1 : rightOffset + 1;
+        var index = wrap(selectedIndex + offset, count);
+        if (used[index]) continue;
+        var nextSpan = span(index);
+        if (occupied + nextSpan + gap > circumference + 1e-8) continue;
+        rows.push({ index:index, offset:offset });
+        used[index] = true;
+        occupied += nextSpan + gap;
+        if (direction < 0) {
+          leftOffset = offset;
+          leftExtent += nextSpan + gap;
+        } else {
+          rightOffset = offset;
+          rightExtent += nextSpan + gap;
+        }
+        added = true;
+        break;
+      }
+      if (!added) break;
+    }
+    return rows.sort(function(a, b) { return a.offset - b.offset; });
   }
 
   function clockPackedOptionSlices(rows, categoryAngle) {
@@ -328,6 +382,7 @@
     clockCategoryAngle: clockCategoryAngle,
     clockReadableLabelAngle: clockReadableLabelAngle,
     clockOptionSlice: clockOptionSlice,
+    clockOptionWindow: clockOptionWindow,
     clockPackedOptionSlices: clockPackedOptionSlices,
     shortenCategoryWords: shortenCategoryWords,
     fitClockLabel: fitClockLabel

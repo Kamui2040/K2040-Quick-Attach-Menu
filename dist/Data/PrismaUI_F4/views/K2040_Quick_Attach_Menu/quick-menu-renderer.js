@@ -1352,16 +1352,23 @@
       });
       if (focusedIndex < 0) focusedIndex = 0;
       var usableLength = 462 - 234 - 30;
-      var plans = metrics.orbitOptionWindow(options.length, focusedIndex, 2).map(function(row) {
-        var option = options[row.index];
+      // Measure each visible attachment once, then use its measured angular
+      // width to determine how many slices fit around the full outer clock.
+      // This removes the old arbitrary five-item window.
+      var measured = options.map(function(option) {
         var shortName = self.optionDisplayName(category, option);
-        // Measure only once: sector packing and drawing must use the same
-        // one- or two-line decision, without changing actual option identity.
         var fitted = metrics.fitClockLabel(shortName, usableLength, {
           baseSize: 15, minSize: 11,
           measure: function(text, size) { return self.measureWheelText(text, size); }
         });
-        return { row:row, option:option, shortName:shortName, fitted:fitted };
+        return { option:option, shortName:shortName, fitted:fitted };
+      });
+      var plans = metrics.clockOptionWindow(measured.map(function(plan) {
+        return plan.fitted.lines.length;
+      }), focusedIndex).map(function(row) {
+        return { row:row, option:measured[row.index].option,
+          shortName:measured[row.index].shortName,
+          fitted:measured[row.index].fitted };
       });
       var packed = metrics.clockPackedOptionSlices(plans.map(function(plan) {
         return { offset:plan.row.offset, lineCount:plan.fitted.lines.length };
@@ -1382,6 +1389,7 @@
         group.setAttribute("data-option-index", String(option.optionIndex));
         group.setAttribute("data-display-label", shortName);
         group.setAttribute("data-clock-lines", String(fittedOption.lines.length));
+        group.setAttribute("data-clock-offset", String(row.offset));
         group.setAttribute("data-parent-angle", String(activeCategoryAngle));
         group.setAttribute("role", "button");
         group.setAttribute("aria-label", fullName);

@@ -140,7 +140,7 @@ renderer.lastFocusedOptionIndex=2;
 let view=renderer.renderClock(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
 let segments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
 let cats=collect(view,x=>String(x.className).includes('qm-clock-category')&&x.tag==='g');
-assert.equal(segments.length,5);
+assert.equal(segments.length,13,'show every option that fits, not five');
 assert.equal(cats.length,8,'many categories retain a navigable window');
 assertMinimalAdjacentGaps(cats,470,470,225,'Clock categories');
 // Framework decorations are visual-only and never become attachment targets.
@@ -174,8 +174,9 @@ assert.ok(selectedShape);
 assert.ok(!/\sA\s/.test(selectedShape.attributes.d),'avoid arc raster artifacts in CEF translucent fill');
 const entries=segments.map(s=>s.children.find(x=>x.tag==='text'));
 const rotations=entries.map(x=>x.attributes.transform);
-const initialPacked=G.clockPackedOptionSlices(segments.map((node,index)=>({
-  offset:index-2,lineCount:Number(node.attributes['data-clock-lines'])
+const initialPacked=G.clockPackedOptionSlices(segments.map(node=>({
+  offset:Number(node.attributes['data-clock-offset']),
+  lineCount:Number(node.attributes['data-clock-lines'])
 })),categoryAnchor);
 for(let i=0;i<rotations.length;i++){
   const raw=rotations[i].match(/rotate\((-?[0-9.]+)\)/);
@@ -183,7 +184,8 @@ for(let i=0;i<rotations.length;i++){
   assert.ok(Math.abs(Number(raw[1])-G.clockReadableLabelAngle(initialPacked[i].angle))<.02,
    'option text follows packed sector center and remains upright');
 }
-assert.equal(initialPacked[2].angle,categoryAnchor,
+const initialFocusedIndex=segments.findIndex(node=>node.attributes['aria-current']==='true');
+assert.equal(initialPacked[initialFocusedIndex].angle,categoryAnchor,
  'focused option fans out from the selected parent category midpoint');
 // All category orientations must anchor the focused child slice directly
 // outside the selected parent wedge, with no clipping of left/top/bottom
@@ -217,7 +219,8 @@ for(let selectedIndex=0;selectedIndex<eightCategories.length;selectedIndex++){
     n.className.split(' ').includes('qm-clock-category'));
   const childGroups=collect(rotated,n=>n.tag==='g'&&
     n.className.split(' ').includes('qm-clock-option'));
-  assert.equal(childGroups.length,5);
+  assert.equal(childGroups.length,13,
+    'all 13 attachments fit around each selected category');
   assert.equal(parentGroups.length,8);
   const parent=parentGroups.findIndex(n=>n.attributes['aria-pressed']==='true');
   assert.equal(parent,selectedIndex);
@@ -249,6 +252,41 @@ for(let selectedIndex=0;selectedIndex<eightCategories.length;selectedIndex++){
   assert.deepEqual(Object.keys(frameForCategory.listeners),[]);
 
   assertClockBounds(rotated);
+}
+// Actual Clock rendering must show every unique one-line option until the
+// available circumference, not a hard five-item Orbit-derived window.
+for(const optionCount of [6,13,25,40,41,42,60]){
+  const many=category(0,optionCount);
+  for(const current of [0,Math.floor(optionCount/2),optionCount-1]){
+    renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
+      parser:{categories:[many]}});
+    renderer.activeCategoryIndex=0;
+    renderer.lastFocusedOptionIndex=current;
+    const rendered=renderer.renderClock([many],many);
+    const slices=collect(rendered,n=>n.tag==='g' &&
+      n.className.split(' ').includes('qm-clock-option'));
+    assert.equal(slices.length,Math.min(optionCount,41),
+      'render as many slices as physically fit the outer circumference');
+    assert.equal(new Set(slices.map(n=>n.attributes['data-option-index'])).size,
+      slices.length,'no duplicate attachment OMOD identity');
+    const currentSlice=slices.find(n=>n.attributes['aria-current']==='true');
+    assert.ok(currentSlice,'focused slice must remain visible');
+    assert.equal(Number(currentSlice.attributes['data-option-index']),current);
+    assert.ok(slices.every(n=>typeof n.listeners.click==='function'),
+      'every visible slice remains interactable');
+    const indices=slices.map(n=>Number(n.attributes['data-clock-offset']));
+    assert.equal(new Set(indices).size,indices.length);
+    assertMinimalAdjacentGaps(slices,470,470,462,
+      'full circumference attachment sectors');
+    assertClockBounds(rendered);
+    const sectorAngles=G.clockPackedOptionSlices(slices.map(n=>({
+      offset:Number(n.attributes['data-clock-offset']),
+      lineCount:Number(n.attributes['data-clock-lines'])
+    })),G.clockCategoryAngle(0,1));
+    const arc=sectorAngles.at(-1).end-sectorAngles[0].start;
+    assert.ok(360-arc>=.25-1e-6,
+      'last sector never crosses into first at the 360-degree seam');
+  }
 }
 renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
   parser:{categories:Array.from({length:11},(_,i)=>category(i,13))}});
@@ -355,8 +393,10 @@ for(const presentation of presentations){
       assert.equal(groups[0].attributes['aria-label'],'Reflex Sight','radial option accessibility');
     }else{
       const groups=collect(rendered,x=>String(x.className).includes('qm-clock-option')&&x.tag==='g');
-      assert.equal(groups[0].attributes['data-display-label'],expected,'clock shortened sector');
-      assert.equal(groups[0].attributes['aria-label'],'Reflex Sight');
+      const focused=groups.find(group=>group.attributes['aria-current']==='true');
+      assert.ok(focused,'Clock renders its selected attachment even when all options fit');
+      assert.equal(focused.attributes['data-display-label'],expected,'clock shortened sector');
+      assert.equal(focused.attributes['aria-label'],'Reflex Sight');
     }
   }
 }
