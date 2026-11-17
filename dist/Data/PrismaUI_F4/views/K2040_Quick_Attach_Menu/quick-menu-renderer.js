@@ -103,6 +103,60 @@
     group.appendChild(outline);
   }
 
+
+  // Framework frame decorations use geometry already computed for the menu.
+  // They never own input, draw backgrounds, or change an OMOD hit target.
+  // Stroke-only rings and polyline arcs are cheap on PrismaUI's CPU renderer.
+  function appendFrameworkWheelFrame(svg, cx, cy, inner, outer, angles,
+                                    activeAngle, arcStart, arcEnd) {
+    var frame = document.createElementNS(SVG_NS, "g");
+    frame.setAttribute("class", "qm-wheel-framework-frame");
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("pointer-events", "none");
+    function rim(cssClass, radius) {
+      var element;
+      if (Number.isFinite(arcStart) && Number.isFinite(arcEnd)) {
+        element = document.createElementNS(SVG_NS, "path");
+        var steps = Math.max(10, Math.ceil((arcEnd - arcStart) / 4));
+        var commands = [];
+        for (var step = 0; step <= steps; step += 1) {
+          var point = polar(cx, cy, radius,
+            arcStart + (arcEnd - arcStart) * step / steps);
+          commands.push((step ? "L " : "M ") +
+            point.x.toFixed(2) + " " + point.y.toFixed(2));
+        }
+        element.setAttribute("d", commands.join(" "));
+      } else {
+        element = document.createElementNS(SVG_NS, "circle");
+        element.setAttribute("cx", String(cx));
+        element.setAttribute("cy", String(cy));
+        element.setAttribute("r", String(radius));
+      }
+      element.setAttribute("class", cssClass);
+      frame.appendChild(element);
+    }
+    function tick(cssClass, angle, from, to) {
+      var a = polar(cx, cy, from, angle);
+      var b = polar(cx, cy, to, angle);
+      var line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("class", cssClass);
+      line.setAttribute("x1", a.x.toFixed(2));
+      line.setAttribute("y1", a.y.toFixed(2));
+      line.setAttribute("x2", b.x.toFixed(2));
+      line.setAttribute("y2", b.y.toFixed(2));
+      frame.appendChild(line);
+    }
+    rim("qm-frame-rim-outer", outer);
+    rim("qm-frame-rim-inner", inner);
+    angles.forEach(function(angle) {
+      tick("qm-frame-category-tick", angle, outer - 4, outer + 1);
+    });
+    if (Number.isFinite(activeAngle)) {
+      tick("qm-frame-parent-marker", activeAngle, outer - 5, outer + 4);
+    }
+    svg.appendChild(frame);
+  }
+
   function Renderer(root, options) {
     this.root = root;
     this.options = options || {};
@@ -907,6 +961,15 @@
           optionStart + (j + 1) * optionSize - .12, 380, 380, 205, 350);
       }
     }
+    // Category compass trim stays outside the clickable sector ring.
+    var radialAngles = categories.map(function(_, index) {
+      return -90 + (index + .5) * categorySweep;
+    });
+    var radialSelected = categories.findIndex(function(entry) {
+      return entry.categoryIndex === this.activeCategoryIndex;
+    }, this);
+    appendFrameworkWheelFrame(svg, 380, 380, 102, 353, radialAngles,
+      radialSelected >= 0 ? radialAngles[radialSelected] : NaN);
     layout.appendChild(svg);
     if (category && options.length && (this.activePane === "options" || !controllerOptions)) {
       var self = this;
@@ -1006,6 +1069,16 @@
         if (!self.options.preview) self.moveCategory(event.deltaY > 0 ? -1 : 1);
       }, { passive:false });
     }
+    // The Hybrid navigator uses a partial lower arc; do not draw a full
+    // ring, since that would imply invisible categories were selectable.
+    var hybridAngles = visibleIndices.map(function(_, index) {
+      return 97 + (index + .5) * segmentSweep;
+    });
+    var hybridSelected = visibleIndices.findIndex(function(position) {
+      return categories[position].categoryIndex === this.activeCategoryIndex;
+    }, this);
+    appendFrameworkWheelFrame(svg, 225, 215, 101, 208, hybridAngles,
+      hybridSelected >= 0 ? hybridAngles[hybridSelected] : NaN, 97, 263);
     wheel.appendChild(svg);
     layout.appendChild(wheel);
     var optionsPane = document.createElement("div");

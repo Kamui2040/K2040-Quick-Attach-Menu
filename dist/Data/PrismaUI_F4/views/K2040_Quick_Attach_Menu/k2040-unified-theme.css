@@ -344,3 +344,57 @@
 :root[data-k2040-visual-theme="fallout3-newvegas"] .qm-frame-rim-inner {
   stroke-width: 1.7px;
 }
+
+
+/* Framework radial/hybrid/orbit topology. All rings and ticks are
+   stroke-only and aria-hidden; no changes to actual annular hit regions. */
+.qm-wheel-framework-frame { display: none; pointer-events: none; }
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame {
+  display: inline;
+  fill: none;
+  stroke: var(--qm-line);
+  stroke-width: 1.3px;
+  pointer-events: none;
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-rim-inner {
+  stroke: var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-category-tick {
+  stroke: var(--qm-line);
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-parent-marker {
+  stroke: var(--qm-accent);
+  stroke-width: 3px;
+}
+/* Existing orbit category size and positions stay constant for all themes.
+   Only the decorative outline and visual silhouette vary. */
+:root[data-k2040-visual-theme="fallout4"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: inset 0 0 0 2px var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme="fallout76"] .presentation-orbit .qm-orbit-category {
+  border-radius: 25px;
+}
+:root[data-k2040-visual-theme="fallout76"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 0 0 0 2px var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme="doom-eternal"] .presentation-orbit .qm-orbit-category {
+  border-radius: 12px;
+  border-width: 2px;
+}
+:root[data-k2040-visual-theme="doom-eternal"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: dashed;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] .presentation-orbit .qm-orbit-category {
+  border-radius: 3px;
+  border-style: double;
+  border-width: 3px;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] .presentation-orbit .qm-orbit-ring {
+  border-style: double;
+  border-width: 3px;
+}

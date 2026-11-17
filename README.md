@@ -33,7 +33,7 @@ is optional.
   names. Each presentation retains independent positioning
   and scale. The real attachment identity and application logic are unchanged.
 - In the unreleased Framework-integrated QA build, four theme-specific
-  frame styles decorate the Builder and Clock menu without changing
+  frame styles decorate the Builder and Clock, Radial, Hybrid and Orbit menus without changing
   attachment sectors, validation or saved palette. The optional Framework
   remains a separate installation. Visual QA currently targets PrismaUI
   CPU rendering; GPU-specific QA is deferred.
@@ -82,8 +82,8 @@ Default controls:
 - `Escape`: close the active mod menu.
 
 Pressing the other opener while one menu is active switches directly to that
-menu. In the Unified Settings VNext development build, all Quick Attach
-general settings and gameplay shortcuts are edited directly in the shared hub, which is installed separately (default shortcut
+menu. In the K2040 Framework development build, all Quick Attach
+general settings and gameplay shortcuts are edited directly in the shared Framework, which is installed separately (default shortcut
 F3). Builder's Settings button opens Quick Attach's settings in that hub and
 releases Builder focus on accepted requests. If the hub is missing or not
 ready, Builder stays open and reports the problem. Older published releases

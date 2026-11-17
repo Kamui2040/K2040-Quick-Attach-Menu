@@ -10,6 +10,17 @@
 - In-game CPU/Proton styling acceptance remains pending. No Framework DLL
   or user settings bundled.
 
+## 2026-11-17 — CPU Framework topology across QAM wheels (QA)
+
+- Radial uses two stroke-only rings, category ticks, and a selected parent
+  marker; Hybrid uses lower-half guide arcs and a marker that follows its
+  seven-category moving window. Orbit uses themed borders and category
+  silhouettes with unchanged element size, placement, and click handlers.
+- The four Framework theme IDs remain the only visual-theme inputs. Decorations
+  are hidden with the Framework absent; no settings, attachment geometry, user
+  palette/opacity, data dependencies or Framework binaries were added.
+- Source/geometry/interaction checks are separate from pending CPU in-game QA.
+
 ## 2026-11-17 — Framework CPU-first theme frame styling (QA)
 
 - K2040 Framework is the shared settings and appearance owner (same
