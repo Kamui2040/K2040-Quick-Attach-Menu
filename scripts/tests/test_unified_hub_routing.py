@@ -48,7 +48,9 @@ class UnifiedRouting(unittest.TestCase):
         spec=importlib.util.spec_from_file_location("qam_retired_settings_pack",pack)
         module=importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        self.assertIn("retired_settings_view",pack.read_text())
+        self.assertEqual(module.RETIRED_SETTINGS_VIEW,
+                         "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html")
+        self.assertNotIn(module.RETIRED_SETTINGS_VIEW, module.RUNTIME_FILES)
         if not (ROOT/"dist/Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll").exists():
             self.skipTest("compiled owner DLL is required for final package verification")
         files=module.payload()

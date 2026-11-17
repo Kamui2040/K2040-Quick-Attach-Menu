@@ -1,5 +1,19 @@
 # Current Project State
 
+## 2026-11-17 — CPU Clock efficiency and package inventory hardening (QA)
+
+- Clock now measures only the focused attachment and the neighboring choices
+  needed to fill its 360-degree ring. Reuses those fitted results for actual
+  sectors and removes the duplicate visible-options enumeration. Large lists
+  no longer measure hundreds of off-screen attachment labels on each redraw;
+  installed OMOD identity, navigation, line fitting and geometry are unchanged.
+- QAM-only packaging uses an explicit 13-file runtime allowlist and rejects
+  any unexpected staged file or symlink instead of silently bundling it.
+  Retired standalone settings.html stays in source, never in the installer.
+- Regression tests cover lazy/eager full-wheel equivalence, large option
+  catalogs, rejected staging files, symlinks and required runtime assets.
+  Native/CPU in-game acceptance remains separate from source/build validation.
+
 ## 2026-11-17 — Fallout 76 Builder focus and CSS cleanup (QA)
 
 - Fixed the flat Fallout 76 Builder's idle left rail obscuring selected,
@@ -79,10 +93,11 @@
 
 ## 2026-11-17 — Clock child slices follow selected parent category (QA)
 
-- The five-item Clock attachment fan is now anchored to the center angle of
-  the selected category wedge, rather than the global right-hand 0° axis.
+- Clock attachment slices are anchored to the center angle of the
+  selected category wedge, rather than the global right-hand 0° axis.
   Active category windows, option identity, selection and packed spacing are
-  retained; radial text on the left remains upright.
+  retained. The former five-slice limit has since been removed; radial text
+  on the left remains upright.
 - Clock uses a centered square 940px drawing area so left, top and bottom
   parent categories cannot place child slices outside the rendered surface.
   Its scale fit was updated accordingly; user-controlled position, scale,

@@ -17,6 +17,9 @@ documentation in Git.
 Do not commit generated DLLs or packages, logs, screenshots, game files, load
 orders, machine-specific paths, credentials, private QA, recovery material, or
 unrelated third-party assets. GitHub Actions are not enabled for this project.
+The QAM owner installer has an explicit reviewed runtime-file allowlist;
+unexpected files or symlinks under staging are packaging failures. Add new
+intentional assets to the allowlist only after scope and rights review.
 
 ## Runtime invariants
 

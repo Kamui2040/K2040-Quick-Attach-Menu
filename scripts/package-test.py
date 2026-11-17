@@ -24,8 +24,51 @@ PROVIDER = "Data/K2040/Settings/Providers/quick-attach.json"
 AE_DISABLED = b"AEAutoReequipAfterApply=false"
 AE_ENABLED = b"AEAutoReequipAfterApply=true"
 
+# A build staging folder is not a publication manifest. Explicitly enumerate
+# the complete owner install footprint so stray temporary files, private
+# evidence, unexpected DLLs or symlinks can never silently enter QA archives.
+# Add new deliberate QAM runtime resources here as part of the reviewed change.
+RUNTIME_FILES = frozenset({
+    "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll",
+    "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.ini",
+    "Data/K2040/Settings/Providers/quick-attach.json",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/builder.html",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/controller-pages.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/dock.json",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/k2040-unified-theme.css",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/k2040-unified-theme.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/menu.html",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu.css",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-geometry.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-renderer.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json",
+})
+RETIRED_SETTINGS_VIEW = "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html"
+
+
+def staged_payload_files(dist: Path = DIST) -> dict[str, bytes]:
+    """Fail closed on unexpected content rather than sweeping staged Data."""
+    candidates: dict[str, Path] = {}
+    for staged in dist.rglob("*"):
+        name = "Data/" + staged.relative_to(dist).as_posix()
+        if staged.is_symlink():
+            raise ValueError("Staged Data symlink is not allowed: " + name)
+        if staged.is_file():
+            candidates[name] = staged
+    present = set(candidates)
+    unexpected = present - RUNTIME_FILES - {RETIRED_SETTINGS_VIEW}
+    if unexpected:
+        raise ValueError("Unexpected staged runtime file: " + sorted(unexpected)[0])
+    missing = RUNTIME_FILES - present
+    if missing:
+        raise ValueError("Missing required QAM runtime file: " + sorted(missing)[0])
+    return {name: candidates[name].read_bytes() for name in sorted(RUNTIME_FILES)}
+
 
 def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
+    # Verify the entire staged footprint before invoking any external
+    # validator; unexpected content fails closed without being processed.
+    data = staged_payload_files(DIST)
     # The canonical validator is a build-time gate, never a game dependency.
     manifest = DIST / "PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json"
     if not manifest.is_file():
@@ -40,15 +83,9 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
     if result.returncode != 0:
         raise ValueError("Settings Schema V1 manifest validation failed: " +
                          (result.stderr or result.stdout).strip())
-    # Source remains for legacy-only tests, but the V2 owner package must not
-    # install a second general settings renderer alongside the unified hub.
-    retired_settings_view = "PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html"
-    files = sorted(p for p in DIST.rglob("*")
-                   if p.is_file() and p.relative_to(DIST).as_posix() != retired_settings_view)
-    if not files:
-        raise ValueError("Staged Data files are missing; build first")
-    data = {p.relative_to(DIST.parent).as_posix(): p.read_bytes() for p in files}
-    if "Data/" + retired_settings_view in data:
+    # The retired settings.html remains in source for legacy contract tests
+    # only and is explicitly excluded from the reviewed QAM-only inventory.
+    if RETIRED_SETTINGS_VIEW in data:
         raise ValueError("Legacy Quick Attach settings view must not be distributed")
     for required in (INI, DLL, PROVIDER):
         if required not in data:
