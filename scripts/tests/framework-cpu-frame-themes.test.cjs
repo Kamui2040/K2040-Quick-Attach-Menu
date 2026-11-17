@@ -33,14 +33,22 @@ assert.ok(!/--k2040-shared-(?:accent|text|panel|border)\s*:/.test(decorations),
 assert.ok(decorations.includes('var(--qm-accent)'),'selection trim inherits owner accent');
 assert.ok(decorations.includes('var(--k2040-shared-border)'),
   'Builder detail inherits Framework palette border');
-assert.ok(decorations.includes('repeating-linear-gradient('),
-  'industrial/terminal frame details must be distinct');
+assert.ok(decorations.includes('border: var(--k2040-qam-frame-width) var(--k2040-qam-frame-detail)'),
+  'Builder must draw the style through its real frame border on all four sides');
+assert.ok(decorations.includes('--k2040-qam-frame-color: var(--k2040-shared-border)'),
+  'the physical border inherits the Framework palette');
+assert.ok(!decorations.includes('#builder::before')&&!decorations.includes('#builder::after'),
+  'no detached header stripe or corner overlay may obscure the real border');
+assert.ok(!decorations.includes('--k2040-qam-frame-overlay:')&&
+  !decorations.includes('--k2040-qam-frame-rail:'),
+  'decorative stripe tokens must not survive the migration');
 assert.ok(decorations.includes('border-radius: 0;'),
   'Fallout 76 Builder must use flat Framework UI frames');
 assert.ok(decorations.includes('border-radius: 15px;'),
   'the Quick Menu presentation modes retain their independent radius');
-assert.ok(decorations.includes('clip-path: polygon('),
-  'DOOM uses angular decoration only');
+assert.ok(decorations.includes('--k2040-qam-frame-width: 3px;') &&
+  decorations.includes('--k2040-qam-frame-color: var(--k2040-shared-accent);'),
+  'DOOM uses a heavier accent-colored real border without detached notches');
 assert.ok(decorations.includes('border-style: double'),
   'Fallout 3/New Vegas uses doubled terminal borders');
 assert.ok(decorations.includes('stroke-dasharray'),

@@ -165,39 +165,19 @@
    Appearance is opt-in through the Framework's existing visual-theme
    attribute. All colors derive from the owner's current palette tokens;
    no embedded art, fonts, new settings, or alternative geometry paths.
-   Panels and trim are visual only. Keep interaction hit areas intact. */
+   Panels and trim are visual only. Keep interaction hit areas intact.
+   The Builder's theme treatment belongs to its actual four-sided frame,
+   not to a disconnected decorative stripe over the header. */
 :root[data-k2040-visual-theme] {
   --k2040-qam-frame-radius: var(--k2040-theme-radius, 4px);
-  --k2040-qam-frame-rail: 2px;
+  --k2040-qam-frame-width: 2px;
   --k2040-qam-frame-detail: solid;
-  --k2040-qam-frame-overlay: none;
+  --k2040-qam-frame-color: var(--k2040-shared-border);
 }
 :root[data-k2040-visual-theme] #builder {
+  border: var(--k2040-qam-frame-width) var(--k2040-qam-frame-detail)
+    var(--k2040-qam-frame-color);
   border-radius: var(--k2040-qam-frame-radius);
-  border-style: var(--k2040-qam-frame-detail);
-  position: fixed;
-  isolation: isolate;
-}
-:root[data-k2040-visual-theme] #builder::before,
-:root[data-k2040-visual-theme] #builder::after {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  pointer-events: none;
-}
-:root[data-k2040-visual-theme] #builder::before {
-  top: 4px;
-  left: 13px;
-  right: 13px;
-  height: var(--k2040-qam-frame-rail);
-  background: var(--k2040-qam-frame-overlay);
-}
-:root[data-k2040-visual-theme] #builder::after {
-  right: 5px;
-  bottom: 10px;
-  width: 4px;
-  height: 28px;
-  background: var(--k2040-qam-frame-overlay);
 }
 :root[data-k2040-visual-theme] .qm-option-button,
 :root[data-k2040-visual-theme] .qm-category-button,
@@ -227,11 +207,10 @@
   stroke-width: 3px;
 }
 
-/* Fallout 4: square metal rails and interrupted industrial edge accents. */
+/* Fallout 4: continuous industrial frame and a restrained inner rail. */
 :root[data-k2040-visual-theme="fallout4"] {
   --k2040-qam-frame-radius: 3px;
-  --k2040-qam-frame-overlay: repeating-linear-gradient(
-    90deg, var(--k2040-shared-border) 0 29px, transparent 29px 34px);
+  --k2040-qam-frame-width: 2px;
 }
 :root[data-k2040-visual-theme="fallout4"] #builder {
   box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
@@ -245,11 +224,10 @@
   stroke-linecap: square;
 }
 
-/* Fallout 76: in-game flat Settings panels; Quick Menu geometry is exempt. */
+/* Fallout 76: flat in-game Settings panel with a continuous outer frame. */
 :root[data-k2040-visual-theme="fallout76"] {
-  --k2040-qam-frame-radius: 13px;
-  --k2040-qam-frame-overlay: linear-gradient(
-    90deg, transparent, var(--k2040-shared-line), transparent);
+  --k2040-qam-frame-radius: 0px;
+  --k2040-qam-frame-width: 2px;
 }
 :root[data-k2040-visual-theme="fallout76"] #builder {
   border-radius: 0;
@@ -280,23 +258,15 @@
   stroke-width: 2.5px;
 }
 
-/* DOOM Eternal: hard-edged notches and segmented technical guide lines.
-   Clip only the paint on decorative pseudo-elements; not button hit targets. */
+/* DOOM Eternal: hard-edged, thicker accent border; no detached notches. */
 :root[data-k2040-visual-theme="doom-eternal"] {
   --k2040-qam-frame-radius: 0px;
-  --k2040-qam-frame-rail: 4px;
-  --k2040-qam-frame-overlay: repeating-linear-gradient(
-    90deg, var(--k2040-shared-accent) 0 22px,
-    transparent 22px 29px);
+  --k2040-qam-frame-width: 3px;
+  --k2040-qam-frame-color: var(--k2040-shared-accent);
 }
 :root[data-k2040-visual-theme="doom-eternal"] #builder {
   box-shadow: inset 0 0 0 3px var(--k2040-shared-line-soft),
               0 18px 70px rgba(0,0,0,.55);
-}
-:root[data-k2040-visual-theme="doom-eternal"] #builder::after {
-  width: 26px;
-  height: 40px;
-  clip-path: polygon(0 0,100% 0,100% 100%,55% 100%,0 45%);
 }
 :root[data-k2040-visual-theme="doom-eternal"] .qm-option-button,
 :root[data-k2040-visual-theme="doom-eternal"] .qm-category-button {
@@ -314,16 +284,13 @@
   stroke-width: 4px;
 }
 
-/* Fallout 3 / New Vegas: doubled terminal frame and dotted index trim. */
+/* Fallout 3 / New Vegas: a double-line terminal frame on all four sides. */
 :root[data-k2040-visual-theme="fallout3-newvegas"] {
   --k2040-qam-frame-radius: 0px;
   --k2040-qam-frame-detail: double;
-  --k2040-qam-frame-rail: 1px;
-  --k2040-qam-frame-overlay: repeating-linear-gradient(
-    90deg, var(--k2040-shared-border) 0 2px, transparent 2px 5px);
+  --k2040-qam-frame-width: 4px;
 }
 :root[data-k2040-visual-theme="fallout3-newvegas"] #builder {
-  border-width: 3px;
   box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
               0 18px 70px rgba(0,0,0,.55);
 }
