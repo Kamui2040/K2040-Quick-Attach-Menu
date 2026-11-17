@@ -8,28 +8,17 @@ and is no longer carried by the VNext branch.
 The following MCM notes describe **published legacy releases only**, not the
 current owner-only QA package.
 
-## MCM Categorizer workaround (optional; needs in-game confirmation)
+## Published 0.5.222 — MCM Categorizer compatibility
 
-The third-party MCM Categorizer (Nexus 66311) has been reported to show
-`K2040 Mods` without its merged child pages. Without Categorizer, the same
-mod's child page is visible. This points to a menu-rendering compatibility
-issue; the exact Categorizer code path and in-game fix are not yet verified.
+The 0.5.222 main release corrected the reported MCM Categorizer display
+issue in the confirmed setup. This does not prove compatibility for every
+MCM/Categorizer combination.
 
-For players who use Categorizer, the release includes a separate
-**opt-in compatibility ZIP** with:
-
-The published 0.5.222 compatibility ZIP (available with that release).
-
-Install the override **after** Quick Attach Menu. It changes only Quick
-Attach's `MCM/Config/K2040_Quick_Attach_Menu/config.json` to display the
-settings as a standalone menu entry rather than as a child of `K2040 Mods`.
-The hotkey IDs, data storage and native handling are identical. The normal
-installer and shared parent remain unchanged, and the optional override
-should not be used without Categorizer. Other K2040 mods need their own
-compatibility handling; an empty shared root may remain if those mods are
-installed. The override affects only Quick Attach: its page becomes a
-standalone entry while Quest Journal and Minimap remain under K2040 Mods. This
-workaround has not yet been confirmed in Quick Attach's game setup.
+A separate optional compatibility ZIP remains a fallback if Categorizer
+still hides Quick Attach under `K2040 Mods`. Install it after the main 0.5.222
+archive only when needed. It makes the Quick Attach MCM config a standalone
+entry; the keybind identity, data storage and native attachment behavior do
+not change. This legacy override is not shipped in VNext owner-only QA.
 
 ### Native MCM recovery (included in 0.5.222)
 
@@ -146,9 +135,10 @@ The release DLL is built with DCCStudios/CommonLibF4 revision
 `f0b1670ee9caac2e349497f6f3c08a69633a8ea7`. The build pins these revisions to
 preserve one DLL for the supported original and AE runtime families.
 
-Mod Configuration Menu is optional. It supplies registered hotkey controls and
-Hotkey Manager visibility; missing MCM bindings fall back independently to the
-plugin INI.
+In published 0.5.222, Mod Configuration Menu is optional and supplies
+registered hotkey controls and Hotkey Manager visibility; missing legacy MCM
+bindings fall back independently to the plugin INI. VNext instead uses
+owner-managed gameplay shortcuts without native MCM registration.
 
 ECO is optional. When a compatible authored ECO menu is available, Auto mode
 can use it. Otherwise the plugin builds a bounded generated menu from the

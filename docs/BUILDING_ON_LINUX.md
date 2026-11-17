@@ -46,7 +46,7 @@ python3 scripts/package-test.py --output /tmp/K2040-Quick-Attach-TEST.zip
 git diff --check
 ```
 
-Check the PE header and imports, version, ZIP integrity, shared MCM files, and that no user settings were packaged. The package check does not install the DLL or test it in game. The published release ZIP remains the source for restoring the exact released build.
+Check the PE header, imports, version, ZIP integrity and absence of user settings. Published 0.5.222 archives contain the historical shared MCM files; current owner-only VNext QA packages must exclude QAM MCM pages and Framework DLLs. Package checks do not install or test the DLL in game. The published release ZIP remains the source for restoring the exact released build.
 
 ## Recovery boundaries
 

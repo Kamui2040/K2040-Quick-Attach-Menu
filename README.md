@@ -4,7 +4,7 @@ Change compatible weapon attachments from a quick in-game menu instead of
 returning to a workbench. ECO-authored menus are supported when available; ECO
 is optional.
 
-**Current GitHub release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222), with an installation ZIP, checksum and optional MCM Categorizer compatibility file. Nexus notes are prepared; its Files entry still needs an upload.
+**Latest published release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222), available on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575) and GitHub. Current Framework/VNext changes described below remain unreleased.
 
 ## Features
 
@@ -132,13 +132,13 @@ npm run validate:settings before packaging. The package tool also rejects
 a missing or invalid manifest. See docs/SETTINGS_SCHEMA_V1_AUDIT.md for
 field ownership and the retained internal/legacy settings.
 
-On feature/unified-editor-v2, Quick Attach implements the V2 native
-owner adapter for the common K2040 two-pane editor. The existing standalone
-Settings page remains unchanged and usable without the hub; it is not the
-renderer used inside the unified editor. Gameplay Quick Menu and Builder
-shortcuts remain independent. The shared settings shortcut is owned by the
-Unified Settings hub, not Quick Attach. See
-docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md for the V2 gate and tests.
+In current VNext development, Quick Attach exposes its settings through the
+V2 owner adapter to the separate K2040 two-pane editor. The historical
+standalone Settings HTML remains in source but is not packaged with the
+owner-only VNext installer; published 0.5.222 retains its standalone controls.
+Quick Menu and Builder shortcuts remain owned by Quick Attach. The hub alone
+owns the central settings shortcut. See
+docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md for the V2 contract and gates.
 
 ## Builder and settings
 
@@ -160,9 +160,9 @@ Per-weapon controls can:
 
 General settings include presentation, background opacity, layout scale and
 position, color palette, label cleanup, controls, gameplay slowdown, and
-diagnostic logging. Reset controls
-restore either a section, one presentation's position, or the complete
-fresh-install state.
+diagnostic logging. Published standalone Settings offers section,
+position and confirmation-gated full reset. In the VNext shared editor,
+destructive Reset All is disabled until a verified confirmation flow exists.
 
 ## Weapon menu profiles
 

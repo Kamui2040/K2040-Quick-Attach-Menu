@@ -130,12 +130,14 @@ open before sending the refreshed payload to the active view.
 
 ## Optional unified settings adapter
 
-A versioned plain-C `K2040_GetSettingsAdapterV1` export lets an optional
-external K2040 Settings hub launch this mod's existing Settings Prisma view
-on the F4SE game thread. The mod owns all persistence and validates focus/input
-as before; its normal hotkeys and standalone configuration remain available.
-The hub cannot perform attachment mutations or bypass game-state validation.
-An absent/mismatched hub has no effect on this mod.
+VNext exports the versioned plain-C `K2040_GetSettingsAdapterV2` API. The
+separately installed hub renders the manifest-defined QAM controls in its
+two-pane editor; QAM checks types, bounds and field ownership before saving
+its own preferences. The hub cannot bypass native OMOD, graph, inventory or
+transaction validation. The earlier V1 standalone-settings launcher is
+disabled and historical Settings HTML is not packaged. Builder requests its
+hub category on the F4SE game thread and releases input only on acceptance;
+missing or incompatible hubs cannot substitute an owner settings renderer.
 
 ## Presentation preferences
 
@@ -183,8 +185,9 @@ available for accessibility and tooltips, and OMOD/apply identity is unchanged.
 Meaningful reset choices such as "No Material" are not shortened to "No".
 
 Bracketed-text cleanup is presentation-only. The source label remains intact.
-The dedicated general settings page independently controls bracketed prefixes,
-infixes, and suffixes. The quick menu and builder apply those global controls
+General settings controls (the integrated VNext editor, or the published
+legacy standalone page) independently manage bracketed prefixes, infixes and
+suffixes. The quick menu and builder apply those global controls
 unless the identity-keyed per-weapon override selects hide all or show all.
 
 An identity-keyed per-weapon source preference may bypass an authored ECO menu
@@ -210,38 +213,26 @@ form type. Import replaces only the exact target weapon record and restores the
 previous in-memory record if the atomic settings save fails. The live menu and
 attachment transaction remain authoritative after import.
 
-## Settings adapters
+## Input and settings ownership
 
-The F4SE plugin INI remains the standalone hotkey source. When MCM has written
-an individual registered-hotkey override to its shared registry, that value
-takes precedence and is refreshed after leaving MCM. Missing registered values
-fall back to the plugin INI before MCM initializes its registry. Once MCM
-hotkeys have been initialized, clearing a binding is intentionally Unbound,
-not a trigger to restore a default. MCM remains optional. MCM keybind actions
-use a supported inert `RunConsoleCommand` entry; Quick Attach's native poller
-executes the menu-opening action. `CallExternalFunction` is not a supported
-native MCM keybind registry action. MCM owns
-registration and conflict reporting. Physical opener state is polled outside
-Fallout's gameplay input layer, while focused Prisma pages may forward matching
-browser events as a supplemental path. Duplicate cross-source signals are
-filtered, and all menu open/close/switch work is queued to the F4SE game thread.
-The two registered opener bindings act as toggles: the active menu's opener
-closes it and the other opener switches menus without releasing gameplay
-isolation between views. Escape closes either menu. DialogueMenu blocks opener
-actions. There is no separate registered close binding. The unreleased 0.5.219
-fix retains this mod's gameplay input isolation after a shortcut-triggered
-close while its base key remains physically held, because otherwise the same
-key may reach the Pip-Boy on Prisma unfocus. A native polling thread detects
-key-up (five-second failsafe), but queues layer cleanup on the game thread.
-A subsequent open cancels the old pending release; save transitions always
-clear it. This is separate from physical hotkey edge suppression and requires
-in-game verification.
+Current VNext builds keep Quick Menu and Builder gameplay openers in
+owner-managed preferences and native physical-input polling. Only the
+separate hub owns the settings-only shortcut and MCM page. QAM never seeds,
+registers, remaps or writes native MCM binding records. Historical MCM
+behavior for published releases belongs in [COMPATIBILITY.md](COMPATIBILITY.md).
 
-The PrismaUI V12 controller action bridge binds button actions **only** to
-Quick Menu views. Builder and Settings use keyboard/mouse, pending custom
-controller-oriented layouts. One optional controller opener toggles Quick Menu;
-the legacy Builder controller binding is ignored. Keyboard/MCM binding
-behavior is unchanged.
+Physical opener state survives menu switching; forwarded browser signals are
+supplemental and deduplicated. Open, close and view-switch actions run on the
+F4SE game thread. When a held opener closes a view, a bounded deferred
+release preserves QAM's gameplay-input layer until that key is released so
+it cannot leak into the Pip-Boy. Game transitions always release the layer.
+
+The Quick Menu uses Fallout 4's mapped Activate/Confirm and Cancel controls,
+not assumed physical controller letters. Controller and keyboard navigation
+change focus only; explicit confirmation authorizes an attachment selection.
+Builder handles its own navigation, while text entry and drag ordering still
+require keyboard/mouse. The optional controller opener belongs to Quick Menu
+only; it does not register a Builder or hub settings shortcut.
 
 The native XInput input thread samples either analog stick (left priority,
 right fallback) only while a Quick Menu DOM is ready, applies a dead zone,
@@ -267,10 +258,11 @@ Center arrow buttons, mouse wheel, and Page Up/Down move between pages,
 while hovering updates the full-name caption without a mutation.
 Steam Input/Proton and in-game UI behavior require runtime testing.
 
-The mod-owned Prisma builder remains authoritative for per-weapon presentation
-settings and links to the mod-owned general settings page. Switching between
-those pages creates a fresh Prisma view while preserving gameplay isolation,
-the equipped-weapon builder state, and the balanced menu-state guard.
+The mod-owned Prisma Builder remains authoritative for per-weapon
+presentation preferences. Its Settings button requests the optional hub's
+QAM category on the game thread. If accepted, Builder releases focus and
+input before the hub opens; if rejected, Builder stays open with a notice.
+It does not launch the retired standalone general-settings view.
 Prisma normally owns the cursor while a focused view is active. The plugin
 checks the engine cursor-owner count after focus and uses a validated OG/AE
 registration fallback when the provider did not add one. It also clears stale

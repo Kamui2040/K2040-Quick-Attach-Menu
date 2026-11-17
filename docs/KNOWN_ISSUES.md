@@ -1,14 +1,23 @@
 # Known Issues and Limits
 
-## Unreleased 0.5.226 — optional shared settings adapter
+## Open: VNext integrated settings and layout acceptance
 
-The optional native ABI entry point exposes this mod's existing settings
-panel to K2040 Unified Settings. It does not create a new gameplay binding
-or transfer settings ownership to the hub. The hub must close its focused
-view before invoking the adapter on the F4SE game thread; competing game menus
-and other focused Prisma panels remain blocking conditions. Native build and
-source tests do not establish runtime acceptability: check game UI focus,
-standalone fallback, controller navigation and no-weapon settings access.
+Draft PR #52 uses the V2 owner adapter. The shared hub renders QAM controls;
+QAM revalidates edits and saves only its own values. The standalone Settings
+HTML and QAM MCM definitions are excluded from the owner-only VNext package.
+Builder requests its settings category in an already loaded hub, retains
+focus on rejection and releases focus on acceptance.
+
+Fallout 4 OG 1.10.163 in-game acceptance is still required for focus,
+keyboard/controller mappings, settings persistence, palettes, all six menu
+presentations, and attachment transactions. Static, build and packaging
+results must never be reported as game-runtime acceptance.
+
+## Historical 0.5.226 adapter candidate (superseded by VNext)
+
+The earlier V1 adapter launched the mod's standalone Settings Prisma view;
+it did not transfer native data or transaction ownership. Current VNext uses
+the V2 integrated editor without packaging that legacy settings launcher.
 
 ## Unreleased 0.5.225: overflow-safe loose-mod inventory transactions
 
@@ -159,11 +168,10 @@ shortcut instead. The maintainer confirmed the tested MCM binding and
 persistence paths in game. Other first-run, clear/reassign, duplicate-recovery
 and native serialization combinations remain outside that confirmation.
 
-MCM Categorizer (Nexus 66311) can hide child pages under the shared
-`K2040 Mods` root. Version 0.5.222 includes an optional one-file standalone
-config workaround. Install it after the main archive only if the Quick Attach
-page is hidden; otherwise keep the normal grouped layout. The workaround has
-not yet been confirmed in Quick Attach's game setup.
+MCM Categorizer (Nexus 66311) could hide child pages under the shared
+`K2040 Mods` root. The 0.5.222 main release fixed the reported display issue
+in the confirmed setup. A one-file standalone override remains an optional
+fallback if an installation still hides the Quick Attach entry.
 
 ## Fixed in 0.5.220: native MCM keybind writer conflict (user-tested)
 

@@ -16,8 +16,9 @@ package. Do not claim destructive reset support in the unified editor.
 
 ## Shortcut ownership
 
-There is one settings-only shortcut across participating mods:
-**Ctrl+Shift+B** (assignable in Unified Settings MCM).
+The shared hub alone owns the settings-only shortcut and its MCM
+configuration. VNext QA reserves unmodified F3 as a provisional hub opener;
+QAM neither registers that key nor determines the final hub default.
 Quick Attach has **no native MCM gameplay keybind definitions** or
 Scaleform gameplay-hotkey registration. Its Quick Menu and Builder
 openers remain gameplay features, and are edited using direct key
@@ -103,7 +104,7 @@ Framework itself. These illustrations do not change player state.
 - The hub's read-only four-owner verifier previously accepted the four V2 exports. This newer optional manifest-field extension and gameplay-key migration require fresh combined-game testing; earlier verification is not an acceptance of these changes.
 - Headless Chromium verified shared theme color precedence while preserving a native-configured translucent panel.
 
-**Not yet verified:** in-game Ctrl+Shift+B opening, MCM reassignment, new direct Quick/Builder keyboard and controller assignments, typed edits, actual persistence, static layout previews, theme and palette propagation (especially Hot Omni/Clock), focus and switching between views on Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
+**Not yet verified:** the hub's configured settings opener, MCM reassignment, new direct Quick/Builder keyboard and controller assignments, typed edits, actual persistence, static layout previews, theme and palette propagation (especially Hot Omni/Clock), focus and switching between views on Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
 
 A QA archive may be built under Downloads for later isolated manual testing, but it must not be installed or published automatically.
 
