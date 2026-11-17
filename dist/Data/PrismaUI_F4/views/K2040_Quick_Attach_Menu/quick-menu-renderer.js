@@ -442,7 +442,7 @@
       var host = this.root.parentNode;
       var width = (host && host.clientWidth) || global.innerWidth || 1920;
       var height = (host && host.clientHeight) || global.innerHeight || 1080;
-      var clockFit = Math.min((width - 28) / 940, (height - 28) / 800);
+      var clockFit = Math.min((width - 28) / 940, (height - 28) / 940);
       this.effectiveScale = Math.min(this.effectiveScale,
         Math.max(.25, clockFit / this.previewZoom));
     }
@@ -1155,12 +1155,14 @@
   Renderer.prototype.renderClock = function(categories, category) {
     var self = this;
     var metrics = global.K2040QuickMenuGeometry;
-    var cx = 350, cy = 400;
+    // The outer fan can point in any direction; a centered square canvas
+    // keeps even left/top/bottom child slices inside the visible viewport.
+    var cx = 470, cy = 470;
     var layout = document.createElement("div");
     layout.className = "qm-layout qm-clock-layout";
     var svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("class", "qm-clock-svg");
-    svg.setAttribute("viewBox", "0 0 940 800");
+    svg.setAttribute("viewBox", "0 0 940 940");
     svg.setAttribute("role", "group");
     svg.setAttribute("aria-label", "Clock category wheel and attachment slices");
 
@@ -1195,13 +1197,15 @@
       return item.categoryIndex === self.activeCategoryIndex;
     });
     var visible = metrics.orbitCategoryWindow(categories.length, Math.max(0, activeIndex), 8);
+    var activeCategoryAngle = 0;
     visible.forEach(function(position, index) {
       var entry = categories[position];
       var active = entry.categoryIndex === self.activeCategoryIndex;
       var step = 360 / visible.length;
       var start = -90 + index * step + .12;
       var end = -90 + (index + 1) * step - .12;
-      var middle = (start + end) / 2;
+      var middle = metrics.clockCategoryAngle(index, visible.length);
+      if (active) activeCategoryAngle = middle;
       var group = document.createElementNS(SVG_NS, "g");
       group.setAttribute("class", "qm-clock-category" + (active ? " active" : ""));
       group.setAttribute("data-category-index", String(entry.categoryIndex));
@@ -1250,7 +1254,7 @@
       });
       var packed = metrics.clockPackedOptionSlices(plans.map(function(plan) {
         return { offset:plan.row.offset, lineCount:plan.fitted.lines.length };
-      }));
+      }), activeCategoryAngle);
       plans.forEach(function(plan, index) {
         var row = plan.row;
         var option = plan.option;
@@ -1267,6 +1271,7 @@
         group.setAttribute("data-option-index", String(option.optionIndex));
         group.setAttribute("data-display-label", shortName);
         group.setAttribute("data-clock-lines", String(fittedOption.lines.length));
+        group.setAttribute("data-parent-angle", String(activeCategoryAngle));
         group.setAttribute("role", "button");
         group.setAttribute("aria-label", fullName);
         group.setAttribute("aria-current", selected ? "true" : "false");
@@ -1276,7 +1281,8 @@
         shape(group, "qm-clock-option-shape", geometry.innerRadius, geometry.outerRadius,
           geometry.start, geometry.end);
         label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
-          geometry.angle), geometry.angle, "qm-clock-option-text",
+          geometry.angle), metrics.clockReadableLabelAngle(geometry.angle),
+          "qm-clock-option-text",
           Math.max(80, usableLength), 15, fittedOption);
         group.addEventListener("mouseenter", function() {
           if (self.options.onHover) self.options.onHover(category, option);

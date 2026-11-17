@@ -1,5 +1,18 @@
 # Current Project State
 
+## 2026-11-17 — Clock child slices follow selected parent category (QA)
+
+- The five-item Clock attachment fan is now anchored to the center angle of
+  the selected category wedge, rather than the global right-hand 0° axis.
+  Active category windows, option identity, selection and packed spacing are
+  retained; radial text on the left remains upright.
+- Clock uses a centered square 940px drawing area so left, top and bottom
+  parent categories cannot place child slices outside the rendered surface.
+  Its scale fit was updated accordingly; user-controlled position, scale,
+  colors and opacity remain unchanged.
+- Source geometry tests cover every category orientation and overflow.
+  Fallout 4 OG runtime confirmation remains pending.
+
 ## 2026-11-16 — Direct Builder Settings entry in Unified Settings (QA)
 
 - Restored Builder's Settings button to request K2040_RequestModuleSettingsV1

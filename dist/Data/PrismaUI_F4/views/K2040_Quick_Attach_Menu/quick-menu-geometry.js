@@ -201,6 +201,19 @@
   }
 
 
+  function clockCategoryAngle(index, count) {
+    // The option fan and its parent wedge share one angular origin.
+    // Keep the midpoint independent of the visual category border inset.
+    count = Math.max(1, Math.floor(Number(count) || 1));
+    return -90 + (Number(index) + .5) * 360 / count;
+  }
+
+  function clockReadableLabelAngle(angle) {
+    // Radial labels on the left side must not render upside-down.
+    var normalized = ((Number(angle) % 360) + 360) % 360;
+    return normalized > 90 && normalized < 270 ? angle + 180 : angle;
+  }
+
   function clockOptionSlice(offset, lineCount, centerAngle) {
     offset = clamp(Math.round(Number(offset) || 0), -2, 2);
     var angle = Number.isFinite(Number(centerAngle)) && centerAngle !== undefined ?
@@ -210,7 +223,13 @@
       innerRadius: 234, outerRadius: 462 };
   }
 
-  function clockPackedOptionSlices(rows) {
+  function clockPackedOptionSlices(rows, categoryAngle) {
+    // Each group of child slices fans out from the center of its selected
+    // parent category, instead of always appearing on the right (0°).
+    // Offsets remain relative to the selected child, so mixed one/two-line
+    // spacing and keyboard/controller navigation do not change.
+    var anchor = Number.isFinite(Number(categoryAngle)) &&
+      categoryAngle !== undefined ? Number(categoryAngle) : 0;
     // Thin sectors must stay close together even with mixed one/two-line
     // labels. A fixed 15° pitch left broad triangular holes between them.
     // Navigation still uses row.offset; only visual angles are packed.
@@ -222,7 +241,7 @@
     var center = sorted.findIndex(function(row) { return row.offset === 0; });
     if (center < 0) center = Math.floor(sorted.length / 2);
     var gap = .25;
-    sorted[center].angle = 0;
+    sorted[center].angle = anchor;
     var i;
     for (i = center + 1; i < sorted.length; i += 1) {
       sorted[i].angle = sorted[i - 1].angle +
@@ -306,6 +325,8 @@
     orbitOptionWindow: orbitOptionWindow,
     orbitCategoryWindow: orbitCategoryWindow,
     orbitRowPosition: orbitRowPosition,
+    clockCategoryAngle: clockCategoryAngle,
+    clockReadableLabelAngle: clockReadableLabelAngle,
     clockOptionSlice: clockOptionSlice,
     clockPackedOptionSlices: clockPackedOptionSlices,
     shortenCategoryWords: shortenCategoryWords,

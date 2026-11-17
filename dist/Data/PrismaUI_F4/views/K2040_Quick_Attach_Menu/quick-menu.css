@@ -704,18 +704,19 @@
 }
 
 
-/* Clock: one category wheel and five closely spaced curved attachment slices.
+/* Clock: child slices align with the selected category's radial center.
+   The square viewport fits every orientation without cutting off the fan.
    No icons, extra rings or secondary row-opacity effects. */
 .presentation-clock .qm-clock-layout {
   position: relative;
   width: 940px;
-  height: 800px;
+  height: 940px;
   max-width: none;
 }
 .presentation-clock .qm-clock-svg {
   display: block;
   width: 940px;
-  height: 800px;
+  height: 940px;
   overflow: visible;
 }
 .presentation-clock .qm-clock-category,

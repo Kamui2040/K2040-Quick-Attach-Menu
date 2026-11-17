@@ -68,7 +68,26 @@ const packedMixed=G.clockPackedOptionSlices([
   {offset:1,lineCount:1},{offset:2,lineCount:2}
 ]);
 assert.equal(packedMixed.length,5);
-assert.equal(packedMixed[2].angle,0,'selection remains visually centered');
+assert.equal(packedMixed[2].angle,0,'legacy zero-anchor behavior remains supported');
+for(const anchor of [-157.5,-67.5,-22.5,22.5,67.5,112.5,157.5]){
+  const shifted=G.clockPackedOptionSlices([
+    {offset:-2,lineCount:2},{offset:-1,lineCount:1},
+    {offset:0,lineCount:1},{offset:1,lineCount:2},
+    {offset:2,lineCount:1}
+  ],anchor);
+  assert.equal(shifted[2].angle,anchor,'focused option is aligned to parent wedge midpoint');
+  for(let i=0;i<shifted.length-1;i++){
+    const gap=shifted[i+1].start-shifted[i].end;
+    assert.ok(gap>=.249&&gap<=.251,'rotated child slices retain hairline gaps');
+  }
+  for(const row of shifted){
+    assert.ok(row.outerRadius>225,'child sectors start outside parent wheel');
+  }
+}
+assert.equal(G.clockReadableLabelAngle(0),0);
+assert.equal(G.clockReadableLabelAngle(67.5),67.5);
+assert.equal(G.clockReadableLabelAngle(112.5),292.5,'left-side text flips upright');
+assert.equal(G.clockReadableLabelAngle(-157.5),22.5,'upper-left text flips upright');
 for(let i=0;i<packedMixed.length-1;i++){
  const gap=packedMixed[i+1].start-packedMixed[i].end;
  assert.ok(gap>=.249&&gap<=.251,'visual sectors pack at minimal quarter-degree gap');
@@ -123,8 +142,12 @@ let segments=collect(view,x=>String(x.className).includes('qm-clock-option')&&x.
 let cats=collect(view,x=>String(x.className).includes('qm-clock-category')&&x.tag==='g');
 assert.equal(segments.length,5);
 assert.equal(cats.length,8,'many categories retain a navigable window');
-assertMinimalAdjacentGaps(cats,350,400,225,'Clock categories');
-assertMinimalAdjacentGaps(segments,350,400,462,'Clock attachment slices');
+assertMinimalAdjacentGaps(cats,470,470,225,'Clock categories');
+assertMinimalAdjacentGaps(segments,470,470,462,'Clock attachment slices');
+const activeCategorySlot=cats.findIndex(c=>c.className.includes('active'));
+assert.ok(activeCategorySlot>=0,'active parent category remains in the visible window');
+const categoryAnchor=G.clockCategoryAngle(activeCategorySlot,cats.length);
+assert.equal(Number(segments[0].attributes['data-parent-angle']),categoryAnchor);
 assert.equal(segments.filter(n=>n.attributes['aria-current']==='true').length,1);
 const selected=segments.find(n=>n.attributes['aria-current']==='true');
 assert.equal(selected.attributes['data-display-label'],'Hardened Piercing Automatic');
@@ -138,14 +161,72 @@ const entries=segments.map(s=>s.children.find(x=>x.tag==='text'));
 const rotations=entries.map(x=>x.attributes.transform);
 const initialPacked=G.clockPackedOptionSlices(segments.map((node,index)=>({
   offset:index-2,lineCount:Number(node.attributes['data-clock-lines'])
-})));
+})),categoryAnchor);
 for(let i=0;i<rotations.length;i++){
   const raw=rotations[i].match(/rotate\((-?[0-9.]+)\)/);
   assert.ok(raw, 'clock option rotation exists');
-  assert.ok(Math.abs(Number(raw[1])-initialPacked[i].angle)<.02,
-   'option position follows measured packed sector center');
+  assert.ok(Math.abs(Number(raw[1])-G.clockReadableLabelAngle(initialPacked[i].angle))<.02,
+   'option text follows packed sector center and remains upright');
 }
-assert.equal(initialPacked[2].angle,0,'focused option remains at zero degrees');
+assert.equal(initialPacked[2].angle,categoryAnchor,
+ 'focused option fans out from the selected parent category midpoint');
+// All category orientations must anchor the focused child slice directly
+// outside the selected parent wedge, with no clipping of left/top/bottom
+// attachment fans. The enlarged square viewport is entirely within bounds.
+const clockSvg=collect(view,x=>x.tag==='svg')[0];
+assert.equal(clockSvg.attributes.viewBox,'0 0 940 940');
+const clockCss=fs.readFileSync(path.join(UI,'quick-menu.css'),'utf8');
+assert.match(clockCss,/\.presentation-clock \.qm-clock-layout \{[^}]*height: 940px/s);
+function assertClockBounds(view) {
+  const allPaths=collect(view,x=>x.tag==='path');
+  for(const pathNode of allPaths){
+    const coords=(pathNode.attributes.d.match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+    assert.equal(coords.length%2,0,'polygon points are x/y pairs');
+    for(let i=0;i<coords.length;i+=2){
+      assert.ok(coords[i]>=7.5&&coords[i]<=932.5,
+        'clock polygon point remains inside viewport (x='+coords[i]+')');
+      assert.ok(coords[i+1]>=7.5&&coords[i+1]<=932.5,
+        'clock polygon point remains inside viewport (y='+coords[i+1]+')');
+    }
+  }
+}
+const eightCategories=Array.from({length:8},(_,i)=>category(i,13));
+for(let selectedIndex=0;selectedIndex<eightCategories.length;selectedIndex++){
+  renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
+    parser:{categories:eightCategories}});
+  renderer.activeCategoryIndex=selectedIndex;
+  renderer.lastFocusedOptionIndex=2;
+  const rotated=renderer.renderClock(renderer.visibleCategories(),
+    renderer.findCategory(selectedIndex));
+  const parentGroups=collect(rotated,n=>n.tag==='g'&&
+    n.className.split(' ').includes('qm-clock-category'));
+  const childGroups=collect(rotated,n=>n.tag==='g'&&
+    n.className.split(' ').includes('qm-clock-option'));
+  assert.equal(childGroups.length,5);
+  assert.equal(parentGroups.length,8);
+  const parent=parentGroups.findIndex(n=>n.attributes['aria-pressed']==='true');
+  assert.equal(parent,selectedIndex);
+  const expectedAngle=G.clockCategoryAngle(parent,8);
+  const focus=childGroups.find(n=>n.attributes['aria-current']==='true');
+  assert.equal(Number(focus.attributes['data-parent-angle']),expectedAngle);
+  const focusText=focus.children.find(n=>n.tag==='text');
+  const textRotation=Number(focusText.attributes.transform.match(/rotate\((-?[\d.]+)\)/)[1]);
+  assert.ok(Math.abs(textRotation-G.clockReadableLabelAngle(expectedAngle))<.02,
+    'child fan follows parent selection with readable radial text');
+  const focusPath=focus.children.find(n=>n.className==='qm-clock-option-shape');
+  const points=(focusPath.attributes.d.match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+  const endpointAngle=Math.atan2(points[1]-470,points[0]-470)*180/Math.PI;
+  const halfSweep=Number(focus.attributes['data-clock-lines'])===1 ? 4.25 : 6.75;
+  const angleError=((endpointAngle-(expectedAngle-halfSweep)+540)%360)-180;
+  assert.ok(Math.abs(angleError)<.1,
+    'selected child slice begins beside its parent centerline');
+  assertMinimalAdjacentGaps(childGroups,470,470,462,'rotated attachment fan');
+  assertClockBounds(rotated);
+}
+renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},
+  parser:{categories:Array.from({length:11},(_,i)=>category(i,13))}});
+renderer.activeCategoryIndex=0;
+renderer.lastFocusedOptionIndex=2;
 assert.equal(applies.length,0,'render has no installation side effects');
 selected.listeners.click();
 assert.equal(applies.length,1,'click activates the unchanged original option identity');
