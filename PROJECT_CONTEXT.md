@@ -1,5 +1,21 @@
 # Current Project State
 
+## 2026-11-17 — Framework CPU-first theme frame styling (QA)
+
+- K2040 Framework is the shared settings and appearance owner (same
+  existing visual-theme identifiers and optional APIs). QAM retains its own
+  renderer, option validity and geometry. Framework DLL is never bundled.
+- Four original QAM frame treatments now adapt Builder borders/buttons and
+  Quick Menu Clock trim using existing Framework theme IDs: Fallout 4
+  industrial rails, Fallout 76 rounded/twin rails, DOOM Eternal angular/
+  segmented marks, and Fallout 3/New Vegas double terminal borders.
+- New non-interactive SVG rings and category ticks in Clock are purely
+  decorative, disabled when the Framework appearance is absent, and use the
+  owner's opacity-safe existing palette tokens. The selected parent marker
+  tracks the category centerline without altering OMOD or child geometry.
+- PrismaUI CPU rendering is the development baseline for visual QA. CPU
+  runtime verification is pending; GPU-specific work is deferred.
+
 ## 2026-11-17 — Clock child slices follow selected parent category (QA)
 
 - The five-item Clock attachment fan is now anchored to the center angle of

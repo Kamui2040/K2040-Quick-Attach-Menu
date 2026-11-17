@@ -1222,6 +1222,44 @@
       svg.appendChild(group);
     });
 
+    // Framework visual themes can decorate the Clock without owning or
+    // modifying its SVG sectors, OMOD selection or input hit areas.
+    // Plain SVG rings and strokes are inexpensive in CPU rendering and are
+    // hidden entirely when no Framework appearance is present.
+    var frame = document.createElementNS(SVG_NS, "g");
+    frame.setAttribute("class", "qm-clock-framework-frame");
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("pointer-events", "none");
+    function frameRing(cssClass, radius) {
+      var ring = document.createElementNS(SVG_NS, "circle");
+      ring.setAttribute("class", cssClass);
+      ring.setAttribute("cx", String(cx));
+      ring.setAttribute("cy", String(cy));
+      ring.setAttribute("r", String(radius));
+      frame.appendChild(ring);
+    }
+    function frameTick(cssClass, angle, inner, outer) {
+      var a = polar(cx, cy, inner, angle);
+      var b = polar(cx, cy, outer, angle);
+      var line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("class", cssClass);
+      line.setAttribute("x1", a.x.toFixed(2));
+      line.setAttribute("y1", a.y.toFixed(2));
+      line.setAttribute("x2", b.x.toFixed(2));
+      line.setAttribute("y2", b.y.toFixed(2));
+      frame.appendChild(line);
+    }
+    frameRing("qm-frame-rim-outer", 228.5);
+    frameRing("qm-frame-rim-inner", 97);
+    visible.forEach(function(position, index) {
+      frameTick("qm-frame-category-tick",
+        metrics.clockCategoryAngle(index, visible.length), 225.5, 231);
+    });
+    if (category && visible.length) {
+      frameTick("qm-frame-parent-marker", activeCategoryAngle, 224.5, 233);
+    }
+    svg.appendChild(frame);
+
     var center = document.createElementNS(SVG_NS, "circle");
     center.setAttribute("class", "qm-clock-core");
     center.setAttribute("cx", String(cx));

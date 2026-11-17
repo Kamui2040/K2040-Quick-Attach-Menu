@@ -32,6 +32,11 @@ is optional.
   default across all six menu presentations, with a Settings toggle for full
   names. Each presentation retains independent positioning
   and scale. The real attachment identity and application logic are unchanged.
+- In the unreleased Framework-integrated QA build, four theme-specific
+  frame styles decorate the Builder and Clock menu without changing
+  attachment sectors, validation or saved palette. The optional Framework
+  remains a separate installation. Visual QA currently targets PrismaUI
+  CPU rendering; GPU-specific QA is deferred.
 - Independent scale and click-drag position for each presentation.
 - Resizable Builder and Settings windows with saved dimensions and reset
   controls.

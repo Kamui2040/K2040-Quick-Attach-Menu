@@ -143,6 +143,21 @@ let cats=collect(view,x=>String(x.className).includes('qm-clock-category')&&x.ta
 assert.equal(segments.length,5);
 assert.equal(cats.length,8,'many categories retain a navigable window');
 assertMinimalAdjacentGaps(cats,470,470,225,'Clock categories');
+// Framework decorations are visual-only and never become attachment targets.
+const frame=collect(view,n=>n.tag==='g'&&n.className==='qm-clock-framework-frame');
+assert.equal(frame.length,1);
+assert.equal(frame[0].attributes['aria-hidden'],'true');
+assert.equal(frame[0].attributes['pointer-events'],'none');
+assert.deepEqual(Object.keys(frame[0].listeners),[]);
+const frameNodes=frame[0].children;
+assert.equal(frameNodes.filter(n=>n.tag==='circle').length,2,
+  'outer and inner Clock trim rings are separate from input sectors');
+assert.equal(frameNodes.filter(n=>n.className==='qm-frame-category-tick').length,cats.length);
+assert.equal(frameNodes.filter(n=>n.className==='qm-frame-parent-marker').length,1);
+assert.equal(frameNodes.find(n=>n.className==='qm-frame-rim-outer').attributes.r,'228.5');
+assert.equal(collect(view,n=>n.tag==='g'&&n.className.split(' ').includes('qm-clock-category')).length,8,
+  'decorative trim does not replace category SVG targets');
+
 assertMinimalAdjacentGaps(segments,470,470,462,'Clock attachment slices');
 const activeCategorySlot=cats.findIndex(c=>c.className.includes('active'));
 assert.ok(activeCategorySlot>=0,'active parent category remains in the visible window');
@@ -221,6 +236,18 @@ for(let selectedIndex=0;selectedIndex<eightCategories.length;selectedIndex++){
   assert.ok(Math.abs(angleError)<.1,
     'selected child slice begins beside its parent centerline');
   assertMinimalAdjacentGaps(childGroups,470,470,462,'rotated attachment fan');
+  const frameForCategory=collect(rotated,n=>n.tag==='g'&&
+    n.className==='qm-clock-framework-frame')[0];
+  assert.ok(frameForCategory);
+  const marker=frameForCategory.children.find(n=>n.className==='qm-frame-parent-marker');
+  const x=Number(marker.attributes.x2)-470;
+  const y=Number(marker.attributes.y2)-470;
+  const markerAngle=Math.atan2(y,x)*180/Math.PI;
+  const markerError=((markerAngle-expectedAngle+540)%360)-180;
+  assert.ok(Math.abs(markerError)<.1,
+    'Framework marker follows the selected category, without modifying slices');
+  assert.deepEqual(Object.keys(frameForCategory.listeners),[]);
+
   assertClockBounds(rotated);
 }
 renderer.setPayload({settings:{presentation:'clock',shortenClockLabels:true},

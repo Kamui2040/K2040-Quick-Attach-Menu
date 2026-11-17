@@ -97,6 +97,11 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   Address Library ID exists for that game version and that the destination
   is executable. The relocation check alone does not validate a calling
   convention or side effects; both require independent runtime evidence.
+- Framework appearance is optional and palette-independent. Owner-only
+  theme decorations must not alter OMOD identity, category/option hitboxes,
+  user-configured opacity, or focused/installed/disabled visual feedback.
+  Validate CPU-rendered geometry first; defer GPU compatibility conclusions
+  until supported by separate target-runtime evidence.
 - Runtime success requires target-environment evidence.
 
 ## Build and validation
