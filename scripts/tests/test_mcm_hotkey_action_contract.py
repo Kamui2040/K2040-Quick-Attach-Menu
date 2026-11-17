@@ -13,10 +13,15 @@ class McmActionContract(unittest.TestCase):
         text=(ROOT/'src/Hotkey.cpp').read_text()
         init=text.split('void InitializeHotkey()',1)[1].split('void PollHotkey()',1)[0]
         polling=text.split('void PollHotkey()',1)[1].split('const bool openPressedNow',1)[0]
-        self.assertIn('ApplyConfiguredHotkeys(nullptr);',init)
+        self.assertIn('ApplyConfiguredHotkeys();',init)
         self.assertNotIn('SeedDefaultMcmBindings();',init)
         self.assertNotIn('RefreshMcmHotkeys',init+polling)
         self.assertNotIn('TryNativeMcmLiveSyncOnGameThread()',polling)
+        self.assertNotIn('SaveSharedMcmRegistry',text)
+        self.assertNotIn('Keybinds.json',text)
+        self.assertNotIn('root.mcm.SetKeybind',text)
+        self.assertNotIn('root.mcm.RemapKeybind',text)
+        self.assertNotIn('WriteSharedHotkeyBindings(',text)
         self.assertIn('IsHotkeyPressedNow(g_openMenuHotkey)',text)
         self.assertIn('IsHotkeyPressedNow(g_openMenuBuilderHotkey)',text)
         self.assertIn('K2040_IsSettingsEditorOpenV1',text)

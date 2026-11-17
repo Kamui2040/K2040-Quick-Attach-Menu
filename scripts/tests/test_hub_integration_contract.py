@@ -1,11 +1,11 @@
-"""Quick Attach child-owned MCM integration and standalone contracts."""
+"""Quick Attach-owned gameplay bindings and optional Framework integration."""
 from pathlib import Path
 import unittest
 import json
 
 ROOT=Path(__file__).resolve().parents[2]
 
-class McmChildContract(unittest.TestCase):
+class FrameworkOwnerContract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.hotkey=(ROOT/"src/Hotkey.cpp").read_text()
@@ -22,7 +22,9 @@ class McmChildContract(unittest.TestCase):
         self.assertNotIn('RefreshMcmHotkeys(',poll)
 
     def test_mature_keyboard_path_stays_active(self):
-        self.assertIn('kMcmModName = "K2040_Quick_Attach_Menu"',self.hotkey)
+        self.assertIn('kOpenMenuKeybindId = "openQuickMenu"',self.hotkey)
+        self.assertIn('kOpenMenuBuilderKeybindId = "openMenuBuilder"',self.hotkey)
+        self.assertNotIn('McmChild = 3',self.hotkey)
         self.assertIn('IsHotkeyPressedNow(g_openMenuHotkey)',self.hotkey)
         self.assertIn('IsHotkeyPressedNow(g_openMenuBuilderHotkey)',self.hotkey)
         self.assertIn('g_lastQuickActionTick',self.hotkey)
