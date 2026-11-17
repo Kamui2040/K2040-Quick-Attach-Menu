@@ -35,8 +35,10 @@ assert.ok(decorations.includes('var(--k2040-shared-border)'),
   'Builder detail inherits Framework palette border');
 assert.ok(decorations.includes('repeating-linear-gradient('),
   'industrial/terminal frame details must be distinct');
-assert.ok(decorations.includes('border-radius: 18px'),
-  'Fallout 76 needs a rounded frame silhouette');
+assert.ok(decorations.includes('border-radius: 0;'),
+  'Fallout 76 Builder must use flat Framework UI frames');
+assert.ok(decorations.includes('border-radius: 15px;'),
+  'the Quick Menu presentation modes retain their independent radius');
 assert.ok(decorations.includes('clip-path: polygon('),
   'DOOM uses angular decoration only');
 assert.ok(decorations.includes('border-style: double'),

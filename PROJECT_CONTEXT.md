@@ -1,5 +1,15 @@
 # Current Project State
 
+## 2026-11-17 — Fallout 76 Builder structural alignment
+
+- Aligned Builder-only Fallout 76 panels, choices and actions with the
+  K2040 Framework's current flat/squared in-game menu design. The Quick
+  Attach Menu's wheel/clock/orbit/cascade/horizontal/hybrid presentation
+  dimensions, attachment target geometry and independent button trim were
+  deliberately unchanged. Semantic palette and user opacity unaffected.
+- In-game CPU/Proton styling acceptance remains pending. No Framework DLL
+  or user settings bundled.
+
 ## 2026-11-17 — Framework CPU-first theme frame styling (QA)
 
 - K2040 Framework is the shared settings and appearance owner (same
