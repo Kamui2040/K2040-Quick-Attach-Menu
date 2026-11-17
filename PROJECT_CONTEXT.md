@@ -14,8 +14,10 @@ in `docs/DECISIONS.md`, and unresolved issues in `docs/KNOWN_ISSUES.md`.
 
 ## Active development
 
-- Draft PR #52, `fix/unified-visual-style-mcm-cleanup`, reviewed at `13ac4f2`,
-  is stacked on draft PR #51 and earlier unmerged development. Neither has
+- Draft PR #52, `fix/unified-visual-style-mcm-cleanup`, builds on draft
+  PR #51 and earlier, still-open feature work. The source review used
+  `13ac4f2` as its baseline; later documentation edits do not constitute
+  new in-game acceptance. Neither has
   been accepted for public release.
 - The six presentations are Cascade, Horizontal Bar, Radial, Compact Hybrid,
   Orbit and Clock Slices. The Clock child fan starts at the selected visible

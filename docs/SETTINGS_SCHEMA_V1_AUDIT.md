@@ -1,17 +1,24 @@
-# Quick Attach Menu — Settings Schema V1 inventory
+# Settings manifest: what V1 records
 
-Status: **source-only manifest**; no native values adapter, replacement editor or game deployment.
+This is the original inventory of settings fields. It explains which values
+belong to Quick Attach and which are intentionally kept out of the shared
+editor. The manifest lists controls; it never stores player preferences.
 
-## Contract and source of truth
+**Status of this document:** the V1 inventory is retained for compatibility.
+The current VNext branch has a native V2 adapter and a separate integrated
+editor, but still needs in-game approval. Statements below about a *future*
+adapter describe the earlier V1 design, not the current V2 implementation.
 
-- Canonical V1 definition: schemas/k2040-settings-manifest.v1.schema.json.
-- Canonical V1 validator: scripts/validate-settings-manifest.cjs. Both are byte-identical pinned copies.
+## Files and ownership
+
+- V1 schema: schemas/k2040-settings-manifest.v1.schema.json.
+- V1 validator: scripts/validate-settings-manifest.cjs. Both are byte-identical pinned copies.
 - Manifest: dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json.
 - Module ID: quick-attach, matching the existing hub registry and native adapter.
 - Native user-preferences schema version: **2** (src/UserSettings.cpp). Manifest version: **1**.
 - Native values, defaults, validation and writes remain in UserSettings.cpp, Settings.cpp, existing MCM, controller settings and weapon-specific Builder. The JSON manifest has no live data or defaults.
 
-## Audited controls
+## Controls in the V1 inventory
 
 | Area | Exposed by V1 | Retained internally without a duplicate editor control |
 | --- | --- | --- |
@@ -25,7 +32,7 @@ Status: **source-only manifest**; no native values adapter, replacement editor o
 
 All serialized general preferences are either represented by declarative fields or explicitly internal. Existing weapon-specific overrides, profiles, visibility and ordering remain in Builder.
 
-## Mapping and compatibility decisions
+## Rules behind the field mapping
 
 1. **No duplicate layout sliders.** The scale, positionX and positionY fields represent the currently selected presentation. The owning future read/edit adapter must route each edit to that presentation's separately stored cascade/radial/hybrid/horizontal/orbit/clock layout record. Switching presentation refreshes those values without overwriting any other layout.
 2. **No automatic legacy migration.** Existing INI, controller INI, MCM binding registry and user JSON retain their authority and values. Hidden/internal fields keep their stored values; hiding or omitting a control never deletes or resets preferences.

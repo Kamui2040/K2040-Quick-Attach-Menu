@@ -1,4 +1,8 @@
-# Technical Decisions
+# Why Quick Attach works this way
+
+These are the choices that affect attachment safety, compatibility and future
+maintenance. Each rule protects a specific behavior; implementation details
+remain below so a future fix does not accidentally undo it.
 
 Only durable product decisions belong here. Current release state belongs in
 `PROJECT_CONTEXT.md`; unresolved limits belong in `docs/KNOWN_ISSUES.md`.

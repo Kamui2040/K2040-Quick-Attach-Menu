@@ -1,6 +1,14 @@
-# Known Issues and Limits
+# Known issues and testing limits
 
-## Open: VNext integrated settings and layout acceptance
+**Current development work:** The shared settings editor and new menu layouts
+still need testing inside Fallout 4 OG 1.10.163. Passing code tests or building
+a DLL does not prove that the menus behave correctly in game.
+
+This page also keeps older bug explanations where they help diagnose similar
+problems. Sections marked *fixed* or *historical* do not describe new bugs
+in the current release.
+
+## Open: VNext settings and layout testing
 
 Draft PR #52 uses the V2 owner adapter. The shared hub renders QAM controls;
 QAM revalidates edits and saves only its own values. The standalone Settings
@@ -15,8 +23,8 @@ results must never be reported as game-runtime acceptance.
 
 ## Historical 0.5.226 adapter candidate (superseded by VNext)
 
-The earlier V1 adapter launched the mod's standalone Settings Prisma view;
-it did not transfer native data or transaction ownership. Current VNext uses
+The old V1 button simply opened a separate settings page. It did not
+let the hub edit Quick Attach's own values. Current VNext uses
 the V2 integrated editor without packaging that legacy settings launcher.
 
 ## Unreleased 0.5.225: overflow-safe loose-mod inventory transactions

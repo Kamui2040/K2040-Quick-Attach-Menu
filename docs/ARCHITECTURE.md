@@ -1,8 +1,15 @@
-# Architecture
+# How Quick Attach works
 
-## Runtime source roles
+Quick Attach keeps two questions separate: **what should the menu show?** and
+**what can safely be changed on the equipped weapon?** ECO can help answer the
+first question. The equipped weapon and live game records answer the second.
 
-| Source | Authoritative role | Not authoritative for |
+This document names the game records and checks used to make that decision.
+Short explanations come before the implementation rules.
+
+## Where information comes from
+
+| Source | Used for | Not used for |
 |---|---|---|
 | ECO FormLists/Messages | authored player-facing categories, entries, labels, order | installed state, structural validity |
 | Equipped `WEAP` | weapon/root identity and base attachment-parent data | complete installed state |
@@ -12,9 +19,13 @@
 | DN/state keywords and EditorIDs | diagnostics | installed identity |
 | xEdit/exported JSON | development research | runtime behavior |
 
-The runtime model is source-neutral: authored presentation and structural validity are separate concerns.
+These sources can disagree. A menu entry is not proof that an attachment is
+installed or that it is safe to install.
 
-## Read-only pipeline
+## Reading the equipped weapon
+
+Opening the menu first reads the current weapon. This step does not change
+attachments or consume inventory.
 
 ```text
 equipped weapon
@@ -28,7 +39,11 @@ equipped weapon
   -> filtered read-only menu state
 ```
 
-## Identity rules
+## How an installed attachment is identified
+
+Two attachments may have similar names, but names are not reliable IDs.
+Quick Attach compares the OMOD forms attached to this particular weapon
+instance. For saved preferences it also records which plugin the form came from.
 
 - In-session equality uses loaded form identity/runtime FormID.
 - Persisted identity uses source plugin plus local FormID/FormKey.
@@ -38,7 +53,11 @@ For an authored option with OMOD `O`, installed state is true only when the reso
 
 Installed state does not by itself imply that an option is visible, selectable, inventory-available, or structurally valid.
 
-## AP/provider rules
+## Attachment points and providers
+
+Some attachments create slots for other attachments. A scope mount, for
+example, may need to be installed before the scope it supports, and removed
+after the scope. These rules stop the menu from leaving orphaned attachments.
 
 - Structural validity requires the consumed attachment point to be reachable.
 - Installed providers contribute their provided attachment points to live reachability.
@@ -47,7 +66,12 @@ Installed state does not by itself imply that an option is visible, selectable, 
 - Remove children before providers.
 - Ordering keywords may help diagnostics or presentation but are not availability truth.
 
-## Player-facing filtering
+## Deciding what the player can select
+
+Finding an OMOD in game data does not make it a usable menu choice. Quick
+Attach hides internal records and checks that a normal weapon can use each
+option. The Builder can show compatible options you do not yet own; the
+gameplay menu normally requires the matching loose mod in inventory.
 
 An option may be exposed only when it belongs to the selected authored structure and passes the applicable internal/hidden, target, structural/provider, and inventory rules.
 
@@ -128,7 +152,10 @@ A successful attachment transaction rebuilds the live menu and then reapplies
 the same persisted visibility, ordering, and label preferences used on initial
 open before sending the refreshed payload to the active view.
 
-## Optional unified settings adapter
+## Optional shared settings editor
+
+The shared hub displays the settings, but this mod still owns them. The
+hub cannot install attachments or bypass the safety checks.
 
 VNext exports the versioned plain-C `K2040_GetSettingsAdapterV2` API. The
 separately installed hub renders the manifest-defined QAM controls in its

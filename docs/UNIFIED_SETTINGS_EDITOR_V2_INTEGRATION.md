@@ -1,10 +1,18 @@
-# Quick Attach Menu — Unified Settings Editor V2
+# Connecting Quick Attach to the shared settings editor
 
-**Status:** V2 adapter and Windows x64 source/build validation complete; Fallout 4 OG runtime acceptance pending. This branch is not a release.
+The K2040 settings hub shows Quick Attach's controls in its own two-pane
+window. Quick Attach still owns those values and decides whether an edit is
+valid. The hub cannot change weapon attachments.
+
+**Status:** The V2 adapter and Windows x64 build checks passed, but the
+integration still needs Fallout 4 OG testing. It is not a release.
 
 ## How this module participates
 
-Quick Attach implements the canonical K2040_GetSettingsAdapterV2 plain-C export with the same V2 header and theme client as K2040 Unified Settings. Its validated V1 JSON manifest is the single field catalog. The shared two-pane editor renders those controls directly; this mod does **not** create an additional integrated settings renderer.
+Quick Attach exports `K2040_GetSettingsAdapterV2` using the shared V2 header
+and theme client. Its validated V1 JSON manifest lists the editable fields.
+The shared two-pane editor renders those controls directly. Quick Attach does
+**not** create a second settings renderer.
 
 The V2 owner reads live values through the existing Quick Menu preferences and bracketed-text preferences. When the user edits a field, this mod validates its ID, JSON type, option and numeric bounds **again**, then uses the native owner setters and existing user-preferences save path. The selected layout's size and position affect only its own stored layout. Hiding or omitting a field never clears saved data. Native settings schema 2, INI compatibility, weapon profiles and per-weapon Builder overrides remain unchanged.
 
@@ -44,9 +52,9 @@ and releases input before the hub's deferred opening task. Missing, outdated,
 not-ready or rejecting hub leaves Builder open with an unavailable notice.
 No new hotkey is registered. The V1 launcher remains disabled, and the old
 settings HTML and hub DLL are excluded from this owner's installer.
-The matching hub contract is docs/OWNER_SETTINGS_ENTRYPOINTS.md on the
-feature/journal-direct-settings-entry branch.
-It is not an integrated editor panel.
+The hub supplies the `K2040_RequestModuleSettingsV1` entry point. Quick Attach
+asks it to select the Quick Attach page in the existing editor; it does not
+open a second editor.
 
 ## Shared appearance and static layout previews
 
@@ -67,8 +75,8 @@ the hub.
 The Framework's Presentation selector renders illustrative diagrams for
 the six QAM layouts. The QAM manifest selects this illustration using the
 existing preview: "attachment-layout" contract, without live game objects or
-additional owner-owned settings UI. These descriptions are the authoritative
-QAM presentation structures to reflect in the Framework-owned previews:
+additional owner-owned settings UI. These descriptions show what the
+Framework-owned previews should look like:
 
 - **Cascade:** a vertical category list beside a vertical attachment list,
   not diagonally overlapping cards.
@@ -89,13 +97,13 @@ QAM presentation structures to reflect in the Framework-owned previews:
   is bounded only by measured label widths and a positive seam gap, not a
   fixed five-item page. This is not a static concentric ring of equal sectors.
 
-The QAM source of truth is quick-menu-renderer.js, quick-menu-geometry.js
-and quick-menu.css. The Framework owns the illustrative preview rendering,
-and QAM must not create another renderer for the settings hub. Any abstract
+The actual menu layout comes from `quick-menu-renderer.js`,
+`quick-menu-geometry.js` and `quick-menu.css`. The Framework draws the
+illustrative previews, and QAM must not create another renderer for the settings hub. Any abstract
 diagram that does not match these structures must be revised in the
 Framework itself. These illustrations do not change player state.
 
-## Validation and remaining gate
+## What still needs testing
 
 - Canonical V1 manifest, schema and validator remain pinned and independent of the hub's source checkout.
 - Native input policy tests reject invalid colors, enums, Boolean types, out-of-range/off-step numbers, unowned fields and direct action invocation.

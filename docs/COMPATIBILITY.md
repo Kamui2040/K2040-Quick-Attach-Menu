@@ -1,75 +1,8 @@
-## Unified Settings VNext development builds
-
-Quick Attach development installers no longer contain their own MCM page or
-Categorizer override. The shared K2040 Settings Hub is installed separately;
-the old compatibility script belongs only to the published 0.5.222 history
-and is no longer carried by the VNext branch.
-
-The following MCM notes describe **published legacy releases only**, not the
-current owner-only QA package.
-
-## Published 0.5.222 — MCM Categorizer compatibility
-
-The 0.5.222 main release corrected the reported MCM Categorizer display
-issue in the confirmed setup. This does not prove compatibility for every
-MCM/Categorizer combination.
-
-A separate optional compatibility ZIP remains a fallback if Categorizer
-still hides Quick Attach under `K2040 Mods`. Install it after the main 0.5.222
-archive only when needed. It makes the Quick Attach MCM config a standalone
-entry; the keybind identity, data storage and native attachment behavior do
-not change. This legacy override is not shipped in VNext owner-only QA.
-
-### Native MCM recovery (included in 0.5.222)
-
-The draft registration repair uses MCM's live binding manager rather than
-synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
-cleared until an explicit Settings assignment. Automatic live repair is limited
-to one stale Unbound duplicate shadowing one unambiguous real binding; all
-other duplicate states require manual diagnosis. Native MCM, MCM Categorizer
-and F4SE Menu Framework need separate game-level compatibility tests.
-
-## Optional K2040 Mods MCM grouping (included in 0.5.216)
-
-Quick Attach Menu bundles the canonical K2040_Mods parent in every
-installer, along with its own MCM child configuration. The shared
-parent must remain byte-for-byte identical across participating K2040 mods
-(SHA-256:
-8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb).
-The standalone MCM Hub repository was retired and deleted; each K2040 mod
-bundles its own copy of the shared parent in the release package.
-Other K2040 mods can supply the same parent; conflicts are harmless
-only when its bytes match. No separate Hub download, alternate MCM
-layout or centralized child action registration is needed. The child
-keeps modName=K2040_Quick_Attach_Menu and ownerModName=K2040_Mods.
-Native MCM supports grouped child pages from version code 3 (MCM 1.11).
-Quick Attach still operates without MCM using native hotkeys and
-PrismaUI, even though MCM pages themselves are unavailable.
-
-Controller settings are stored in Data/MCM/Settings/
-K2040_Quick_Attach_Menu.ini. An existing experimental
-K2040_Mods.ini shortcut or standalone ControllerShortcuts.ini is
-copied to the child INI on first load when no child settings file is
-present. The original files remain unchanged. Keyboard registry IDs
-remain openQuickMenu and openMenuBuilder, with native settings fallback.
-
-F4SE Menu Framework has a separate MCM translation implementation;
-owner grouping and settings-page external callbacks require separate
-runtime testing; native MCM hotkey registration itself uses the supported
-empty `RunConsoleCommand` action. The maintainer reports the bundled Quick Attach MCM
-integration working in-game in the tested setup. The maintainer
-subsequently confirmed that Quick Attach, Prisma Minimap and Quest
-Journal all register as child entries under one K2040 Mods parent.
-Combined page registration is therefore accepted for that setup.
-The other two mods have separate bugs not reported to affect Quick
-Attach. This does not establish F4SE Menu Framework parity, all
-controller/keyboard combinations or the other mods' action behavior.
-Controller collisions are checked against known Minimap shortcuts,
-but independent plugins do not yet share a general conflict
-coordinator. The specific game runtime and complete tested input
-matrix were not reported for this 0.5.215 check.
-
 # Compatibility
+
+For normal installation, start with the release versions below. The shared
+settings hub and six-layout build are still in development; they are not a
+replacement for the published download.
 
 ## Supported release
 
@@ -144,6 +77,77 @@ ECO is optional. When a compatible authored ECO menu is available, Auto mode
 can use it. Otherwise the plugin builds a bounded generated menu from the
 equipped weapon, installed OMODs, available loose mods, reachable attachment
 points, and the winning OMOD records' MNAM Target OMOD keywords.
+
+## Unified Settings VNext builds (not released)
+
+Quick Attach development installers no longer contain their own MCM page or
+Categorizer override. The shared K2040 Settings Hub is installed separately;
+the old compatibility script belongs only to the published 0.5.222 history
+and is no longer carried by the VNext branch.
+
+The following MCM notes describe **published legacy releases only**, not the
+current owner-only QA package.
+
+## Published 0.5.222 — MCM Categorizer compatibility
+
+The 0.5.222 main release corrected the reported MCM Categorizer display
+issue in the confirmed setup. This does not prove compatibility for every
+MCM/Categorizer combination.
+
+A separate optional compatibility ZIP remains a fallback if Categorizer
+still hides Quick Attach under `K2040 Mods`. Install it after the main 0.5.222
+archive only when needed. It makes the Quick Attach MCM config a standalone
+entry; the keybind identity, data storage and native attachment behavior do
+not change. This legacy override is not shipped in VNext owner-only QA.
+
+### Native MCM recovery (included in 0.5.222)
+
+The 0.5.222 registration repair uses MCM's live binding manager rather than
+synthesizing Unbound JSON entries. Deliberately cleared native shortcuts remain
+cleared until an explicit Settings assignment. Automatic live repair is limited
+to one stale Unbound duplicate shadowing one unambiguous real binding; all
+other duplicate states require manual diagnosis. Native MCM, MCM Categorizer
+and F4SE Menu Framework need separate game-level compatibility tests.
+
+## Optional K2040 Mods MCM grouping (included in 0.5.216)
+
+Quick Attach Menu bundles the canonical K2040_Mods parent in every
+installer, along with its own MCM child configuration. The shared
+parent must remain byte-for-byte identical across participating K2040 mods
+(SHA-256:
+8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb).
+The standalone MCM Hub repository was retired and deleted; each K2040 mod
+bundles its own copy of the shared parent in the release package.
+Other K2040 mods can supply the same parent; conflicts are harmless
+only when its bytes match. No separate Hub download, alternate MCM
+layout or centralized child action registration is needed. The child
+keeps modName=K2040_Quick_Attach_Menu and ownerModName=K2040_Mods.
+Native MCM supports grouped child pages from version code 3 (MCM 1.11).
+Quick Attach still operates without MCM using native hotkeys and
+PrismaUI, even though MCM pages themselves are unavailable.
+
+Controller settings are stored in Data/MCM/Settings/
+K2040_Quick_Attach_Menu.ini. An existing experimental
+K2040_Mods.ini shortcut or standalone ControllerShortcuts.ini is
+copied to the child INI on first load when no child settings file is
+present. The original files remain unchanged. Keyboard registry IDs
+remain openQuickMenu and openMenuBuilder, with native settings fallback.
+
+F4SE Menu Framework has a separate MCM translation implementation;
+owner grouping and settings-page external callbacks require separate
+runtime testing; native MCM hotkey registration itself uses the supported
+empty `RunConsoleCommand` action. The maintainer reports the bundled Quick Attach MCM
+integration working in-game in the tested setup. The maintainer
+subsequently confirmed that Quick Attach, Prisma Minimap and Quest
+Journal all register as child entries under one K2040 Mods parent.
+Combined page registration is therefore accepted for that setup.
+The other two mods have separate bugs not reported to affect Quick
+Attach. This does not establish F4SE Menu Framework parity, all
+controller/keyboard combinations or the other mods' action behavior.
+Controller collisions are checked against known Minimap shortcuts,
+but independent plugins do not yet share a general conflict
+coordinator. The specific game runtime and complete tested input
+matrix were not reported for this 0.5.215 check.
 
 ## Not validated by this release
 
