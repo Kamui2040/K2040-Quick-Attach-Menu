@@ -1,5 +1,20 @@
 # Current Project State
 
+## 2026-11-17 — Fallout 76 Builder focus and CSS cleanup (QA)
+
+- Fixed the flat Fallout 76 Builder's idle left rail obscuring selected,
+  hovered and focused accent borders. Both the visual-theme style and the
+  old palette fallback were involved; the scoped interaction rule restores
+  the semantic accent without changing geometry, installed state or opacity.
+- Removed redundant older Builder radius and Quick Menu radius declarations;
+  preserved the separately defined final 15px Quick Menu card radius.
+- Removed unreachable native MCM registry seed/write/sync branches from
+  Hotkey.cpp. Live QAM gameplay shortcut preferences and polling remain intact;
+  historical standalone MCM parser/registry tests are retained as test-only.
+- Corrected the durable MCM ownership decision for VNext: the Framework owns
+  the settings page, QAM retains gameplay binding/input ownership.
+- Full source/build checks and in-game CPU visual acceptance remain distinct.
+
 ## 2026-11-17 — Clock dynamic circumference capacity (QA)
 
 - Clock no longer inherits Orbit's fixed five-item window. It renders every
