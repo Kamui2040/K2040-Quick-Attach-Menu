@@ -9,7 +9,7 @@ class GameplayBindingContracts(unittest.TestCase):
     def test_defaults_are_independent_of_hub(self):
         policy=(ROOT/'include/GameplayKeybindPolicy.h').read_text()
         self.assertIn('Unbound',policy)
-        self.assertIn('return key && !(ctrl&&shift',policy)
+        self.assertIn('!(!ctrl&&!shift&&!alt&&chord=="F3")',policy)
         self.assertIn('quickMenuHotkey',USER)
         self.assertIn('menuBuilderHotkey',USER)
         self.assertIn('p.quickMenuHotkey="Shift+K"',SOURCE)

@@ -17,7 +17,7 @@ using namespace k2040::gameplay_keys;
 int main() {
  assert(Valid("Shift+K")&&Valid("Ctrl+Shift+K")&&Valid("Unbound"));
  assert(Valid("Mouse4")&&Valid("F12")&&Valid("Alt+F1"));
- for(auto invalid:{"Ctrl+Shift+B","Ctrl+Ctrl+K","Ctrl++K","K+Alt","",
+ for(auto invalid:{"F3","Ctrl+Ctrl+K","Ctrl++K","K+Alt","",
                     "Mouse6","F13","Ctrl+Shift","Shift+Shift+K","K+"})
   assert(!Valid(invalid));
  assert(ToKeycode("Ctrl+Shift+K")==std::make_pair(75u,3u));
@@ -25,7 +25,8 @@ int main() {
  assert(ToKeycode("Mouse4")==std::make_pair(259u,0u));
  assert(FromKeycode(75,3)=="Ctrl+Shift+K");
  assert(FromKeycode(259,0)=="Mouse4");
- assert(FromKeycode(66,3).empty());
+ assert(FromKeycode(66,3)=="Ctrl+Shift+B");
+ assert(FromKeycode(114,0).empty());
  assert(FromKeycode(222,0).empty());
 }
 """

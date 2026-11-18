@@ -1,4 +1,8 @@
-# Technical Decisions
+# Why Quick Attach works this way
+
+These are the choices that affect attachment safety, compatibility and future
+maintenance. Each rule protects a specific behavior; implementation details
+remain below so a future fix does not accidentally undo it.
 
 Only durable product decisions belong here. Current release state belongs in
 `PROJECT_CONTEXT.md`; unresolved limits belong in `docs/KNOWN_ISSUES.md`.
@@ -71,11 +75,12 @@ Only durable product decisions belong here. Current release state belongs in
   vertical lists or move between visual rows. Dropdowns remain vertical
   and only a separate Confirm applies a selection. LT is a supported
   optional Quick Menu opener binding, not a default navigation command.
-- Each K2040 mod owns its MCM child page, hotkeys and controller defaults
-  while including the same byte-identical K2040_Mods parent in its
-  distributable Data tree. Child-owned bindings never move into the
-  parent namespace. Keep native hotkeys and PrismaUI functional
-  without any MCM installation.
+- In VNext development packages, the separately installed K2040 Framework
+  owns the single MCM settings page. QAM still owns its gameplay hotkeys,
+  controller defaults, native polling and settings values but ships no
+  individual MCM pages or registry mutations. Published version 0.5.222 used
+  the historical per-mod K2040_Mods parent/child grouping, retained only as
+  release compatibility rather than a new VNext runtime requirement.
 - Controller navigation extends to Quick Menu, Builder and Settings with
   separate focus handling appropriate to each presentation. A mapped
   Activate/Confirm press alone triggers an action; navigating a Builder
@@ -132,19 +137,12 @@ Only durable product decisions belong here. Current release state belongs in
 - Use one JSON string-escape implementation for menu payloads, preferences and
   diagnostic output. Untrusted display text may contain any C0 control byte,
   which must be escaped before it is passed to PrismaUI or written as JSON.
-- When native MCM is absent, other providers may need guarded writes to the
-  MCM-format registry. Attempt atomic replacement first; only if blocked by
-  sharing/access, verify a recovery copy and unchanged source before updating
-  the existing file handle, then flush and verify results. Native MCM is a
-  separate live authority: never use the file fallback while it is loaded.
-- Use one bounded, structural scanner for the native MCM keybinds array across
-  runtime parsing, menu display, initialization/collision detection, and
-  duplicate repair. Reject incomplete or malformed arrays rather than
-  silently accepting a different effective hotkey depending on the caller.
-- An MCM keybinding registry may hold duplicate entries for the same mod+hotkey. For Quick Attach read the last valid stored assignment consistently, reconcile earlier duplicates at initialization, and never rewrite another mod's entries or override explicit Unbound choices. Keep this limited to the owned child namespace.
-- MCM is an optional hotkey adapter. Native physical polling remains active for
-  opener state, focused Prisma pages may forward matching browser events as a
-  supplemental path, and duplicate cross-source signals are filtered.
+- Historical MCM registry parsing, duplicate reconciliation and atomic
+  recovery remain available as **test-only legacy helpers** for published
+  releases. VNext QAM does not open, seed, rewrite or register bindings in the
+  shared MCM keybinding registry. The Framework owns the MCM settings page;
+  QAM's native physical polling and supplemental Prisma input forwarding
+  continue to suppress duplicate cross-source opener signals.
 - Menu open/close/switch work is queued to the F4SE game thread. The two opener
   bindings are toggles; the other opener switches menus. Escape is the universal
   close action, and DialogueMenu blocks opener actions. There is no dedicated

@@ -17,6 +17,9 @@ documentation in Git.
 Do not commit generated DLLs or packages, logs, screenshots, game files, load
 orders, machine-specific paths, credentials, private QA, recovery material, or
 unrelated third-party assets. GitHub Actions are not enabled for this project.
+The QAM owner installer has an explicit reviewed runtime-file allowlist;
+unexpected files or symlinks under staging are packaging failures. Add new
+intentional assets to the allowlist only after scope and rights review.
 
 ## Runtime invariants
 
@@ -32,6 +35,12 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   small to fit a narrow category/attachment sector. Prefer readable whole-word
   one- or two-line labels and keep every category reachable even if only a
   subset fits visibly within a Hybrid wheel.
+- The Clock child fan must start on the selected visible parent category's
+  angular centerline, including when category lists scroll. Show every unique
+  attachment that fits on its outer 360-degree circumference; never impose a
+  fixed five-slice window. Bound the selection window by measured one/two-line
+  sector widths plus a positive seam gap, without duplicates or overlap.
+  Radial labels stay visible and upright at all compass directions.
 - Before attributing bright radial-wheel wedges to an SVG/CEF tessellation
   defect, measure the unfilled angular gaps at the rendered radius. Large
   deliberate sector gaps expose the scene and cannot be fixed by changing
@@ -81,12 +90,23 @@ unrelated third-party assets. GitHub Actions are not enabled for this project.
   Some runtimes prevent atomic replacement of an open registry file; an
   alternate write requires a verified recovery copy, a byte-for-byte unchanged
   source, post-write verification, error logging and fail-closed behavior.
+- In VNext QA packages the hub is also the sole MCM **menu** owner. QAM must
+  not package K2040_Mods or a child settings page, and its gameplay shortcuts
+  are configured through the unified hub. Do not remove or rewrite any user's
+  historical MCM registry/preferences. Reserve unmodified F3 for the hub's
+  provisional opener.
+- The V2 hub is Quick Attach's only general-settings editor. Do not ship or launch the retired standalone settings.html in owner QA packages; the legacy V1 launcher fails closed. The Builder Settings button calls the optional K2040_RequestModuleSettingsV1("quick-attach") export only on the game thread, dynamically from an already loaded hub. On acceptance it must release Builder focus before the hub's deferred open; on rejection it must keep Builder open and report failure. Do not add another shortcut, settings renderer or DLL dependency.
 - The Unified Settings hub is the sole MCM settings-keybind owner. Quick Attach's gameplay openers (Quick Menu, Builder, controller) must be edited and saved in Quick Attach's owner-controlled stores, without MCM gameplay keybind registrations, MCM registry writes, or callable legacy MCM opener handlers. Keep physical input polling and safe opener edge suppression. Preserve previous user MCM registries without modifying them.
 - Never release a Prisma menu's gameplay-input layer while a keyboard/mouse opener that closed it is still held: the physical key may reach the underlying Pip-Boy. Defer only this mod's release until physical key-up with a bounded failsafe, queue engine cleanup to the game thread, cancel stale work on reopen and always release on game transition.
 - Before calling any runtime-specific native relocation, verify its exact
   Address Library ID exists for that game version and that the destination
   is executable. The relocation check alone does not validate a calling
   convention or side effects; both require independent runtime evidence.
+- Framework appearance is optional and palette-independent. Owner-only
+  theme decorations must not alter OMOD identity, category/option hitboxes,
+  user-configured opacity, or focused/installed/disabled visual feedback.
+  Validate CPU-rendered geometry first; defer GPU compatibility conclusions
+  until supported by separate target-runtime evidence.
 - Runtime success requires target-environment evidence.
 
 ## Build and validation

@@ -201,8 +201,22 @@
   }
 
 
+  function clockCategoryAngle(index, count) {
+    // The option fan and its parent wedge share one angular origin.
+    // Keep the midpoint independent of the visual category border inset.
+    count = Math.max(1, Math.floor(Number(count) || 1));
+    return -90 + (Number(index) + .5) * 360 / count;
+  }
+
+  function clockReadableLabelAngle(angle) {
+    // Radial labels on the left side must not render upside-down.
+    var normalized = ((Number(angle) % 360) + 360) % 360;
+    return normalized > 90 && normalized < 270 ? angle + 180 : angle;
+  }
+
   function clockOptionSlice(offset, lineCount, centerAngle) {
-    offset = clamp(Math.round(Number(offset) || 0), -2, 2);
+    // Offsets may now extend around the full clock, not just -2 through +2.
+    offset = Math.round(Number(offset) || 0);
     var angle = Number.isFinite(Number(centerAngle)) && centerAngle !== undefined ?
       Number(centerAngle) : offset * 15;
     var halfSweep = Number(lineCount) === 1 ? 4.25 : 6.75;
@@ -210,7 +224,73 @@
       innerRadius: 234, outerRadius: 462 };
   }
 
-  function clockPackedOptionSlices(rows) {
+  function clockOptionWindow(lineCounts, selectedIndex) {
+    // Compatibility helper for callers holding a premeasured list.
+    var values = lineCounts || [];
+    return clockOptionWindowMeasured(values.length, selectedIndex, function(index) {
+      return values[index];
+    });
+  }
+
+  function clockOptionWindowMeasured(count, selectedIndex, lineCountAt) {
+    // Measure only labels adjacent to the selected attachment. A long
+    // weapon attachment list should not force canvas measurement of every
+    // hidden attachment on each CPU redraw. Preserve the existing packed
+    // geometry, seam, focus and wrap behaviour.
+    count = Math.max(0, Math.floor(Number(count) || 0));
+    if (!count) return [];
+    selectedIndex = wrap(Math.floor(Number(selectedIndex) || 0), count);
+    var gap = .25;
+    var circumference = 360 - gap;
+    function span(index) {
+      return Number(lineCountAt(index)) === 1 ? 8.5 : 13.5;
+    }
+    var used = {};
+    used[selectedIndex] = true;
+    var selectedSpan = span(selectedIndex);
+    var occupied = selectedSpan;
+    var leftExtent = selectedSpan / 2;
+    var rightExtent = selectedSpan / 2;
+    var leftOffset = 0;
+    var rightOffset = 0;
+    var rows = [{ index:selectedIndex, offset:0 }];
+    while (rows.length < count) {
+      // Favor the less-occupied side so the visible fan stays balanced,
+      // but try the other side if the next entry would not fit.
+      var directions = leftExtent <= rightExtent ? [-1, 1] : [1, -1];
+      var added = false;
+      for (var side = 0; side < directions.length; side += 1) {
+        var direction = directions[side];
+        var offset = direction < 0 ? leftOffset - 1 : rightOffset + 1;
+        var index = wrap(selectedIndex + offset, count);
+        if (used[index]) continue;
+        var nextSpan = span(index);
+        if (occupied + nextSpan + gap > circumference + 1e-8) continue;
+        rows.push({ index:index, offset:offset });
+        used[index] = true;
+        occupied += nextSpan + gap;
+        if (direction < 0) {
+          leftOffset = offset;
+          leftExtent += nextSpan + gap;
+        } else {
+          rightOffset = offset;
+          rightExtent += nextSpan + gap;
+        }
+        added = true;
+        break;
+      }
+      if (!added) break;
+    }
+    return rows.sort(function(a, b) { return a.offset - b.offset; });
+  }
+
+  function clockPackedOptionSlices(rows, categoryAngle) {
+    // Each group of child slices fans out from the center of its selected
+    // parent category, instead of always appearing on the right (0°).
+    // Offsets remain relative to the selected child, so mixed one/two-line
+    // spacing and keyboard/controller navigation do not change.
+    var anchor = Number.isFinite(Number(categoryAngle)) &&
+      categoryAngle !== undefined ? Number(categoryAngle) : 0;
     // Thin sectors must stay close together even with mixed one/two-line
     // labels. A fixed 15° pitch left broad triangular holes between them.
     // Navigation still uses row.offset; only visual angles are packed.
@@ -222,7 +302,7 @@
     var center = sorted.findIndex(function(row) { return row.offset === 0; });
     if (center < 0) center = Math.floor(sorted.length / 2);
     var gap = .25;
-    sorted[center].angle = 0;
+    sorted[center].angle = anchor;
     var i;
     for (i = center + 1; i < sorted.length; i += 1) {
       sorted[i].angle = sorted[i - 1].angle +
@@ -306,7 +386,11 @@
     orbitOptionWindow: orbitOptionWindow,
     orbitCategoryWindow: orbitCategoryWindow,
     orbitRowPosition: orbitRowPosition,
+    clockCategoryAngle: clockCategoryAngle,
+    clockReadableLabelAngle: clockReadableLabelAngle,
     clockOptionSlice: clockOptionSlice,
+    clockOptionWindow: clockOptionWindow,
+    clockOptionWindowMeasured: clockOptionWindowMeasured,
     clockPackedOptionSlices: clockPackedOptionSlices,
     shortenCategoryWords: shortenCategoryWords,
     fitClockLabel: fitClockLabel

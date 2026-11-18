@@ -28,7 +28,6 @@ namespace k2040
         void OpenMenu(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
         void OpenMenuBuilder(const EquippedWeaponInfo& weaponInfo, const EcoWeaponMenu& menu);
         // Called on the F4SE game thread by the optional unified settings hub.
-        bool OpenSettingsFromHub();
         bool ApplyUnifiedTheme(std::string_view theme);
         void CloseMenu();
         void CloseMenuForSwitch();

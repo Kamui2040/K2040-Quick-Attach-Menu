@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a reproducible isolated Data/ installer from a validated Linux cross-build.
 
-The canonical K2040_Mods MCM parent ships unchanged with each K2040 mod.
-Do not insert user MCM preferences or write anything to the active game.
+Only the unified settings hub installs an MCM entry. This owner bundle
+contains no MCM menus and does not change user MCM data.
 """
 from __future__ import annotations
 
@@ -18,19 +18,57 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist" / "Data"
-PARENT = "Data/MCM/Config/K2040_Mods/config.json"
-CHILD = "Data/MCM/Config/K2040_Quick_Attach_Menu/config.json"
-KEYBINDS = "Data/MCM/Config/K2040_Quick_Attach_Menu/keybinds.json"
-DEFAULTS = "Data/MCM/Config/K2040_Quick_Attach_Menu/settings.ini"
 INI = "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.ini"
 DLL = "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll"
-CANONICAL_PARENT_SHA256 = "8eccc0c1313d1ec982e6094650835e7f83b42e03c56d8435a81ff55c3aba49eb"
 PROVIDER = "Data/K2040/Settings/Providers/quick-attach.json"
 AE_DISABLED = b"AEAutoReequipAfterApply=false"
 AE_ENABLED = b"AEAutoReequipAfterApply=true"
 
+# A build staging folder is not a publication manifest. Explicitly enumerate
+# the complete owner install footprint so stray temporary files, private
+# evidence, unexpected DLLs or symlinks can never silently enter QA archives.
+# Add new deliberate QAM runtime resources here as part of the reviewed change.
+RUNTIME_FILES = frozenset({
+    "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.dll",
+    "Data/F4SE/Plugins/K2040_Quick_Attach_Menu.ini",
+    "Data/K2040/Settings/Providers/quick-attach.json",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/builder.html",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/controller-pages.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/dock.json",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/k2040-unified-theme.css",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/k2040-unified-theme.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/menu.html",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu.css",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-geometry.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-renderer.js",
+    "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json",
+})
+RETIRED_SETTINGS_VIEW = "Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings.html"
+
+
+def staged_payload_files(dist: Path = DIST) -> dict[str, bytes]:
+    """Fail closed on unexpected content rather than sweeping staged Data."""
+    candidates: dict[str, Path] = {}
+    for staged in dist.rglob("*"):
+        name = "Data/" + staged.relative_to(dist).as_posix()
+        if staged.is_symlink():
+            raise ValueError("Staged Data symlink is not allowed: " + name)
+        if staged.is_file():
+            candidates[name] = staged
+    present = set(candidates)
+    unexpected = present - RUNTIME_FILES - {RETIRED_SETTINGS_VIEW}
+    if unexpected:
+        raise ValueError("Unexpected staged runtime file: " + sorted(unexpected)[0])
+    missing = RUNTIME_FILES - present
+    if missing:
+        raise ValueError("Missing required QAM runtime file: " + sorted(missing)[0])
+    return {name: candidates[name].read_bytes() for name in sorted(RUNTIME_FILES)}
+
 
 def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
+    # Verify the entire staged footprint before invoking any external
+    # validator; unexpected content fails closed without being processed.
+    data = staged_payload_files(DIST)
     # The canonical validator is a build-time gate, never a game dependency.
     manifest = DIST / "PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json"
     if not manifest.is_file():
@@ -45,11 +83,11 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
     if result.returncode != 0:
         raise ValueError("Settings Schema V1 manifest validation failed: " +
                          (result.stderr or result.stdout).strip())
-    files = sorted(p for p in DIST.rglob("*") if p.is_file())
-    if not files:
-        raise ValueError("Staged Data files are missing; build first")
-    data = {p.relative_to(DIST.parent).as_posix(): p.read_bytes() for p in files}
-    for required in (PARENT, CHILD, KEYBINDS, DEFAULTS, INI, DLL, PROVIDER):
+    # The retired settings.html remains in source for legacy contract tests
+    # only and is explicitly excluded from the reviewed QAM-only inventory.
+    if RETIRED_SETTINGS_VIEW in data:
+        raise ValueError("Legacy Quick Attach settings view must not be distributed")
+    for required in (INI, DLL, PROVIDER):
         if required not in data:
             raise ValueError(f"Missing required build artifact: {required}")
 
@@ -63,34 +101,9 @@ def payload(*, ae_reequip_tester: bool = False) -> dict[str, bytes]:
         raise ValueError("Tagged VNext provider descriptor does not match the owner ABI")
     if any(name.startswith("Data/K2040/Settings/") and name != PROVIDER for name in data):
         raise ValueError("Unexpected shared hub/provider data in owner package")
-    parent_sha = hashlib.sha256(data[PARENT]).hexdigest()
-    if parent_sha != CANONICAL_PARENT_SHA256:
-        raise ValueError(f"Shared parent differs from canonical template: {parent_sha}")
-    parent = json.loads(data[PARENT])
-    if (parent.get("modName") != "K2040_Mods" or parent.get("pages") != [] or
-            parent.get("ownerModName") is not None):
-        raise ValueError("MCM parent must contain only the unmodified shared root")
-    child = json.loads(data[CHILD])
-    if (child.get("modName") != "K2040_Quick_Attach_Menu" or
-            child.get("ownerModName") != "K2040_Mods" or
-            len(child.get("pages", [])) != 1 or
-            child["pages"][0].get("pageDisplayName") != "Quick Attach Menu"):
-        raise ValueError("Quick Attach must provide one child-owned MCM page")
-    controls = child["pages"][0]["content"]
-    if any(x.get("type") in ("hotkey", "dropdown") for x in controls):
-        raise ValueError("Quick Attach gameplay controls must not be registered through MCM")
-    bind = json.loads(data[KEYBINDS])
-    if bind.get("modName") != "K2040_Quick_Attach_Menu":
-        raise ValueError("Keyboard assignments must remain child-owned")
-    if bind["keybinds"] != []:
-        raise ValueError("Quick Attach cannot register gameplay keybinds in MCM")
-    if data[DEFAULTS].decode("utf-8") != (
-            "[Controller]\niQuickAttachPadPrimary=0\niQuickAttachPadModifier=0\n"):
-        raise ValueError("Controller defaults must be child-owned and unbound")
-    if any(x.startswith("Data/MCM/Settings/") for x in data):
-        raise ValueError("User MCM settings must not be shipped")
-    if any(x.startswith("Data/MCM/Config/K2040_Mods/") and x != PARENT for x in data):
-        raise ValueError("Central Hub may not own child bindings or defaults")
+    if any(name.startswith("Data/MCM/Config/") or
+           name.startswith("Data/MCM/Settings/") for name in data):
+        raise ValueError("Quick Attach must not ship an additional MCM menu or user settings")
     dll = data[DLL]
     if len(dll) < 256 or dll[:2] != b"MZ":
         raise ValueError("DLL does not have a DOS/PE header")
@@ -126,8 +139,8 @@ def write_archive(output: Path, *, ae_reequip_tester: bool = False) -> str:
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None or set(z.namelist()) != set(files):
             raise ValueError("ZIP integrity or inventory validation failed")
-        if hashlib.sha256(z.read(PARENT)).hexdigest() != CANONICAL_PARENT_SHA256:
-            raise ValueError("ZIP contains an altered Hub parent")
+        if any(name.startswith("Data/MCM/") for name in z.namelist()):
+            raise ValueError("Owner package includes unexpected MCM files")
     return hashlib.sha256(output.read_bytes()).hexdigest()
 
 

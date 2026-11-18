@@ -1,19 +1,32 @@
-# Quick Attach Menu — Unified Settings Editor V2
+# Connecting Quick Attach to the shared settings editor
 
-**Status:** V2 adapter and Windows x64 source/build validation complete; Fallout 4 OG runtime acceptance pending. This branch is not a release.
+The K2040 settings hub shows Quick Attach's controls in its own two-pane
+window. Quick Attach still owns those values and decides whether an edit is
+valid. The hub cannot change weapon attachments.
+
+**Status:** The V2 adapter and Windows x64 build checks passed, but the
+integration still needs Fallout 4 OG testing. It is not a release.
 
 ## How this module participates
 
-Quick Attach implements the canonical K2040_GetSettingsAdapterV2 plain-C export with the same V2 header and theme client as K2040 Unified Settings. Its validated V1 JSON manifest is the single field catalog. The shared two-pane editor renders those controls directly; this mod does **not** create an additional integrated settings renderer.
+Quick Attach exports `K2040_GetSettingsAdapterV2` using the shared V2 header
+and theme client. Its validated V1 JSON manifest lists the editable fields.
+The shared two-pane editor renders those controls directly. Quick Attach does
+**not** create a second settings renderer.
 
 The V2 owner reads live values through the existing Quick Menu preferences and bracketed-text preferences. When the user edits a field, this mod validates its ID, JSON type, option and numeric bounds **again**, then uses the native owner setters and existing user-preferences save path. The selected layout's size and position affect only its own stored layout. Hiding or omitting a field never clears saved data. Native settings schema 2, INI compatibility, weapon profiles and per-weapon Builder overrides remain unchanged.
 
-Reset All can destroy weapon-specific preferences. The V2 callback rejects it until an owner-side confirmation flow is implemented and game-tested. The standalone Settings panel retains its existing confirmation.
+Reset All can destroy weapon-specific preferences. The hub currently disables
+this action and the V2 owner callback rejects it until a verified, explicit
+confirmation flow is provided. The former standalone Settings HTML is retained
+only as historical source; it is not installed or accessible in this VNext QA
+package. Do not claim destructive reset support in the unified editor.
 
 ## Shortcut ownership
 
-There is one settings-only shortcut across participating mods:
-**Ctrl+Shift+B** (assignable in Unified Settings MCM).
+The shared hub alone owns the settings-only shortcut and its MCM
+configuration. VNext QA reserves unmodified F3 as a provisional hub opener;
+QAM neither registers that key nor determines the final hub default.
 Quick Attach has **no native MCM gameplay keybind definitions** or
 Scaleform gameplay-hotkey registration. Its Quick Menu and Builder
 openers remain gameplay features, and are edited using direct key
@@ -30,8 +43,18 @@ does not remove or rewrite a user's existing MCM registry entries.
 Old MCM callback registrations are disabled to prevent stale entries
 from invoking a second gameplay shortcut.
 
-The standalone Builder/Settings view is still available as a fallback.
-It is not an integrated editor panel.
+The standalone Builder remains available for per-weapon menu editing. Its
+restored Settings button requests K2040_RequestModuleSettingsV1("quick-attach")
+from an already-loaded K2040_Unified_Settings.dll on a queued F4SE game-thread
+task. This opens the existing central hub with Quick Attach selected, not
+a second settings renderer. On accepted request Builder unfocuses and hides
+and releases input before the hub's deferred opening task. Missing, outdated,
+not-ready or rejecting hub leaves Builder open with an unavailable notice.
+No new hotkey is registered. The V1 launcher remains disabled, and the old
+settings HTML and hub DLL are excluded from this owner's installer.
+The hub supplies the `K2040_RequestModuleSettingsV1` entry point. Quick Attach
+asks it to select the Quick Attach page in the existing editor; it does not
+open a second editor.
 
 ## Shared appearance and static layout previews
 
@@ -49,15 +72,38 @@ Slices, and over Builder/Settings chrome. Native saved custom colors
 and opacity remain intact; standalone appearances still work without
 the hub.
 
-The unified editor's Presentation selector now renders a compact
-illustrative diagram for each of the six layouts (Cascade, Radial,
-Compact Hybrid, Horizontal Bar, Orbit and Clock Slices). Diagrams
-are non-live, don't require an equipped weapon and never modify game
-state. The canonical manifest schema permits an optional declarative
-`preview: "attachment-layout"` selector flag; the shared editor,
-not Quick Attach, draws that preview.
+The Framework's Presentation selector renders illustrative diagrams for
+the six QAM layouts. The QAM manifest selects this illustration using the
+existing preview: "attachment-layout" contract, without live game objects or
+additional owner-owned settings UI. These descriptions show what the
+Framework-owned previews should look like:
 
-## Validation and remaining gate
+- **Cascade:** a vertical category list beside a vertical attachment list,
+  not diagonally overlapping cards.
+- **Horizontal Bar:** a horizontal category pane and separate attachment
+  options rather than one row of unrelated category buttons.
+- **Radial:** a circular inner category wheel, plus outer attachment sectors
+  centered on the selected category (mouse mode). Controller options can use
+  a full outer circle.
+- **Compact Hybrid:** the left **semicircle** contains seven visible category
+  wedges (scrollable window) and the right is a traditional attachment list,
+  not a complete round category ring.
+- **Orbit:** eight separate **round buttons** surround a labeled center hub;
+  the independent **curved attachment list to the right** centers the
+  selected option. It does not use concentric category wedges.
+- **Clock Slices:** category wedges form the inner wheel; **all attachments
+  that fit the outer 360-degree circumference** appear as narrow, elongated,
+  adjacent slices around the selected parent's angular midpoint. Slice count
+  is bounded only by measured label widths and a positive seam gap, not a
+  fixed five-item page. This is not a static concentric ring of equal sectors.
+
+The actual menu layout comes from `quick-menu-renderer.js`,
+`quick-menu-geometry.js` and `quick-menu.css`. The Framework draws the
+illustrative previews, and QAM must not create another renderer for the settings hub. Any abstract
+diagram that does not match these structures must be revised in the
+Framework itself. These illustrations do not change player state.
+
+## What still needs testing
 
 - Canonical V1 manifest, schema and validator remain pinned and independent of the hub's source checkout.
 - Native input policy tests reject invalid colors, enums, Boolean types, out-of-range/off-step numbers, unowned fields and direct action invocation.
@@ -66,7 +112,7 @@ not Quick Attach, draws that preview.
 - The hub's read-only four-owner verifier previously accepted the four V2 exports. This newer optional manifest-field extension and gameplay-key migration require fresh combined-game testing; earlier verification is not an acceptance of these changes.
 - Headless Chromium verified shared theme color precedence while preserving a native-configured translucent panel.
 
-**Not yet verified:** in-game Ctrl+Shift+B opening, MCM reassignment, new direct Quick/Builder keyboard and controller assignments, typed edits, actual persistence, static layout previews, theme and palette propagation (especially Hot Omni/Clock), focus and switching between views on Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
+**Not yet verified:** the hub's configured settings opener, MCM reassignment, new direct Quick/Builder keyboard and controller assignments, typed edits, actual persistence, static layout previews, theme and palette propagation (especially Hot Omni/Clock), focus and switching between views on Fallout 4 OG 1.10.163. No installed-plugin acceptance was performed for these V2 changes. Until that QA is complete, do not deploy, retire installed settings interfaces, merge the feature into a release branch or publish.
 
 A QA archive may be built under Downloads for later isolated manual testing, but it must not be installed or published automatically.
 
@@ -96,3 +142,21 @@ Quick Attach HUD layout edit button in this candidate.
 The bundled latest VNext hub and Quick Attach are *QA-only*: Fallout 4 OG runtime
 verification is required for palettes, focus, MCM, attachment actions, input,
 and persistence before production promotion.
+
+## Builder visual ownership (0.5.228 QA)
+
+Framework's four visual themes now style Builder controls, section dividers,
+focus and selection within `#builder`. The exact IDs are unchanged: `fallout4`,
+`fallout76`, `doom-eternal` and `fallout3-newvegas`. Appearance colors come
+from the resolved palette; choosing a theme never selects a different palette.
+
+The six Quick Menu presentations keep their own font measurements, button
+shapes and interaction geometry. Theme decoration can add non-interactive
+frame strokes, but does not resize, clip or reshape selectable sectors.
+Builder's existing Settings button still requests the separate Framework
+editor; this change adds no settings shortcut, renderer, DLL or MCM page.
+
+The structural CSS and control checks are automated. Fallout 4 OG in-game
+verification is still needed for all four themes, custom/Hot Omni palettes,
+long attachment names, controller focus, and switching between Builder and
+Framework settings. No HUD layout profile export is added to QAM.

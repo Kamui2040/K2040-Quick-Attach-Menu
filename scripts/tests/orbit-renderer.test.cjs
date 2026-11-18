@@ -88,4 +88,42 @@ const chrome=new Node('div');
 viewportRenderer.appendStatusAndMeta(chrome);
 assert.match(chrome.children[1].textContent,/LB\/RB.*Category.*Attachment.*Focus list/i,
   'gamepad hints must match Orbit input behavior');
+// Regression: ordinary, unbroken category words must never be stacked as
+// fragments in Orbit, nor left to CSS overflow-wrap:anywhere.
+const named=['Sights','Grip','Receiver','Barrel','Magazine','Muzzle'].map((label,i)=>({
+  ...category(i,5),label
+}));
+renderer.setPayload({settings:{presentation:'orbit'},parser:{categories:named}});
+view=renderer.renderOrbit(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+buttons=all(view,/qm-orbit-category(?: |$)/);
+assert.equal(buttons.length,6);
+for(const button of buttons){
+  const label=button.attributes['aria-label'];
+  const span=all(button,/qm-orbit-category-name/)[0];
+  const lines=span.children.map(x=>x.textContent);
+  assert.equal(lines.join(' '),label,'ordinary category must remain fully readable: '+label);
+  assert.equal(lines.length,1,'single-word category may not be sliced into character lines: '+label);
+  assert.ok(parseFloat(span.style.fontSize)>=11,'no micro-sized text');
+}
+const orbitCss=fs.readFileSync(path.join(ui,'quick-menu.css'),'utf8');
+assert.match(orbitCss,/word-break: keep-all/);
+const orbitCategoryRule=orbitCss.split('.presentation-orbit .qm-orbit-category {',2)[1].split('}',1)[0];
+assert.match(orbitCategoryRule,/width: 86px/);
+assert.match(orbitCategoryRule,/height: 86px/);
+// Eight visible category circles occupy a radius-172 ring in a 430px wheel.
+// The 86px diameter remains inside the wheel and never overlaps a neighbor.
+const ringRadius=172,circleRadius=43;
+assert.ok(215-ringRadius-circleRadius>=0);
+assert.ok(215+ringRadius+circleRadius<=430);
+assert.ok(2*ringRadius*Math.sin(Math.PI/8)>2*circleRadius+30);
+renderer.setPayload({settings:{presentation:'orbit'},parser:{categories:[
+  {...category(0,1),label:'Supercalifragilisticexpialidocious'}
+]}});
+view=renderer.renderOrbit(renderer.visibleCategories(),renderer.findCategory(renderer.activeCategoryIndex));
+const longButton=all(view,/qm-orbit-category(?: |$)/)[0];
+const longName=all(longButton,/qm-orbit-category-name/)[0];
+assert.equal(longName.children.length,1,'very long single words must truncate rather than wrap by letter');
+assert.match(longName.children[0].textContent,/…$/);
+assert.equal(longButton.attributes['aria-label'],'Supercalifragilisticexpialidocious');
+
 console.log('PASS: orbit wheel/list geometry, viewport scaling, input and click-only activation');

@@ -1,46 +1,47 @@
 # K2040's Quick Attach Menu
 
-Change compatible weapon attachments from a quick in-game menu instead of
-returning to a workbench. ECO-authored menus are supported when available; ECO
-is optional.
+Change weapon attachments in Fallout 4 without going back to a workbench.
+Quick Attach can use a compatible ECO-authored menu, but ECO is optional: it
+can also build a menu from the equipped weapon and its attachment records.
 
-**Current GitHub release:** [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222), with an installation ZIP, checksum and optional MCM Categorizer compatibility file. Nexus notes are prepared; its Files entry still needs an upload.
+**Current release: [0.5.222](https://github.com/Kamui2040/K2040-Quick-Attach-Menu/releases/tag/v0.5.222).**
+It is available on [Nexus Mods](https://www.nexusmods.com/fallout4/mods/109575)
+and GitHub. The changes described under *In development* are not in that release.
 
-## Features
+## What the released mod does
 
-- Four release presentations: Cascade, Radial Wheel, Compact Hybrid, and Horizontal Bar.
-  The unreleased 0.5.224 candidate adds Orbit, a circular category selector with
-  a curved, centre-focused attachment list, and improves wheel label fitting.
-- Inventory-aware choices in the gameplay menu.
-- Controller navigation across Quick Menu, Builder and Settings, including
-  thumbstick and D-pad focus and a configurable Quick Menu opener.
-- Per-weapon Builder for visibility, order, labels, menu source, and bracketed
-  text handling.
-- General settings for keybindings, scale, position, opacity, themes, colors,
-  hints, close-after-apply behavior, diagnostic logging, and gameplay slowdown.
-- Unreleased 0.5.227 Clock Slices: one category wheel with individual,
-  narrow, elongated curved outer attachment sectors. The clock automatically
-  uses slimmer sectors for one-line names and wider sectors for two-line names;
-  those sectors pack closely together while keeping the selected item centered.
-  Labels follow their slice angle. Radial and Hybrid wedge labels use SVG-native,
-  readable horizontal one- or two-line text rather than tiny rotating letters.
-  The translucent annular fills have separate SVG outlines, and their
-  minimal angular gaps prevent broad bright wedges over the game world.
-  Hybrid shows a navigable window when categories are numerous.
-  Repeated
-  category words (including singular/plural variants) are shortened by
-  default across all six menu presentations, with a Settings toggle for full
-  names. Each presentation retains independent positioning
-  and scale. The real attachment identity and application logic are unchanged.
-- Independent scale and click-drag position for each presentation.
-- Resizable Builder and Settings windows with saved dimensions and reset
-  controls.
-- Optional MCM and Hotkey Manager integration.
-- Export and import of distributable per-weapon menu profiles.
-- Live attachment validation, provider/child ordering, inventory verification,
-  and rollback for supported changes.
-- An off-by-default, per-weapon Force unsafe swaps escape hatch for diagnosed
-  dependency cycles.
+- Shows compatible, inventory-aware attachments in Cascade, Radial Wheel,
+  Compact Hybrid or Horizontal Bar menus.
+- Lets you open Quick Menu with `Shift+K` and the per-weapon Builder with
+  `Ctrl+Shift+K`. Keyboard, mouse and controller navigation are supported.
+- Lets you choose which categories and attachments a weapon shows, change
+  labels and order, and export or import that weapon's menu profile.
+- Saves presentation scale, position, appearance, input settings and menu
+  behavior. Controller shortcuts are configurable.
+- Checks the equipped weapon, attachment dependencies and inventory before
+  making a change. It can refuse a swap that is unsafe or ambiguous rather
+  than risk changing the wrong attachment.
+- Offers an optional per-weapon **Force unsafe swaps** setting for diagnosed
+  dependency cycles. Leave it off unless you understand the affected weapon.
+
+## In development (not part of 0.5.222)
+
+- **Orbit:** a round category selector and a curved attachment list. The
+  selected item stays in the center of that list.
+- **Clock Slices:** category wedges surrounded by narrow attachment slices.
+  The slices fit their labels around the wheel instead of using a fixed
+  number of options per page.
+- **Clearer labels:** Radial and Compact Hybrid use readable one- or two-line
+  labels. Repeated category words can be shortened for display without
+  changing the actual attachment name or identity.
+- **Unified Settings V2:** a separate K2040 settings hub edits Quick Attach's
+  settings directly. Quick Menu and Builder still belong to this mod; the
+  hub does not perform attachment changes. The hub is also responsible for
+  the optional shared visual themes. It must be installed separately.
+
+These changes have passed source-level checks but still need Fallout 4 OG
+1.10.163 testing. In particular, CPU-rendered menus are the current visual
+baseline; GPU behavior has not been signed off.
 
 ## Requirements
 
@@ -77,10 +78,12 @@ Default controls:
 - `Escape`: close the active mod menu.
 
 Pressing the other opener while one menu is active switches directly to that
-menu. On the Unified Settings VNext development build, gameplay shortcuts are edited
-directly in Unified Settings, without MCM. Older published releases retain
-their original MCM controls. The standalone Settings page remains reachable from
-the Builder.
+menu. In the VNext development build, all Quick Attach general settings and
+gameplay shortcuts are edited in the separately installed K2040 Settings Hub
+(provisional shortcut: F3). Builder's Settings button opens Quick Attach's
+page there and releases Builder focus when the hub accepts the request. If the hub is missing or not
+ready, Builder stays open and reports the problem. Older published releases
+retain their MCM and standalone Settings controls.
 
 The Quick Menu controller shortcut is under **Settings > Controls**. Choose a
 button and optional modifier, then select **Apply**. It is unassigned by
@@ -112,26 +115,26 @@ menu navigation available.
 The Settings page controls gameplay slowdown while any mod menu is open. The
 range runs from normal game time at 0% slowdown to a full pause at 100%.
 
-## Shared K2040 Settings Schema V1 (development)
+## Development settings
 
-The source-only V1 settings catalog is in
-Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/settings/settings-v1-manifest.json
-under dist/. It follows the same canonical contract as the shared K2040
-settings project, without containing saved values or defaults.
+The older V1 manifest lists the controls Quick Attach exposes. It does not
+hold player settings. In the current VNext branch, the V2 adapter connects
+those controls to the separate two-pane K2040 editor; Quick Attach still reads,
+checks and saves its own values. The old standalone settings page remains in
+source for reference but is not included in VNext owner-only packages.
 
-Install pinned development dependencies with
-npm ci --ignore-scripts --no-audit --no-fund, then run npm test and
-npm run validate:settings before packaging. The package tool also rejects
-a missing or invalid manifest. See docs/SETTINGS_SCHEMA_V1_AUDIT.md for
-field ownership and the retained internal/legacy settings.
+To check the manifest and settings tests before packaging:
 
-On feature/unified-editor-v2, Quick Attach implements the V2 native
-owner adapter for the common K2040 two-pane editor. The existing standalone
-Settings page remains unchanged and usable without the hub; it is not the
-renderer used inside the unified editor. Gameplay Quick Menu and Builder
-shortcuts remain independent. The shared settings shortcut is owned by the
-Unified Settings hub, not Quick Attach. See
-docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md for the V2 gate and tests.
+```bash
+npm ci --ignore-scripts --no-audit --no-fund
+npm test
+npm run validate:settings
+```
+
+See [the settings inventory](docs/SETTINGS_SCHEMA_V1_AUDIT.md) for field
+ownership and [the V2 integration notes](docs/UNIFIED_SETTINGS_EDITOR_V2_INTEGRATION.md)
+for the current connection to the hub. The hub alone owns the general settings
+shortcut; Quick Menu and Builder shortcuts remain part of Quick Attach.
 
 ## Builder and settings
 
@@ -153,9 +156,9 @@ Per-weapon controls can:
 
 General settings include presentation, background opacity, layout scale and
 position, color palette, label cleanup, controls, gameplay slowdown, and
-diagnostic logging. Reset controls
-restore either a section, one presentation's position, or the complete
-fresh-install state.
+diagnostic logging. Published standalone Settings offers section,
+position and confirmation-gated full reset. In the VNext shared editor,
+destructive Reset All is disabled until a verified confirmation flow exists.
 
 ## Weapon menu profiles
 
@@ -174,8 +177,11 @@ inventory and mutation checks. See
 
 ## Compatibility and safety
 
-The plugin fails closed when an attachment operation cannot be fully resolved
-or verified. Supported changes include validated leaf or provider installation
+If Quick Attach cannot confirm that a swap is safe, it refuses the change.
+That protects installed attachments and inventory from uncertain operations.
+
+In code, this is called *failing closed*: an operation must be fully resolved
+and verified before it can run. Supported changes include validated leaf or provider installation
 into an empty live-reachable point, one-for-one replacement, and provider
 replacement with installed descendants removed in dependency order. An empty
 provider install is blocked if it would activate an existing unreachable

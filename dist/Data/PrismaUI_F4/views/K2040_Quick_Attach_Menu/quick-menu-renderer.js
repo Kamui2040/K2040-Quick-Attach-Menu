@@ -103,6 +103,60 @@
     group.appendChild(outline);
   }
 
+
+  // Framework frame decorations use geometry already computed for the menu.
+  // They never own input, draw backgrounds, or change an OMOD hit target.
+  // Stroke-only rings and polyline arcs are cheap on PrismaUI's CPU renderer.
+  function appendFrameworkWheelFrame(svg, cx, cy, inner, outer, angles,
+                                    activeAngle, arcStart, arcEnd) {
+    var frame = document.createElementNS(SVG_NS, "g");
+    frame.setAttribute("class", "qm-wheel-framework-frame");
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("pointer-events", "none");
+    function rim(cssClass, radius) {
+      var element;
+      if (Number.isFinite(arcStart) && Number.isFinite(arcEnd)) {
+        element = document.createElementNS(SVG_NS, "path");
+        var steps = Math.max(10, Math.ceil((arcEnd - arcStart) / 4));
+        var commands = [];
+        for (var step = 0; step <= steps; step += 1) {
+          var point = polar(cx, cy, radius,
+            arcStart + (arcEnd - arcStart) * step / steps);
+          commands.push((step ? "L " : "M ") +
+            point.x.toFixed(2) + " " + point.y.toFixed(2));
+        }
+        element.setAttribute("d", commands.join(" "));
+      } else {
+        element = document.createElementNS(SVG_NS, "circle");
+        element.setAttribute("cx", String(cx));
+        element.setAttribute("cy", String(cy));
+        element.setAttribute("r", String(radius));
+      }
+      element.setAttribute("class", cssClass);
+      frame.appendChild(element);
+    }
+    function tick(cssClass, angle, from, to) {
+      var a = polar(cx, cy, from, angle);
+      var b = polar(cx, cy, to, angle);
+      var line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("class", cssClass);
+      line.setAttribute("x1", a.x.toFixed(2));
+      line.setAttribute("y1", a.y.toFixed(2));
+      line.setAttribute("x2", b.x.toFixed(2));
+      line.setAttribute("y2", b.y.toFixed(2));
+      frame.appendChild(line);
+    }
+    rim("qm-frame-rim-outer", outer);
+    rim("qm-frame-rim-inner", inner);
+    angles.forEach(function(angle) {
+      tick("qm-frame-category-tick", angle, outer - 4, outer + 1);
+    });
+    if (Number.isFinite(activeAngle)) {
+      tick("qm-frame-parent-marker", activeAngle, outer - 5, outer + 4);
+    }
+    svg.appendChild(frame);
+  }
+
   function Renderer(root, options) {
     this.root = root;
     this.options = options || {};
@@ -442,7 +496,7 @@
       var host = this.root.parentNode;
       var width = (host && host.clientWidth) || global.innerWidth || 1920;
       var height = (host && host.clientHeight) || global.innerHeight || 1080;
-      var clockFit = Math.min((width - 28) / 940, (height - 28) / 800);
+      var clockFit = Math.min((width - 28) / 940, (height - 28) / 940);
       this.effectiveScale = Math.min(this.effectiveScale,
         Math.max(.25, clockFit / this.previewZoom));
     }
@@ -907,6 +961,15 @@
           optionStart + (j + 1) * optionSize - .12, 380, 380, 205, 350);
       }
     }
+    // Category compass trim stays outside the clickable sector ring.
+    var radialAngles = categories.map(function(_, index) {
+      return -90 + (index + .5) * categorySweep;
+    });
+    var radialSelected = categories.findIndex(function(entry) {
+      return entry.categoryIndex === this.activeCategoryIndex;
+    }, this);
+    appendFrameworkWheelFrame(svg, 380, 380, 102, 353, radialAngles,
+      radialSelected >= 0 ? radialAngles[radialSelected] : NaN);
     layout.appendChild(svg);
     if (category && options.length && (this.activePane === "options" || !controllerOptions)) {
       var self = this;
@@ -1006,6 +1069,16 @@
         if (!self.options.preview) self.moveCategory(event.deltaY > 0 ? -1 : 1);
       }, { passive:false });
     }
+    // The Hybrid navigator uses a partial lower arc; do not draw a full
+    // ring, since that would imply invisible categories were selectable.
+    var hybridAngles = visibleIndices.map(function(_, index) {
+      return 97 + (index + .5) * segmentSweep;
+    });
+    var hybridSelected = visibleIndices.findIndex(function(position) {
+      return categories[position].categoryIndex === this.activeCategoryIndex;
+    }, this);
+    appendFrameworkWheelFrame(svg, 225, 215, 101, 208, hybridAngles,
+      hybridSelected >= 0 ? hybridAngles[hybridSelected] : NaN, 97, 263);
     wheel.appendChild(svg);
     layout.appendChild(wheel);
     var optionsPane = document.createElement("div");
@@ -1051,9 +1124,13 @@
       button.setAttribute("aria-pressed", selected ? "true" : "false");
       var name = document.createElement("span");
       var fullLabel = self.displayName(entry.label) || "Category";
-      var fitted = metrics.fitWheelLabel(fullLabel, 56, 43, {
-        baseSize: 11.5,
-        minSize: 9.5,
+      // Orbit's small circles formerly used fitWheelLabel, which splits a
+      // single long word across lines (Receiv/e/r, Magazin/e). Use the
+      // complete-word fitter, with an ellipsis only when truly necessary.
+      // The CSS must agree with the measured inner chord width.
+      var fitted = metrics.fitReadableWheelLabel(fullLabel, 74, 45, {
+        baseSize: 12,
+        minSize: 11,
         measure: function(text, size) { return self.measureWheelText(text, size); }
       });
       fitted.lines.forEach(function(line) {
@@ -1151,12 +1228,14 @@
   Renderer.prototype.renderClock = function(categories, category) {
     var self = this;
     var metrics = global.K2040QuickMenuGeometry;
-    var cx = 350, cy = 400;
+    // The outer fan can point in any direction; a centered square canvas
+    // keeps even left/top/bottom child slices inside the visible viewport.
+    var cx = 470, cy = 470;
     var layout = document.createElement("div");
     layout.className = "qm-layout qm-clock-layout";
     var svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("class", "qm-clock-svg");
-    svg.setAttribute("viewBox", "0 0 940 800");
+    svg.setAttribute("viewBox", "0 0 940 940");
     svg.setAttribute("role", "group");
     svg.setAttribute("aria-label", "Clock category wheel and attachment slices");
 
@@ -1191,13 +1270,15 @@
       return item.categoryIndex === self.activeCategoryIndex;
     });
     var visible = metrics.orbitCategoryWindow(categories.length, Math.max(0, activeIndex), 8);
+    var activeCategoryAngle = 0;
     visible.forEach(function(position, index) {
       var entry = categories[position];
       var active = entry.categoryIndex === self.activeCategoryIndex;
       var step = 360 / visible.length;
       var start = -90 + index * step + .12;
       var end = -90 + (index + 1) * step - .12;
-      var middle = (start + end) / 2;
+      var middle = metrics.clockCategoryAngle(index, visible.length);
+      if (active) activeCategoryAngle = middle;
       var group = document.createElementNS(SVG_NS, "g");
       group.setAttribute("class", "qm-clock-category" + (active ? " active" : ""));
       group.setAttribute("data-category-index", String(entry.categoryIndex));
@@ -1214,6 +1295,44 @@
       svg.appendChild(group);
     });
 
+    // Framework visual themes can decorate the Clock without owning or
+    // modifying its SVG sectors, OMOD selection or input hit areas.
+    // Plain SVG rings and strokes are inexpensive in CPU rendering and are
+    // hidden entirely when no Framework appearance is present.
+    var frame = document.createElementNS(SVG_NS, "g");
+    frame.setAttribute("class", "qm-clock-framework-frame");
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("pointer-events", "none");
+    function frameRing(cssClass, radius) {
+      var ring = document.createElementNS(SVG_NS, "circle");
+      ring.setAttribute("class", cssClass);
+      ring.setAttribute("cx", String(cx));
+      ring.setAttribute("cy", String(cy));
+      ring.setAttribute("r", String(radius));
+      frame.appendChild(ring);
+    }
+    function frameTick(cssClass, angle, inner, outer) {
+      var a = polar(cx, cy, inner, angle);
+      var b = polar(cx, cy, outer, angle);
+      var line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("class", cssClass);
+      line.setAttribute("x1", a.x.toFixed(2));
+      line.setAttribute("y1", a.y.toFixed(2));
+      line.setAttribute("x2", b.x.toFixed(2));
+      line.setAttribute("y2", b.y.toFixed(2));
+      frame.appendChild(line);
+    }
+    frameRing("qm-frame-rim-outer", 228.5);
+    frameRing("qm-frame-rim-inner", 97);
+    visible.forEach(function(position, index) {
+      frameTick("qm-frame-category-tick",
+        metrics.clockCategoryAngle(index, visible.length), 225.5, 231);
+    });
+    if (category && visible.length) {
+      frameTick("qm-frame-parent-marker", activeCategoryAngle, 224.5, 233);
+    }
+    svg.appendChild(frame);
+
     var center = document.createElementNS(SVG_NS, "circle");
     center.setAttribute("class", "qm-clock-core");
     center.setAttribute("cx", String(cx));
@@ -1222,31 +1341,44 @@
     svg.appendChild(center);
     var centerName = category ? this.displayName(category.label) : "NO CATEGORY";
     label(svg, centerName, { x:cx, y:cy-10 }, 0, "qm-clock-core-title", 155, 19);
-    var total = this.visibleOptions(category).length;
+    var options = this.visibleOptions(category);
+    var total = options.length;
     label(svg, String(total) + (total === 1 ? " ATTACHMENT" : " ATTACHMENTS"),
       { x:cx, y:cy+29 }, 0, "qm-clock-core-caption", 150, 11);
 
-    var options = this.visibleOptions(category);
     if (category && options.length) {
       var focusedIndex = options.findIndex(function(item) {
         return item.optionIndex === self.lastFocusedOptionIndex;
       });
       if (focusedIndex < 0) focusedIndex = 0;
       var usableLength = 462 - 234 - 30;
-      var plans = metrics.orbitOptionWindow(options.length, focusedIndex, 2).map(function(row) {
-        var option = options[row.index];
-        var shortName = self.optionDisplayName(category, option);
-        // Measure only once: sector packing and drawing must use the same
-        // one- or two-line decision, without changing actual option identity.
-        var fitted = metrics.fitClockLabel(shortName, usableLength, {
-          baseSize: 15, minSize: 11,
-          measure: function(text, size) { return self.measureWheelText(text, size); }
-        });
-        return { row:row, option:option, shortName:shortName, fitted:fitted };
+      // A weapon can expose hundreds of attachments, but a single clock
+      // revolution fits only a few dozen. Fit the selected label and nearby
+      // candidates on demand; cache each candidate during this redraw so
+      // the final sector widths and display text use exactly one fit.
+      var measured = Object.create(null);
+      function measureOption(index) {
+        if (!Object.prototype.hasOwnProperty.call(measured, index)) {
+          var option = options[index];
+          var shortName = self.optionDisplayName(category, option);
+          var fitted = metrics.fitClockLabel(shortName, usableLength, {
+            baseSize: 15, minSize: 11,
+            measure: function(text, size) { return self.measureWheelText(text, size); }
+          });
+          measured[index] = { option:option, shortName:shortName, fitted:fitted };
+        }
+        return measured[index];
+      }
+      var plans = metrics.clockOptionWindowMeasured(options.length, focusedIndex, function(index) {
+        return measureOption(index).fitted.lines.length;
+      }).map(function(row) {
+        var chosen = measureOption(row.index);
+        return { row:row, option:chosen.option,
+          shortName:chosen.shortName, fitted:chosen.fitted };
       });
       var packed = metrics.clockPackedOptionSlices(plans.map(function(plan) {
         return { offset:plan.row.offset, lineCount:plan.fitted.lines.length };
-      }));
+      }), activeCategoryAngle);
       plans.forEach(function(plan, index) {
         var row = plan.row;
         var option = plan.option;
@@ -1263,6 +1395,8 @@
         group.setAttribute("data-option-index", String(option.optionIndex));
         group.setAttribute("data-display-label", shortName);
         group.setAttribute("data-clock-lines", String(fittedOption.lines.length));
+        group.setAttribute("data-clock-offset", String(row.offset));
+        group.setAttribute("data-parent-angle", String(activeCategoryAngle));
         group.setAttribute("role", "button");
         group.setAttribute("aria-label", fullName);
         group.setAttribute("aria-current", selected ? "true" : "false");
@@ -1272,7 +1406,8 @@
         shape(group, "qm-clock-option-shape", geometry.innerRadius, geometry.outerRadius,
           geometry.start, geometry.end);
         label(group, shortName, polar(cx, cy, (geometry.innerRadius + geometry.outerRadius) / 2,
-          geometry.angle), geometry.angle, "qm-clock-option-text",
+          geometry.angle), metrics.clockReadableLabelAngle(geometry.angle),
+          "qm-clock-option-text",
           Math.max(80, usableLength), 15, fittedOption);
         group.addEventListener("mouseenter", function() {
           if (self.options.onHover) self.options.onHover(category, option);

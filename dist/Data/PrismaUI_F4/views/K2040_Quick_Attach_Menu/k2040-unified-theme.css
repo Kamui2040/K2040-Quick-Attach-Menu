@@ -67,3 +67,324 @@
 :root[data-k2040-palette] body.theme-fallout76 #previewStage {
   background: var(--k2040-shared-panel-bg) !important;
 }
+
+
+/* Unified hub VNext: visual style is independent from palette RGB.
+   No style attribute exists when the hub is absent, preserving standalone
+   Quick Attach geometry. Never alter the wheel/clock/radial sector paths. */
+:root[data-k2040-visual-theme="fallout4"] {
+  --k2040-theme-type: "Segoe UI", Arial, sans-serif;
+  --k2040-theme-radius: 4px;
+  --k2040-theme-stroke: 1px;
+  --k2040-theme-letter-spacing: .025em;
+}
+:root[data-k2040-visual-theme="fallout76"] {
+  --k2040-theme-type: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  --k2040-theme-radius: 0px;
+  --k2040-theme-stroke: 1px;
+  --k2040-theme-letter-spacing: .02em;
+}
+:root[data-k2040-visual-theme="doom-eternal"] {
+  --k2040-theme-type: "Arial Narrow", "Segoe UI", Arial, sans-serif;
+  --k2040-theme-radius: 0px;
+  --k2040-theme-stroke: 2px;
+  --k2040-theme-letter-spacing: .065em;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] {
+  --k2040-theme-type: Consolas, "Lucida Console", monospace;
+  --k2040-theme-radius: 1px;
+  --k2040-theme-stroke: 2px;
+  --k2040-theme-letter-spacing: .02em;
+}
+/* Shared theme typography and control shapes belong to Builder only.
+   Quick Menu label size, hit regions and sector geometry stay owner-defined. */
+:root[data-k2040-visual-theme] #builder,
+:root[data-k2040-visual-theme] #builder button,
+:root[data-k2040-visual-theme] #builder input {
+  font-family: var(--k2040-theme-type);
+  letter-spacing: var(--k2040-theme-letter-spacing);
+}
+:root[data-k2040-visual-theme] #builder .profile-card,
+:root[data-k2040-visual-theme] #builder .action,
+:root[data-k2040-visual-theme] #builder .row,
+:root[data-k2040-visual-theme] #builder .choice-trigger,
+:root[data-k2040-visual-theme] #builder .choice-options,
+:root[data-k2040-visual-theme] #builder .choice-option,
+:root[data-k2040-visual-theme] #builder .profile-row {
+  border-radius: var(--k2040-theme-radius);
+}
+
+/* K2040 Framework visual topology adapter (CPU-rendered QAM).
+   Appearance is opt-in through the Framework's existing visual-theme
+   attribute. All colors derive from the owner's current palette tokens;
+   no embedded art, fonts, new settings, or alternative geometry paths.
+   Panels and trim are visual only. Keep interaction hit areas intact.
+   The Builder's theme treatment belongs to its actual four-sided frame,
+   not to a disconnected decorative stripe over the header. */
+:root[data-k2040-visual-theme] {
+  --k2040-qam-frame-radius: var(--k2040-theme-radius, 4px);
+  --k2040-qam-frame-width: 2px;
+  --k2040-qam-frame-detail: solid;
+  --k2040-qam-frame-color: var(--k2040-shared-border);
+}
+:root[data-k2040-visual-theme] #builder {
+  border: var(--k2040-qam-frame-width) var(--k2040-qam-frame-detail)
+    var(--k2040-qam-frame-color);
+  border-radius: var(--k2040-qam-frame-radius);
+}
+:root[data-k2040-visual-theme] .qm-clock-framework-frame {
+  display: inline;
+  fill: none;
+  stroke: var(--qm-line);
+  stroke-width: 1.3px;
+  pointer-events: none;
+}
+.qm-clock-framework-frame {
+  display: none;
+  pointer-events: none;
+}
+:root[data-k2040-visual-theme] .qm-frame-rim-inner {
+  stroke: var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme] .qm-frame-category-tick {
+  stroke: var(--qm-line);
+  stroke-width: 1.5px;
+}
+:root[data-k2040-visual-theme] .qm-frame-parent-marker {
+  stroke: var(--qm-accent);
+  stroke-width: 3px;
+}
+
+/* Fallout 4: continuous industrial frame and a restrained inner rail. */
+:root[data-k2040-visual-theme="fallout4"] {
+  --k2040-qam-frame-radius: 3px;
+  --k2040-qam-frame-width: 2px;
+}
+:root[data-k2040-visual-theme="fallout4"] #builder {
+  box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
+              0 18px 70px rgba(0,0,0,.55);
+}
+:root[data-k2040-visual-theme="fallout4"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
+:root[data-k2040-visual-theme="fallout4"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
+  box-shadow: inset 3px 0 0 var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme="fallout4"] .qm-clock-framework-frame {
+  stroke-linecap: square;
+}
+
+/* Fallout 76: flat in-game Settings panel with a continuous outer frame. */
+:root[data-k2040-visual-theme="fallout76"] {
+  --k2040-qam-frame-radius: 0px;
+  --k2040-qam-frame-width: 2px;
+}
+:root[data-k2040-visual-theme="fallout76"] #builder {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
+              0 18px 70px rgba(0,0,0,.55);
+}
+:root[data-k2040-visual-theme="fallout76"] #builder .row,
+:root[data-k2040-visual-theme="fallout76"] #builder .setting-row,
+:root[data-k2040-visual-theme="fallout76"] #builder .choice,
+:root[data-k2040-visual-theme="fallout76"] #builder .action,
+:root[data-k2040-visual-theme="fallout76"] #builder .profile-row {
+  border-radius: 0;
+  border-left: 2px solid var(--k2040-shared-line-soft);
+}
+/* A legacy palette rule uses border-color !important and otherwise hides the
+   selected/hovered/focused accent. Keep the idle rail while restoring accent
+   borders on real interactive Builder controls without moving hit targets. */
+:root[data-k2040-visual-theme="fallout76"] #builder .row:hover,
+:root[data-k2040-visual-theme="fallout76"] #builder .row:focus,
+:root[data-k2040-visual-theme="fallout76"] #builder .row.selected,
+:root[data-k2040-visual-theme="fallout76"] #builder .action:hover,
+:root[data-k2040-visual-theme="fallout76"] #builder .action:focus,
+:root[data-k2040-visual-theme="fallout76"] #builder .profile-row:hover,
+:root[data-k2040-visual-theme="fallout76"] #builder .profile-row:focus {
+  border-color: var(--accent) !important;
+}
+:root[data-k2040-visual-theme="fallout76"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
+:root[data-k2040-visual-theme="fallout76"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
+  box-shadow: inset 0 0 0 1px var(--qm-line-soft);
+}
+
+:root[data-k2040-visual-theme="fallout76"] .qm-frame-rim-outer {
+  stroke-width: 2.1px;
+}
+:root[data-k2040-visual-theme="fallout76"] .qm-frame-category-tick {
+  stroke-linecap: round;
+  stroke-width: 2.5px;
+}
+
+/* DOOM Eternal: hard-edged, thicker accent border; no detached notches. */
+:root[data-k2040-visual-theme="doom-eternal"] {
+  --k2040-qam-frame-radius: 0px;
+  --k2040-qam-frame-width: 3px;
+  --k2040-qam-frame-color: var(--k2040-shared-accent);
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder {
+  box-shadow: inset 0 0 0 3px var(--k2040-shared-line-soft),
+              0 18px 70px rgba(0,0,0,.55);
+}
+:root[data-k2040-visual-theme="doom-eternal"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
+:root[data-k2040-visual-theme="doom-eternal"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
+  box-shadow: inset 0 2px 0 var(--qm-line-soft);
+}
+
+:root[data-k2040-visual-theme="doom-eternal"] .qm-frame-rim-outer {
+  stroke-dasharray: 22 7;
+  stroke-width: 2.6px;
+}
+:root[data-k2040-visual-theme="doom-eternal"] .qm-frame-parent-marker {
+  stroke-width: 4px;
+}
+
+/* Fallout 3 / New Vegas: a double-line terminal frame on all four sides. */
+:root[data-k2040-visual-theme="fallout3-newvegas"] {
+  --k2040-qam-frame-radius: 0px;
+  --k2040-qam-frame-detail: double;
+  --k2040-qam-frame-width: 4px;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder {
+  box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
+              0 18px 70px rgba(0,0,0,.55);
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
+:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
+  box-shadow: inset 0 0 0 1px var(--qm-line-soft);
+}
+
+:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-frame-rim-outer {
+  stroke-dasharray: 2 5;
+  stroke-width: 2px;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-frame-rim-inner {
+  stroke-width: 1.7px;
+}
+
+
+/* Framework radial/hybrid/orbit topology. All rings and ticks are
+   stroke-only and aria-hidden; no changes to actual annular hit regions. */
+.qm-wheel-framework-frame { display: none; pointer-events: none; }
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame {
+  display: inline;
+  fill: none;
+  stroke: var(--qm-line);
+  stroke-width: 1.3px;
+  pointer-events: none;
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-rim-inner {
+  stroke: var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-category-tick {
+  stroke: var(--qm-line);
+}
+:root[data-k2040-visual-theme] .qm-wheel-framework-frame .qm-frame-parent-marker {
+  stroke: var(--qm-accent);
+  stroke-width: 3px;
+}
+/* Existing orbit category size and positions stay constant for all themes.
+   Only the decorative outline and visual silhouette vary. */
+:root[data-k2040-visual-theme="fallout4"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: inset 0 0 0 2px var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme="fallout76"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 0 0 0 2px var(--qm-line-soft);
+}
+:root[data-k2040-visual-theme="doom-eternal"] .presentation-orbit .qm-orbit-ring {
+  border-width: 2px;
+  border-style: dashed;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] .presentation-orbit .qm-orbit-ring {
+  border-style: double;
+  border-width: 3px;
+}
+
+/* Theme-specific Builder structure. Colors come only from Framework palette
+   tokens. Pseudo-elements and shadows never intercept buttons or rows. */
+:root[data-k2040-visual-theme] #builder .row:focus-visible,
+:root[data-k2040-visual-theme] #builder .action:focus-visible,
+:root[data-k2040-visual-theme] #builder .choice-trigger:focus-visible,
+:root[data-k2040-visual-theme] #builder .choice-option:focus-visible {
+  outline: 2px solid var(--k2040-shared-accent);
+  outline-offset: -2px;
+}
+/* Fallout 4: engraved equipment dividers and a thin selection rail. */
+:root[data-k2040-visual-theme="fallout4"] #builder header,
+:root[data-k2040-visual-theme="fallout4"] #builder .pane + .pane {
+  border-color: var(--k2040-shared-border);
+  border-width: 2px;
+}
+:root[data-k2040-visual-theme="fallout4"] #builder .label {
+  border-bottom: 1px solid var(--k2040-shared-line-soft);
+  padding-bottom: 5px;
+  font-weight: 700;
+}
+:root[data-k2040-visual-theme="fallout4"] #builder .row.selected {
+  box-shadow: inset 4px 0 0 var(--k2040-shared-accent);
+}
+/* Fallout 76: compact, flat options with a diagonal selection highlight. */
+:root[data-k2040-visual-theme="fallout76"] #builder header {
+  border-bottom: 2px solid var(--k2040-shared-line-soft);
+}
+:root[data-k2040-visual-theme="fallout76"] #builder .label,
+:root[data-k2040-visual-theme="fallout76"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+:root[data-k2040-visual-theme="fallout76"] #builder .row.selected,
+:root[data-k2040-visual-theme="fallout76"] #builder .choice-option[aria-selected="true"] {
+  background-image: linear-gradient(105deg, var(--k2040-shared-active), transparent 65%);
+  box-shadow: inset 5px 0 0 var(--k2040-shared-accent);
+}
+/* DOOM Eternal: dense instrumental rails and heavier utility labels. */
+:root[data-k2040-visual-theme="doom-eternal"] #builder header {
+  border-bottom: 4px double var(--k2040-shared-accent);
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder h1,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .label,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 800;
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder .action,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .choice-trigger {
+  border-left: 3px solid var(--k2040-shared-accent);
+  border-bottom: 2px solid var(--k2040-shared-border);
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder .row.selected {
+  box-shadow: inset 5px 0 0 var(--k2040-shared-accent),
+              inset 0 -2px 0 var(--k2040-shared-border);
+}
+/* Fallout 3/New Vegas: terminal borders, dashed rules and selection chevron. */
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .profile-card,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .action,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .choice-trigger,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .choice-options {
+  border-style: double;
+  border-width: 3px;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder header,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .pane + .pane {
+  border-style: dashed;
+  border-color: var(--k2040-shared-line-soft);
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .label,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .row { position: relative; }
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .row.selected::before {
+  content: ">";
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k2040-shared-accent);
+  pointer-events: none;
+}

@@ -33,6 +33,7 @@
 // Include Windows macros only after all CommonLib/RE headers have parsed.
 #include "K2040AppearanceClientV1.h"
 #include "K2040ThemeClient.h"
+#include "K2040ModuleSettingsRequestV1.h"
 #include <Windows.h>
 #include <Xinput.h>
 
@@ -59,6 +60,9 @@ namespace
     };
 
     k2040::PrismaBridge g_prismaBridge;
+    // De-duplicate rapid Builder button activations before the game-thread
+    // task handles the request. Never transfer Prisma ownership from Ultralight.
+    std::atomic_bool g_builderHubOpenTaskPending{false};
     PauseHoldMenuEventSink g_pauseHoldMenuEventSink;
     bool g_pauseHoldMenuEventSinkRegistered = false;
     RE::BSTSmartPointer<RE::BSInputEnableLayer> g_quickMenuInputLayer;
@@ -773,6 +777,22 @@ void WriteWeaponInstanceDataProbeJson(std::ostringstream& json, const k2040::Wea
 
     void OnMenuBuilderChangeRequested(const char* argument)
     {
+        if (argument && std::string_view(argument) == "open-settings") {
+            // The hub ABI is game-thread-only. Keep this browser event free of
+            // game/Prisma mutations, and coalesce double-clicks.
+            if (g_builderHubOpenTaskPending.exchange(true)) return;
+            const auto* tasks = F4SE::GetTaskInterface();
+            if (!tasks) {
+                g_builderHubOpenTaskPending.store(false);
+                k2040::log::Warn("Builder settings request unavailable: no F4SE game-task interface.");
+                return;
+            }
+            tasks->AddTask([]() {
+                g_builderHubOpenTaskPending.store(false);
+                k2040::GetPrismaBridge().OnBuilderChangeRequested("open-settings");
+            });
+            return;
+        }
         k2040::GetPrismaBridge().OnBuilderChangeRequested(argument);
     }
 
@@ -1874,29 +1894,6 @@ namespace k2040
         OpenView(weaponInfo, menu, ViewMode::MenuBuilder);
     }
 
-    bool PrismaBridge::OpenSettingsFromHub()
-    {
-        // Settings is independent of the equipped weapon's ability to change
-        // attachments, but uses the same rendering and input-isolation lifecycle.
-        // Do not steal focus from existing panels or an open Quick Attach menu.
-        if (menuOpen_ || !CanOpenFromHotkey()) return false;
-        if (!api_ && !Initialize()) return false;
-        const auto originalMode = viewMode_;
-        viewMode_ = ViewMode::Settings;
-        if (!BeginOpenFromHotkey()) {
-            viewMode_ = originalMode;
-            return false;
-        }
-        const auto weaponInfo = GetEquippedWeaponInfo();
-        auto menu = BuildEcoWeaponMenu_ReadOnly(weaponInfo, true);
-        if (menu.valid) RegisterOrUpdateWeapon(menu);
-        ApplyVisibilityPreferences(menu);
-        OpenView(weaponInfo, menu, ViewMode::Settings);
-        if (menuOpen_ && menuView_ != 0) return true;
-        CloseMenuInternal(false);
-        return false;
-    }
-
     void PrismaBridge::RequestViewSwitch(ViewMode mode)
     {
         if (!menuOpen_ || mode == viewMode_) {
@@ -2227,7 +2224,26 @@ namespace k2040
         bool changed = false;
 
         if (command == "open-settings") {
-            RequestViewSwitch(ViewMode::Settings);
+            // Called from the game-thread task queued by the Builder UI event.
+            // Resolve the optional API only from the already loaded DLL; never
+            // link against, load, or package the hub with Quick Attach.
+            const auto hub = GetModuleHandleW(L"K2040_Unified_Settings.dll");
+            const auto exportPtr = hub
+                ? GetProcAddress(hub, K2040_REQUEST_MODULE_SETTINGS_V1_EXPORT)
+                : nullptr;
+            const auto request = reinterpret_cast<K2040RequestModuleSettingsV1>(exportPtr);
+            if (!request || !request("quick-attach")) {
+                log::Warn("Unified Settings rejected Builder direct navigation or is unavailable.");
+                if (api_ && menuView_ && viewDomReady_ && api_->IsValid(menuView_)) {
+                    api_->InteropCall(menuView_, "k2040BuilderHubSettingsStatus",
+                        "Unified Settings is unavailable. Check that the hub is installed and ready.");
+                }
+                return; // Keep Builder open, focused, and its settings intact.
+            }
+            // Hub requests are deferred. Release the Builder's panel, focus,
+            // cursor and input ownership now, before the hub's queued task.
+            CloseMenuInternal(false);
+            log::Info("Builder released focus for queued Unified Settings quick-attach page.");
             return;
         }
 
