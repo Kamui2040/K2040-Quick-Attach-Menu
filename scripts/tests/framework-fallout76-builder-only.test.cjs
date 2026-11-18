@@ -15,7 +15,8 @@ test('Quick Menu category/option geometry and independent presentation paths rem
  const styles=css.split('/* Fallout 76: flat in-game Settings panel with a continuous outer frame. */')[1];
  assert.match(styles,/\.qm-option-button/);
  assert.match(styles,/\.qm-category-button/);
- assert.ok(styles.includes('border-radius: 15px;'),'Quick Menu category radius remains independently styled');
+ assert.ok(!/\.qm-(?:option-button|category-button|orbit-category)\s*\{[^}]*(?:border-radius|border-width)\s*:/s.test(styles),
+   'Framework may not impose Builder button shapes on Quick Menu controls');
  const renderer=fs.readFileSync(path.join(root,
    'dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/quick-menu-geometry.js'),'utf8');
  assert.ok(renderer.length>100);

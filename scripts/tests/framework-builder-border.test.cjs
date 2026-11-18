@@ -31,8 +31,8 @@ for(const [theme,contract] of Object.entries(expected)){
   else assert.ok(!block[1].includes('--k2040-qam-frame-detail: double;'),theme+' stays solid');
 }
 assert.ok(styles.includes('box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft)'));
-assert.ok(styles.includes('border-radius: 15px;'),
-  'Fallout 76 Quick Menu category radius remains independently themed');
+assert.ok(!/\.qm-(?:category-button|option-button|orbit-category)\s*\{[^}]*border-radius\s*:/s.test(styles),
+  'Builder themes must not impose a shape on Quick Menu targets');
 const builder = fs.readFileSync(path.resolve(__dirname,
   '../../dist/Data/PrismaUI_F4/views/K2040_Quick_Attach_Menu/builder.html'),'utf8');
 assert.ok(builder.includes('id="builder"'), 'must target existing resizable Builder shell');

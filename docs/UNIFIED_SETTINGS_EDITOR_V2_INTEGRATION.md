@@ -142,3 +142,21 @@ Quick Attach HUD layout edit button in this candidate.
 The bundled latest VNext hub and Quick Attach are *QA-only*: Fallout 4 OG runtime
 verification is required for palettes, focus, MCM, attachment actions, input,
 and persistence before production promotion.
+
+## Builder visual ownership (0.5.228 QA)
+
+Framework's four visual themes now style Builder controls, section dividers,
+focus and selection within `#builder`. The exact IDs are unchanged: `fallout4`,
+`fallout76`, `doom-eternal` and `fallout3-newvegas`. Appearance colors come
+from the resolved palette; choosing a theme never selects a different palette.
+
+The six Quick Menu presentations keep their own font measurements, button
+shapes and interaction geometry. Theme decoration can add non-interactive
+frame strokes, but does not resize, clip or reshape selectable sectors.
+Builder's existing Settings button still requests the separate Framework
+editor; this change adds no settings shortcut, renderer, DLL or MCM page.
+
+The structural CSS and control checks are automated. Fallout 4 OG in-game
+verification is still needed for all four themes, custom/Hot Omni palettes,
+long attachment names, controller focus, and switching between Builder and
+Framework settings. No HUD layout profile export is added to QAM.

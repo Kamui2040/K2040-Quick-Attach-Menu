@@ -1,6 +1,6 @@
 # Current Project State
 
-Last verified: 2026-11-17. This file contains concise contributor-safe current
+Last reviewed: 2026-11-18. This file contains concise contributor-safe current
 state. Historical release changes live in `CHANGELOG.md`, technical decisions
 in `docs/DECISIONS.md`, and unresolved issues in `docs/KNOWN_ISSUES.md`.
 
@@ -29,6 +29,9 @@ in `docs/DECISIONS.md`, and unresolved issues in `docs/KNOWN_ISSUES.md`.
   resolved OMOD identity, inventory checks or operations.
 - The four optional Framework theme treatments decorate Builder and Quick
   Menu frames without modifying option targets, opacity or attached state.
+- Candidate 0.5.228 scopes structural themes to Builder controls and preserves
+  Quick Menu geometry. Source-level tests cover theme selectors and palette
+  independence; in-game Builder appearance and focus remain unverified.
   PrismaUI CPU output is the development visual baseline; GPU acceptance is
   not established by source tests.
 - Quick Attach's V2 Settings Adapter exposes its controls to the separate

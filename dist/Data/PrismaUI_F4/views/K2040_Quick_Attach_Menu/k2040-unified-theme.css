@@ -80,7 +80,7 @@
 }
 :root[data-k2040-visual-theme="fallout76"] {
   --k2040-theme-type: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
-  --k2040-theme-radius: 13px;
+  --k2040-theme-radius: 0px;
   --k2040-theme-stroke: 1px;
   --k2040-theme-letter-spacing: .02em;
 }
@@ -96,65 +96,23 @@
   --k2040-theme-stroke: 2px;
   --k2040-theme-letter-spacing: .02em;
 }
-:root[data-k2040-visual-theme] body,
-:root[data-k2040-visual-theme] .k2040-quick-renderer,
-:root[data-k2040-visual-theme] .qm-status,
-:root[data-k2040-visual-theme] button,
-:root[data-k2040-visual-theme] input {
+/* Shared theme typography and control shapes belong to Builder only.
+   Quick Menu label size, hit regions and sector geometry stay owner-defined. */
+:root[data-k2040-visual-theme] #builder,
+:root[data-k2040-visual-theme] #builder button,
+:root[data-k2040-visual-theme] #builder input {
   font-family: var(--k2040-theme-type);
   letter-spacing: var(--k2040-theme-letter-spacing);
 }
-:root[data-k2040-visual-theme] #builder,
-:root[data-k2040-visual-theme] #shell,
-:root[data-k2040-visual-theme] .profile-card,
-:root[data-k2040-visual-theme] .confirm-box,
-:root[data-k2040-visual-theme] .profile-dialog,
-:root[data-k2040-visual-theme] #previewStage,
-:root[data-k2040-visual-theme] .action,
-:root[data-k2040-visual-theme] .nav-button,
-:root[data-k2040-visual-theme] .setting-row,
-:root[data-k2040-visual-theme] .row,
-:root[data-k2040-visual-theme] .choice,
-:root[data-k2040-visual-theme] .choice-trigger,
-:root[data-k2040-visual-theme] .choice-options,
-:root[data-k2040-visual-theme] .choice-option,
-:root[data-k2040-visual-theme] .profile-row,
-:root[data-k2040-visual-theme] .qm-category-button,
-:root[data-k2040-visual-theme] .qm-option-button,
-:root[data-k2040-visual-theme] .qm-status {
+:root[data-k2040-visual-theme] #builder .profile-card,
+:root[data-k2040-visual-theme] #builder .action,
+:root[data-k2040-visual-theme] #builder .row,
+:root[data-k2040-visual-theme] #builder .choice-trigger,
+:root[data-k2040-visual-theme] #builder .choice-options,
+:root[data-k2040-visual-theme] #builder .choice-option,
+:root[data-k2040-visual-theme] #builder .profile-row {
   border-radius: var(--k2040-theme-radius);
 }
-:root[data-k2040-visual-theme] #builder,
-:root[data-k2040-visual-theme] #shell {
-  border-width: var(--k2040-theme-stroke);
-}
-:root[data-k2040-visual-theme="fallout76"] #shell {
-  border-radius: 18px;
-}
-:root[data-k2040-visual-theme="doom-eternal"] h1,
-:root[data-k2040-visual-theme="doom-eternal"] h2,
-:root[data-k2040-visual-theme="doom-eternal"] .group-title,
-:root[data-k2040-visual-theme="doom-eternal"] .qm-category-name,
-:root[data-k2040-visual-theme="doom-eternal"] .state {
-  text-transform: uppercase;
-  font-weight: 800;
-}
-:root[data-k2040-visual-theme="doom-eternal"] .action,
-:root[data-k2040-visual-theme="doom-eternal"] .qm-category-button,
-:root[data-k2040-visual-theme="doom-eternal"] .qm-option-button {
-  border-width: 2px;
-}
-:root[data-k2040-visual-theme="fallout3-newvegas"] #builder,
-:root[data-k2040-visual-theme="fallout3-newvegas"] #shell,
-:root[data-k2040-visual-theme="fallout3-newvegas"] .profile-card {
-  border-style: double;
-  border-width: 3px;
-}
-:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-category-button,
-:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-option-button {
-  box-shadow: inset 0 0 0 1px var(--qm-line-soft);
-}
-
 
 /* K2040 Framework visual topology adapter (CPU-rendered QAM).
    Appearance is opt-in through the Framework's existing visual-theme
@@ -172,11 +130,6 @@
 :root[data-k2040-visual-theme] #builder {
   border: var(--k2040-qam-frame-width) var(--k2040-qam-frame-detail)
     var(--k2040-qam-frame-color);
-  border-radius: var(--k2040-qam-frame-radius);
-}
-:root[data-k2040-visual-theme] .qm-option-button,
-:root[data-k2040-visual-theme] .qm-category-button,
-:root[data-k2040-visual-theme] .qm-status {
   border-radius: var(--k2040-qam-frame-radius);
 }
 :root[data-k2040-visual-theme] .qm-clock-framework-frame {
@@ -249,11 +202,6 @@
 :root[data-k2040-visual-theme="fallout76"] #builder .profile-row:focus {
   border-color: var(--accent) !important;
 }
-:root[data-k2040-visual-theme="fallout76"] .qm-option-button,
-:root[data-k2040-visual-theme="fallout76"] .qm-category-button {
-  border-radius: 15px;
-}
-
 :root[data-k2040-visual-theme="fallout76"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
 :root[data-k2040-visual-theme="fallout76"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
   box-shadow: inset 0 0 0 1px var(--qm-line-soft);
@@ -277,11 +225,6 @@
   box-shadow: inset 0 0 0 3px var(--k2040-shared-line-soft),
               0 18px 70px rgba(0,0,0,.55);
 }
-:root[data-k2040-visual-theme="doom-eternal"] .qm-option-button,
-:root[data-k2040-visual-theme="doom-eternal"] .qm-category-button {
-  border-width: 2px;
-}
-
 :root[data-k2040-visual-theme="doom-eternal"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
 :root[data-k2040-visual-theme="doom-eternal"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
   box-shadow: inset 0 2px 0 var(--qm-line-soft);
@@ -305,13 +248,6 @@
   box-shadow: inset 0 0 0 2px var(--k2040-shared-line-soft),
               0 18px 70px rgba(0,0,0,.55);
 }
-:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-option-button,
-:root[data-k2040-visual-theme="fallout3-newvegas"] .qm-category-button {
-  border-radius: 0;
-  border-style: double;
-  border-width: 3px;
-}
-
 :root[data-k2040-visual-theme="fallout3-newvegas"] .qm-option-button:not(.installed):not(.focused-option):not(:hover),
 :root[data-k2040-visual-theme="fallout3-newvegas"] .qm-category-button:not(.active):not(.pane-focus):not(:hover) {
   box-shadow: inset 0 0 0 1px var(--qm-line-soft);
@@ -353,28 +289,102 @@
   border-style: solid;
   box-shadow: inset 0 0 0 2px var(--qm-line-soft);
 }
-:root[data-k2040-visual-theme="fallout76"] .presentation-orbit .qm-orbit-category {
-  border-radius: 25px;
-}
 :root[data-k2040-visual-theme="fallout76"] .presentation-orbit .qm-orbit-ring {
   border-width: 2px;
   border-style: solid;
   box-shadow: 0 0 0 2px var(--qm-line-soft);
 }
-:root[data-k2040-visual-theme="doom-eternal"] .presentation-orbit .qm-orbit-category {
-  border-radius: 12px;
-  border-width: 2px;
-}
 :root[data-k2040-visual-theme="doom-eternal"] .presentation-orbit .qm-orbit-ring {
   border-width: 2px;
   border-style: dashed;
 }
-:root[data-k2040-visual-theme="fallout3-newvegas"] .presentation-orbit .qm-orbit-category {
-  border-radius: 3px;
-  border-style: double;
-  border-width: 3px;
-}
 :root[data-k2040-visual-theme="fallout3-newvegas"] .presentation-orbit .qm-orbit-ring {
   border-style: double;
   border-width: 3px;
+}
+
+/* Theme-specific Builder structure. Colors come only from Framework palette
+   tokens. Pseudo-elements and shadows never intercept buttons or rows. */
+:root[data-k2040-visual-theme] #builder .row:focus-visible,
+:root[data-k2040-visual-theme] #builder .action:focus-visible,
+:root[data-k2040-visual-theme] #builder .choice-trigger:focus-visible,
+:root[data-k2040-visual-theme] #builder .choice-option:focus-visible {
+  outline: 2px solid var(--k2040-shared-accent);
+  outline-offset: -2px;
+}
+/* Fallout 4: engraved equipment dividers and a thin selection rail. */
+:root[data-k2040-visual-theme="fallout4"] #builder header,
+:root[data-k2040-visual-theme="fallout4"] #builder .pane + .pane {
+  border-color: var(--k2040-shared-border);
+  border-width: 2px;
+}
+:root[data-k2040-visual-theme="fallout4"] #builder .label {
+  border-bottom: 1px solid var(--k2040-shared-line-soft);
+  padding-bottom: 5px;
+  font-weight: 700;
+}
+:root[data-k2040-visual-theme="fallout4"] #builder .row.selected {
+  box-shadow: inset 4px 0 0 var(--k2040-shared-accent);
+}
+/* Fallout 76: compact, flat options with a diagonal selection highlight. */
+:root[data-k2040-visual-theme="fallout76"] #builder header {
+  border-bottom: 2px solid var(--k2040-shared-line-soft);
+}
+:root[data-k2040-visual-theme="fallout76"] #builder .label,
+:root[data-k2040-visual-theme="fallout76"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+:root[data-k2040-visual-theme="fallout76"] #builder .row.selected,
+:root[data-k2040-visual-theme="fallout76"] #builder .choice-option[aria-selected="true"] {
+  background-image: linear-gradient(105deg, var(--k2040-shared-active), transparent 65%);
+  box-shadow: inset 5px 0 0 var(--k2040-shared-accent);
+}
+/* DOOM Eternal: dense instrumental rails and heavier utility labels. */
+:root[data-k2040-visual-theme="doom-eternal"] #builder header {
+  border-bottom: 4px double var(--k2040-shared-accent);
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder h1,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .label,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 800;
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder .action,
+:root[data-k2040-visual-theme="doom-eternal"] #builder .choice-trigger {
+  border-left: 3px solid var(--k2040-shared-accent);
+  border-bottom: 2px solid var(--k2040-shared-border);
+}
+:root[data-k2040-visual-theme="doom-eternal"] #builder .row.selected {
+  box-shadow: inset 5px 0 0 var(--k2040-shared-accent),
+              inset 0 -2px 0 var(--k2040-shared-border);
+}
+/* Fallout 3/New Vegas: terminal borders, dashed rules and selection chevron. */
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .profile-card,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .action,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .choice-trigger,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .choice-options {
+  border-style: double;
+  border-width: 3px;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder header,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .pane + .pane {
+  border-style: dashed;
+  border-color: var(--k2040-shared-line-soft);
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .label,
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .state {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .row { position: relative; }
+:root[data-k2040-visual-theme="fallout3-newvegas"] #builder .row.selected::before {
+  content: ">";
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k2040-shared-accent);
+  pointer-events: none;
 }

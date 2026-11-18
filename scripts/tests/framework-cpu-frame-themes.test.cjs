@@ -44,8 +44,8 @@ assert.ok(!decorations.includes('--k2040-qam-frame-overlay:')&&
   'decorative stripe tokens must not survive the migration');
 assert.ok(decorations.includes('border-radius: 0;'),
   'Fallout 76 Builder must use flat Framework UI frames');
-assert.ok(decorations.includes('border-radius: 15px;'),
-  'the Quick Menu presentation modes retain their independent radius');
+assert.ok(!/\.qm-(?:option-button|category-button|orbit-category)\s*\{[^}]*(?:border-radius|border-width|font-family|letter-spacing)\s*:/s.test(decorations),
+  'Framework must leave Quick Menu item sizing and typography to each presentation');
 assert.ok(decorations.includes('--k2040-qam-frame-width: 3px;') &&
   decorations.includes('--k2040-qam-frame-color: var(--k2040-shared-accent);'),
   'DOOM uses a heavier accent-colored real border without detached notches');

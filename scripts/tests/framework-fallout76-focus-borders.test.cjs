@@ -25,7 +25,8 @@ assert.ok(!/\b(?:width|height|left|right|top|bottom|position|transform)\s*:/.tes
 assert.ok(css.includes('border-left: 2px solid var(--k2040-shared-line-soft)'));
 assert.ok(!css.includes(theme+' .qm-category-button,\n'+theme+
   ' .qm-option-button {\n  border-radius: 12px;'));
-assert.ok(css.includes(theme+' .qm-category-button {\n  border-radius: 15px;'));
+assert.ok(!/\.qm-(?:category-button|option-button|orbit-category)\s*\{[^}]*border-radius\s*:/s.test(css),
+  'Quick Menu shapes belong to owner layout styles');
 assert.ok(!css.includes(theme+' #builder,\n'+theme+' #shell {'));
 assert.ok(builder.includes('.row:hover, .row:focus, .row.selected'));
 assert.ok(builder.includes('.action:hover, .action:focus'));
